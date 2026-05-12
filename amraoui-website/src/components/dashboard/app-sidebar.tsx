@@ -9,125 +9,105 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarGroupContent,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
-  Users,
-  Settings,
-  User,
-  BarChart3,
+  Box,
   LogOut,
-  ChevronRight,
-  Bell,
-  HelpCircle,
+  PlusCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { logout } from '@/store/slices/authSlice';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-const userMenuItems = [
-  { title: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { title: 'Profile', icon: User, href: '/dashboard/profile' },
-  { title: 'Settings', icon: Settings, href: '/dashboard/settings' },
-];
-
-const adminMenuItems = [
-  { title: 'Admin Home', icon: LayoutDashboard, href: '/admin' },
-  { title: 'User Management', icon: Users, href: '/admin/users' },
-  { title: 'Analytics', icon: BarChart3, href: '/admin/analytics' },
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function AppSidebar({ role }: { role?: string }) {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { t } = useTranslation();
 
-  const menuItems = role === 'ADMIN' ? adminMenuItems : userMenuItems;
+  const userMenuItems = [
+    { title: t.common.dashboard, icon: LayoutDashboard, href: '/dashboard' },
+    { title: t.common.createRequest, icon: PlusCircle, href: '/dashboard/create-request' },
+    { title: t.common.orders, icon: Box, href: '/dashboard/orders' },
+  ];
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4">
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl px-2">
-          <div className="h-8 w-8 rounded bg-primary flex items-center justify-center text-primary-foreground">A</div>
-          <span>Amraoui</span>
+    <Sidebar className="border-r border-slate-100 bg-white">
+      <SidebarHeader className="p-6">
+        <Link href="/" className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-full bg-brand-blue flex items-center justify-center">
+            <div className="w-4 h-4 bg-white rounded-sm" />
+          </div>
+          <span className="text-xl font-bold text-brand-text">Hiflow</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="px-2">
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {userMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     render={
-                      <Link href={item.href}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                      <Link href={item.href} className="flex items-center gap-4 py-3 px-3 w-full relative">
+                        {pathname === item.href && (
+                          <div className="absolute left-[-1px] top-1/2 -translate-y-1/2 h-1/2 w-1 bg-brand-blue rounded-r-md" />
+                        )}
+                        <div className={`p-2.5 rounded-[14px] transition-all duration-300 ${
+                          pathname === item.href 
+                            ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/30' 
+                            : 'bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-brand-blue group-hover:shadow-sm'
+                        }`}>
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        <span className={`text-sm font-bold tracking-wide transition-all duration-300 ${
+                          pathname === item.href 
+                            ? 'text-brand-text' 
+                            : 'text-slate-500 group-hover:text-brand-text'
+                        }`}>{item.title}</span>
                       </Link>
                     }
                     isActive={pathname === item.href}
-                    tooltip={item.title}
+                    className={`rounded-[20px] transition-all duration-300 group mb-3 h-auto ${
+                      pathname === item.href 
+                        ? 'bg-white border border-slate-100/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-900/5' 
+                        : 'hover:bg-slate-50/50 border border-transparent'
+                    }`}
                   />
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Support</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  render={
-                    <Link href="/help">
-                      <HelpCircle className="h-4 w-4" />
-                      <span>Help Center</span>
-                    </Link>
-                  }
-                />
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  render={
-                    <Link href="/notifications">
-                      <Bell className="h-4 w-4" />
-                      <span>Notifications</span>
-                    </Link>
-                  }
-                />
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="p-4 border-t border-slate-100">
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="flex items-center gap-3 px-3 py-2">
-              <Avatar className="h-8 w-8">
+            <div className="flex items-center gap-3 px-2 py-3">
+              <Avatar className="h-10 w-10 border-2 border-brand-blue/10">
                 <AvatarImage src={user?.avatar} />
-                <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                <AvatarFallback className="bg-brand-blue text-white font-semibold">
+                  {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'AM'}
+                </AvatarFallback>
               </Avatar>
               <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-sm font-medium truncate">{user?.name}</span>
-                <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+                <span className="text-sm font-bold text-brand-text truncate">{user?.name}</span>
+                <span className="text-xs text-brand-text-light truncate font-medium">{user?.email}</span>
               </div>
             </div>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => dispatch(logout())}
-              className="text-muted-foreground hover:text-destructive"
+              className="text-slate-400 hover:text-destructive hover:bg-destructive/5 rounded-lg px-2 mt-2"
             >
               <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+              <span className="text-sm font-medium">{t.common.logout}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

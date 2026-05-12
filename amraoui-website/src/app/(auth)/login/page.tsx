@@ -67,90 +67,114 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 py-12">
-      <div className="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] rounded-full bg-primary/10 blur-[100px]" />
-        <div className="absolute bottom-[20%] left-[10%] w-[30%] h-[30%] rounded-full bg-blue-500/10 blur-[100px]" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-brand-bg px-4 py-12 relative overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-blue/5 blur-[120px]" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-blue/5 blur-[120px]" />
 
-      <Card className="w-full max-w-md shadow-2xl border-none">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
-          <CardDescription className="text-center">
-            Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="admin@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Role (Mock)</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+      <div className="w-full max-w-md z-10">
+        <div className="flex flex-col items-center mb-8">
+          <Link href="/" className="flex items-center gap-3 mb-6">
+            <div className="h-10 w-10 rounded-full bg-brand-blue flex items-center justify-center shadow-lg shadow-blue-100">
+              <div className="w-5 h-5 bg-white rounded-sm" />
+            </div>
+            <span className="text-2xl font-bold text-brand-text">Hiflow</span>
+          </Link>
+          <h1 className="text-3xl font-black text-brand-text">Welcome back</h1>
+          <p className="text-slate-400 font-medium mt-2">Enter your credentials to access Hiflow</p>
+        </div>
+
+        <Card className="shadow-2xl shadow-blue-100/50 border-none rounded-[2.5rem] overflow-hidden bg-white">
+          <CardContent className="pt-10 px-8 pb-8">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-brand-text font-bold ml-1">Email Address</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a role" />
-                        </SelectTrigger>
+                        <Input 
+                          placeholder="admin@example.com" 
+                          {...field} 
+                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                        />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="USER">User</SelectItem>
-                        <SelectItem value="ADMIN">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign In
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <div className="text-sm text-center text-muted-foreground">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-primary hover:underline font-medium">
-              Register
-            </Link>
-          </div>
-          <div className="text-xs text-center text-muted-foreground bg-muted p-2 rounded">
-            <strong>Demo Credentials:</strong><br />
-            Any email/password will work.<br />
-            Select <strong>Admin</strong> to see the admin panel.
-          </div>
-        </CardFooter>
-      </Card>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between ml-1">
+                        <FormLabel className="text-brand-text font-bold">Password</FormLabel>
+                        <Link href="#" className="text-xs font-bold text-brand-blue hover:underline">Forgot password?</Link>
+                      </div>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          {...field} 
+                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="role"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-brand-text font-bold ml-1">Select Role (Demo)</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200">
+                            <SelectValue placeholder="Select a role" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="rounded-2xl border-slate-100 shadow-xl">
+                          <SelectItem value="USER" className="rounded-xl my-1">User</SelectItem>
+                          <SelectItem value="ADMIN" className="rounded-xl my-1">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button 
+                  type="submit" 
+                  className="w-full h-14 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2xl text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-6 pb-10 px-8">
+            <div className="text-sm text-center font-medium text-slate-400">
+              Don&apos;t have an account?{' '}
+              <Link href="/register" className="text-brand-blue hover:underline font-bold">
+                Create Account
+              </Link>
+            </div>
+            <div className="text-[10px] text-center text-slate-400 bg-slate-50 p-4 rounded-3xl border border-slate-100/50">
+              <p className="font-bold uppercase tracking-widest mb-1 text-slate-300">Demo Access</p>
+              Any credentials will work. Select <strong>Admin</strong> for the management view.
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }

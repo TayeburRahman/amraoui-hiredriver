@@ -20,6 +20,10 @@ export default function CreateRequestPage() {
     make: '',
     model: '',
     plate: '',
+    color: '',
+    year: '',
+    vin: '',
+    deliveryType: 'drive',
     engineType: '',
     vehicleType: '',
     firstName: '',
@@ -288,18 +292,78 @@ export default function CreateRequestPage() {
                       <CarFront className="h-5 w-5 text-brand-blue" />
                       Vehicle Details
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Vehicle Make</Label>
-                        <Input value={formData.make} onChange={(e) => updateForm('make', e.target.value)} placeholder="e.g. Tesla" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Label className="text-brand-text font-bold ml-1">Vehicle Type</Label>
+                        <select
+                          value={formData.vehicleType}
+                          onChange={(e) => updateForm("vehicleType", e.target.value)}
+                          className="h-12 w-full rounded-2xl border border-slate-100 bg-slate-50 px-4 text-slate-600 outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200"
+                        >
+                          <option value="">Select vehicle type</option>
+                          {vehicleTypes.map((vehicle) => (
+                            <option key={vehicle.id} value={vehicle.id}>
+                              {vehicle.label}
+                            </option>
+                          ))}
+                        </select>
                       </div>
+
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Vehicle Model</Label>
-                        <Input value={formData.model} onChange={(e) => updateForm('model', e.target.value)} placeholder="e.g. Model 3" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Label className="text-brand-text font-bold ml-1">Brand</Label>
+                        <Input
+                          value={formData.make}
+                          onChange={(e) => updateForm("make", e.target.value)}
+                          placeholder="Enter brand (e.g. Tesla)"
+                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                        />
                       </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-brand-text font-bold ml-1">Model</Label>
+                        <Input
+                          value={formData.model}
+                          onChange={(e) => updateForm("model", e.target.value)}
+                          placeholder="Enter model (e.g. Model 3)"
+                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                        />
+                      </div>
+
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">License Plate</Label>
-                        <Input value={formData.plate} onChange={(e) => updateForm('plate', e.target.value)} placeholder="1-ABC-234" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Input
+                          value={formData.plate}
+                          onChange={(e) => updateForm("plate", e.target.value)}
+                          placeholder="Enter license plate"
+                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                        />
+                      </div>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <Label className="text-brand-text font-bold ml-1">VIN Number</Label>
+                        <Input
+                          value={formData.vin}
+                          onChange={(e) => updateForm("vin", e.target.value)}
+                          placeholder="Enter VIN number"
+                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-brand-text font-bold ml-1">Engine Type</Label>
+                        <select
+                          value={formData.engineType}
+                          onChange={(e) => updateForm("engineType", e.target.value)}
+                          className="h-12 w-full rounded-2xl border border-slate-100 bg-slate-50 px-4 text-slate-600 outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200"
+                        >
+                          <option value="">Select engine type</option>
+                          {engineTypes.map((engine) => (
+                            <option key={engine.id} value={engine.id}>
+                              {engine.label}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -307,49 +371,24 @@ export default function CreateRequestPage() {
                   <div className="h-[1px] w-full bg-slate-100" />
 
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text">Choose engine type</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                      {engineTypes.map((engine) => (
-                        <div
-                          key={engine.id}
-                          onClick={() => updateForm('engineType', engine.id)}
-                          className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 text-center ${formData.engineType === engine.id
-                            ? 'border-brand-blue bg-brand-blue-light/30 shadow-md shadow-brand-blue/10'
-                            : 'border-slate-100 hover:border-brand-blue/40 hover:bg-slate-50'
+                    <h2 className="text-xl font-bold text-brand-text">Delivery Type</h2>
+                    <div className="space-y-3">
+                      {[
+                        { id: "drive", label: "Drive with car" },
+                        { id: "license", label: "Use of driver license plate (Z)" },
+                        { id: "tow", label: "Transport with vehicle carrier (tow truck)" },
+                      ].map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => updateForm("deliveryType", option.id)}
+                          className={`w-full h-14 rounded-2xl border-2 px-6 text-left font-bold transition-all duration-200 ${formData.deliveryType === option.id
+                            ? "border-brand-blue bg-brand-blue-light/30 text-brand-blue shadow-sm shadow-brand-blue/10"
+                            : "border-slate-100 bg-slate-50 hover:border-brand-blue/40 text-slate-600"
                             }`}
                         >
-                          <div className={`p-3 rounded-xl ${formData.engineType === engine.id ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-500'}`}>
-                            <engine.icon className="h-6 w-6" />
-                          </div>
-                          <span className={`font-bold ${formData.engineType === engine.id ? 'text-brand-blue' : 'text-slate-600'}`}>
-                            {engine.label}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="h-[1px] w-full bg-slate-100" />
-
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text">Choose vehicle type</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                      {vehicleTypes.map((vehicle) => (
-                        <div
-                          key={vehicle.id}
-                          onClick={() => updateForm('vehicleType', vehicle.id)}
-                          className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 text-center ${formData.vehicleType === vehicle.id
-                            ? 'border-brand-blue bg-brand-blue-light/30 shadow-md shadow-brand-blue/10'
-                            : 'border-slate-100 hover:border-brand-blue/40 hover:bg-slate-50'
-                            }`}
-                        >
-                          <div className={`p-3 rounded-xl ${formData.vehicleType === vehicle.id ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-500'}`}>
-                            <vehicle.icon className="h-6 w-6" />
-                          </div>
-                          <span className={`font-bold ${formData.vehicleType === vehicle.id ? 'text-brand-blue' : 'text-slate-600'}`}>
-                            {vehicle.label}
-                          </span>
-                        </div>
+                          {option.label}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -364,7 +403,7 @@ export default function CreateRequestPage() {
                       <FileText className="h-5 w-5 text-brand-blue" />
                       Required Documents
                     </h2>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* ID Document */}
                       <div className="space-y-3">
@@ -479,14 +518,13 @@ export default function CreateRequestPage() {
                           { id: 'bank_transfer', label: 'Bank Transfer', icon: Activity },
                           { id: 'cash', label: 'Cash on Pickup', icon: Fuel },
                         ].map((method) => (
-                          <div 
+                          <div
                             key={method.id}
                             onClick={() => updateForm('paymentMethod', method.id)}
-                            className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 text-center ${
-                              formData.paymentMethod === method.id 
-                                ? 'border-brand-blue bg-brand-blue-light/30 shadow-md shadow-brand-blue/10' 
-                                : 'border-slate-100 hover:border-brand-blue/40 hover:bg-slate-50'
-                            }`}
+                            className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 text-center ${formData.paymentMethod === method.id
+                              ? 'border-brand-blue bg-brand-blue-light/30 shadow-md shadow-brand-blue/10'
+                              : 'border-slate-100 hover:border-brand-blue/40 hover:bg-slate-50'
+                              }`}
                           >
                             <div className={`p-4 rounded-xl ${formData.paymentMethod === method.id ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-500'}`}>
                               <method.icon className="h-6 w-6" />
@@ -510,7 +548,7 @@ export default function CreateRequestPage() {
                       <FileCheck className="h-5 w-5 text-emerald-500" />
                       Final Review
                     </h2>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Customer Summary */}
                       <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl">
@@ -534,7 +572,8 @@ export default function CreateRequestPage() {
                         <div className="space-y-2">
                           <p className="text-sm text-slate-600"><span className="font-bold">Vehicle:</span> {formData.make} {formData.model}</p>
                           <p className="text-sm text-slate-600"><span className="font-bold">Plate:</span> {formData.plate}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Engine:</span> <span className="capitalize">{formData.engineType}</span></p>
+                          <p className="text-sm text-slate-600"><span className="font-bold">VIN:</span> {formData.vin || '-'}</p>
+                          <p className="text-sm text-slate-600"><span className="font-bold">Delivery:</span> <span className="capitalize">{formData.deliveryType.replace('_', ' ')}</span></p>
                         </div>
                       </Card>
 
@@ -706,11 +745,13 @@ export default function CreateRequestPage() {
                           {formData.plate || '-'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Engine Type</span>
-                        <span className="text-sm font-bold text-brand-blue capitalize">
-                          {formData.engineType || '-'}
-                        </span>
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-medium text-slate-400">VIN: <span className="text-slate-600 font-bold truncate max-w-[100px] inline-block align-bottom">{formData.vin || '-'}</span></span>
+                        <span className="font-medium text-slate-400">Type: <span className="text-slate-600 font-bold capitalize">{formData.vehicleType || '-'}</span></span>
+                      </div>
+                      <div className="flex justify-between items-center border-t border-slate-100/50 pt-2">
+                        <span className="text-xs font-bold text-brand-blue capitalize">{formData.deliveryType.replace('_', ' ')}</span>
+                        <span className="text-xs font-bold text-slate-500 capitalize">{formData.engineType || '-'}</span>
                       </div>
                     </div>
                   </div>

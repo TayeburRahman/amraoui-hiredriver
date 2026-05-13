@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
 @theme inline {
   --color-background: var(--background);
@@ -110,6 +109,15 @@
   
   .text-gradient {
     @apply bg-gradient-to-r from-brand-blue to-blue-600 bg-clip-text text-transparent;
+  }
+
+  .bg-gradient {
+    background: linear-gradient(135deg, #101b4a 0%, #2e63fa 100%);
+  }
+  
+  .button-gradient {
+    background: linear-gradient(135deg, #2c6bfd 0%, #18c5da 100%);
+    @apply transition-all duration-300 shadow-lg shadow-blue-100/20;
   }
 }
 

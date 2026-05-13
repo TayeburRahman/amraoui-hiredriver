@@ -48,7 +48,7 @@ export function WhyChoose() {
 
       {/* Dashed Vector Line */}
       <div className="absolute inset-x-0 top-[60%] -translate-y-1/2 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
-        <div className="relative w-full h-100 opacity-30">
+        <div className="relative w-full h-100">
           <Image
             src="/assets/landing/Vector.svg"
             alt="Dashed line decoration"

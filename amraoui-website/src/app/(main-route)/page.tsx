@@ -4,6 +4,7 @@ import { WhyChoose } from '@/components/landing/why-choose';
 import { FirstOrder } from '@/components/landing/first-order';
 import { Testimonials } from '@/components/landing/testimonials';
 import { BecomeDriver } from '@/components/landing/become-driver';
+import { Contact } from '@/components/landing/contact';
 
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
       <FirstOrder />
       <Testimonials />
       <BecomeDriver />
+      <Contact />
     </main>
   );
 }

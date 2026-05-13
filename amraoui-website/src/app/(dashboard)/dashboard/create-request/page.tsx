@@ -1,1184 +1,130 @@
 'use client';
 
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useTranslation } from '@/hooks/useTranslation';
-import {
-  CarFront, Zap, Fuel, Car, Truck, Bike, Activity,
-  Check, MapPin, Calendar, FileCheck, Map, Settings, Search, Info, User, Phone,
-  FileText, Upload, ShieldCheck, Shield, Image as ImageIcon, CreditCard, Clock,
-  ArrowRight
+import { 
+  Car, 
+  ClipboardCheck, 
+  UserCog, 
+  ChevronRight 
 } from 'lucide-react';
 
+const requestTypes = [
+  {
+    id: "transport_request",
+    title: "Transport Request",
+    description: "Move a vehicle from pickup to delivery location.",
+    icon: Car,
+    iconBg: "bg-blue-50",
+    iconColor: "text-blue-600",
+    badge: "Most common",
+    href: "/dashboard/create-request/transport"
+  },
+  {
+    id: "technical_inspection",
+    title: "Technical Inspection",
+    description: "Take the car to the technical inspection station",
+    icon: ClipboardCheck,
+    iconBg: "bg-emerald-50",
+    iconColor: "text-emerald-500",
+    href: "/dashboard/create-request/inspection"
+  },
+  {
+    id: "hire_driver",
+    title: "Hire a Driver",
+    description: "Book one or more drivers for a specific time, location, and task.",
+    icon: UserCog,
+    iconBg: "bg-cyan-50",
+    iconColor: "text-cyan-500",
+    href: "/dashboard/create-request/hire-driver"
+  },
+];
+
 export default function CreateRequestPage() {
-  const { t } = useTranslation();
-
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    make: '',
-    model: '',
-    plate: '',
-    color: '',
-    year: '',
-    vin: '',
-    deliveryType: 'drive',
-    engineType: '',
-    vehicleType: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    company: '',
-    pickupAddress: '',
-    pickupCity: '',
-    pickupZip: '',
-    pickupDate: '',
-    pickupContactName: '',
-    pickupContactPhone: '',
-    pickupLocationType: '',
-    dropoffAddress: '',
-    dropoffCity: '',
-    dropoffZip: '',
-    dropoffDate: '',
-    dropoffContactName: '',
-    dropoffContactPhone: '',
-    dropoffLocationType: '',
-    dropoffInstructions: '',
-    serviceType: '',
-    condition: '',
-    additionalOptions: [] as string[],
-    specialInstructions: '',
-    adminNotes: '',
-    deliveryConditions: [] as string[],
-    vehiclePhotos: '',
-    registrationDocumentName: '',
-    referenceDocumentName: '',
-    scheduledDate: '',
-    scheduledTime: '',
-    pickupTime: '',
-    dropoffTime: '',
-    confirmSchedulePayment: false,
-    paymentMethod: 'invoice',
-  });
-
-  const updateForm = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const toggleDeliveryCondition = (condition: string) => {
-    setFormData(prev => {
-      const conditions = prev.deliveryConditions.includes(condition)
-        ? prev.deliveryConditions.filter(c => c !== condition)
-        : [...prev.deliveryConditions, condition];
-      return { ...prev, deliveryConditions: conditions };
-    });
-  };
-
-  const engineTypes = [
-    { id: 'electric', label: t.createRequest?.engines?.electric || 'Electric', icon: Zap },
-    { id: 'gasoline', label: t.createRequest?.engines?.gasoline || 'Gasoline', icon: Fuel },
-    { id: 'diesel', label: t.createRequest?.engines?.diesel || 'Diesel', icon: Activity },
-    { id: 'hybrid', label: t.createRequest?.engines?.hybrid || 'Hybrid', icon: Zap },
-  ];
-
-  const vehicleTypes = [
-    { id: 'sedan', label: t.createRequest?.vehicles?.sedan || 'Sedan', icon: CarFront },
-    { id: 'suv', label: t.createRequest?.vehicles?.suv || 'SUV', icon: Car },
-    { id: 'van', label: t.createRequest?.vehicles?.van || 'Van', icon: Truck },
-    { id: 'truck', label: t.createRequest?.vehicles?.truck || 'Truck', icon: Truck },
-    { id: 'motorcycle', label: t.createRequest?.vehicles?.motorcycle || 'Motorcycle', icon: Bike },
-  ];
-
-  const steps = [
-    { num: 1, label: 'Customer', icon: User },
-    { num: 2, label: 'Pickup', icon: MapPin },
-    { num: 3, label: 'Dropoff', icon: Map },
-    { num: 4, label: 'Vehicle', icon: CarFront },
-    { num: 5, label: 'Instructions', icon: Info },
-    { num: 6, label: 'Documents', icon: FileText },
-    { num: 7, label: 'Schedule & Payment', icon: CreditCard },
-    { num: 8, label: 'Review', icon: FileCheck },
-  ];
-
-  const handleNext = () => {
-    if (currentStep < 8) setCurrentStep(currentStep + 1);
-  };
-
-  const handlePrev = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
+  const router = useRouter();
 
   return (
-    <div className="max-w-[1400px] mx-auto pb-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="space-y-2">
-        <h1 className="text-3xl md:text-4xl font-black text-brand-text">{t.createRequest?.title || 'Create Request'}</h1>
-        <p className="text-slate-500 font-medium">{t.createRequest?.subtitle || 'Fill in the details below.'}</p>
-      </div>
-
-      <div className="flex flex-col xl:flex-row gap-8 items-start">
-        {/* Main Form Area */}
-        <div className="flex-1 w-full space-y-6">
-
-          {/* Stepper Card */}
-          <Card className="p-6 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
-            <div className="relative overflow-x-auto pb-4 custom-scrollbar">
-              <div className="min-w-[700px] relative">
-                <div className="absolute top-1/2 left-4 right-4 h-1 bg-slate-100 -translate-y-1/2 rounded-full" />
-                <div className="absolute top-1/2 left-4 h-1 bg-brand-blue transition-all duration-500 rounded-full" style={{ width: `calc(${((currentStep - 1) / (steps.length - 1)) * 100}% - 32px)` }} />
-
-                <div className="relative flex justify-between items-center px-4">
-                  {steps.map((step) => {
-                    const isActive = currentStep === step.num;
-                    const isCompleted = currentStep > step.num;
-                    return (
-                      <div key={step.num} className="flex flex-col items-center gap-2 z-10 bg-white px-2">
-                        <div
-                          className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center font-bold text-sm sm:text-base border-4 transition-all duration-300 ${isActive
-                            ? 'border-white bg-brand-blue text-white shadow-lg shadow-brand-blue/30 ring-4 ring-brand-blue-light'
-                            : isCompleted
-                              ? 'border-white bg-emerald-500 text-white shadow-sm ring-4 ring-emerald-50'
-                              : 'border-slate-50 bg-slate-100 text-slate-400'
-                            }`}
-                        >
-                          {isCompleted ? <Check className="h-5 w-5" /> : <step.icon className="h-4 w-4 sm:h-5 sm:w-5" />}
-                        </div>
-                        <span className={`text-xs sm:text-sm font-bold transition-all duration-300 ${isActive ? 'text-brand-text' : isCompleted ? 'text-slate-600' : 'text-slate-400'}`}>
-                          {step.label}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Form Content Card */}
-          <Card className="p-6 md:p-8 rounded-[2rem] border-none shadow-sm bg-white min-h-[500px] flex flex-col justify-between">
-            <div className="space-y-8">
-              {/* Step 1: Customer Details */}
-              {currentStep === 1 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
-                      <User className="h-5 w-5 text-brand-blue" />
-                      Customer Details
-                    </h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">First Name</Label>
-                        <Input value={formData.firstName} onChange={(e) => updateForm('firstName', e.target.value)} placeholder="John" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Last Name</Label>
-                        <Input value={formData.lastName} onChange={(e) => updateForm('lastName', e.target.value)} placeholder="Doe" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Email Address</Label>
-                        <Input value={formData.email} type="email" onChange={(e) => updateForm('email', e.target.value)} placeholder="john@example.com" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Phone Number</Label>
-                        <Input value={formData.phone} type="tel" onChange={(e) => updateForm('phone', e.target.value)} placeholder="+1 234 567 890" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                      </div>
-                      <div className="space-y-2 md:col-span-2">
-                        <Label className="text-brand-text font-bold ml-1">Company (Optional)</Label>
-                        <Input value={formData.company} onChange={(e) => updateForm('company', e.target.value)} placeholder="ACME Motors" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 2: Pickup Details */}
-              {currentStep === 2 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
-                      <MapPin className="h-5 w-5 text-brand-blue" />
-                      Pickup Information
-                    </h2>
-
-                    <div className="space-y-6">
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Pickup Address</Label>
-                        <div className="relative">
-                          <Input value={formData.pickupAddress} onChange={(e) => updateForm('pickupAddress', e.target.value)} placeholder="Enter street address..." className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                          <MapPin className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label className="text-brand-text font-bold ml-1">Zip Code</Label>
-                          <Input value={formData.pickupZip} onChange={(e) => updateForm('pickupZip', e.target.value)} placeholder="10115" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-brand-text font-bold ml-1">Pickup Date</Label>
-                          <div className="relative">
-                            <Input type="date" value={formData.pickupDate} onChange={(e) => updateForm('pickupDate', e.target.value)} className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                            <Calendar className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="h-[1px] w-full bg-slate-100 my-6" />
-
-                      <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide">Pickup Contact</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-2">
-                            <Label className="text-brand-text font-bold ml-1">Contact Name</Label>
-                            <Input value={formData.pickupContactName} onChange={(e) => updateForm('pickupContactName', e.target.value)} placeholder="Name of person at pickup" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-brand-text font-bold ml-1">Contact Phone</Label>
-                            <Input value={formData.pickupContactPhone} type="tel" onChange={(e) => updateForm('pickupContactPhone', e.target.value)} placeholder="+1 234 567 890" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 3: Dropoff Details */}
-              {currentStep === 3 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                  <div className="space-y-6">
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
-                        <MapPin className="h-6 w-6 text-brand-blue" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl font-bold text-brand-text">
-                          Delivery information
-                        </h2>
-                        <p className="text-slate-500 text-sm mt-1">
-                          Add the final delivery address and receiver details.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      
-                      {/* Address */}
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Dropoff Address</Label>
-                        <div className="relative">
-                          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                          <Input
-                            value={formData.dropoffAddress}
-                            onChange={(e) => updateForm("dropoffAddress", e.target.value)}
-                            placeholder="Delivery address"
-                            className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Contact Row */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <div className="space-y-2">
-                          <Label className="text-brand-text font-bold ml-1">Contact Name</Label>
-                          <div className="relative">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                            <Input
-                              value={formData.dropoffContactName}
-                              onChange={(e) =>
-                                updateForm("dropoffContactName", e.target.value)
-                              }
-                              placeholder="Delivery contact person name"
-                              className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label className="text-brand-text font-bold ml-1">Contact Phone</Label>
-                          <div className="relative">
-                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                            <Input
-                              value={formData.dropoffContactPhone}
-                              type="tel"
-                              onChange={(e) =>
-                                updateForm("dropoffContactPhone", e.target.value)
-                              }
-                              placeholder="Delivery contact phone"
-                              className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Instructions */}
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Instructions</Label>
-                        <textarea
-                          value={formData.dropoffInstructions}
-                          onChange={(e) =>
-                            updateForm("dropoffInstructions", e.target.value)
-                          }
-                          placeholder="Add delivery instructions (optional)"
-                          className="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 min-h-[130px] resize-none text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 4: Vehicle Info */}
-              {currentStep === 4 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
-                      <CarFront className="h-5 w-5 text-brand-blue" />
-                      Vehicle Details
-                    </h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Vehicle Type</Label>
-                        <Select
-                          value={formData.vehicleType}
-                          onValueChange={(value) => updateForm("vehicleType", value)}
-                        >
-                          <SelectTrigger className="!h-12 !w-full rounded-2xl border-slate-100 bg-slate-50 px-4 text-slate-600 focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200">
-                            {formData.vehicleType ? (
-                              <div className="flex flex-1 items-center gap-2 text-left">
-                                {(() => {
-                                  const Icon = vehicleTypes.find(v => v.id === formData.vehicleType)?.icon || CarFront;
-                                  return <Icon className="h-4 w-4 text-brand-blue shrink-0" />;
-                                })()}
-                                <span className="font-medium text-brand-text truncate">
-                                  {vehicleTypes.find(v => v.id === formData.vehicleType)?.label}
-                                </span>
-                              </div>
-                            ) : (
-                              <SelectValue placeholder="Select vehicle type" />
-                            )}
-                          </SelectTrigger>
-                          <SelectContent className="w-[var(--radix-select-trigger-width)] min-w-[200px] rounded-2xl border-slate-100 shadow-xl">
-                            {vehicleTypes.map((vehicle) => (
-                              <SelectItem key={vehicle.id} value={vehicle.id} className="rounded-xl cursor-pointer py-2.5">
-                                <div className="flex items-center gap-2">
-                                  <vehicle.icon className="h-4 w-4 text-brand-blue shrink-0" />
-                                  <span className="font-medium text-slate-700 truncate">{vehicle.label}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Brand</Label>
-                        <Input
-                          value={formData.make}
-                          onChange={(e) => updateForm("make", e.target.value)}
-                          placeholder="Enter brand (e.g. Tesla)"
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Model</Label>
-                        <Input
-                          value={formData.model}
-                          onChange={(e) => updateForm("model", e.target.value)}
-                          placeholder="Enter model (e.g. Model 3)"
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">License Plate</Label>
-                        <Input
-                          value={formData.plate}
-                          onChange={(e) => updateForm("plate", e.target.value)}
-                          placeholder="Enter license plate"
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
-                        />
-                      </div>
-
-                      <div className="space-y-2 md:col-span-2">
-                        <Label className="text-brand-text font-bold ml-1">VIN Number</Label>
-                        <Input
-                          value={formData.vin}
-                          onChange={(e) => updateForm("vin", e.target.value)}
-                          placeholder="Enter VIN number"
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Engine Type</Label>
-                        <Select
-                          value={formData.engineType}
-                          onValueChange={(value) => updateForm("engineType", value)}
-                        >
-                          <SelectTrigger className="!h-12 !w-full rounded-2xl border-slate-100 bg-slate-50 px-4 text-slate-600 focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200">
-                            {formData.engineType ? (
-                              <div className="flex flex-1 items-center gap-2 text-left">
-                                {(() => {
-                                  const Icon = engineTypes.find(e => e.id === formData.engineType)?.icon || Activity;
-                                  return <Icon className="h-4 w-4 text-brand-blue shrink-0" />;
-                                })()}
-                                <span className="font-medium text-brand-text truncate">
-                                  {engineTypes.find(e => e.id === formData.engineType)?.label}
-                                </span>
-                              </div>
-                            ) : (
-                              <SelectValue placeholder="Select engine type" />
-                            )}
-                          </SelectTrigger>
-                          <SelectContent className="w-[var(--radix-select-trigger-width)] min-w-[200px] rounded-2xl border-slate-100 shadow-xl">
-                            {engineTypes.map((engine) => (
-                              <SelectItem key={engine.id} value={engine.id} className="rounded-xl cursor-pointer py-2.5">
-                                <div className="flex items-center gap-2">
-                                  <engine.icon className="h-4 w-4 text-brand-blue shrink-0" />
-                                  <span className="font-medium text-slate-700 truncate">{engine.label}</span>
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="h-[1px] w-full bg-slate-100" />
-
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text">Delivery Type</h2>
-                    <div className="space-y-3">
-                      {[
-                        { id: "drive", label: "Drive with car" },
-                        { id: "license", label: "Use of driver license plate (Z)" },
-                        { id: "tow", label: "Transport with vehicle carrier (tow truck)" },
-                      ].map((option) => (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => updateForm("deliveryType", option.id)}
-                          className={`w-full min-h-[56px] h-auto py-3 rounded-2xl border-2 px-6 text-left font-bold transition-all duration-200 ${formData.deliveryType === option.id
-                            ? "border-brand-blue bg-brand-blue-light/30 text-brand-blue shadow-sm shadow-brand-blue/10"
-                            : "border-slate-100 bg-slate-50 hover:border-brand-blue/40 text-slate-600"
-                            }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 5: Special Instructions */}
-              {currentStep === 5 && (
-                <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
-                  {/* Special Instructions */}
-                  <div className="space-y-6">
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
-                        <Info className="h-6 w-6 text-brand-blue" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl md:text-2xl font-bold text-brand-text">
-                          Special instructions
-                        </h2>
-                        <p className="text-slate-500 text-sm mt-1">
-                          Share anything the driver or admin should know.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <textarea
-                        rows={3}
-                        value={formData.specialInstructions}
-                        onChange={(e) => updateForm("specialInstructions", e.target.value)}
-                        placeholder="Example: Please call before pickup, documents are inside the vehicle, handle with care..."
-                        className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-2 focus:ring-brand-blue/20"
-                      />
-
-                      <textarea
-                        rows={3}
-                        value={formData.adminNotes}
-                        onChange={(e) => updateForm("adminNotes", e.target.value)}
-                        placeholder="Add notes if needed"
-                        className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-2 focus:ring-brand-blue/20"
-                      />
-                    </div>
-
-                    <div className="space-y-4">
-                      <h3 className="font-semibold text-brand-text text-sm ml-1">
-                        Delivery conditions
-                      </h3>
-                      <div className="flex flex-wrap gap-3">
-                        {[
-                          "Call before pickup",
-                          "Documents inside vehicle",
-                          "Handle with care",
-                          "Do not refuel",
-                          "Contact receiver first",
-                          "Vehicle has low fuel",
-                        ].map((condition) => {
-                          const isActive = formData.deliveryConditions.includes(condition);
-                          return (
-                            <button
-                              key={condition}
-                              type="button"
-                              onClick={() => toggleDeliveryCondition(condition)}
-                              className={`rounded-full border px-5 py-2.5 text-sm font-medium transition-all duration-200 ${isActive ? 'border-brand-blue bg-brand-blue text-white shadow-md shadow-brand-blue/20' : 'border-slate-100 bg-slate-50 text-slate-600 hover:border-brand-blue/30'}`}
-                            >
-                              {condition}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 6: Documents & Photos */}
-              {currentStep === 6 && (
-                <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
-                  {/* Documents & Photos */}
-                  <div className="space-y-6">
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
-                        <FileText className="h-6 w-6 text-brand-blue" />
-                      </div>
-                      <div>
-                        <h2 className="text-xl md:text-2xl font-bold text-brand-text">
-                          Documents & Photos
-                        </h2>
-                        <p className="text-slate-500 text-sm mt-1">
-                          Upload useful files for a smoother vehicle handover.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-4 rounded-2xl border border-brand-blue/20 bg-brand-blue-light/20 p-5">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm">
-                        <Shield className="h-5 w-5 text-brand-blue" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-brand-text text-sm">
-                          Secure file attachment
-                        </h3>
-                        <p className="text-sm text-slate-600 mt-1">
-                          Your documents and photos will be attached securely to this transport request.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {/* Vehicle Photos */}
-                      <label className={`cursor-pointer rounded-3xl border-2 border-dashed p-6 text-center flex flex-col items-center transition-all duration-200 ${formData.vehiclePhotos ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:border-brand-blue/50 hover:bg-slate-100'}`}>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm mb-4">
-                          {formData.vehiclePhotos ? <ShieldCheck className="h-7 w-7 text-emerald-500" /> : <Upload className="h-7 w-7 text-brand-blue" />}
-                        </div>
-                        <h3 className="text-base font-bold text-brand-text mb-2">
-                          Vehicle photos
-                        </h3>
-                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1">
-                          {formData.vehiclePhotos ? formData.vehiclePhotos : "Add clear photos of the vehicle if available."}
-                        </p>
-                        <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.vehiclePhotos ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
-                          {formData.vehiclePhotos ? 'Change Photo' : 'Add Photo'}
-                        </div>
-                        <input type="file" className="hidden" onChange={(e) => updateForm('vehiclePhotos', e.target.files?.[0]?.name || '')} />
-                      </label>
-
-                      {/* Registration */}
-                      <label className={`cursor-pointer rounded-3xl border-2 border-dashed p-6 text-center flex flex-col items-center transition-all duration-200 ${formData.registrationDocumentName ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:border-brand-blue/50 hover:bg-slate-100'}`}>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm mb-4">
-                          {formData.registrationDocumentName ? <ShieldCheck className="h-7 w-7 text-emerald-500" /> : <Upload className="h-7 w-7 text-brand-blue" />}
-                        </div>
-                        <h3 className="text-base font-bold text-brand-text mb-2">
-                          Registration document
-                        </h3>
-                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1">
-                          {formData.registrationDocumentName ? formData.registrationDocumentName : "Upload vehicle registration or ownership document."}
-                        </p>
-                        <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.registrationDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
-                          {formData.registrationDocumentName ? 'Change Document' : 'Add Document'}
-                        </div>
-                        <input type="file" className="hidden" onChange={(e) => updateForm('registrationDocumentName', e.target.files?.[0]?.name || '')} />
-                      </label>
-
-                      {/* Reference */}
-                      <label className={`cursor-pointer rounded-3xl border-2 border-dashed p-6 text-center flex flex-col items-center transition-all duration-200 ${formData.referenceDocumentName ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:border-brand-blue/50 hover:bg-slate-100'}`}>
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm mb-4">
-                          {formData.referenceDocumentName ? <ShieldCheck className="h-7 w-7 text-emerald-500" /> : <Upload className="h-7 w-7 text-brand-blue" />}
-                        </div>
-                        <h3 className="text-base font-bold text-brand-text mb-2">
-                          Reference document
-                        </h3>
-                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1">
-                          {formData.referenceDocumentName ? formData.referenceDocumentName : "Add any extra file for the driver or admin."}
-                        </p>
-                        <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.referenceDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
-                          {formData.referenceDocumentName ? 'Change File' : 'Add File'}
-                        </div>
-                        <input type="file" className="hidden" onChange={(e) => updateForm('referenceDocumentName', e.target.files?.[0]?.name || '')} />
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 7: Schedule & Payment */}
-              {currentStep === 7 && (
-                <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                  <div className="max-w-4xl rounded-3xl border border-slate-200 bg-white shadow-sm p-8 mx-auto">
-                    
-                    {/* Header */}
-                    <div className="flex items-start gap-4 mb-8">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
-                        <Calendar className="h-6 w-6 text-blue-600" />
-                      </div>
-
-                      <div>
-                        <h2 className="text-3xl font-bold text-slate-800">
-                          Schedule & Payment
-                        </h2>
-                        <p className="text-slate-500 mt-1">
-                          Choose pickup and delivery slots, then confirm payment.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Route Summary */}
-                    <div className="mb-8 flex items-center justify-between rounded-2xl bg-blue-50 px-6 py-5">
-                      <div className="flex items-center gap-8">
-                        <div>
-                          <h3 className="font-bold text-slate-800">
-                            {formData.pickupCity || "Paris"}
-                          </h3>
-                          <p className="text-sm text-slate-500">
-                            Pickup
-                          </p>
-                        </div>
-
-                        <ArrowRight className="h-6 w-6 text-blue-600" />
-
-                        <div>
-                          <h3 className="font-bold text-slate-800">
-                            {formData.dropoffCity || "Lyon"}
-                          </h3>
-                          <p className="text-sm text-slate-500">
-                            Delivery
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="text-right">
-                        <h3 className="font-bold text-slate-800">
-                          {formData.make || formData.model ? `${formData.make} ${formData.model}` : "Vehicle"}
-                        </h3>
-                        <p className="text-sm text-slate-500">
-                          Vehicle
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Pickup Schedule */}
-                    <div className="mb-7">
-                      <h3 className="mb-4 text-lg font-bold text-slate-800">
-                        Pickup schedule
-                      </h3>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="relative">
-                          <Calendar className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <Input
-                            type="date"
-                            value={formData.pickupDate || ""}
-                            onChange={(e) => updateForm("pickupDate", e.target.value)}
-                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                          />
-                          {!formData.pickupDate && (
-                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
-                              Select pickup date
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="relative">
-                          <Clock className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <Input
-                            type="time"
-                            value={formData.pickupTime || ""}
-                            onChange={(e) => updateForm("pickupTime", e.target.value)}
-                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                          />
-                          {!formData.pickupTime && (
-                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
-                              Select pickup time
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Delivery Schedule */}
-                    <div className="mb-7">
-                      <h3 className="mb-4 text-lg font-bold text-slate-800">
-                        Delivery schedule
-                      </h3>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="relative">
-                          <Calendar className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <Input
-                            type="date"
-                            value={formData.dropoffDate || ""}
-                            onChange={(e) => updateForm("dropoffDate", e.target.value)}
-                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                          />
-                          {!formData.dropoffDate && (
-                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
-                              Select delivery date
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="relative">
-                          <Clock className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <Input
-                            type="time"
-                            value={formData.dropoffTime || ""}
-                            onChange={(e) => updateForm("dropoffTime", e.target.value)}
-                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-                          />
-                          {!formData.dropoffTime && (
-                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
-                              Select delivery time
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Estimated Delivery Time */}
-                    <div className="mb-8 flex items-start gap-4 rounded-2xl border border-blue-200 bg-blue-100/70 px-6 py-5">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
-                          <Info className="h-5 w-5 text-blue-600" />
-                        </div>
-                      </div>
-
-                      <div>
-                        <h3 className="font-bold text-slate-800">
-                          Estimated delivery time
-                        </h3>
-                        <p className="mt-2 text-2xl font-extrabold text-blue-600">
-                          24–48 hours
-                        </p>
-                        <p className="mt-2 text-sm text-slate-500">
-                          Final timing depends on driver assignment and route availability.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Payment Method */}
-                    <div className="mb-7 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/40">
-                      <h3 className="mb-5 text-xl font-bold text-slate-800">
-                        Payment method
-                      </h3>
-
-                      <button
-                        type="button"
-                        onClick={() => updateForm("paymentMethod", "invoice")}
-                        className={`w-full rounded-2xl px-5 py-4 transition-all duration-200 ${
-                          formData.paymentMethod === "invoice"
-                            ? "bg-slate-100 ring-2 ring-blue-200"
-                            : "bg-slate-50 hover:bg-slate-100"
-                        }`}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500">
-                            <CreditCard className="h-6 w-6 text-white" />
-                          </div>
-
-                          <span className="font-bold text-slate-800">
-                            Pay through invoice
-                          </span>
-                        </div>
-                      </button>
-                    </div>
-
-                    {/* Confirmation */}
-                    <label className="flex items-start gap-3 pl-8 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.confirmSchedulePayment || false}
-                        onChange={(e) =>
-                          updateForm("confirmSchedulePayment", e.target.checked)
-                        }
-                        className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                      />
-
-                      <div>
-                        <p className="font-medium text-slate-800">
-                          I confirm the schedule and payment details
-                        </p>
-                        <p className="mt-2 text-sm text-slate-500">
-                          Payment is processed securely.
-                        </p>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 8: Review & Submit */}
-              {currentStep === 8 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                  <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
-                      <FileCheck className="h-5 w-5 text-emerald-500" />
-                      Final Review
-                    </h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Customer Summary */}
-                      <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl">
-                        <div className="flex items-center gap-3 mb-4">
-                          <User className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Customer</h3>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="text-sm text-slate-600"><span className="font-bold">Name:</span> {formData.firstName} {formData.lastName}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Email:</span> {formData.email}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Phone:</span> {formData.phone}</p>
-                        </div>
-                      </Card>
-
-                      {/* Vehicle Summary */}
-                      <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl">
-                        <div className="flex items-center gap-3 mb-4">
-                          <CarFront className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Vehicle</h3>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="text-sm text-slate-600"><span className="font-bold">Vehicle:</span> {formData.make} {formData.model}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Plate:</span> {formData.plate}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">VIN:</span> {formData.vin || '-'}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Delivery:</span> <span className="capitalize">{formData.deliveryType.replace('_', ' ')}</span></p>
-                        </div>
-                      </Card>
-
-                      {/* Route Summary */}
-                      <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl md:col-span-2">
-                        <div className="flex items-center gap-3 mb-4">
-                          <MapPin className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Logistics</h3>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div>
-                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Pickup</p>
-                            <p className="text-sm text-slate-600">{formData.pickupAddress}, {formData.pickupCity}</p>
-                            <p className="text-xs text-slate-400 mt-1">{formData.pickupDate}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Dropoff</p>
-                            <p className="text-sm text-slate-600">{formData.dropoffAddress}, {formData.dropoffCity}</p>
-                            <p className="text-xs text-slate-400 mt-1">{formData.dropoffDate}</p>
-                          </div>
-                        </div>
-                      </Card>
-
-                      {/* Documents Summary */}
-                      <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl">
-                        <div className="flex items-center gap-3 mb-4">
-                          <FileText className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Documents</h3>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Check className={`h-4 w-4 ${formData.vehiclePhotos ? 'text-emerald-500' : 'text-slate-300'}`} />
-                            <span className="text-sm text-slate-600">Vehicle Photos</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Check className={`h-4 w-4 ${formData.registrationDocumentName ? 'text-emerald-500' : 'text-slate-300'}`} />
-                            <span className="text-sm text-slate-600">Registration Document</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Check className={`h-4 w-4 ${formData.referenceDocumentName ? 'text-emerald-500' : 'text-slate-300'}`} />
-                            <span className="text-sm text-slate-600">Reference Document</span>
-                          </div>
-                        </div>
-                      </Card>
-
-                      {/* Payment Summary */}
-                      <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl">
-                        <div className="flex items-center gap-3 mb-4">
-                          <CreditCard className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Schedule & Payment</h3>
-                        </div>
-                        <div className="space-y-2">
-                          <p className="text-sm text-slate-600"><span className="font-bold">Pickup:</span> {formData.pickupDate} {formData.pickupTime}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Delivery:</span> {formData.dropoffDate} {formData.dropoffTime}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Method:</span> <span className="capitalize">{formData.paymentMethod.replace('_', ' ')}</span></p>
-                        </div>
-                      </Card>
-
-                      {/* Instructions Summary */}
-                      <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl md:col-span-2">
-                        <div className="flex items-center gap-3 mb-4">
-                          <Info className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Special Instructions</h3>
-                        </div>
-                        <div className="space-y-4">
-                          {formData.specialInstructions && (
-                            <div>
-                              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">General Instructions</p>
-                              <p className="text-sm text-slate-600 italic">"{formData.specialInstructions}"</p>
-                            </div>
-                          )}
-                          {formData.deliveryConditions.length > 0 && (
-                            <div>
-                              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Conditions</p>
-                              <div className="flex flex-wrap gap-2">
-                                {formData.deliveryConditions.map((c) => (
-                                  <span key={c} className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
-                                    {c}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {!formData.specialInstructions && formData.deliveryConditions.length === 0 && (
-                            <p className="text-sm text-slate-400 italic">No special instructions provided.</p>
-                          )}
-                        </div>
-                      </Card>
-                    </div>
-
-                    <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-start gap-4 mt-6">
-                      <div className="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
-                        <ShieldCheck className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-emerald-900">Ready to submit!</h4>
-                        <p className="text-sm text-emerald-700">By submitting this request, you agree to our terms of service. Our team will review your details and contact you shortly.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-8 mt-8 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-slate-100">
-              <Button
-                variant="outline"
-                onClick={handlePrev}
-                disabled={currentStep === 1}
-                className={`w-full sm:w-auto h-14 px-8 rounded-2xl border-slate-200 font-bold transition-all duration-200 ${currentStep === 1 ? 'text-slate-300' : 'text-slate-600 hover:bg-slate-50'}`}
-              >
-                Previous Step
-              </Button>
-
-              <Button
-                onClick={handleNext}
-                disabled={currentStep === 8}
-                className={`w-full sm:w-auto h-14 px-8 rounded-2xl bg-brand-blue hover:bg-brand-blue-hover text-white font-bold shadow-lg shadow-blue-100 transition-all duration-200 ${currentStep === 8 ? 'hidden' : 'flex'}`}
-              >
-                Continue to {steps[currentStep]?.label || 'Next'}
-              </Button>
-
-              {currentStep === 8 && (
-                <Button
-                  className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-200 transition-all duration-200"
-                >
-                  Submit Request
-                </Button>
-              )}
-            </div>
-          </Card>
+    <div className="min-h-screen bg-slate-50 px-6 py-10">
+      <div className="mx-auto max-w-5xl">
+        
+        {/* Header */}
+        <div className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+            Choose a request type
+          </h1>
+
+          <p className="mt-6 text-xl text-slate-600">
+            Select the service you need today.
+          </p>
         </div>
 
-        {/* Right Sidebar: Request Summary */}
-        <div className="w-full xl:w-[400px] shrink-0 sticky top-28">
-          <Card className="p-6 md:p-8 rounded-[2rem] border-none shadow-sm bg-white relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-blue to-blue-400" />
-
-            <div className="space-y-6">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-                <Info className="h-6 w-6 text-brand-blue" />
-                <h3 className="text-xl font-bold text-brand-text">Request Summary</h3>
-              </div>
-
-              <div className="space-y-5">
-                {/* Customer Section */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">1. Customer</h4>
-                  <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-slate-500">Name</span>
-                      <span className="text-sm font-bold text-brand-text">
-                        {formData.firstName || formData.lastName ? `${formData.firstName} ${formData.lastName}` : '-'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-slate-500">Contact</span>
-                      <span className="text-sm font-bold text-brand-text">
-                        {formData.phone || '-'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Logistics Section */}
-                {currentStep > 1 && (
-                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">2-3. Route</h4>
-                    <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
-                      <div className="flex gap-3">
-                        <div className="flex flex-col items-center mt-1">
-                          <div className="h-3 w-3 rounded-full border-2 border-brand-blue bg-white" />
-                          <div className="w-[2px] h-8 bg-slate-200" />
-                          <div className="h-3 w-3 rounded-full bg-brand-blue" />
-                        </div>
-                        <div className="flex flex-col justify-between h-14">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-brand-text">{formData.pickupAddress ? `${formData.pickupAddress}` : 'Pickup location not set'}</span>
-                            {formData.pickupDate && <span className="text-xs text-slate-500">{formData.pickupDate}</span>}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-brand-text">{formData.dropoffAddress ? `${formData.dropoffAddress}` : 'Dropoff location not set'}</span>
-                            {formData.dropoffDate && <span className="text-xs text-slate-500">{formData.dropoffDate}</span>}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Vehicle Section */}
-                {currentStep > 3 && (
-                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">4. Vehicle Details</h4>
-                    <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Make & Model</span>
-                        <span className="text-sm font-bold text-brand-text">
-                          {formData.make || formData.model ? `${formData.make} ${formData.model}` : '-'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Plate Number</span>
-                        <span className="text-sm font-bold text-brand-text">
-                          {formData.plate || '-'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-medium text-slate-400">VIN: <span className="text-slate-600 font-bold truncate max-w-[100px] inline-block align-bottom">{formData.vin || '-'}</span></span>
-                        <span className="font-medium text-slate-400">Type: <span className="text-slate-600 font-bold capitalize">{formData.vehicleType || '-'}</span></span>
-                      </div>
-                      <div className="flex justify-between items-center border-t border-slate-100/50 pt-2">
-                        <span className="text-xs font-bold text-brand-blue capitalize">{formData.deliveryType.replace('_', ' ')}</span>
-                        <span className="text-xs font-bold text-slate-500 capitalize">{formData.engineType || '-'}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Instructions Section */}
-                {currentStep > 4 && (
-                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">5. Instructions</h4>
-                    <div className="p-4 rounded-2xl bg-slate-50 space-y-2 border border-slate-100/50">
-                      <div className="flex items-center gap-2">
-                        {formData.specialInstructions || formData.adminNotes || formData.deliveryConditions.length > 0 ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
-                        <span className="text-sm font-medium text-slate-600">Special Instructions</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Documents Section */}
-                {currentStep > 5 && (
-                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">6. Documents</h4>
-                    <div className="p-4 rounded-2xl bg-slate-50 space-y-2 border border-slate-100/50">
-                      <div className="flex items-center gap-2">
-                        {formData.vehiclePhotos ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
-                        <span className="text-sm font-medium text-slate-600">Vehicle Photos</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {formData.registrationDocumentName ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
-                        <span className="text-sm font-medium text-slate-600">Registration Document</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {formData.referenceDocumentName ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
-                        <span className="text-sm font-medium text-slate-600">Reference Document</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Schedule & Payment Section */}
-                {currentStep > 6 && (
-                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">7. Schedule & Payment</h4>
-                    <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Pickup</span>
-                        <span className="text-sm font-bold text-brand-text">
-                          {formData.pickupDate ? `${formData.pickupDate} ${formData.pickupTime}` : '-'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Delivery</span>
-                        <span className="text-sm font-bold text-brand-text">
-                          {formData.dropoffDate ? `${formData.dropoffDate} ${formData.dropoffTime}` : '-'}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Payment</span>
-                        <span className="text-sm font-bold text-brand-blue capitalize">
-                          {formData.paymentMethod.replace('_', ' ')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Price Estimate */}
-                <div className="pt-4 border-t border-slate-100">
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <p className="text-sm font-bold text-slate-400">Estimated Total</p>
-                      <p className="text-xs text-slate-400 mt-1">Calculated after route selection</p>
-                    </div>
-                    <span className="text-3xl font-black text-brand-text">€ --</span>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </Card>
+        {/* Services Available Badge */}
+        <div className="mb-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-600 shadow-sm">
+            <span className="h-2 w-2 rounded-full bg-blue-600" />
+            3 services available
+          </div>
         </div>
 
+        {/* Service Cards */}
+        <div className="space-y-6">
+          {requestTypes.map((service) => {
+            const Icon = service.icon;
+
+            return (
+              <button
+                key={service.id}
+                type="button"
+                onClick={() => router.push(service.href)}
+                className="group relative flex w-full items-center justify-between rounded-3xl border border-slate-200 bg-white px-8 py-8 text-left shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-7">
+                  
+                  {/* Icon */}
+                  <div
+                    className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${service.iconBg}`}
+                  >
+                    <Icon className={`h-8 w-8 ${service.iconColor}`} />
+                  </div>
+
+                  {/* Text */}
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900">
+                      {service.title}
+                    </h2>
+
+                    <p className="mt-4 text-lg text-slate-600">
+                      {service.description}
+                    </p>
+
+                    <div className="mt-5 inline-flex items-center gap-2 text-base font-semibold text-blue-600">
+                      Select this service
+                      <ChevronRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Badge */}
+                {service.badge && (
+                  <div className="absolute right-8 top-8 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 px-4 py-2 text-sm font-semibold text-white">
+                    {service.badge}
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Support Link */}
+        <div className="mt-10 text-center text-sm text-slate-400">
+          Not sure which one to choose?{" "}
+          <button
+            type="button"
+            className="font-semibold text-blue-600 underline underline-offset-2 hover:text-blue-700"
+          >
+            Contact support
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,11 +19,14 @@ import {
   Check, MapPin, Calendar, FileCheck, Map, Settings, Search, Info, User, Phone,
   FileText, Upload, ShieldCheck, Shield, Image as ImageIcon, CreditCard, Clock,
   ArrowRight, ClipboardCheck, UserCog, ChevronRight, ShieldCheck as ShieldCheckIcon,
-  Shield as ShieldIcon, Upload as UploadIcon
+  Shield as ShieldIcon, Upload as UploadIcon,
+  ArrowLeft
 } from 'lucide-react';
 
 export default function TransportRequestPage() {
-  const { t } = useTranslation();
+  const router = useRouter();
+  const { t, language } = useTranslation();
+  const isRTL = language === 'ar';
 
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -101,14 +105,14 @@ export default function TransportRequestPage() {
   ];
 
   const steps = [
-    { num: 1, label: 'Customer', icon: User },
-    { num: 2, label: 'Pickup', icon: MapPin },
-    { num: 3, label: 'Dropoff', icon: Map },
-    { num: 4, label: 'Vehicle', icon: CarFront },
-    { num: 5, label: 'Instructions', icon: Info },
-    { num: 6, label: 'Documents', icon: FileText },
-    { num: 7, label: 'Schedule & Payment', icon: CreditCard },
-    { num: 8, label: 'Review', icon: FileCheck },
+    { num: 1, label: t.createRequest.steps.customer, icon: User },
+    { num: 2, label: t.createRequest.steps.pickup, icon: MapPin },
+    { num: 3, label: t.createRequest.steps.dropoff, icon: Map },
+    { num: 4, label: t.createRequest.steps.vehicle, icon: CarFront },
+    { num: 5, label: t.createRequest.steps.instructions, icon: Info },
+    { num: 6, label: t.createRequest.steps.documents, icon: FileText },
+    { num: 7, label: t.createRequest.steps.schedule, icon: CreditCard },
+    { num: 8, label: t.createRequest.steps.review, icon: FileCheck },
   ];
 
   const handleNext = () => {
@@ -120,46 +124,74 @@ export default function TransportRequestPage() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto p-4 sm:p-6 md:p-8 lg:p-10 space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-x-hidden">
-      <div className="space-y-2 px-1">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-brand-text tracking-tight">{t.createRequest?.title || 'Transport Request'}</h1>
-        <p className="text-slate-500 font-medium text-sm sm:text-base">{t.createRequest?.subtitle || 'Fill in the details below.'}</p>
+    <div className={`max-w-[1400px] mx-auto p-4 sm:p-6 md:p-8 lg:p-10 space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-x-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Back Button */}
+      <button
+        type="button"
+        onClick={() => router.push('/dashboard/create-request')}
+        className={`inline-flex items-center gap-2 text-sm font-bold text-slate-700 transition hover:text-brand-blue ${isRTL ? 'flex-row-reverse' : ''}`}
+      >
+        <ArrowLeft className={`h-4 w-4 ${isRTL ? 'rotate-180' : ''}`} />
+        {t.common.backToSelection}
+      </button>
+
+      <div className={`space-y-2 px-1 ${isRTL ? 'text-right' : 'text-left'}`}>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-brand-text tracking-tight">{t.createRequest.transportRequest.title}</h1>
+        <p className="text-slate-500 font-medium text-sm sm:text-base">{t.createRequest.subtitle}</p>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-8 items-start">
+      <div className="flex flex-col xl:flex-row gap-6 sm:gap-8 lg:gap-10 items-start">
         {/* Main Form Area */}
         <div className="flex-1 w-full space-y-6">
 
           {/* Stepper Card */}
           <Card className="p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
-            <div className="relative overflow-x-auto pb-4 custom-scrollbar">
-              <div className="min-w-[700px] relative">
-                <div className="absolute top-1/2 left-4 right-4 h-1 bg-slate-100 -translate-y-1/2 rounded-full" />
-                <div className="absolute top-1/2 left-4 h-1 bg-brand-blue transition-all duration-500 rounded-full" style={{ width: `calc(${((currentStep - 1) / (steps.length - 1)) * 100}% - 32px)` }} />
+            <div className="relative overflow-x-auto pb-4 scrollbar-hide">
+              <div className="min-w-[800px] relative">
+                <div className="absolute top-[24px] left-8 right-8 h-1 bg-slate-100 rounded-full" />
+                <div 
+                  className="absolute top-[24px] left-8 h-1 bg-brand-blue transition-all duration-700 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.4)]" 
+                  style={{ width: `calc(${((currentStep - 1) / (steps.length - 1)) * 100}% - 16px)` }} 
+                />
 
-                <div className="relative flex justify-between items-center px-4">
+                <div className="relative flex justify-between items-start px-4">
                   {steps.map((step) => {
                     const isActive = currentStep === step.num;
                     const isCompleted = currentStep > step.num;
                     return (
-                      <div key={step.num} className="flex flex-col items-center gap-2 z-10 bg-white px-2">
+                      <div key={step.num} className={`flex flex-col items-center gap-3 z-10 transition-all duration-300 ${isActive ? 'scale-110' : ''}`}>
                         <div
-                          className={`h-10 w-10 sm:h-12 sm:w-12 rounded-full flex items-center justify-center font-bold text-sm sm:text-base border-4 transition-all duration-300 ${isActive
-                            ? 'border-white bg-brand-blue text-white shadow-lg shadow-brand-blue/30 ring-4 ring-brand-blue-light'
+                          className={`h-12 w-12 rounded-full flex items-center justify-center font-bold border-4 transition-all duration-500 ${isActive
+                            ? 'border-white bg-brand-blue text-white shadow-xl shadow-brand-blue/30 ring-4 ring-brand-blue-light'
                             : isCompleted
-                              ? 'border-white bg-emerald-500 text-white shadow-sm ring-4 ring-emerald-50'
+                              ? 'border-white bg-emerald-500 text-white shadow-md ring-4 ring-emerald-50'
                               : 'border-slate-50 bg-slate-100 text-slate-400'
                             }`}
                         >
-                          {isCompleted ? <Check className="h-5 w-5" /> : <step.icon className="h-4 w-4 sm:h-5 sm:w-5" />}
+                          {isCompleted ? <Check className="h-6 w-6" /> : <step.icon className={`h-5 w-5 ${isActive ? 'animate-pulse' : ''}`} />}
                         </div>
-                        <span className={`text-xs sm:text-sm font-bold transition-all duration-300 ${isActive ? 'text-brand-text' : isCompleted ? 'text-slate-600' : 'text-slate-400'}`}>
+                        <span className={`text-xs font-black tracking-tight transition-all duration-300 uppercase ${isActive ? 'text-brand-blue' : isCompleted ? 'text-emerald-600' : 'text-slate-400'}`}>
                           {step.label}
                         </span>
                       </div>
                     );
                   })}
                 </div>
+              </div>
+            </div>
+            
+            {/* Mobile Step Indicator */}
+            <div className="mt-4 md:hidden flex items-center justify-between px-2">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-black text-brand-blue">{currentStep}</span>
+                <span className="text-slate-300 font-bold">/</span>
+                <span className="text-slate-400 font-bold">{steps.length}</span>
+              </div>
+              <div className="h-2 w-32 bg-slate-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-brand-blue transition-all duration-500" 
+                  style={{ width: `${(currentStep / steps.length) * 100}%` }}
+                />
               </div>
             </div>
           </Card>
@@ -171,31 +203,31 @@ export default function TransportRequestPage() {
               {currentStep === 1 && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
+                    <h2 className={`text-xl font-bold text-brand-text flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <User className="h-5 w-5 text-brand-blue" />
-                      Customer Details
+                      {t.createRequest.steps.customer}
                     </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">First Name</Label>
-                        <Input value={formData.firstName} onChange={(e) => updateForm('firstName', e.target.value)} placeholder="John" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.firstName}</Label>
+                        <Input value={formData.firstName} onChange={(e) => updateForm('firstName', e.target.value)} placeholder={t.createRequest.placeholders.firstName} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Last Name</Label>
-                        <Input value={formData.lastName} onChange={(e) => updateForm('lastName', e.target.value)} placeholder="Doe" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.lastName}</Label>
+                        <Input value={formData.lastName} onChange={(e) => updateForm('lastName', e.target.value)} placeholder={t.createRequest.placeholders.lastName} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Email Address</Label>
-                        <Input value={formData.email} type="email" onChange={(e) => updateForm('email', e.target.value)} placeholder="john@example.com" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.email}</Label>
+                        <Input value={formData.email} type="email" onChange={(e) => updateForm('email', e.target.value)} placeholder={t.createRequest.placeholders.email} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Phone Number</Label>
-                        <Input value={formData.phone} type="tel" onChange={(e) => updateForm('phone', e.target.value)} placeholder="+1 234 567 890" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.phone}</Label>
+                        <Input value={formData.phone} type="tel" onChange={(e) => updateForm('phone', e.target.value)} placeholder={t.createRequest.placeholders.phone} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
                       </div>
                       <div className="space-y-2 md:col-span-2">
-                        <Label className="text-brand-text font-bold ml-1">Company (Optional)</Label>
-                        <Input value={formData.company} onChange={(e) => updateForm('company', e.target.value)} placeholder="ACME Motors" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.company}</Label>
+                        <Input value={formData.company} onChange={(e) => updateForm('company', e.target.value)} placeholder={t.createRequest.placeholders.company} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
                       </div>
                     </div>
                   </div>
@@ -206,17 +238,17 @@ export default function TransportRequestPage() {
               {currentStep === 2 && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
+                    <h2 className={`text-xl font-bold text-brand-text flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <MapPin className="h-5 w-5 text-brand-blue" />
-                      Pickup Information
+                      {t.createRequest.steps.pickup}
                     </h2>
 
                     <div className="space-y-6">
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Pickup Address</Label>
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.address}</Label>
                         <div className="relative">
-                          <Input value={formData.pickupAddress} onChange={(e) => updateForm('pickupAddress', e.target.value)} placeholder="Enter street address..." className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                          <MapPin className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Input value={formData.pickupAddress} onChange={(e) => updateForm('pickupAddress', e.target.value)} placeholder={t.createRequest.placeholders.address} className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'pr-10' : 'pl-10'}`} />
+                          <MapPin className={`h-5 w-5 text-slate-400 absolute top-1/2 -translate-y-1/2 ${isRTL ? 'right-3' : 'left-3'}`} />
                         </div>
                       </div>
 
@@ -274,7 +306,7 @@ export default function TransportRequestPage() {
                     </div>
 
                     <div className="space-y-6">
-                      
+
                       {/* Address */}
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">Dropoff Address</Label>
@@ -291,7 +323,7 @@ export default function TransportRequestPage() {
 
                       {/* Contact Row */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
+
                         <div className="space-y-2">
                           <Label className="text-brand-text font-bold ml-1">Contact Name</Label>
                           <div className="relative">
@@ -326,14 +358,14 @@ export default function TransportRequestPage() {
 
                       {/* Instructions */}
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Instructions</Label>
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.deliveryNote}</Label>
                         <textarea
                           value={formData.dropoffInstructions}
                           onChange={(e) =>
                             updateForm("dropoffInstructions", e.target.value)
                           }
-                          placeholder="Add delivery instructions (optional)"
-                          className="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 min-h-[130px] resize-none text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200"
+                          placeholder={t.createRequest.placeholders.vin} 
+                          className={`w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 min-h-[130px] resize-none text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
                         />
                       </div>
                     </div>
@@ -345,21 +377,21 @@ export default function TransportRequestPage() {
               {currentStep === 4 && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
+                    <h2 className={`text-xl font-bold text-brand-text flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <CarFront className="h-5 w-5 text-brand-blue" />
-                      Vehicle Details
+                      {t.createRequest.steps.vehicle}
                     </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Vehicle Type</Label>
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.vehicleType}</Label>
                         <Select
                           value={formData.vehicleType}
                           onValueChange={(value) => updateForm("vehicleType", value)}
                         >
-                          <SelectTrigger className="!h-12 !w-full rounded-2xl border-slate-100 bg-slate-50 px-4 text-slate-600 focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200">
+                          <SelectTrigger className={`!h-12 !w-full rounded-2xl border-slate-100 bg-slate-50 px-4 text-slate-600 focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {formData.vehicleType ? (
-                              <div className="flex flex-1 items-center gap-2 text-left">
+                              <div className={`flex flex-1 items-center gap-2 ${isRTL ? 'flex-row-reverse text-right' : 'text-left'}`}>
                                 {(() => {
                                   const Icon = vehicleTypes.find(v => v.id === formData.vehicleType)?.icon || CarFront;
                                   return <Icon className="h-4 w-4 text-brand-blue shrink-0" />;
@@ -369,13 +401,13 @@ export default function TransportRequestPage() {
                                 </span>
                               </div>
                             ) : (
-                              <SelectValue placeholder="Select vehicle type" />
+                              <SelectValue placeholder={t.createRequest.form.vehicleType} />
                             )}
                           </SelectTrigger>
                           <SelectContent className="w-[var(--radix-select-trigger-width)] min-w-[200px] rounded-2xl border-slate-100 shadow-xl">
                             {vehicleTypes.map((vehicle) => (
                               <SelectItem key={vehicle.id} value={vehicle.id} className="rounded-xl cursor-pointer py-2.5">
-                                <div className="flex items-center gap-2">
+                                <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                                   <vehicle.icon className="h-4 w-4 text-brand-blue shrink-0" />
                                   <span className="font-medium text-slate-700 truncate">{vehicle.label}</span>
                                 </div>
@@ -386,32 +418,32 @@ export default function TransportRequestPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Brand</Label>
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.make}</Label>
                         <Input
                           value={formData.make}
                           onChange={(e) => updateForm("make", e.target.value)}
-                          placeholder="Enter brand (e.g. Tesla)"
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          placeholder={t.createRequest.placeholders.make}
+                          className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">Model</Label>
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.model}</Label>
                         <Input
                           value={formData.model}
                           onChange={(e) => updateForm("model", e.target.value)}
-                          placeholder="Enter model (e.g. Model 3)"
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          placeholder={t.createRequest.placeholders.model}
+                          className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-brand-text font-bold ml-1">License Plate</Label>
+                        <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.plate}</Label>
                         <Input
                           value={formData.plate}
                           onChange={(e) => updateForm("plate", e.target.value)}
-                          placeholder="Enter license plate"
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          placeholder={t.createRequest.placeholders.make}
+                          className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
                         />
                       </div>
 
@@ -649,7 +681,7 @@ export default function TransportRequestPage() {
               {currentStep === 7 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
                   <div className="max-w-4xl rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-sm p-5 sm:p-8 mx-auto">
-                    
+
                     {/* Header */}
                     <div className="flex items-start gap-4 mb-8">
                       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
@@ -808,11 +840,10 @@ export default function TransportRequestPage() {
                       <button
                         type="button"
                         onClick={() => updateForm("paymentMethod", "invoice")}
-                        className={`w-full rounded-2xl px-5 py-4 transition-all duration-200 ${
-                          formData.paymentMethod === "invoice"
-                            ? "bg-slate-100 ring-2 ring-blue-200"
-                            : "bg-slate-50 hover:bg-slate-100"
-                        }`}
+                        className={`w-full rounded-2xl px-5 py-4 transition-all duration-200 ${formData.paymentMethod === "invoice"
+                          ? "bg-slate-100 ring-2 ring-blue-200"
+                          : "bg-slate-50 hover:bg-slate-100"
+                          }`}
                       >
                         <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
                           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500">
@@ -875,9 +906,9 @@ export default function TransportRequestPage() {
 
                       {/* Vehicle Summary */}
                       <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl">
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className={`flex items-center gap-3 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <CarFront className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Vehicle</h3>
+                          <h3 className="font-bold text-brand-text">{t.createRequest.steps.vehicle}</h3>
                         </div>
                         <div className="space-y-2">
                           <p className="text-sm text-slate-600"><span className="font-bold">Vehicle:</span> {formData.make} {formData.model}</p>
@@ -889,9 +920,9 @@ export default function TransportRequestPage() {
 
                       {/* Route Summary */}
                       <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl md:col-span-2">
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className={`flex items-center gap-3 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <MapPin className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Logistics</h3>
+                          <h3 className="font-bold text-brand-text">{language === 'ar' ? 'الخدمات اللوجستية' : 'Logistics'}</h3>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
@@ -909,9 +940,9 @@ export default function TransportRequestPage() {
 
                       {/* Documents Summary */}
                       <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl">
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className={`flex items-center gap-3 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <FileText className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Documents</h3>
+                          <h3 className="font-bold text-brand-text">{t.createRequest.steps.documents}</h3>
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
@@ -931,9 +962,9 @@ export default function TransportRequestPage() {
 
                       {/* Payment Summary */}
                       <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl">
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className={`flex items-center gap-3 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <CreditCard className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Schedule & Payment</h3>
+                          <h3 className="font-bold text-brand-text">{t.createRequest.steps.schedule}</h3>
                         </div>
                         <div className="space-y-2">
                           <p className="text-sm text-slate-600"><span className="font-bold">Pickup:</span> {formData.pickupDate} {formData.pickupTime}</p>
@@ -944,9 +975,9 @@ export default function TransportRequestPage() {
 
                       {/* Instructions Summary */}
                       <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl md:col-span-2">
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className={`flex items-center gap-3 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                           <Info className="h-5 w-5 text-brand-blue" />
-                          <h3 className="font-bold text-brand-text">Special Instructions</h3>
+                          <h3 className="font-bold text-brand-text">{t.createRequest.steps.instructions}</h3>
                         </div>
                         <div className="space-y-4">
                           {formData.specialInstructions && (
@@ -974,13 +1005,13 @@ export default function TransportRequestPage() {
                       </Card>
                     </div>
 
-                    <div className="p-6 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-start gap-4 mt-6">
+                    <div className={`p-6 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-start gap-4 mt-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <div className="h-10 w-10 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
                         <ShieldCheck className="h-6 w-6 text-white" />
                       </div>
-                      <div>
-                        <h4 className="font-bold text-emerald-900">Ready to submit!</h4>
-                        <p className="text-sm text-emerald-700">By submitting this request, you agree to our terms of service. Our team will review your details and contact you shortly.</p>
+                      <div className={isRTL ? 'text-right' : 'text-left'}>
+                        <h4 className="font-bold text-emerald-900">{language === 'ar' ? 'جاهز للإرسال!' : 'Ready to submit!'}</h4>
+                        <p className="text-sm text-emerald-700">{language === 'ar' ? 'بإرسال هذا الطلب، فإنك توافق على شروط الخدمة الخاصة بنا. سيقوم فريقنا بمراجعة تفاصيلك والاتصال بك قريباً.' : 'By submitting this request, you agree to our terms of service. Our team will review your details and contact you shortly.'}</p>
                       </div>
                     </div>
                   </div>
@@ -988,31 +1019,34 @@ export default function TransportRequestPage() {
               )}
             </div>
 
-            <div className="pt-8 mt-8 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-slate-100">
+            <div className={`pt-8 mt-8 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-slate-100 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
               <Button
                 variant="outline"
                 onClick={handlePrev}
                 disabled={currentStep === 1}
-                className={`w-full sm:w-auto h-14 px-8 rounded-2xl border-slate-200 font-bold transition-all duration-200 ${currentStep === 1 ? 'text-slate-300' : 'text-slate-600 hover:bg-slate-50'}`}
+                className={`w-full sm:w-auto h-14 px-10 rounded-2xl border-slate-200 text-sm font-bold transition-all duration-200 ${currentStep === 1 ? 'text-slate-300' : 'text-slate-600 hover:bg-slate-50'}`}
               >
-                Previous Step
+                {t.common.previous}
               </Button>
 
-              <Button
-                onClick={handleNext}
-                disabled={currentStep === 8}
-                className={`w-full sm:w-auto h-14 px-8 rounded-2xl bg-brand-blue hover:bg-brand-blue-hover text-white font-bold shadow-lg shadow-blue-100 transition-all duration-200 ${currentStep === 8 ? 'hidden' : 'flex'}`}
-              >
-                Continue to {steps[currentStep]?.label || 'Next'}
-              </Button>
-
-              {currentStep === 8 && (
+              <div className={`flex flex-col sm:flex-row gap-4 w-full sm:w-auto ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
                 <Button
-                  className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-200 transition-all duration-200"
+                  onClick={handleNext}
+                  disabled={currentStep === 8}
+                  className={`w-full sm:w-auto h-14 px-12 rounded-2xl bg-brand-blue hover:bg-brand-blue-hover text-white text-sm font-bold shadow-lg shadow-brand-blue/20 transition-all duration-200 ${currentStep === 8 ? 'hidden' : 'flex items-center gap-2 justify-center'}`}
                 >
-                  Submit Request
+                  {t.common.continue}
+                  <ChevronRight className={`h-5 w-5 ${isRTL ? 'rotate-180' : ''}`} />
                 </Button>
-              )}
+
+                {currentStep === 8 && (
+                  <Button
+                    className="w-full sm:w-auto h-14 px-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold shadow-lg shadow-emerald-200 transition-all duration-200"
+                  >
+                    {t.common.submit}
+                  </Button>
+                )}
+              </div>
             </div>
           </Card>
         </div>
@@ -1023,9 +1057,9 @@ export default function TransportRequestPage() {
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-blue to-blue-400" />
 
             <div className="space-y-6">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
+              <div className={`flex items-center gap-3 border-b border-slate-100 pb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <Info className="h-6 w-6 text-brand-blue" />
-                <h3 className="text-xl font-bold text-brand-text">Request Summary</h3>
+                <h3 className="text-xl font-bold text-brand-text">{language === 'ar' ? 'ملخص الطلب' : 'Request Summary'}</h3>
               </div>
 
               <div className="space-y-5">

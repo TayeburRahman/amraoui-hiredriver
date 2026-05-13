@@ -20,8 +20,9 @@ export function Navbar() {
 
   const languages = [
     { code: 'en', name: 'English' },
-    { code: 'fr', name: 'French' },
-    { code: 'nl', name: 'Dutch' },
+    { code: 'fr', name: 'Français' },
+    { code: 'nl', name: 'Nederlands' },
+    { code: 'ar', name: 'العربية' },
   ];
 
   return (

@@ -120,10 +120,10 @@ export default function TransportRequestPage() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto p-4 md:p-8 lg:p-12 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="space-y-2">
-        <h1 className="text-3xl md:text-4xl font-black text-brand-text">{t.createRequest?.title || 'Transport Request'}</h1>
-        <p className="text-slate-500 font-medium">{t.createRequest?.subtitle || 'Fill in the details below.'}</p>
+    <div className="max-w-[1400px] mx-auto p-4 sm:p-6 md:p-8 lg:p-10 space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-x-hidden">
+      <div className="space-y-2 px-1">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-brand-text tracking-tight">{t.createRequest?.title || 'Transport Request'}</h1>
+        <p className="text-slate-500 font-medium text-sm sm:text-base">{t.createRequest?.subtitle || 'Fill in the details below.'}</p>
       </div>
 
       <div className="flex flex-col xl:flex-row gap-8 items-start">
@@ -131,7 +131,7 @@ export default function TransportRequestPage() {
         <div className="flex-1 w-full space-y-6">
 
           {/* Stepper Card */}
-          <Card className="p-6 rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
+          <Card className="p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-none shadow-sm bg-white overflow-hidden">
             <div className="relative overflow-x-auto pb-4 custom-scrollbar">
               <div className="min-w-[700px] relative">
                 <div className="absolute top-1/2 left-4 right-4 h-1 bg-slate-100 -translate-y-1/2 rounded-full" />
@@ -165,7 +165,7 @@ export default function TransportRequestPage() {
           </Card>
 
           {/* Form Content Card */}
-          <Card className="p-6 md:p-8 rounded-[2rem] border-none shadow-sm bg-white min-h-[500px] flex flex-col justify-between">
+          <Card className="p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border-none shadow-sm bg-white min-h-[500px] flex flex-col justify-between">
             <div className="space-y-8">
               {/* Step 1: Customer Details */}
               {currentStep === 1 && (
@@ -648,7 +648,7 @@ export default function TransportRequestPage() {
               {/* Step 7: Schedule & Payment */}
               {currentStep === 7 && (
                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                  <div className="max-w-4xl rounded-3xl border border-slate-200 bg-white shadow-sm p-8 mx-auto">
+                  <div className="max-w-4xl rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-sm p-5 sm:p-8 mx-auto">
                     
                     {/* Header */}
                     <div className="flex items-start gap-4 mb-8">
@@ -779,7 +779,7 @@ export default function TransportRequestPage() {
                     </div>
 
                     {/* Estimated Delivery Time */}
-                    <div className="mb-8 flex items-start gap-4 rounded-2xl border border-blue-200 bg-blue-100/70 px-6 py-5">
+                    <div className="mb-8 flex flex-col sm:flex-row items-start gap-4 rounded-2xl border border-blue-200 bg-blue-100/70 px-5 sm:px-6 py-5">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
                           <Info className="h-5 w-5 text-blue-600" />
@@ -814,8 +814,8 @@ export default function TransportRequestPage() {
                             : "bg-slate-50 hover:bg-slate-100"
                         }`}
                       >
-                        <div className="flex items-center gap-4">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500">
+                        <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500">
                             <CreditCard className="h-6 w-6 text-white" />
                           </div>
 
@@ -1018,8 +1018,8 @@ export default function TransportRequestPage() {
         </div>
 
         {/* Right Sidebar: Request Summary */}
-        <div className="w-full xl:w-[400px] shrink-0 sticky top-28">
-          <Card className="p-6 md:p-8 rounded-[2rem] border-none shadow-sm bg-white relative overflow-hidden">
+        <div className="w-full xl:w-[360px] 2xl:w-[400px] shrink-0 xl:sticky xl:top-28 max-h-screen xl:max-h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar pb-10 xl:pb-0">
+          <Card className="p-5 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] border-none shadow-sm bg-white relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-blue to-blue-400" />
 
             <div className="space-y-6">
@@ -1036,7 +1036,7 @@ export default function TransportRequestPage() {
                     <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium text-slate-500">Name</span>
-                        <span className="text-sm font-bold text-brand-text">
+                        <span className="text-sm font-bold text-brand-text truncate max-w-[150px] sm:max-w-[200px]">
                           {formData.firstName || formData.lastName ? `${formData.firstName} ${formData.lastName}` : '-'}
                         </span>
                       </div>
@@ -1063,11 +1063,11 @@ export default function TransportRequestPage() {
                         </div>
                         <div className="flex flex-col justify-between h-14">
                           <div className="flex flex-col">
-                            <span className="text-sm font-bold text-brand-text">{formData.pickupAddress ? `${formData.pickupAddress}` : 'Pickup location not set'}</span>
+                            <span className="text-sm font-bold text-brand-text break-words line-clamp-2">{formData.pickupAddress ? `${formData.pickupAddress}` : 'Pickup location not set'}</span>
                             {formData.pickupDate && <span className="text-xs text-slate-500">{formData.pickupDate}</span>}
                           </div>
                           <div className="flex flex-col">
-                            <span className="text-sm font-bold text-brand-text">{formData.dropoffAddress ? `${formData.dropoffAddress}` : 'Dropoff location not set'}</span>
+                            <span className="text-sm font-bold text-brand-text break-words line-clamp-2">{formData.dropoffAddress ? `${formData.dropoffAddress}` : 'Dropoff location not set'}</span>
                             {formData.dropoffDate && <span className="text-xs text-slate-500">{formData.dropoffDate}</span>}
                           </div>
                         </div>
@@ -1083,7 +1083,7 @@ export default function TransportRequestPage() {
                     <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium text-slate-500">Make & Model</span>
-                        <span className="text-sm font-bold text-brand-text">
+                        <span className="text-sm font-bold text-brand-text truncate max-w-[180px]">
                           {formData.make || formData.model ? `${formData.make} ${formData.model}` : '-'}
                         </span>
                       </div>

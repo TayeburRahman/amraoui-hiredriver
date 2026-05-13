@@ -34,8 +34,8 @@ export function Navbar() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-gradient py-4">
-      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <header className="fixed inset-x-0 top-0 z-50 bg-gradient py-2 max-w-480 mx-auto">
+      <nav className="section-container">
         <div className="flex h-20 items-center justify-center">
           <div className="flex w-full items-center justify-between rounded-full bg-white px-6 py-2 shadow-xl border border-white/10">
             <Link href="/" className="flex items-center gap-2">

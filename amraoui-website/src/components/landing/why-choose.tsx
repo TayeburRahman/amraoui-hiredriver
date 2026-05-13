@@ -37,7 +37,7 @@ const features = [
 
 export function WhyChoose() {
   return (
-    <section className="relative pt-24 pb-64 overflow-hidden bg-white">
+    <section className="relative pt-16 pb-24 md:pt-24 md:pb-50 overflow-hidden bg-white">
       {/* Background Blob Shape */}
       <div
         className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[1120px] h-[700px] bg-gradient z-0"
@@ -59,11 +59,11 @@ export function WhyChoose() {
       </div>
 
       <div className="section-container relative z-10">
-        <h2 className="text-4xl md:text-5xl font-extrabold text-brand-text text-center mb-32 tracking-tight">
+        <h2 className="text-3xl md:text-5xl font-extrabold text-brand-text text-center mb-12 md:mb-32 tracking-tight">
           Why choose Hiflow?
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
           {features.map((feature, index) => (
             <div
               key={index}

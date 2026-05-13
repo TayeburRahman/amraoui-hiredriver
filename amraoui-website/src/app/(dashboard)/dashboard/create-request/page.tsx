@@ -5,11 +5,19 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useTranslation } from '@/hooks/useTranslation';
 import {
   CarFront, Zap, Fuel, Car, Truck, Bike, Activity,
-  Check, MapPin, Calendar, FileCheck, Map, Settings, Search, Info, User,
-  FileText, Upload, ShieldCheck, Image as ImageIcon, CreditCard, Clock
+  Check, MapPin, Calendar, FileCheck, Map, Settings, Search, Info, User, Phone,
+  FileText, Upload, ShieldCheck, Shield, Image as ImageIcon, CreditCard, Clock,
+  ArrowRight
 } from 'lucide-react';
 
 export default function CreateRequestPage() {
@@ -45,21 +53,35 @@ export default function CreateRequestPage() {
     dropoffContactName: '',
     dropoffContactPhone: '',
     dropoffLocationType: '',
+    dropoffInstructions: '',
     serviceType: '',
     condition: '',
     additionalOptions: [] as string[],
-    // Step 5: Documents
-    idDocumentName: '',
+    specialInstructions: '',
+    adminNotes: '',
+    deliveryConditions: [] as string[],
+    vehiclePhotos: '',
     registrationDocumentName: '',
-    insuranceDocumentName: '',
-    // Step 6: Schedule & Payment
+    referenceDocumentName: '',
     scheduledDate: '',
     scheduledTime: '',
-    paymentMethod: 'card', // card, bank_transfer, cash
+    pickupTime: '',
+    dropoffTime: '',
+    confirmSchedulePayment: false,
+    paymentMethod: 'invoice',
   });
 
   const updateForm = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const toggleDeliveryCondition = (condition: string) => {
+    setFormData(prev => {
+      const conditions = prev.deliveryConditions.includes(condition)
+        ? prev.deliveryConditions.filter(c => c !== condition)
+        : [...prev.deliveryConditions, condition];
+      return { ...prev, deliveryConditions: conditions };
+    });
   };
 
   const engineTypes = [
@@ -82,13 +104,14 @@ export default function CreateRequestPage() {
     { num: 2, label: 'Pickup', icon: MapPin },
     { num: 3, label: 'Dropoff', icon: Map },
     { num: 4, label: 'Vehicle', icon: CarFront },
-    { num: 5, label: 'Documents', icon: FileText },
-    { num: 6, label: 'Schedule & Payment', icon: CreditCard },
-    { num: 7, label: 'Review', icon: FileCheck },
+    { num: 5, label: 'Instructions', icon: Info },
+    { num: 6, label: 'Documents', icon: FileText },
+    { num: 7, label: 'Schedule & Payment', icon: CreditCard },
+    { num: 8, label: 'Review', icon: FileCheck },
   ];
 
   const handleNext = () => {
-    if (currentStep < 7) setCurrentStep(currentStep + 1);
+    if (currentStep < 8) setCurrentStep(currentStep + 1);
   };
 
   const handlePrev = () => {
@@ -235,50 +258,83 @@ export default function CreateRequestPage() {
               {currentStep === 3 && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
-                      <Map className="h-5 w-5 text-brand-blue" />
-                      Delivery Information
-                    </h2>
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
+                        <MapPin className="h-6 w-6 text-brand-blue" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-brand-text">
+                          Delivery information
+                        </h2>
+                        <p className="text-slate-500 text-sm mt-1">
+                          Add the final delivery address and receiver details.
+                        </p>
+                      </div>
+                    </div>
 
                     <div className="space-y-6">
+                      
+                      {/* Address */}
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">Dropoff Address</Label>
                         <div className="relative">
-                          <Input value={formData.dropoffAddress} onChange={(e) => updateForm('dropoffAddress', e.target.value)} placeholder="Enter street address..." className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                          <Map className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                          <Input
+                            value={formData.dropoffAddress}
+                            onChange={(e) => updateForm("dropoffAddress", e.target.value)}
+                            placeholder="Delivery address"
+                            className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          />
                         </div>
                       </div>
 
+                      {/* Contact Row */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
                         <div className="space-y-2">
-                          <Label className="text-brand-text font-bold ml-1">Zip Code</Label>
-                          <Input value={formData.dropoffZip} onChange={(e) => updateForm('dropoffZip', e.target.value)} placeholder="80331" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-brand-text font-bold ml-1">Dropoff Date</Label>
+                          <Label className="text-brand-text font-bold ml-1">Contact Name</Label>
                           <div className="relative">
-                            <Input type="date" value={formData.dropoffDate} onChange={(e) => updateForm('dropoffDate', e.target.value)} className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                            <Calendar className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                            <Input
+                              value={formData.dropoffContactName}
+                              onChange={(e) =>
+                                updateForm("dropoffContactName", e.target.value)
+                              }
+                              placeholder="Delivery contact person name"
+                              className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-brand-text font-bold ml-1">Contact Phone</Label>
+                          <div className="relative">
+                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                            <Input
+                              value={formData.dropoffContactPhone}
+                              type="tel"
+                              onChange={(e) =>
+                                updateForm("dropoffContactPhone", e.target.value)
+                              }
+                              placeholder="Delivery contact phone"
+                              className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                            />
                           </div>
                         </div>
                       </div>
 
-                      <div className="h-[1px] w-full bg-slate-100 my-6" />
-
-                      <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide">Dropoff Contact</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <div className="space-y-2">
-                            <Label className="text-brand-text font-bold ml-1">Contact Name</Label>
-                            <Input value={formData.dropoffContactName} onChange={(e) => updateForm('dropoffContactName', e.target.value)} placeholder="Name of person at delivery" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-brand-text font-bold ml-1">Contact Phone</Label>
-                            <Input value={formData.dropoffContactPhone} type="tel" onChange={(e) => updateForm('dropoffContactPhone', e.target.value)} placeholder="+1 234 567 890" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                          </div>
-                        </div>
+                      {/* Instructions */}
+                      <div className="space-y-2">
+                        <Label className="text-brand-text font-bold ml-1">Instructions</Label>
+                        <textarea
+                          value={formData.dropoffInstructions}
+                          onChange={(e) =>
+                            updateForm("dropoffInstructions", e.target.value)
+                          }
+                          placeholder="Add delivery instructions (optional)"
+                          className="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 min-h-[130px] resize-none text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200"
+                        />
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -296,18 +352,36 @@ export default function CreateRequestPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">Vehicle Type</Label>
-                        <select
+                        <Select
                           value={formData.vehicleType}
-                          onChange={(e) => updateForm("vehicleType", e.target.value)}
-                          className="h-12 w-full rounded-2xl border border-slate-100 bg-slate-50 px-4 text-slate-600 outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200"
+                          onValueChange={(value) => updateForm("vehicleType", value)}
                         >
-                          <option value="">Select vehicle type</option>
-                          {vehicleTypes.map((vehicle) => (
-                            <option key={vehicle.id} value={vehicle.id}>
-                              {vehicle.label}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger className="!h-12 !w-full rounded-2xl border-slate-100 bg-slate-50 px-4 text-slate-600 focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200">
+                            {formData.vehicleType ? (
+                              <div className="flex flex-1 items-center gap-2 text-left">
+                                {(() => {
+                                  const Icon = vehicleTypes.find(v => v.id === formData.vehicleType)?.icon || CarFront;
+                                  return <Icon className="h-4 w-4 text-brand-blue shrink-0" />;
+                                })()}
+                                <span className="font-medium text-brand-text truncate">
+                                  {vehicleTypes.find(v => v.id === formData.vehicleType)?.label}
+                                </span>
+                              </div>
+                            ) : (
+                              <SelectValue placeholder="Select vehicle type" />
+                            )}
+                          </SelectTrigger>
+                          <SelectContent className="w-[var(--radix-select-trigger-width)] min-w-[200px] rounded-2xl border-slate-100 shadow-xl">
+                            {vehicleTypes.map((vehicle) => (
+                              <SelectItem key={vehicle.id} value={vehicle.id} className="rounded-xl cursor-pointer py-2.5">
+                                <div className="flex items-center gap-2">
+                                  <vehicle.icon className="h-4 w-4 text-brand-blue shrink-0" />
+                                  <span className="font-medium text-slate-700 truncate">{vehicle.label}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
 
                       <div className="space-y-2">
@@ -352,18 +426,36 @@ export default function CreateRequestPage() {
 
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">Engine Type</Label>
-                        <select
+                        <Select
                           value={formData.engineType}
-                          onChange={(e) => updateForm("engineType", e.target.value)}
-                          className="h-12 w-full rounded-2xl border border-slate-100 bg-slate-50 px-4 text-slate-600 outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200"
+                          onValueChange={(value) => updateForm("engineType", value)}
                         >
-                          <option value="">Select engine type</option>
-                          {engineTypes.map((engine) => (
-                            <option key={engine.id} value={engine.id}>
-                              {engine.label}
-                            </option>
-                          ))}
-                        </select>
+                          <SelectTrigger className="!h-12 !w-full rounded-2xl border-slate-100 bg-slate-50 px-4 text-slate-600 focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200">
+                            {formData.engineType ? (
+                              <div className="flex flex-1 items-center gap-2 text-left">
+                                {(() => {
+                                  const Icon = engineTypes.find(e => e.id === formData.engineType)?.icon || Activity;
+                                  return <Icon className="h-4 w-4 text-brand-blue shrink-0" />;
+                                })()}
+                                <span className="font-medium text-brand-text truncate">
+                                  {engineTypes.find(e => e.id === formData.engineType)?.label}
+                                </span>
+                              </div>
+                            ) : (
+                              <SelectValue placeholder="Select engine type" />
+                            )}
+                          </SelectTrigger>
+                          <SelectContent className="w-[var(--radix-select-trigger-width)] min-w-[200px] rounded-2xl border-slate-100 shadow-xl">
+                            {engineTypes.map((engine) => (
+                              <SelectItem key={engine.id} value={engine.id} className="rounded-xl cursor-pointer py-2.5">
+                                <div className="flex items-center gap-2">
+                                  <engine.icon className="h-4 w-4 text-brand-blue shrink-0" />
+                                  <span className="font-medium text-slate-700 truncate">{engine.label}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   </div>
@@ -382,7 +474,7 @@ export default function CreateRequestPage() {
                           key={option.id}
                           type="button"
                           onClick={() => updateForm("deliveryType", option.id)}
-                          className={`w-full h-14 rounded-2xl border-2 px-6 text-left font-bold transition-all duration-200 ${formData.deliveryType === option.id
+                          className={`w-full min-h-[56px] h-auto py-3 rounded-2xl border-2 px-6 text-left font-bold transition-all duration-200 ${formData.deliveryType === option.id
                             ? "border-brand-blue bg-brand-blue-light/30 text-brand-blue shadow-sm shadow-brand-blue/10"
                             : "border-slate-100 bg-slate-50 hover:border-brand-blue/40 text-slate-600"
                             }`}
@@ -395,153 +487,370 @@ export default function CreateRequestPage() {
                 </div>
               )}
 
-              {/* Step 5: Documents */}
+              {/* Step 5: Special Instructions */}
               {currentStep === 5 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
+                  {/* Special Instructions */}
                   <div className="space-y-6">
-                    <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
-                      <FileText className="h-5 w-5 text-brand-blue" />
-                      Required Documents
-                    </h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* ID Document */}
-                      <div className="space-y-3">
-                        <Label className="text-brand-text font-bold ml-1">Identity Document (ID/Passport)</Label>
-                        <div className="relative group">
-                          <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-200 ${formData.idDocumentName ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-brand-blue'}`}>
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              {formData.idDocumentName ? (
-                                <>
-                                  <ShieldCheck className="w-8 h-8 mb-2 text-emerald-500" />
-                                  <p className="text-sm font-bold text-emerald-600">{formData.idDocumentName}</p>
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="w-8 h-8 mb-2 text-slate-400 group-hover:text-brand-blue" />
-                                  <p className="text-sm text-slate-500 font-medium">Click to upload ID</p>
-                                </>
-                              )}
-                            </div>
-                            <input type="file" className="hidden" onChange={(e) => updateForm('idDocumentName', e.target.files?.[0]?.name || '')} />
-                          </label>
-                        </div>
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
+                        <Info className="h-6 w-6 text-brand-blue" />
                       </div>
-
-                      {/* Registration Document */}
-                      <div className="space-y-3">
-                        <Label className="text-brand-text font-bold ml-1">Vehicle Registration (V5C/Title)</Label>
-                        <div className="relative group">
-                          <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-200 ${formData.registrationDocumentName ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-brand-blue'}`}>
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              {formData.registrationDocumentName ? (
-                                <>
-                                  <ShieldCheck className="w-8 h-8 mb-2 text-emerald-500" />
-                                  <p className="text-sm font-bold text-emerald-600">{formData.registrationDocumentName}</p>
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="w-8 h-8 mb-2 text-slate-400 group-hover:text-brand-blue" />
-                                  <p className="text-sm text-slate-500 font-medium">Click to upload Registration</p>
-                                </>
-                              )}
-                            </div>
-                            <input type="file" className="hidden" onChange={(e) => updateForm('registrationDocumentName', e.target.files?.[0]?.name || '')} />
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Insurance Document */}
-                      <div className="space-y-3 md:col-span-2">
-                        <Label className="text-brand-text font-bold ml-1">Insurance Certificate (Optional)</Label>
-                        <div className="relative group">
-                          <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-200 ${formData.insuranceDocumentName ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-brand-blue'}`}>
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                              {formData.insuranceDocumentName ? (
-                                <>
-                                  <ShieldCheck className="w-8 h-8 mb-2 text-emerald-500" />
-                                  <p className="text-sm font-bold text-emerald-600">{formData.insuranceDocumentName}</p>
-                                </>
-                              ) : (
-                                <>
-                                  <Upload className="w-8 h-8 mb-2 text-slate-400 group-hover:text-brand-blue" />
-                                  <p className="text-sm text-slate-500 font-medium">Click to upload Insurance</p>
-                                </>
-                              )}
-                            </div>
-                            <input type="file" className="hidden" onChange={(e) => updateForm('insuranceDocumentName', e.target.files?.[0]?.name || '')} />
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 6: Schedule & Payment */}
-              {currentStep === 6 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                  <div className="space-y-8">
-                    <div className="space-y-6">
-                      <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
-                        <Clock className="h-5 w-5 text-brand-blue" />
-                        Preferred Schedule
-                      </h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label className="text-brand-text font-bold ml-1">Scheduled Date</Label>
-                          <div className="relative">
-                            <Input type="date" value={formData.scheduledDate} onChange={(e) => updateForm('scheduledDate', e.target.value)} className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                            <Calendar className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-brand-text font-bold ml-1">Preferred Time</Label>
-                          <div className="relative">
-                            <Input type="time" value={formData.scheduledTime} onChange={(e) => updateForm('scheduledTime', e.target.value)} className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
-                            <Clock className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                          </div>
-                        </div>
+                      <div>
+                        <h2 className="text-xl md:text-2xl font-bold text-brand-text">
+                          Special instructions
+                        </h2>
+                        <p className="text-slate-500 text-sm mt-1">
+                          Share anything the driver or admin should know.
+                        </p>
                       </div>
                     </div>
 
-                    <div className="h-[1px] w-full bg-slate-100" />
-
                     <div className="space-y-6">
-                      <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
-                        <CreditCard className="h-5 w-5 text-brand-blue" />
-                        Payment Method
-                      </h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <textarea
+                        rows={3}
+                        value={formData.specialInstructions}
+                        onChange={(e) => updateForm("specialInstructions", e.target.value)}
+                        placeholder="Example: Please call before pickup, documents are inside the vehicle, handle with care..."
+                        className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-2 focus:ring-brand-blue/20"
+                      />
+
+                      <textarea
+                        rows={3}
+                        value={formData.adminNotes}
+                        onChange={(e) => updateForm("adminNotes", e.target.value)}
+                        placeholder="Add notes if needed"
+                        className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:ring-2 focus:ring-brand-blue/20"
+                      />
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="font-semibold text-brand-text text-sm ml-1">
+                        Delivery conditions
+                      </h3>
+                      <div className="flex flex-wrap gap-3">
                         {[
-                          { id: 'card', label: 'Credit Card', icon: CreditCard },
-                          { id: 'bank_transfer', label: 'Bank Transfer', icon: Activity },
-                          { id: 'cash', label: 'Cash on Pickup', icon: Fuel },
-                        ].map((method) => (
-                          <div
-                            key={method.id}
-                            onClick={() => updateForm('paymentMethod', method.id)}
-                            className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-3 text-center ${formData.paymentMethod === method.id
-                              ? 'border-brand-blue bg-brand-blue-light/30 shadow-md shadow-brand-blue/10'
-                              : 'border-slate-100 hover:border-brand-blue/40 hover:bg-slate-50'
-                              }`}
-                          >
-                            <div className={`p-4 rounded-xl ${formData.paymentMethod === method.id ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-500'}`}>
-                              <method.icon className="h-6 w-6" />
-                            </div>
-                            <span className={`font-bold ${formData.paymentMethod === method.id ? 'text-brand-blue' : 'text-slate-600'}`}>
-                              {method.label}
-                            </span>
-                          </div>
-                        ))}
+                          "Call before pickup",
+                          "Documents inside vehicle",
+                          "Handle with care",
+                          "Do not refuel",
+                          "Contact receiver first",
+                          "Vehicle has low fuel",
+                        ].map((condition) => {
+                          const isActive = formData.deliveryConditions.includes(condition);
+                          return (
+                            <button
+                              key={condition}
+                              type="button"
+                              onClick={() => toggleDeliveryCondition(condition)}
+                              className={`rounded-full border px-5 py-2.5 text-sm font-medium transition-all duration-200 ${isActive ? 'border-brand-blue bg-brand-blue text-white shadow-md shadow-brand-blue/20' : 'border-slate-100 bg-slate-50 text-slate-600 hover:border-brand-blue/30'}`}
+                            >
+                              {condition}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Step 7: Review & Submit */}
+              {/* Step 6: Documents & Photos */}
+              {currentStep === 6 && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500 space-y-8">
+                  {/* Documents & Photos */}
+                  <div className="space-y-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
+                        <FileText className="h-6 w-6 text-brand-blue" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl md:text-2xl font-bold text-brand-text">
+                          Documents & Photos
+                        </h2>
+                        <p className="text-slate-500 text-sm mt-1">
+                          Upload useful files for a smoother vehicle handover.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-4 rounded-2xl border border-brand-blue/20 bg-brand-blue-light/20 p-5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm">
+                        <Shield className="h-5 w-5 text-brand-blue" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-brand-text text-sm">
+                          Secure file attachment
+                        </h3>
+                        <p className="text-sm text-slate-600 mt-1">
+                          Your documents and photos will be attached securely to this transport request.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {/* Vehicle Photos */}
+                      <label className={`cursor-pointer rounded-3xl border-2 border-dashed p-6 text-center flex flex-col items-center transition-all duration-200 ${formData.vehiclePhotos ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:border-brand-blue/50 hover:bg-slate-100'}`}>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm mb-4">
+                          {formData.vehiclePhotos ? <ShieldCheck className="h-7 w-7 text-emerald-500" /> : <Upload className="h-7 w-7 text-brand-blue" />}
+                        </div>
+                        <h3 className="text-base font-bold text-brand-text mb-2">
+                          Vehicle photos
+                        </h3>
+                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1">
+                          {formData.vehiclePhotos ? formData.vehiclePhotos : "Add clear photos of the vehicle if available."}
+                        </p>
+                        <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.vehiclePhotos ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
+                          {formData.vehiclePhotos ? 'Change Photo' : 'Add Photo'}
+                        </div>
+                        <input type="file" className="hidden" onChange={(e) => updateForm('vehiclePhotos', e.target.files?.[0]?.name || '')} />
+                      </label>
+
+                      {/* Registration */}
+                      <label className={`cursor-pointer rounded-3xl border-2 border-dashed p-6 text-center flex flex-col items-center transition-all duration-200 ${formData.registrationDocumentName ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:border-brand-blue/50 hover:bg-slate-100'}`}>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm mb-4">
+                          {formData.registrationDocumentName ? <ShieldCheck className="h-7 w-7 text-emerald-500" /> : <Upload className="h-7 w-7 text-brand-blue" />}
+                        </div>
+                        <h3 className="text-base font-bold text-brand-text mb-2">
+                          Registration document
+                        </h3>
+                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1">
+                          {formData.registrationDocumentName ? formData.registrationDocumentName : "Upload vehicle registration or ownership document."}
+                        </p>
+                        <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.registrationDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
+                          {formData.registrationDocumentName ? 'Change Document' : 'Add Document'}
+                        </div>
+                        <input type="file" className="hidden" onChange={(e) => updateForm('registrationDocumentName', e.target.files?.[0]?.name || '')} />
+                      </label>
+
+                      {/* Reference */}
+                      <label className={`cursor-pointer rounded-3xl border-2 border-dashed p-6 text-center flex flex-col items-center transition-all duration-200 ${formData.referenceDocumentName ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:border-brand-blue/50 hover:bg-slate-100'}`}>
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm mb-4">
+                          {formData.referenceDocumentName ? <ShieldCheck className="h-7 w-7 text-emerald-500" /> : <Upload className="h-7 w-7 text-brand-blue" />}
+                        </div>
+                        <h3 className="text-base font-bold text-brand-text mb-2">
+                          Reference document
+                        </h3>
+                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1">
+                          {formData.referenceDocumentName ? formData.referenceDocumentName : "Add any extra file for the driver or admin."}
+                        </p>
+                        <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.referenceDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
+                          {formData.referenceDocumentName ? 'Change File' : 'Add File'}
+                        </div>
+                        <input type="file" className="hidden" onChange={(e) => updateForm('referenceDocumentName', e.target.files?.[0]?.name || '')} />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 7: Schedule & Payment */}
               {currentStep === 7 && (
+                <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                  <div className="max-w-4xl rounded-3xl border border-slate-200 bg-white shadow-sm p-8 mx-auto">
+                    
+                    {/* Header */}
+                    <div className="flex items-start gap-4 mb-8">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100">
+                        <Calendar className="h-6 w-6 text-blue-600" />
+                      </div>
+
+                      <div>
+                        <h2 className="text-3xl font-bold text-slate-800">
+                          Schedule & Payment
+                        </h2>
+                        <p className="text-slate-500 mt-1">
+                          Choose pickup and delivery slots, then confirm payment.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Route Summary */}
+                    <div className="mb-8 flex items-center justify-between rounded-2xl bg-blue-50 px-6 py-5">
+                      <div className="flex items-center gap-8">
+                        <div>
+                          <h3 className="font-bold text-slate-800">
+                            {formData.pickupCity || "Paris"}
+                          </h3>
+                          <p className="text-sm text-slate-500">
+                            Pickup
+                          </p>
+                        </div>
+
+                        <ArrowRight className="h-6 w-6 text-blue-600" />
+
+                        <div>
+                          <h3 className="font-bold text-slate-800">
+                            {formData.dropoffCity || "Lyon"}
+                          </h3>
+                          <p className="text-sm text-slate-500">
+                            Delivery
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <h3 className="font-bold text-slate-800">
+                          {formData.make || formData.model ? `${formData.make} ${formData.model}` : "Vehicle"}
+                        </h3>
+                        <p className="text-sm text-slate-500">
+                          Vehicle
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Pickup Schedule */}
+                    <div className="mb-7">
+                      <h3 className="mb-4 text-lg font-bold text-slate-800">
+                        Pickup schedule
+                      </h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="relative">
+                          <Calendar className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <Input
+                            type="date"
+                            value={formData.pickupDate || ""}
+                            onChange={(e) => updateForm("pickupDate", e.target.value)}
+                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                          />
+                          {!formData.pickupDate && (
+                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
+                              Select pickup date
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="relative">
+                          <Clock className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <Input
+                            type="time"
+                            value={formData.pickupTime || ""}
+                            onChange={(e) => updateForm("pickupTime", e.target.value)}
+                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                          />
+                          {!formData.pickupTime && (
+                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
+                              Select pickup time
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Delivery Schedule */}
+                    <div className="mb-7">
+                      <h3 className="mb-4 text-lg font-bold text-slate-800">
+                        Delivery schedule
+                      </h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="relative">
+                          <Calendar className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <Input
+                            type="date"
+                            value={formData.dropoffDate || ""}
+                            onChange={(e) => updateForm("dropoffDate", e.target.value)}
+                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                          />
+                          {!formData.dropoffDate && (
+                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
+                              Select delivery date
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="relative">
+                          <Clock className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <Input
+                            type="time"
+                            value={formData.dropoffTime || ""}
+                            onChange={(e) => updateForm("dropoffTime", e.target.value)}
+                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                          />
+                          {!formData.dropoffTime && (
+                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
+                              Select delivery time
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Estimated Delivery Time */}
+                    <div className="mb-8 flex items-start gap-4 rounded-2xl border border-blue-200 bg-blue-100/70 px-6 py-5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white">
+                          <Info className="h-5 w-5 text-blue-600" />
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3 className="font-bold text-slate-800">
+                          Estimated delivery time
+                        </h3>
+                        <p className="mt-2 text-2xl font-extrabold text-blue-600">
+                          24–48 hours
+                        </p>
+                        <p className="mt-2 text-sm text-slate-500">
+                          Final timing depends on driver assignment and route availability.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Payment Method */}
+                    <div className="mb-7 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/40">
+                      <h3 className="mb-5 text-xl font-bold text-slate-800">
+                        Payment method
+                      </h3>
+
+                      <button
+                        type="button"
+                        onClick={() => updateForm("paymentMethod", "invoice")}
+                        className={`w-full rounded-2xl px-5 py-4 transition-all duration-200 ${
+                          formData.paymentMethod === "invoice"
+                            ? "bg-slate-100 ring-2 ring-blue-200"
+                            : "bg-slate-50 hover:bg-slate-100"
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500">
+                            <CreditCard className="h-6 w-6 text-white" />
+                          </div>
+
+                          <span className="font-bold text-slate-800">
+                            Pay through invoice
+                          </span>
+                        </div>
+                      </button>
+                    </div>
+
+                    {/* Confirmation */}
+                    <label className="flex items-start gap-3 pl-8 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.confirmSchedulePayment || false}
+                        onChange={(e) =>
+                          updateForm("confirmSchedulePayment", e.target.checked)
+                        }
+                        className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+
+                      <div>
+                        <p className="font-medium text-slate-800">
+                          I confirm the schedule and payment details
+                        </p>
+                        <p className="mt-2 text-sm text-slate-500">
+                          Payment is processed securely.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 8: Review & Submit */}
+              {currentStep === 8 && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
@@ -605,12 +914,16 @@ export default function CreateRequestPage() {
                         </div>
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <Check className={`h-4 w-4 ${formData.idDocumentName ? 'text-emerald-500' : 'text-slate-300'}`} />
-                            <span className="text-sm text-slate-600">Identity Document</span>
+                            <Check className={`h-4 w-4 ${formData.vehiclePhotos ? 'text-emerald-500' : 'text-slate-300'}`} />
+                            <span className="text-sm text-slate-600">Vehicle Photos</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Check className={`h-4 w-4 ${formData.registrationDocumentName ? 'text-emerald-500' : 'text-slate-300'}`} />
                             <span className="text-sm text-slate-600">Registration Document</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Check className={`h-4 w-4 ${formData.referenceDocumentName ? 'text-emerald-500' : 'text-slate-300'}`} />
+                            <span className="text-sm text-slate-600">Reference Document</span>
                           </div>
                         </div>
                       </Card>
@@ -622,8 +935,40 @@ export default function CreateRequestPage() {
                           <h3 className="font-bold text-brand-text">Schedule & Payment</h3>
                         </div>
                         <div className="space-y-2">
-                          <p className="text-sm text-slate-600"><span className="font-bold">Scheduled:</span> {formData.scheduledDate} at {formData.scheduledTime}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Payment:</span> <span className="capitalize">{formData.paymentMethod.replace('_', ' ')}</span></p>
+                          <p className="text-sm text-slate-600"><span className="font-bold">Pickup:</span> {formData.pickupDate} {formData.pickupTime}</p>
+                          <p className="text-sm text-slate-600"><span className="font-bold">Delivery:</span> {formData.dropoffDate} {formData.dropoffTime}</p>
+                          <p className="text-sm text-slate-600"><span className="font-bold">Method:</span> <span className="capitalize">{formData.paymentMethod.replace('_', ' ')}</span></p>
+                        </div>
+                      </Card>
+
+                      {/* Instructions Summary */}
+                      <Card className="p-5 border-slate-100 bg-slate-50/50 rounded-2xl md:col-span-2">
+                        <div className="flex items-center gap-3 mb-4">
+                          <Info className="h-5 w-5 text-brand-blue" />
+                          <h3 className="font-bold text-brand-text">Special Instructions</h3>
+                        </div>
+                        <div className="space-y-4">
+                          {formData.specialInstructions && (
+                            <div>
+                              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">General Instructions</p>
+                              <p className="text-sm text-slate-600 italic">"{formData.specialInstructions}"</p>
+                            </div>
+                          )}
+                          {formData.deliveryConditions.length > 0 && (
+                            <div>
+                              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Conditions</p>
+                              <div className="flex flex-wrap gap-2">
+                                {formData.deliveryConditions.map((c) => (
+                                  <span key={c} className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                                    {c}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {!formData.specialInstructions && formData.deliveryConditions.length === 0 && (
+                            <p className="text-sm text-slate-400 italic">No special instructions provided.</p>
+                          )}
                         </div>
                       </Card>
                     </div>
@@ -642,27 +987,27 @@ export default function CreateRequestPage() {
               )}
             </div>
 
-            <div className="pt-8 mt-8 flex items-center justify-between border-t border-slate-100">
+            <div className="pt-8 mt-8 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-slate-100">
               <Button
                 variant="outline"
                 onClick={handlePrev}
                 disabled={currentStep === 1}
-                className={`h-14 px-8 rounded-2xl border-slate-200 font-bold transition-all duration-200 ${currentStep === 1 ? 'text-slate-300' : 'text-slate-600 hover:bg-slate-50'}`}
+                className={`w-full sm:w-auto h-14 px-8 rounded-2xl border-slate-200 font-bold transition-all duration-200 ${currentStep === 1 ? 'text-slate-300' : 'text-slate-600 hover:bg-slate-50'}`}
               >
                 Previous Step
               </Button>
 
               <Button
                 onClick={handleNext}
-                disabled={currentStep === 7}
-                className={`h-14 px-8 rounded-2xl bg-brand-blue hover:bg-brand-blue-hover text-white font-bold shadow-lg shadow-blue-100 transition-all duration-200 ${currentStep === 7 ? 'hidden' : 'flex'}`}
+                disabled={currentStep === 8}
+                className={`w-full sm:w-auto h-14 px-8 rounded-2xl bg-brand-blue hover:bg-brand-blue-hover text-white font-bold shadow-lg shadow-blue-100 transition-all duration-200 ${currentStep === 8 ? 'hidden' : 'flex'}`}
               >
                 Continue to {steps[currentStep]?.label || 'Next'}
               </Button>
 
-              {currentStep === 7 && (
+              {currentStep === 8 && (
                 <Button
-                  className="h-14 px-10 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-200 transition-all duration-200"
+                  className="w-full sm:w-auto h-14 px-10 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-200 transition-all duration-200"
                 >
                   Submit Request
                 </Button>
@@ -757,32 +1102,55 @@ export default function CreateRequestPage() {
                   </div>
                 )}
 
-                {/* Documents Section */}
+                {/* Instructions Section */}
                 {currentStep > 4 && (
                   <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">5. Documents</h4>
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">5. Instructions</h4>
                     <div className="p-4 rounded-2xl bg-slate-50 space-y-2 border border-slate-100/50">
                       <div className="flex items-center gap-2">
-                        {formData.idDocumentName ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
-                        <span className="text-sm font-medium text-slate-600">Identity Document</span>
+                        {formData.specialInstructions || formData.adminNotes || formData.deliveryConditions.length > 0 ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
+                        <span className="text-sm font-medium text-slate-600">Special Instructions</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Documents Section */}
+                {currentStep > 5 && (
+                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">6. Documents</h4>
+                    <div className="p-4 rounded-2xl bg-slate-50 space-y-2 border border-slate-100/50">
+                      <div className="flex items-center gap-2">
+                        {formData.vehiclePhotos ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
+                        <span className="text-sm font-medium text-slate-600">Vehicle Photos</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {formData.registrationDocumentName ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
-                        <span className="text-sm font-medium text-slate-600">Vehicle Registration</span>
+                        <span className="text-sm font-medium text-slate-600">Registration Document</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {formData.referenceDocumentName ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
+                        <span className="text-sm font-medium text-slate-600">Reference Document</span>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {/* Schedule & Payment Section */}
-                {currentStep > 5 && (
+                {currentStep > 6 && (
                   <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">6. Schedule & Payment</h4>
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">7. Schedule & Payment</h4>
                     <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Schedule</span>
+                        <span className="text-sm font-medium text-slate-500">Pickup</span>
                         <span className="text-sm font-bold text-brand-text">
-                          {formData.scheduledDate ? `${formData.scheduledDate} ${formData.scheduledTime}` : '-'}
+                          {formData.pickupDate ? `${formData.pickupDate} ${formData.pickupTime}` : '-'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-500">Delivery</span>
+                        <span className="text-sm font-bold text-brand-text">
+                          {formData.dropoffDate ? `${formData.dropoffDate} ${formData.dropoffTime}` : '-'}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">

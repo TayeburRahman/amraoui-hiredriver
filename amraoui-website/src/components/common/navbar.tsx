@@ -34,10 +34,10 @@ export function Navbar() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 bg-gradient pt-4">
+    <header className="fixed inset-x-0 top-0 z-50 bg-gradient py-4">
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-center">
-          <div className="flex w-full items-center justify-between rounded-full bg-background/80 backdrop-blur-md px-6 py-2 shadow-xl border border-white/20">
+          <div className="flex w-full items-center justify-between rounded-full bg-white px-6 py-2 shadow-xl border border-white/10">
             <Link href="/" className="flex items-center gap-2">
               <div className="flex size-10 items-center justify-center rounded-full button-gradient">
                 <Car className="size-5 text-white" />
@@ -45,7 +45,7 @@ export function Navbar() {
               <span className="text-xl font-bold text-brand-text">Hiflow</span>
             </Link>
 
-            <div className="hidden items-center gap-1 md:flex">
+            <div className="hidden items-center gap-1 lg:flex">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
                 return (
@@ -64,11 +64,10 @@ export function Navbar() {
               })}
             </div>
 
-            <div className="hidden items-center gap-3 md:flex">
+            <div className="hidden items-center gap-3 lg:flex">
               <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1 text-slate-500 hover:text-brand-blue font-semibold"
+                variant="outline"
+                className="text-muted-foreground"
               >
                 <Globe className="size-4" />
                 <span>EN</span>
@@ -112,7 +111,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden rounded-full"
+              className="lg:hidden rounded-full"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
               aria-label="Toggle menu"
             >
@@ -124,7 +123,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="mx-4 mt-2 rounded-3xl border bg-background/95 backdrop-blur-xl p-6 shadow-2xl md:hidden animate-in fade-in zoom-in-95 duration-300">
+        <div className="mx-4 mt-3 rounded-[2.5rem] border border-white/20 bg-white/95 backdrop-blur-xl p-8 shadow-2xl lg:hidden animate-in fade-in zoom-in-95 duration-300">
           <div className="space-y-2">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
@@ -132,7 +131,7 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`block rounded-xl px-4 py-3 text-base font-semibold transition-all ${
+                  className={`block rounded-xl px-4 py-3 text-base font-semibold transition-all border ${
                     isActive
                       ? 'bg-brand-blue/10 text-brand-blue'
                       : 'text-slate-600 hover:bg-slate-50'
@@ -145,8 +144,8 @@ export function Navbar() {
             })}
           </div>
 
-          <div className="mt-6 space-y-4 border-t border-slate-100 pt-6">
-            <Button variant="ghost" size="lg" className="w-full justify-start gap-3 rounded-xl font-semibold text-slate-600">
+          <div className="space-y-4 border-t border-slate-100 mt-4">
+            <Button variant="outline" size="lg" className="w-full justify-start gap-3 rounded-xl font-semibold text-slate-600">
               <Globe className="size-5" />
               <span>English</span>
               <ChevronDown className="size-4 ml-auto" />
@@ -154,7 +153,7 @@ export function Navbar() {
 
             {!isAuthenticated && (
               <Link href="/register" className="block w-full">
-                <Button className="w-full button-gradient text-white rounded-xl h-12 font-bold text-lg shadow-lg" onClick={() => setMobileMenuOpen(false)}>
+                <Button size={"lg"} className="w-full button-gradient rounded-full" onClick={() => setMobileMenuOpen(false)}>
                   Get Started
                 </Button>
               </Link>

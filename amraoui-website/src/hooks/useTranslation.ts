@@ -1,3 +1,5 @@
+'use client';
+
 import { useAppSelector } from '@/hooks/redux';
 import { translations, Language } from '@/lib/translations';
 

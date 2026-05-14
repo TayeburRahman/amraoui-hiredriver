@@ -2,8 +2,11 @@
 
 import { Key } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function BecomeDriver() {
+  const { t } = useTranslation();
+
   return (
     <section className="py-12 md:py-16 bg-gradient relative overflow-hidden">
       <div className="section-container relative z-10 text-center text-white">
@@ -14,10 +17,10 @@ export function BecomeDriver() {
 
         {/* Content */}
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          Become a driver
+          {t.landing.becomeDriver.title}
         </h2>
         <p className="text-blue-50/80 text-base md:text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-          As a self-employed professional, choose missions that fit your availability and get support from quote creation to final delivery.
+          {t.landing.becomeDriver.description}
         </p>
 
         {/* Buttons */}
@@ -26,13 +29,13 @@ export function BecomeDriver() {
             href="#" 
             className="bg-white text-brand-blue px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-all shadow-xl shadow-blue-900/20 w-full sm:w-auto text-sm md:text-base"
           >
-            How to do it?
+            {t.landing.becomeDriver.howBtn}
           </Link>
           <Link 
             href="#" 
             className="border-2 border-white/30 text-white px-8 py-3 rounded-full font-bold hover:bg-white/10 transition-all w-full sm:w-auto text-sm md:text-base"
           >
-            Sign Up
+            {t.landing.becomeDriver.signUpBtn}
           </Link>
         </div>
       </div>

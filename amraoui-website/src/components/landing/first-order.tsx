@@ -2,8 +2,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function FirstOrder() {
+  const { t } = useTranslation();
+
   return (
     <section className="relative py-16 md:py-32 overflow-hidden bg-white">
       {/* Background Vector Line */}
@@ -24,10 +27,10 @@ export function FirstOrder() {
           {/* Content Column */}
           <div className="flex-1 text-center lg:text-left z-10">
             <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
-              Place your first order
+              {t.landing.firstOrder.title}
             </h2>
             <p className="text-blue-100/80 text-lg md:text-xl mb-12 max-w-xl leading-relaxed">
-              Move one or multiple vehicles with trusted drivers, transparent tracking, and fast delivery coordination.
+              {t.landing.firstOrder.description}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -35,13 +38,13 @@ export function FirstOrder() {
                 href="#" 
                 className="bg-white text-brand-blue px-8 py-4 rounded-full font-bold hover:bg-blue-50 transition-all text-center shadow-lg"
               >
-                Discover the solutions
+                {t.landing.firstOrder.discoverBtn}
               </Link>
               <Link 
                 href="#" 
                 className="border-gradient px-8 py-4 rounded-full font-bold text-white transition-all text-center"
               >
-                Contact Sales
+                {t.landing.firstOrder.contactSalesBtn}
               </Link>
             </div>
           </div>

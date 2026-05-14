@@ -12,7 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { useTranslation } from '@/hooks/useTranslation';
+
 export function Contact() {
+  const { t } = useTranslation();
+
   return (
     <section className="py-24 bg-white overflow-hidden">
       <div className="section-container">
@@ -33,16 +37,16 @@ export function Contact() {
           {/* Right Column: Contact Form */}
           <div className="bg-white rounded-2xl p-6 md:p-8 shadow-xl border border-slate-50">
             <h2 className="text-2xl md:text-3xl font-bold text-brand-text mb-1">
-              Contact Us
+              {t.landing.contact.title}
             </h2>
             <p className="text-slate-500 text-sm md:text-base mb-6">
-              We will get back to you as soon as possible.
+              {t.landing.contact.subtitle}
             </p>
 
             <form className="space-y-3">
               <Select>
-                <SelectTrigger className="w-full data-[size=default]:h-12 rounded-full">
-                  <SelectValue placeholder="Select a topic" />
+                <SelectTrigger className="w-full data-[size=default]:h-12 rounded-full capitalize">
+                  <SelectValue placeholder={t.landing.contact.topic} />
                 </SelectTrigger>
                 <SelectContent className="data-[size=default]:h-14">
                   <SelectItem value="general">General Inquiry</SelectItem>
@@ -53,30 +57,30 @@ export function Contact() {
 
               <Input 
                 type="text" 
-                placeholder="Name and surname"
+                placeholder={t.landing.contact.name}
                 className="w-full bg-slate-50 border-none rounded-2xl h-12 px-4 text-slate-600 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-brand-blue/20"
               />
 
               <Input 
                 type="email" 
-                placeholder="Email"
+                placeholder={t.landing.contact.email}
                 className="w-full bg-slate-50 border-none rounded-2xl h-12 px-4 text-slate-600 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-brand-blue/20"
               />
 
               <Textarea 
-                placeholder="Write your message"
+                placeholder={t.landing.contact.message}
                 className="w-full bg-slate-50 border-none rounded-2xl p-4 text-slate-600 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-brand-blue/20 min-h-[120px] resize-none"
               />
 
               <p className="text-center text-xs text-slate-400 py-2">
-                I agree to the privacy policy and terms of service
+                {t.landing.contact.agree}
               </p>
 
               <Button 
                 type="submit"
                 className="w-full button-gradient text-white font-bold h-12 rounded-2xl shadow-lg shadow-blue-200 hover:opacity-90 transition-all transform active:scale-[0.98]"
               >
-                Send
+                {t.landing.contact.send}
               </Button>
             </form>
           </div>

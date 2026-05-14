@@ -1,14 +1,17 @@
 'use client';
 
 import Image from 'next/image';
-
-const stats = [
-  { label: 'Drivers', value: '10k+' },
-  { label: 'Response', value: '48h' },
-  { label: 'Live Support', value: '24/7' },
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function Solutions() {
+  const { t } = useTranslation();
+
+  const stats = [
+    { label: t.landing.solutions.stats.drivers, value: '10k+' },
+    { label: t.landing.solutions.stats.response, value: '48h' },
+    { label: t.landing.solutions.stats.support, value: '24/7' },
+  ];
+
   return (
     <section className="bg-gradient py-8 md:py-22">
       <div className="section-container">
@@ -16,16 +19,16 @@ export function Solutions() {
         <div className="flex flex-col lg:flex-row justify-between items-start gap-8 mb-16">
           <div className="max-w-2xl">
             <span className="text-xs font-bold tracking-[0.2em] uppercase text-blue-300/60 mb-4 block">
-              Solutions
+              {t.landing.solutions.badge}
             </span>
             <h2 className="text-4xl md:text-6xl font-bold text-white leading-tight">
-              Hiflow: the smarter <br />
-              delivery solution
+              {t.landing.solutions.title} <br />
+              {t.landing.solutions.titleLine2}
             </h2>
           </div>
           <div className="lg:max-w-md">
             <p className="text-blue-100/70 text-lg leading-relaxed">
-              Choose the delivery solution that fits your operation. From single vehicle movement to recurring logistics, Hiflow connects you with trusted drivers and real-time visibility.
+              {t.landing.solutions.description}
             </p>
           </div>
         </div>
@@ -36,10 +39,10 @@ export function Solutions() {
             {/* Card Content */}
             <div className="order-2 lg:order-1">
               <h3 className="text-2xl md:text-3xl font-bold text-brand-text mb-4">
-                Professional drivers
+                {t.landing.solutions.cardTitle}
               </h3>
               <p className="text-slate-500 text-base md:text-lg mb-8 max-w-md leading-relaxed">
-                10,000+ professional drivers respond within 48 hours. Fast, secure, and personal vehicle delivery for your business.
+                {t.landing.solutions.cardDesc}
               </p>
 
               {/* Stats Grid */}
@@ -69,7 +72,7 @@ export function Solutions() {
                 
                 {/* Badge on Image */}
                 <div className="absolute top-6 right-6 bg-[#A5F3E4] text-[#065F46] px-5 py-2 rounded-md font-bold text-sm shadow-sm backdrop-blur-sm border border-white/20">
-                  Verified Driver
+                  {t.landing.solutions.verifiedBadge}
                 </div>
               </div>
             </div>

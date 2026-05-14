@@ -1,12 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Car, Globe, ChevronDown, Menu, X, LogOut, User, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { logout } from '@/store/slices/authSlice';
+import { setLanguage } from '@/store/slices/settingsSlice';
+import { buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,23 +18,37 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useTranslation } from '@/hooks/useTranslation';
 
-const navLinks = [
-  { href: '/professionals', label: 'Professionals' },
-  { href: '/become-driver', label: 'Become a driver' },
-  { href: '/who-are-we', label: 'Who are we?' },
+const languages = [
+  { code: 'en', label: 'English', flag: '🇺🇸' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
+  { code: 'ar', label: 'العربية', flag: '🇸🇦' },
 ];
 
 export function Navbar() {
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { language } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const pathname = usePathname();
 
+  const navLinks = [
+    { href: '/professionals', label: t.common.professionals },
+    { href: '/become-driver', label: t.common.becomeDriver },
+    { href: '/who-are-we', label: t.common.whoAreWe },
+  ];
+
   const handleLogout = () => {
     dispatch(logout());
     router.push('/');
+  };
+
+  const handleLanguageChange = (code: string) => {
+    dispatch(setLanguage(code as any));
   };
 
   return (
@@ -65,24 +83,43 @@ export function Navbar() {
             </div>
 
             <div className="hidden items-center gap-3 lg:flex">
-              <Button
-                variant="outline"
-                className="text-muted-foreground"
-              >
-                <Globe className="size-4" />
-                <span>EN</span>
-                <ChevronDown className="size-3" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={cn(
+                    buttonVariants({ variant: "outline" }),
+                    "text-muted-foreground gap-2 rounded-full border-slate-100"
+                  )}
+                >
+                  <Globe className="size-4" />
+                  <span className="uppercase">{language}</span>
+                  <ChevronDown className="size-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40 rounded-2xl border-slate-100 shadow-2xl p-2">
+                  {languages.map((lang) => (
+                    <DropdownMenuItem 
+                      key={lang.code} 
+                      onClick={() => handleLanguageChange(lang.code)}
+                      className={`rounded-xl p-3 cursor-pointer flex items-center justify-between ${language === lang.code ? 'bg-brand-blue/10 text-brand-blue' : ''}`}
+                    >
+                      <span className="font-medium">{lang.label}</span>
+                      <span>{lang.flag}</span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               {isAuthenticated ? (
                 <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full border-2 border-slate-50 overflow-hidden p-0">
-                      <Avatar className="h-full w-full">
-                        <AvatarImage src={user?.avatar} alt={user?.name} />
-                        <AvatarFallback className="bg-brand-blue text-white">{user?.name?.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                    </Button>
+                  <DropdownMenuTrigger 
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "icon" }),
+                      "relative h-10 w-10 rounded-full border-2 border-slate-50 overflow-hidden p-0"
+                    )}
+                  >
+                    <Avatar className="h-full w-full">
+                      <AvatarImage src={user?.avatar} alt={user?.name} />
+                      <AvatarFallback className="bg-brand-blue text-white">{user?.name?.charAt(0)}</AvatarFallback>
+                    </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 rounded-2xl border-slate-100 shadow-2xl p-2">
                     <DropdownMenuItem onClick={() => router.push(user?.role === 'ADMIN' ? '/admin' : '/dashboard')} className="rounded-xl p-3 cursor-pointer">
@@ -102,7 +139,7 @@ export function Navbar() {
               ) : (
                 <Link href="/register">
                   <Button className="button-gradient font-bold text-white px-8 rounded-full h-11">
-                    Get Started
+                    {t.common.getStarted}
                   </Button>
                 </Link>
               )}
@@ -144,17 +181,25 @@ export function Navbar() {
             })}
           </div>
 
-          <div className="space-y-4 border-t border-slate-100 mt-4">
-            <Button variant="outline" size="lg" className="w-full justify-start gap-3 rounded-xl font-semibold text-slate-600">
-              <Globe className="size-5" />
-              <span>English</span>
-              <ChevronDown className="size-4 ml-auto" />
-            </Button>
+          <div className="space-y-4 border-t border-slate-100 mt-4 pt-4">
+            <div className="grid grid-cols-2 gap-2">
+              {languages.map((lang) => (
+                <Button
+                  key={lang.code}
+                  variant={language === lang.code ? "default" : "outline"}
+                  className={`justify-start gap-3 rounded-xl font-semibold ${language === lang.code ? 'button-gradient text-white border-none' : 'text-slate-600'}`}
+                  onClick={() => handleLanguageChange(lang.code)}
+                >
+                  <span>{lang.flag}</span>
+                  <span className="text-xs">{lang.label}</span>
+                </Button>
+              ))}
+            </div>
 
             {!isAuthenticated && (
               <Link href="/register" className="block w-full">
-                <Button size={"lg"} className="w-full button-gradient rounded-full" onClick={() => setMobileMenuOpen(false)}>
-                  Get Started
+                <Button size={"lg"} className="w-full button-gradient rounded-full font-bold shadow-lg shadow-blue-100" onClick={() => setMobileMenuOpen(false)}>
+                  {t.common.getStarted}
                 </Button>
               </Link>
             )}

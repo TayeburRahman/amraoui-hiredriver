@@ -1,8 +1,10 @@
 'use client';
 
+import { useTranslation } from '@/hooks/useTranslation';
 import Link from 'next/link';
 
 export function Footer() {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   const socialLinks = [
@@ -53,23 +55,23 @@ export function Footer() {
           <div className="space-y-6">
             <h2 className="text-3xl font-extrabold tracking-tight">Hiflow</h2>
             <p className="text-blue-50/70 leading-relaxed max-w-xs">
-              Your trusted partner for professional vehicle delivery across Spain.
+              {t.landing.footer.tagline}
             </p>
           </div>
 
           {/* Links Column 1 */}
           <div className="space-y-6">
-            <h3 className="text-lg font-bold">Transporting a vehicle</h3>
+            <h3 className="text-lg font-bold">{t.landing.footer.transport}</h3>
             <ul className="space-y-4 text-blue-50/70">
-              <li><Link href="#" className="hover:text-white transition-colors">Solutions for professionals</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Become a driver</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">{t.landing.solutions.badge}</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">{t.common.becomeDriver}</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Transportation with professional driver</Link></li>
             </ul>
           </div>
 
           {/* Links Column 2 */}
           <div className="space-y-6">
-            <h3 className="text-lg font-bold">Additional services</h3>
+            <h3 className="text-lg font-bold">{t.landing.footer.services}</h3>
             <ul className="space-y-4 text-blue-50/70">
               <li><Link href="#" className="hover:text-white transition-colors">Getting started with the vehicle</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Washing the vehicle</Link></li>
@@ -81,11 +83,11 @@ export function Footer() {
 
           {/* Links Column 3 */}
           <div className="space-y-6">
-            <h3 className="text-lg font-bold">Helpful Resources</h3>
+            <h3 className="text-lg font-bold">{t.landing.footer.resources}</h3>
             <ul className="space-y-4 text-blue-50/70">
               <li><Link href="#" className="hover:text-white transition-colors">Careers at Hiflow</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Who are we?</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">{t.common.whoAreWe}</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">{t.landing.contact.title}</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
             </ul>
           </div>
@@ -94,11 +96,11 @@ export function Footer() {
         {/* Divider */}
         <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-8 text-sm text-blue-50/60">
-            <span>© {currentYear} Hiflow. All rights reserved.</span>
+            <span>© {currentYear} Hiflow. {t.landing.footer.rights}</span>
             <div className="flex items-center gap-4">
               <Link href="#" className="hover:text-white transition-colors font-medium">UGC</Link>
               <Link href="#" className="hover:text-white transition-colors font-medium">GVC</Link>
-              <Link href="#" className="hover:text-white transition-colors font-medium">Legal information</Link>
+              <Link href="#" className="hover:text-white transition-colors font-medium">{t.landing.footer.legal}</Link>
             </div>
           </div>
 

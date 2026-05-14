@@ -3,39 +3,42 @@
 import { Key, Truck, Laptop, Headset, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-
-const features = [
-  {
-    icon: <Key className="size-5 text-brand-blue" />,
-    title: 'Choose your delivery options',
-    description: 'Discover flexible delivery services tailored to your business.',
-    linkText: 'Find out more',
-    href: '#',
-  },
-  {
-    icon: <Truck className="size-5 text-brand-blue" />,
-    title: 'Track your vehicle in real time',
-    description: 'Follow every step from pickup to delivery with live status updates.',
-    linkText: 'Track delivery',
-    href: '#',
-  },
-  {
-    icon: <Laptop className="size-5 text-brand-blue" />,
-    title: 'A tailor-made digital platform',
-    description: 'Manage your operations with a platform customized to your workflow.',
-    linkText: 'Explore platform',
-    href: '#',
-  },
-  {
-    icon: <Headset className="size-5 text-brand-blue" />,
-    title: 'Available equipment',
-    description: 'Our support team and operational tools are always ready for your needs.',
-    linkText: 'Why choose Hiflow?',
-    href: '#',
-  },
-];
+import { useTranslation } from '@/hooks/useTranslation';
 
 export function WhyChoose() {
+  const { t } = useTranslation();
+
+  const features = [
+    {
+      icon: <Key className="size-5 text-brand-blue" />,
+      title: t.landing.whyChoose.feat1.title,
+      description: t.landing.whyChoose.feat1.desc,
+      linkText: t.landing.whyChoose.feat1.link,
+      href: '#',
+    },
+    {
+      icon: <Truck className="size-5 text-brand-blue" />,
+      title: t.landing.whyChoose.feat2.title,
+      description: t.landing.whyChoose.feat2.desc,
+      linkText: t.landing.whyChoose.feat2.link,
+      href: '#',
+    },
+    {
+      icon: <Laptop className="size-5 text-brand-blue" />,
+      title: t.landing.whyChoose.feat3.title,
+      description: t.landing.whyChoose.feat3.desc,
+      linkText: t.landing.whyChoose.feat3.link,
+      href: '#',
+    },
+    {
+      icon: <Headset className="size-5 text-brand-blue" />,
+      title: t.landing.whyChoose.feat4.title,
+      description: t.landing.whyChoose.feat4.desc,
+      linkText: t.landing.whyChoose.feat4.link,
+      href: '#',
+    },
+  ];
+
   return (
     <section className="relative pt-16 pb-24 md:pt-24 md:pb-50 overflow-hidden bg-white">
       {/* Background Blob Shape */}
@@ -60,7 +63,7 @@ export function WhyChoose() {
 
       <div className="section-container relative z-10">
         <h2 className="text-3xl md:text-5xl font-extrabold text-brand-text text-center mb-12 md:mb-32 tracking-tight">
-          Why choose Hiflow?
+          {t.landing.whyChoose.title}
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">

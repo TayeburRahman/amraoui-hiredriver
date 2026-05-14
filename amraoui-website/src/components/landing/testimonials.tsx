@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import * as React from "react";
@@ -9,55 +10,12 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 
-const testimonials = [
-  {
-    quote: "Everything was handled perfectly from pickup to delivery.",
-    author: "Revel",
-    rating: 5,
-  },
-  {
-    quote: "An efficient and practical platform for managing vehicle transfers.",
-    author: "Iberofleeting",
-    rating: 5,
-  },
-  {
-    quote: "Professional drivers and a very easy-to-use website.",
-    author: "Join",
-    rating: 5,
-  },
-  {
-    quote: "Great service and very reliable team. Highly recommended!",
-    author: "Mobility Co",
-    rating: 5,
-  },
-  {
-    quote: "Great service and very reliable team. Highly recommended!",
-    author: "Mobility Co",
-    rating: 5,
-  },
-  {
-    quote: "Great service and very reliable team. Highly recommended!",
-    author: "Mobility Co",
-    rating: 5,
-  },
-  {
-    quote: "Great service and very reliable team. Highly recommended!",
-    author: "Mobility Co",
-    rating: 5,
-  },
-  {
-    quote: "Great service and very reliable team. Highly recommended!",
-    author: "Mobility Co",
-    rating: 5,
-  },
-  {
-    quote: "Great service and very reliable team. Highly recommended!",
-    author: "Mobility Co",
-    rating: 5,
-  },
-];
+
+
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function Testimonials() {
+  const { t } = useTranslation();
   const [api, setApi] = React.useState<any>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -65,6 +23,7 @@ export function Testimonials() {
   React.useEffect(() => {
     if (!api) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap());
 
@@ -83,10 +42,10 @@ export function Testimonials() {
       <div className="section-container">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-brand-text mb-4">
-            Our customers talk about us
+            {t.landing.testimonials.title}
           </h2>
           <p className="text-slate-500 text-lg">
-            Trusted by mobility teams for reliable vehicle delivery.
+            {t.landing.testimonials.subtitle}
           </p>
         </div>
 
@@ -99,17 +58,17 @@ export function Testimonials() {
           className="w-full mx-auto"
         >
           <CarouselContent>
-            {testimonials.map((testimonial, index) => (
+            {(t.landing.testimonials.list || []).map((testimonial: any, index: number) => (
               <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/4 p-4">
                 <div className="bg-white p-6 rounded-[1.5rem] shadow-sm h-full flex flex-col justify-between border border-slate-100">
                   <div>
                     <div className="flex gap-1 mb-4">
-                      {[...Array(testimonial.rating)].map((_, i) => (
+                      {[...Array(5)].map((_, i) => (
                         <Star key={i} className="size-4 fill-orange-400 text-orange-400" />
                       ))}
                     </div>
                     <p className="text-brand-text text-base font-medium leading-relaxed mb-6 italic">
-                      "{testimonial.quote}"
+                      &quot;{testimonial.quote}&quot;
                     </p>
                   </div>
                   
@@ -143,7 +102,7 @@ export function Testimonials() {
             </div>
 
             {/* Next Button */}
-            <CarouselNext className="static translate-y-0 size-10 !bg-brand-blue !text-white hover:opacity-90 transition-all shadow-lg shadow-blue-200 border-none" />
+            <CarouselNext className="static translate-y-0 size-10 bg-brand-blue! text-white! hover:opacity-90 transition-all shadow-lg shadow-blue-200 border-none" />
           </div>
         </Carousel>
       </div>

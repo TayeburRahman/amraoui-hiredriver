@@ -8,5 +8,5 @@ export function useTranslation() {
   
   const t = translations[language as Language] || translations.en;
   
-  return { t, language };
+  return { t, language: language as string };
 }

@@ -24,7 +24,6 @@ const languages = [
   { code: 'en', label: 'English', flag: '🇺🇸' },
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'nl', label: 'Nederlands', flag: '🇳🇱' },
-  { code: 'ar', label: 'العربية', flag: '🇸🇦' },
 ];
 
 export function Navbar() {

@@ -22,7 +22,6 @@ export function Navbar() {
     { code: 'en', name: 'English' },
     { code: 'fr', name: 'Français' },
     { code: 'nl', name: 'Nederlands' },
-    { code: 'ar', name: 'العربية' },
   ];
 
   return (

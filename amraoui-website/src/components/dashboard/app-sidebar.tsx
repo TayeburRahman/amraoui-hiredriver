@@ -88,18 +88,18 @@ export function AppSidebar({ role }: { role?: string }) {
       <SidebarFooter className="p-4 border-t border-slate-100">
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="flex items-center gap-3 px-2 py-3">
-              <Avatar className="h-10 w-10 border-2 border-brand-blue/10">
+            <Link href="/dashboard/profile" className="flex items-center gap-3 px-2 py-3 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer w-full group">
+              <Avatar className="h-10 w-10 border-2 border-brand-blue/10 group-hover:border-brand-blue/30 transition-colors">
                 <AvatarImage src={user?.avatar} />
                 <AvatarFallback className="bg-brand-blue text-white font-semibold">
-                  {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'AM'}
+                  {user?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'AM'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-sm font-bold text-brand-text truncate">{user?.name}</span>
+                <span className="text-sm font-bold text-brand-text truncate group-hover:text-brand-blue transition-colors">{user?.name}</span>
                 <span className="text-xs text-brand-text-light truncate font-medium">{user?.email}</span>
               </div>
-            </div>
+            </Link>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton

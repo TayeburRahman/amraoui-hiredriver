@@ -11,7 +11,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Amraoui | Modern SaaS Platform",
-  description: "A premium SaaS platform built with Next.js 15, Redux Toolkit, and shadcn/ui.",
+  description: "A premium SaaS platform built with Next.js 15, Redux Toolkit, and shadcn/UI.",
 };
 
 export default function RootLayout({

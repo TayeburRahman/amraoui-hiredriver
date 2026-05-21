@@ -3,15 +3,16 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { 
-  Plus, 
-  Box, 
-  Clock, 
-  CheckCircle2, 
-  ArrowRight, 
+import {
+  Plus,
+  Box,
+  Clock,
+  CheckCircle2,
+  ArrowRight,
   Truck,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import Link from 'next/link';
 
 export default function DashboardHome() {
   const { t } = useTranslation();
@@ -23,6 +24,7 @@ export default function DashboardHome() {
       icon: Box,
       iconColor: 'text-brand-blue',
       bgColor: 'bg-brand-blue-light',
+      tabParam: 'active',
     },
     {
       title: t.dashboard.pending,
@@ -30,6 +32,7 @@ export default function DashboardHome() {
       icon: Clock,
       iconColor: 'text-amber-500',
       bgColor: 'bg-amber-50',
+      tabParam: 'pending',
     },
     {
       title: t.dashboard.completed,
@@ -37,6 +40,7 @@ export default function DashboardHome() {
       icon: CheckCircle2,
       iconColor: 'text-emerald-500',
       bgColor: 'bg-emerald-50',
+      tabParam: 'completed',
     },
   ];
 
@@ -79,10 +83,12 @@ export default function DashboardHome() {
           <p className="text-blue-50 text-base sm:text-lg font-medium opacity-90 leading-relaxed">
             {t.dashboard.heroSubtitle}
           </p>
-          <Button className="bg-white text-brand-blue hover:bg-blue-50 rounded-2xl px-6 sm:px-8 h-12 text-md font-bold transition-all duration-200 w-full sm:w-auto">
-            <Plus className="mr-2 h-5 w-5" />
-            {t.common.startRequest}
-          </Button>
+          <Link href="/dashboard/create-request" className="w-full sm:w-auto">
+            <Button className="bg-white text-brand-blue hover:bg-blue-50 rounded-2xl px-6 sm:px-8 h-12 text-md font-bold transition-all duration-200 w-full sm:w-auto">
+              <Plus className="mr-2 h-5 w-5" />
+              {t.common.startRequest}
+            </Button>
+          </Link>
         </div>
         <div className="absolute right-[-50px] top-[-50px] h-64 w-64 rounded-full bg-white/10 blur-3xl hidden sm:block" />
         <div className="absolute right-[10%] bottom-[-30px] h-40 w-40 rounded-full bg-white/10 hidden md:block" />
@@ -91,15 +97,17 @@ export default function DashboardHome() {
       {/* Stats Grid */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat, i) => (
-          <Card key={i} className="p-6 md:p-8 rounded-3xl border-none shadow-sm hover:shadow-md transition-shadow duration-200 flex items-center gap-4 sm:gap-6 bg-white">
-            <div className={`p-3 sm:p-4 rounded-2xl ${stat.bgColor}`}>
-              <stat.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${stat.iconColor}`} />
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider">{stat.title}</p>
-              <p className="text-3xl sm:text-4xl font-black text-brand-text">{stat.count}</p>
-            </div>
-          </Card>
+          <Link key={i} href={`/dashboard/orders?tab=${stat.tabParam}`} className="block">
+            <Card className="p-6 md:p-8 rounded-3xl border-none shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer transition-all duration-200 flex items-center gap-4 sm:gap-6 bg-white">
+              <div className={`p-3 sm:p-4 rounded-2xl ${stat.bgColor}`}>
+                <stat.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${stat.iconColor}`} />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider">{stat.title}</p>
+                <p className="text-3xl sm:text-4xl font-black text-brand-text">{stat.count}</p>
+              </div>
+            </Card>
+          </Link>
         ))}
       </div>
 
@@ -131,12 +139,14 @@ export default function DashboardHome() {
                 <span>{t.dashboard.eta}: {t.dashboard.today} 6:30 PM</span>
               </div>
             </div>
-            
+
             <div className="flex flex-col w-full lg:w-auto items-stretch lg:items-end gap-4 mt-4 lg:mt-0">
-               <Button className="bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2xl px-6 sm:px-10 h-12 sm:h-14 text-sm sm:text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200 w-full lg:w-auto">
-                {t.common.trackOrder}
-                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
-              </Button>
+              <Link href="/dashboard/orders/HF-20458" className="w-full lg:w-auto">
+                <Button className="bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2xl px-6 sm:px-10 h-12 sm:h-14 text-sm sm:text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200 w-full lg:w-auto">
+                  {t.common.trackOrder}
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
         </Card>
@@ -146,11 +156,13 @@ export default function DashboardHome() {
       <div className="space-y-4 sm:space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-lg sm:text-xl font-bold text-brand-text">{t.dashboard.recentOrders}</h3>
-          <Button variant="link" className="text-brand-blue font-bold hover:no-underline text-sm sm:text-base">
-            {t.common.viewAll}
-          </Button>
+          <Link href="/dashboard/orders">
+            <Button variant="link" className="text-brand-blue font-bold hover:no-underline text-sm sm:text-base">
+              {t.common.viewAll}
+            </Button>
+          </Link>
         </div>
-        
+
         <div className="space-y-3 sm:space-y-4">
           {recentOrders.map((order, i) => (
             <Card key={i} className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl border-none shadow-sm bg-white hover:bg-slate-50 transition-colors duration-200 group">
@@ -172,7 +184,7 @@ export default function DashboardHome() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-8 w-full sm:w-auto mt-2 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-slate-100">
                   <span className="text-xs font-bold text-slate-300 sm:block">
                     {order.date}

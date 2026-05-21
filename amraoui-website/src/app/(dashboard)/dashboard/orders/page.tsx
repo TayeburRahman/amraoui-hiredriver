@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -23,12 +24,25 @@ interface Order {
   actionText: string;
 }
 
-export default function OrdersPage() {
+function OrdersPageContent() {
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const tabQuery = searchParams.get('tab');
+
+  useEffect(() => {
+    if (tabQuery === 'active') {
+      setActiveTab(t.orders.active);
+    } else if (tabQuery === 'completed') {
+      setActiveTab(t.orders.completed);
+    } else if (tabQuery === 'pending') {
+      setActiveTab(t.orders.pending);
+    }
+  }, [tabQuery, t.orders.active, t.orders.completed, t.orders.pending]);
 
   const tabs = [
     t.orders.all,
@@ -286,5 +300,17 @@ export default function OrdersPage() {
         )}
       </Card>
     </div>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={
+      <div className="space-y-6 md:space-y-8 max-w-[1400px] mx-auto min-h-screen pb-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <p className="text-slate-400 font-bold text-lg">Loading orders...</p>
+      </div>
+    }>
+      <OrdersPageContent />
+    </Suspense>
   );
 }

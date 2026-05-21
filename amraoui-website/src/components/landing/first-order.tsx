@@ -4,11 +4,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
 
-export function FirstOrder() {
+export function FirstOrder({ id }: { id?: string }) {
   const { t } = useTranslation();
 
   return (
-    <section className="relative py-16 md:py-32 overflow-hidden bg-white">
+    <section id={id} className="relative py-16 md:py-32 overflow-hidden bg-white">
       {/* Background Vector Line */}
       <div className="absolute top-[15%] left-0 w-full pointer-events-none z-0">
         <div className="relative w-full h-20 ">

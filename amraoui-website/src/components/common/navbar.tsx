@@ -36,9 +36,9 @@ export function Navbar() {
   const pathname = usePathname();
 
   const navLinks = [
-    { href: '/professionals', label: t.common.professionals },
-    { href: '/become-driver', label: t.common.becomeDriver },
-    { href: '/who-are-we', label: t.common.whoAreWe },
+    { href: '#solutions', label: t.common.professionals },
+    { href: '#become-driver', label: t.common.becomeDriver },
+    { href: '#why-choose', label: t.common.whoAreWe },
   ];
 
   const handleLogout = () => {
@@ -66,7 +66,7 @@ export function Navbar() {
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
                 return (
-                  <Link
+                  <a
                     key={link.href}
                     href={link.href}
                     className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
@@ -76,7 +76,7 @@ export function Navbar() {
                     }`}
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 );
               })}
             </div>
@@ -164,7 +164,7 @@ export function Navbar() {
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
-                <Link
+                <a
                   key={link.href}
                   href={link.href}
                   className={`block rounded-xl px-4 py-3 text-base font-semibold transition-all border ${
@@ -175,7 +175,7 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}
-                </Link>
+                </a>
               );
             })}
           </div>

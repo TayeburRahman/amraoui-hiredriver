@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 
-export function WhyChoose() {
+export function WhyChoose({ id }: { id?: string }) {
   const { t } = useTranslation();
 
   const features = [
@@ -40,7 +40,7 @@ export function WhyChoose() {
   ];
 
   return (
-    <section className="relative pt-16 pb-24 md:pt-24 md:pb-50 overflow-hidden bg-white">
+    <section id={id} className="relative pt-16 pb-24 md:pt-24 md:pb-50 overflow-hidden bg-white">
       {/* Background Blob Shape */}
       <div
         className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2 w-[1120px] h-[700px] bg-gradient z-0"

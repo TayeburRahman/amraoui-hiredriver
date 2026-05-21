@@ -14,11 +14,11 @@ import {
 
 import { useTranslation } from '@/hooks/useTranslation';
 
-export function Contact() {
+export function Contact({ id }: { id?: string }) {
   const { t } = useTranslation();
 
   return (
-    <section className="py-24 bg-white overflow-hidden">
+    <section id={id} className="py-24 bg-white overflow-hidden">
       <div className="section-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
           

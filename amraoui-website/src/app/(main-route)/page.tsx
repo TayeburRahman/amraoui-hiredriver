@@ -12,12 +12,12 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <Hero />
-      <Solutions />
-      <WhyChoose />
-      <FirstOrder />
-      <Testimonials />
-      <BecomeDriver />
-      <Contact />
+      <Solutions id="solutions" />
+      <WhyChoose id="why-choose" />
+      <FirstOrder id="first-order" />
+      <Testimonials id="testimonials" />
+      <BecomeDriver id="become-driver" />
+      <Contact id="contact" />
       <Footer />
     </main>
   );

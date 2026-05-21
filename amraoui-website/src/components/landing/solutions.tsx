@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 
-export function Solutions() {
+export function Solutions({ id }: { id?: string }) {
   const { t } = useTranslation();
 
   const stats = [
@@ -13,7 +13,7 @@ export function Solutions() {
   ];
 
   return (
-    <section className="bg-gradient py-8 md:py-22">
+    <section id={id} className="bg-gradient py-8 md:py-22">
       <div className="section-container">
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row justify-between items-start gap-8 mb-16">

@@ -4,11 +4,11 @@ import { Key } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
 
-export function BecomeDriver() {
+export function BecomeDriver({ id }: { id?: string }) {
   const { t } = useTranslation();
 
   return (
-    <section className="py-12 md:py-16 bg-gradient relative overflow-hidden">
+    <section id={id} className="py-12 md:py-16 bg-gradient relative overflow-hidden">
       <div className="section-container relative z-10 text-center text-white">
         {/* Icon */}
         <div className="inline-flex items-center justify-center size-10 md:size-12 rounded-full bg-white/10 backdrop-blur-md mb-6 border border-white/20">

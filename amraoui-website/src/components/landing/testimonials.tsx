@@ -14,7 +14,7 @@ import {
 
 import { useTranslation } from "@/hooks/useTranslation";
 
-export function Testimonials() {
+export function Testimonials({ id }: { id?: string }) {
   const { t } = useTranslation();
   const [api, setApi] = React.useState<any>();
   const [current, setCurrent] = React.useState(0);
@@ -38,7 +38,7 @@ export function Testimonials() {
   }, [api]);
 
   return (
-    <section className="py-24 bg-slate-50/50">
+    <section id={id} className="py-24 bg-slate-50/50">
       <div className="section-container">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-extrabold text-brand-text mb-4">

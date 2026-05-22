@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Truck, ArrowRight, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { OfferReceivedModal } from '@/components/orders/offer-received-modal';
 
 type OrderStatus = 'Active' | 'Completed' | 'Pending' | 'Cancelled' | 'PendingReview';
 
@@ -97,10 +98,10 @@ function OrdersPageContent() {
     return initialOrders.filter((order) => {
       // 1. Filter by tab
       const isAll = activeTab === 'All' || activeTab === t.orders.all;
-      const matchTab = isAll || 
-        getStatusText(order.status) === activeTab || 
+      const matchTab = isAll ||
+        getStatusText(order.status) === activeTab ||
         (activeTab === t.orders.pending && order.status === 'PendingReview');
-      
+
       // 2. Filter by search query
       const lowerQuery = searchQuery.toLowerCase();
       const matchSearch =
@@ -112,7 +113,7 @@ function OrdersPageContent() {
 
       return matchTab && matchSearch;
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, searchQuery, t.orders]);
 
   // Pagination Logic
@@ -154,11 +155,10 @@ function OrdersPageContent() {
               <button
                 key={tab}
                 onClick={() => handleTabChange(tab)}
-                className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
-                  isActive
-                    ? 'bg-brand-blue text-white shadow-md shadow-blue-200'
-                    : 'text-slate-500 hover:bg-slate-100 bg-slate-50'
-                }`}
+                className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${isActive
+                  ? 'bg-brand-blue text-white shadow-md shadow-blue-200'
+                  : 'text-slate-500 hover:bg-slate-100 bg-slate-50'
+                  }`}
               >
                 {tab}
               </button>
@@ -167,7 +167,7 @@ function OrdersPageContent() {
         </div>
         <div className="relative w-full md:max-w-md px-2 md:px-0 md:pr-2">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input 
+          <Input
             placeholder={t.orders.searchPlaceholder}
             value={searchQuery}
             onChange={handleSearchChange}
@@ -236,11 +236,19 @@ function OrdersPageContent() {
                       </Badge>
                     </td>
                     <td className="py-5 px-6 sm:px-8 align-middle text-right">
-                      <Link href={`/dashboard/orders/${order.id.replace('#', '')}`}>
-                        <Button variant="link" className="text-brand-blue font-bold px-0 h-auto hover:no-underline">
-                          {order.actionText}
-                        </Button>
-                      </Link>
+                      {order.status === 'PendingReview' || order.status === 'Pending' ? (
+                        <OfferReceivedModal>
+                          <Button variant="link" className="text-brand-blue font-bold px-0 h-auto hover:no-underline">
+                            {order.actionText}
+                          </Button>
+                        </OfferReceivedModal>
+                      ) : (
+                        <Link href={`/dashboard/orders/${order.id.replace('#', '')}`}>
+                          <Button variant="link" className="text-brand-blue font-bold px-0 h-auto hover:no-underline">
+                            {order.actionText}
+                          </Button>
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -254,7 +262,7 @@ function OrdersPageContent() {
             </tbody>
           </table>
         </div>
-        
+
         {/* Pagination Controls */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-6 sm:px-8 py-4 border-t border-slate-100 bg-slate-50/50">
@@ -276,11 +284,10 @@ function OrdersPageContent() {
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`h-8 w-8 rounded-full text-sm font-bold transition-colors ${
-                      currentPage === page
-                        ? 'bg-brand-blue text-white shadow-sm'
-                        : 'text-slate-500 hover:bg-slate-100'
-                    }`}
+                    className={`h-8 w-8 rounded-full text-sm font-bold transition-colors ${currentPage === page
+                      ? 'bg-brand-blue text-white shadow-sm'
+                      : 'text-slate-500 hover:bg-slate-100'
+                      }`}
                   >
                     {page}
                   </button>

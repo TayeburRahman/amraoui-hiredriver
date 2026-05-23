@@ -278,9 +278,9 @@ export const translations = {
         badge: "Smart Logistics Solutions",
         title: "Delivering More",
         titleGradient: "Than Promises",
-        description: "Hiflow helps professionals move vehicles faster with trusted drivers, real-time tracking, and 48-hour delivery coverage across Spain.",
-        customerBtn: "I'm a Customer",
-        driverBtn: "I'm a driver",
+        description: "Hiflow helps professionals move vehicles faster with trusted drivers, real-time tracking, and 48-hour delivery coverage across the world.",
+        customerBtn: "Become a customer",
+        driverBtn: "Become a driver",
       },
       solutions: {
         badge: "Solutions",
@@ -352,7 +352,7 @@ export const translations = {
         send: "Send",
       },
       footer: {
-        tagline: "Your trusted partner for professional vehicle delivery across Spain.",
+        tagline: "Your trusted partner for professional vehicle delivery across the world.",
         transport: "Transporting a vehicle",
         services: "Additional services",
         resources: "Helpful Resources",

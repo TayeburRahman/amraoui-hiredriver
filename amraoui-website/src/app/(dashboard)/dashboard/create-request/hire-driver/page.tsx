@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
 import {
   ArrowLeft,
   Users,
@@ -286,15 +287,16 @@ export default function HireDriverPage() {
                 </label>
 
                 <div className="relative">
-                  <MapPin className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
-                  <input
-                    type="text"
+                  <AddressAutocomplete
                     value={formData.driverLocation || ""}
-                    onChange={(e) =>
-                      updateForm("driverLocation", e.target.value)
-                    }
+                    onChange={(val) => updateForm("driverLocation", val)}
+                    onSelect={(address, zip, city) => {
+                      if (zip) updateForm('driverPostalCode', zip);
+                      if (city) updateForm('driverCity', city);
+                    }}
                     placeholder={t.createRequest.placeholders.address}
                     className={`h-14 w-full rounded-2xl border border-slate-200 bg-white pr-4 font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12' : 'pl-12'}`}
+                    iconClassName={isRTL ? 'right-4 left-auto' : 'left-4'}
                   />
                 </div>
               </div>

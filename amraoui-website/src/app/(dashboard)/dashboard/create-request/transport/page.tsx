@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -39,6 +40,7 @@ export default function TransportRequestPage() {
     deliveryType: 'drive',
     engineType: '',
     vehicleType: '',
+    vehicleWeight: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -246,10 +248,17 @@ export default function TransportRequestPage() {
                     <div className="space-y-6">
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.address}</Label>
-                        <div className="relative">
-                          <Input value={formData.pickupAddress} onChange={(e) => updateForm('pickupAddress', e.target.value)} placeholder={t.createRequest.placeholders.address} className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'pr-10' : 'pl-10'}`} />
-                          <MapPin className={`h-5 w-5 text-slate-400 absolute top-1/2 -translate-y-1/2 ${isRTL ? 'right-3' : 'left-3'}`} />
-                        </div>
+                        <AddressAutocomplete 
+                          value={formData.pickupAddress} 
+                          onChange={(val) => updateForm('pickupAddress', val)} 
+                          onSelect={(address, zip, city) => {
+                            if (zip) updateForm('pickupZip', zip);
+                            if (city) updateForm('pickupCity', city);
+                          }}
+                          placeholder={t.createRequest.placeholders.address} 
+                          className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'pr-10' : 'pl-10'}`} 
+                          iconClassName={isRTL ? 'right-3 left-auto' : 'left-3'}
+                        />
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -310,14 +319,29 @@ export default function TransportRequestPage() {
                       {/* Address */}
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">Dropoff Address</Label>
-                        <div className="relative">
-                          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                          <Input
-                            value={formData.dropoffAddress}
-                            onChange={(e) => updateForm("dropoffAddress", e.target.value)}
-                            placeholder="Delivery address"
-                            className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
-                          />
+                        <AddressAutocomplete
+                          value={formData.dropoffAddress}
+                          onChange={(val) => updateForm("dropoffAddress", val)}
+                          onSelect={(address, zip, city) => {
+                            if (zip) updateForm('dropoffZip', zip);
+                            if (city) updateForm('dropoffCity', city);
+                          }}
+                          placeholder="Delivery address"
+                          className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-brand-text font-bold ml-1">Zip Code</Label>
+                          <Input value={formData.dropoffZip} onChange={(e) => updateForm('dropoffZip', e.target.value)} placeholder="10115" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-brand-text font-bold ml-1">Delivery Date</Label>
+                          <div className="relative">
+                            <Input type="date" value={formData.dropoffDate} onChange={(e) => updateForm('dropoffDate', e.target.value)} className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                            <Calendar className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          </div>
                         </div>
                       </div>
 
@@ -516,6 +540,20 @@ export default function TransportRequestPage() {
                         </button>
                       ))}
                     </div>
+
+                    {/* Weight option when Tow Truck is selected */}
+                    {formData.deliveryType === 'tow' && (
+                      <div className="space-y-2 mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <Label className="text-brand-text font-bold ml-1">Vehicle Weight (kg)</Label>
+                        <Input
+                          type="number"
+                          value={formData.vehicleWeight}
+                          onChange={(e) => updateForm("vehicleWeight", e.target.value)}
+                          placeholder="e.g. 1500"
+                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -915,6 +953,9 @@ export default function TransportRequestPage() {
                           <p className="text-sm text-slate-600"><span className="font-bold">Plate:</span> {formData.plate}</p>
                           <p className="text-sm text-slate-600"><span className="font-bold">VIN:</span> {formData.vin || '-'}</p>
                           <p className="text-sm text-slate-600"><span className="font-bold">Delivery:</span> <span className="capitalize">{formData.deliveryType.replace('_', ' ')}</span></p>
+                          {formData.deliveryType === 'tow' && (
+                            <p className="text-sm text-slate-600"><span className="font-bold">Weight:</span> {formData.vehicleWeight || '-'} kg</p>
+                          )}
                         </div>
                       </Card>
 
@@ -1201,13 +1242,20 @@ export default function TransportRequestPage() {
                 )}
 
                 {/* Price Estimate */}
-                <div className="pt-4 border-t border-slate-100">
+                <div className="pt-4 border-t border-slate-100 space-y-4">
                   <div className="flex justify-between items-end">
                     <div>
                       <p className="text-sm font-bold text-slate-400">Estimated Total</p>
                       <p className="text-xs text-slate-400 mt-1">Calculated after route selection</p>
                     </div>
                     <span className="text-3xl font-black text-brand-text">€ --</span>
+                  </div>
+                  
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/50 border border-blue-100 text-brand-blue">
+                    <Info className="h-4 w-4 shrink-0 mt-0.5" />
+                    <p className="text-xs font-bold leading-tight">
+                      Quote will be sent after submitting request
+                    </p>
                   </div>
                 </div>
 

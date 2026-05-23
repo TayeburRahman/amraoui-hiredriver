@@ -66,18 +66,18 @@ function OrdersPageContent() {
 
   // Expanded mock data to demonstrate pagination
   const initialOrders: Order[] = [
-    { id: '#HF-20458', vehicle: 'BMW X5', plate: 'AB-123-CD', from: 'Paris', to: 'Lyon', date: 'May 2, 2026', status: 'Active', statusColor: 'bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light', actionText: t.orders.track },
-    { id: '#HF-20412', vehicle: 'Audi A4', plate: 'XY-456-EF', from: 'Marseille', to: 'Nice', date: 'Apr 28, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
-    { id: '#HF-20389', vehicle: 'Mercedes C-Class', plate: 'CD-789-GH', from: 'Paris', to: 'Lille', date: 'Apr 25, 2026', status: 'Pending', statusColor: 'bg-amber-50 text-amber-600 hover:bg-amber-50', actionText: t.orders.view },
-    { id: '#HF-20388', vehicle: 'Mercedes C-Class', plate: 'CD-789-GH', from: 'Paris', to: 'Lille', date: 'Apr 25, 2026', status: 'PendingReview', statusColor: 'bg-blue-50 text-blue-600 hover:bg-blue-50', actionText: t.orders.view },
-    { id: '#HF-20340', vehicle: 'Renault Clio', plate: 'IJ-012-KL', from: 'Lyon', to: 'Bordeaux', date: 'Apr 20, 2026', status: 'Cancelled', statusColor: 'bg-red-50 text-red-600 hover:bg-red-50', actionText: t.orders.view },
-    { id: '#HF-20339', vehicle: 'Tesla Model 3', plate: 'TE-5LA-EV', from: 'Berlin', to: 'Munich', date: 'Apr 18, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
-    { id: '#HF-20338', vehicle: 'Porsche 911', plate: 'PO-911-RS', from: 'Stuttgart', to: 'Frankfurt', date: 'Apr 17, 2026', status: 'Active', statusColor: 'bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light', actionText: t.orders.track },
-    { id: '#HF-20337', vehicle: 'Volkswagen Golf', plate: 'VW-123-GO', from: 'Hamburg', to: 'Bremen', date: 'Apr 15, 2026', status: 'Pending', statusColor: 'bg-amber-50 text-amber-600 hover:bg-amber-50', actionText: t.orders.view },
-    { id: '#HF-20336', vehicle: 'Audi Q7', plate: 'AQ-777-ZZ', from: 'Vienna', to: 'Salzburg', date: 'Apr 14, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
-    { id: '#HF-20335', vehicle: 'Ford Mustang', plate: 'FM-555-GT', from: 'Madrid', to: 'Barcelona', date: 'Apr 12, 2026', status: 'Cancelled', statusColor: 'bg-red-50 text-red-600 hover:bg-red-50', actionText: t.orders.view },
-    { id: '#HF-20334', vehicle: 'Fiat 500', plate: 'FI-500-IT', from: 'Rome', to: 'Milan', date: 'Apr 10, 2026', status: 'PendingReview', statusColor: 'bg-blue-50 text-blue-600 hover:bg-blue-50', actionText: t.orders.view },
-    { id: '#HF-20333', vehicle: 'Volvo XC90', plate: 'VO-999-XC', from: 'Stockholm', to: 'Gothenburg', date: 'Apr 08, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
+    { id: '#VQ-20458', vehicle: 'BMW X5', plate: 'AB-123-CD', from: 'Paris', to: 'Lyon', date: 'May 2, 2026', status: 'Active', statusColor: 'bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light', actionText: t.orders.track },
+    { id: '#VQ-20412', vehicle: 'Audi A4', plate: 'XY-456-EF', from: 'Marseille', to: 'Nice', date: 'Apr 28, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
+    { id: '#VQ-20389', vehicle: 'Mercedes C-Class', plate: 'CD-789-GH', from: 'Paris', to: 'Lille', date: 'Apr 25, 2026', status: 'Pending', statusColor: 'bg-amber-50 text-amber-600 hover:bg-amber-50', actionText: t.orders.view },
+    { id: '#VQ-20388', vehicle: 'Mercedes C-Class', plate: 'CD-789-GH', from: 'Paris', to: 'Lille', date: 'Apr 25, 2026', status: 'PendingReview', statusColor: 'bg-blue-50 text-blue-600 hover:bg-blue-50', actionText: t.orders.view },
+    { id: '#VQ-20340', vehicle: 'Renault Clio', plate: 'IJ-012-KL', from: 'Lyon', to: 'Bordeaux', date: 'Apr 20, 2026', status: 'Cancelled', statusColor: 'bg-red-50 text-red-600 hover:bg-red-50', actionText: t.orders.view },
+    { id: '#VQ-20339', vehicle: 'Tesla Model 3', plate: 'TE-5LA-EV', from: 'Berlin', to: 'Munich', date: 'Apr 18, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
+    { id: '#VQ-20338', vehicle: 'Porsche 911', plate: 'PO-911-RS', from: 'Stuttgart', to: 'Frankfurt', date: 'Apr 17, 2026', status: 'Active', statusColor: 'bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light', actionText: t.orders.track },
+    { id: '#VQ-20337', vehicle: 'Volkswagen Golf', plate: 'VW-123-GO', from: 'Hamburg', to: 'Bremen', date: 'Apr 15, 2026', status: 'Pending', statusColor: 'bg-amber-50 text-amber-600 hover:bg-amber-50', actionText: t.orders.view },
+    { id: '#VQ-20336', vehicle: 'Audi Q7', plate: 'AQ-777-ZZ', from: 'Vienna', to: 'Salzburg', date: 'Apr 14, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
+    { id: '#VQ-20335', vehicle: 'Ford Mustang', plate: 'FM-555-GT', from: 'Madrid', to: 'Barcelona', date: 'Apr 12, 2026', status: 'Cancelled', statusColor: 'bg-red-50 text-red-600 hover:bg-red-50', actionText: t.orders.view },
+    { id: '#VQ-20334', vehicle: 'Fiat 500', plate: 'FI-500-IT', from: 'Rome', to: 'Milan', date: 'Apr 10, 2026', status: 'PendingReview', statusColor: 'bg-blue-50 text-blue-600 hover:bg-blue-50', actionText: t.orders.view },
+    { id: '#VQ-20333', vehicle: 'Volvo XC90', plate: 'VO-999-XC', from: 'Stockholm', to: 'Gothenburg', date: 'Apr 08, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
   ];
 
   // Derive stats dynamically from data

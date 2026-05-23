@@ -46,7 +46,7 @@ export default function DashboardHome() {
 
   const recentOrders = [
     {
-      id: '#HF-20458',
+      id: '#VQ-20458',
       status: 'In Transit',
       statusColor: 'bg-brand-blue-light text-brand-blue',
       vehicle: 'BMW X5',
@@ -55,7 +55,7 @@ export default function DashboardHome() {
       date: 'May 2, 2026',
     },
     {
-      id: '#HF-20458',
+      id: '#VQ-20458',
       status: 'Completed',
       statusColor: 'bg-emerald-50 text-emerald-600',
       vehicle: 'Audi A4',
@@ -64,7 +64,7 @@ export default function DashboardHome() {
       date: 'May 2, 2026',
     },
     {
-      id: '#HF-20458',
+      id: '#VQ-20458',
       status: 'Pending',
       statusColor: 'bg-amber-50 text-amber-600',
       vehicle: 'Mercedes C-Class',
@@ -120,7 +120,7 @@ export default function DashboardHome() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8">
             <div className="space-y-4 sm:space-y-6 flex-1">
               <div className="flex items-center gap-3">
-                <p className="text-xs sm:text-sm font-medium text-slate-400">{t.dashboard.orderId} #HF-20458</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-400">{t.dashboard.orderId} #VQ-20458</p>
                 <Badge className="bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light px-3 py-1 rounded-full text-xs font-bold border-none">
                   {t.dashboard.active}
                 </Badge>
@@ -141,7 +141,7 @@ export default function DashboardHome() {
             </div>
 
             <div className="flex flex-col w-full lg:w-auto items-stretch lg:items-end gap-4 mt-4 lg:mt-0">
-              <Link href="/dashboard/orders/HF-20458" className="w-full lg:w-auto">
+              <Link href="/dashboard/orders/VQ-20458" className="w-full lg:w-auto">
                 <Button className="bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2xl px-6 sm:px-10 h-12 sm:h-14 text-sm sm:text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200 w-full lg:w-auto">
                   {t.common.trackOrder}
                   <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />

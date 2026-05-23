@@ -13,7 +13,7 @@ export function Hero() {
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/assets/landing/hero-bg.png')" }}
       >
-        <div className="absolute inset-0 bg-linear-to-r from-[#a4c8ea] via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-r from-[#a4c8ea] via-[#a4c8ea]/60 to-transparent" />
       </div>
 
       <div className="section-container relative z-10 w-full">

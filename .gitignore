@@ -27,7 +27,6 @@
 **/*.log
 
 # env files
-.env*
 
 # vercel
 .vercel
@@ -37,3 +36,5 @@
 next-env.d.ts
 temp_auto_push.bat
 temp_interactive_push.bat
+branch_structure.json
+config.bat

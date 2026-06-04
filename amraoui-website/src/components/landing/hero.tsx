@@ -1,4 +1,5 @@
 'use client';
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -9,6 +10,7 @@ export function Hero() {
   return (
     <section className="relative md:h-228 h-170 flex items-center overflow-hidden">
       {/* Background Image with Overlay */}
+
       <div
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/assets/landing/hero-bg.png')" }}
@@ -53,3 +55,4 @@ export function Hero() {
     </section>
   );
 }
+

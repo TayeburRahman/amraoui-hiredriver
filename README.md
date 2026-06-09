@@ -1,5 +1,7 @@
 # Amraoui - Hire Driver Platform
 
+![Amraoui Landing Page](amraoui-website/public/assets/landing/hero-bg.png)
+
 Amraoui is a comprehensive SaaS platform designed for hiring and managing drivers. It connects customers needing reliable transportation services with qualified drivers, while providing administrators with the necessary tools to monitor and control the entire ecosystem.
 
 ## 🏗️ Project Structure

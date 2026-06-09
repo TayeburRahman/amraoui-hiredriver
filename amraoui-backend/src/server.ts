@@ -9,55 +9,63 @@ import socket from './socket/socket';
 
 process.on('uncaughtException', error => {
   errorLogger.error(error);
-  process.exit(1);
+  if (!process.env.VERCEL) process.exit(1);
 });
 
 let server: any;
+let isConnected = false;
+
 async function main() {
   try {
-    await mongoose.connect(config.database_url as string);
-    logger.info('DB Connected on Successfully');
+    if (!isConnected) {
+      await mongoose.connect(config.database_url as string);
+      isConnected = true;
+      logger.info('DB Connected on Successfully');
+    }
 
-    const port =
-      typeof config.port === 'number' ? config.port : Number(config.port);
-    server = app.listen(port, config.base_url as string, () => {
-      logger.info(`Example app listening on http://${config.base_url}:${config.port}`);
-    });
+    if (!process.env.VERCEL) {
+      const port =
+        typeof config.port === 'number' ? config.port : Number(config.port);
+      server = app.listen(port, config.base_url as string, () => {
+        logger.info(`Example app listening on http://${config.base_url}:${config.port}`);
+      });
 
-    const socketIO = new Server(server, {
-      pingTimeout: 60000,
-      cors: {
-        origin: '*',
-      },
-    });
+      const socketIO = new Server(server, {
+        pingTimeout: 60000,
+        cors: {
+          origin: '*',
+        },
+      });
 
-    socket(socketIO);
+      socket(socketIO);
 
-    //@ts-ignore
-    global.io = socketIO;
+      //@ts-ignore
+      global.io = socketIO;
+    }
   } catch (error) {
     errorLogger.error(error);
-    throw error;
+    if (!process.env.VERCEL) throw error;
   }
 
   process.on('unhandledRejection', error => {
     if (server) {
       server.close(() => {
         errorLogger.error(error);
-        process.exit(1);
+        if (!process.env.VERCEL) process.exit(1);
       });
     } else {
-      process.exit(1);
+      if (!process.env.VERCEL) process.exit(1);
     }
   });
 }
+
 main().catch(err => errorLogger.error(err));
 
 process.on('SIGTERM', () => {
   logger.info('SIGTERM is received');
-  if (!server) {
+  if (server) {
     server.close();
-  } else {
-
   }
 });
+
+export default app;

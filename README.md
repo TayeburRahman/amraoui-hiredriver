@@ -1,6 +1,6 @@
 # Amraoui - Hire Driver Platform
 
-Amraoui is a comprehensive SaaS platform designed for hiring and managing drivers. This monorepo contains the entire suite of applications, including the mobile app, backend API, administrative dashboard, and the marketing website.
+Amraoui is a comprehensive SaaS platform designed for hiring and managing drivers. It connects customers needing reliable transportation services with qualified drivers, while providing administrators with the necessary tools to monitor and control the entire ecosystem.
 
 ## 🏗️ Project Structure
 
@@ -8,10 +8,10 @@ This monorepo is divided into four main directories, each serving a specific rol
 
 | Directory | Description | Tech Stack |
 | --- | --- | --- |
-| 📱 `amraoui_app/` | The mobile application for drivers and customers. | Flutter, Dart |
-| ⚙️ `amraoui-backend/` | The core RESTful API and backend services. | Node.js, Express |
-| 📊 `amraoui_dashboard/` | The administrative web dashboard for managing the platform. | Next.js, React, Tailwind CSS |
-| 🌐 `amraoui-website/` | The main landing page and marketing frontend. | Next.js, React, Tailwind CSS |
+| 📱 `amraoui_app/` | The mobile application for drivers and customers to access the platform on the go. | Flutter, Dart |
+| ⚙️ `amraoui-backend/` | The core RESTful API and backend services powering all frontend clients. | Node.js, Express |
+| 📊 `amraoui_dashboard/` | The admin dashboard used by administrators to oversee and manage all missions, drivers, and operations. | Next.js, React, Tailwind CSS |
+| 🌐 `amraoui-website/` | The public landing page for driver recruitment and the dedicated customer portal for web access. | Next.js, React, Tailwind CSS |
 
 ---
 

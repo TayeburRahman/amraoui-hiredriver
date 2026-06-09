@@ -21,18 +21,20 @@ export const logger = createLogger({
   format: combine(label({ label: 'BACKEND' }), timestamp(), myFormat),
   transports: [
     new transports.Console(),
-    new transports.File({
-      level: 'info',
-      filename: path.join(logDir, 'successes', 'um-success.log'),
-    }),
-    new DailyRotateFile({
-      level: 'info',
-      filename: path.join(logDir, 'successes', 'um-%DATE%-success.log'),
-      datePattern: 'YYYY-MM-DD-HH',
-      zippedArchive: true,
-      maxSize: '20m',
-      maxFiles: '14d',
-    }),
+    ...(process.env.NODE_ENV === 'production' ? [] : [
+      new transports.File({
+        level: 'info',
+        filename: path.join(logDir, 'successes', 'um-success.log'),
+      }),
+      new DailyRotateFile({
+        level: 'info',
+        filename: path.join(logDir, 'successes', 'um-%DATE%-success.log'),
+        datePattern: 'YYYY-MM-DD-HH',
+        zippedArchive: true,
+        maxSize: '20m',
+        maxFiles: '14d',
+      })
+    ]),
   ],
 });
 
@@ -41,13 +43,15 @@ export const errorLogger = createLogger({
   format: combine(label({ label: 'BACKEND' }), timestamp(), myFormat),
   transports: [
     new transports.Console(),
-    new DailyRotateFile({
-      level: 'error',
-      filename: path.join(logDir, 'errors', 'um-%DATE%-error.log'),
-      datePattern: 'YYYY-MM-DD-HH',
-      zippedArchive: true,
-      maxSize: '20m',
-      maxFiles: '14d',
-    }),
+    ...(process.env.NODE_ENV === 'production' ? [] : [
+      new DailyRotateFile({
+        level: 'error',
+        filename: path.join(logDir, 'errors', 'um-%DATE%-error.log'),
+        datePattern: 'YYYY-MM-DD-HH',
+        zippedArchive: true,
+        maxSize: '20m',
+        maxFiles: '14d',
+      })
+    ]),
   ],
 });

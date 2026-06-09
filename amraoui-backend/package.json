@@ -14,7 +14,8 @@
     "lint:fix": "eslint . --fix",
     "prettier:fix": "prettier --write .",
     "prettier:check": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
-    "lint-prettier": "yarn lint:check && yarn prettier:check"
+    "lint-prettier": "yarn lint:check && yarn prettier:check",
+    "seed:admin": "ts-node src/scripts/seed-admin.ts"
   },
   "lint-staged": {
     "src/**/*.ts": "yarn lint-prettier"

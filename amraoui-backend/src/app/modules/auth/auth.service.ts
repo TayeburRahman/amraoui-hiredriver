@@ -12,6 +12,7 @@ import { ENUM_USER_ROLE } from "../../../enums/user";
 import { sendResetEmail } from "./sendResetMails";
 import { createActivationToken } from "../../../utils/createActivationToken";
 import { registrationSuccessEmailBody } from "../../../mails/user.register";
+import { driverActivationEmailBody } from "../../../mails/driver.emails";
 import { resetEmailTemplate } from "../../../mails/reset.email";
 import {
   ActivationPayload,
@@ -66,7 +67,8 @@ const registrationAccount = async (payload: IAuth) => {
         Customers.deleteOne({ authId: existingAuth._id }),
       existingAuth.role === ENUM_USER_ROLE.DRIVER &&
         Drivers.deleteOne({ authId: existingAuth._id }),
-      existingAuth.role === ENUM_USER_ROLE.ADMIN &&
+      (existingAuth.role === ENUM_USER_ROLE.ADMIN ||
+        existingAuth.role === ENUM_USER_ROLE.SUPER_ADMIN) &&
         Admin.deleteOne({ authId: existingAuth._id }),
       Auth.deleteOne({ email }),
     ]);
@@ -80,9 +82,9 @@ const registrationAccount = async (payload: IAuth) => {
     activationCode,
     password,
     expirationTime: Date.now() + 3 * 60 * 1000,
+    isActive: (role === ENUM_USER_ROLE.ADMIN || role === ENUM_USER_ROLE.SUPER_ADMIN),
   };
 
-  // Send activation email only to CUSTOMERS (Drivers await admin approval)
   if (role === ENUM_USER_ROLE.CUSTOMERS) {
     sendEmail({
       email: authData.email,
@@ -92,6 +94,17 @@ const registrationAccount = async (payload: IAuth) => {
         activationCode,
       }),
     }).catch((error) => console.error("Failed to send email:", error.message));
+  }
+
+  if (role === ENUM_USER_ROLE.DRIVER) {
+    sendEmail({
+      email: authData.email,
+      subject: "Verify Your Driver Account",
+      html: driverActivationEmailBody({
+        name: authData.name,
+        activationCode,
+      }),
+    }).catch((error) => console.error("Failed to send driver activation email:", error.message));
   }
 
   const createAuth = await Auth.create(authData);
@@ -113,6 +126,7 @@ const registrationAccount = async (payload: IAuth) => {
       result = await Drivers.create({ ...other, status: "pending" });
       break;
     case ENUM_USER_ROLE.ADMIN:
+    case ENUM_USER_ROLE.SUPER_ADMIN:
       result = await Admin.create(other);
       break;
     default:
@@ -123,7 +137,7 @@ const registrationAccount = async (payload: IAuth) => {
     role === ENUM_USER_ROLE.CUSTOMERS
       ? "Please check your email for the activation OTP code."
       : role === ENUM_USER_ROLE.DRIVER
-      ? "Your driver account is pending admin approval."
+      ? "Please check your email for the verification OTP code."
       : "Your admin account is awaiting super admin approval.";
 
   return { result, role, message };
@@ -216,11 +230,13 @@ const loginAccount = async (payload: LoginPayload) => {
     case ENUM_USER_ROLE.DRIVER:
       userDetails = await Drivers.findOne({ authId: isAuth._id }).populate("authId");
       role = ENUM_USER_ROLE.DRIVER;
-      if (userDetails?.status === "pending") {
-        throw new ApiError(403, "Your driver account is pending admin approval.");
-      }
       if (userDetails?.status === "declined") {
-        throw new ApiError(403, "Your driver account has been declined. Contact support.");
+        throw new ApiError(
+          403,
+          userDetails?.decline_reason
+            ? `Your driver account was declined: ${userDetails.decline_reason}`
+            : "Your driver account has been declined. Contact support."
+        );
       }
       break;
     case ENUM_USER_ROLE.ADMIN:
@@ -421,7 +437,7 @@ const resendCodeActivationAccount = async (payload: { email: string }) => {
     <body>
         <div class="container">
             <h1>Hello, ${user.name}</h1>
-            <p>Your activation code is: <strong>${activationCode}</strong></p>
+            <p>Your activation code is: <strong style="font-size: 24px; color: #007bff;">${activationCode}</strong></p>
             <p>Please use this code to activate your account. If you did not request this, please ignore this email.</p>
             <p>Thank you!</p>
             <div class="footer"><p>&copy; ${new Date().getFullYear()} Amraoui HireDriver</p></div>
@@ -469,7 +485,7 @@ const resendCodeForgotAccount = async (payload: ForgotPasswordPayload) => {
     <body>
         <div class="container">
             <h1>Hello, ${user.name}</h1>
-            <p>Your password reset code is: <strong>${verifyCode}</strong></p>
+            <p>Your password reset code is: <strong style="font-size: 24px; color: #007bff;">${verifyCode}</strong></p>
             <p>This code expires in 3 minutes. If you did not request this, please ignore this email.</p>
             <p>Thank you!</p>
             <div class="footer"><p>&copy; ${new Date().getFullYear()} Amraoui HireDriver</p></div>
@@ -544,6 +560,15 @@ const updateMyProfile = async (req: RequestData) => {
       httpStatus.BAD_REQUEST,
       "Data is missing in the request body!"
     );
+  }
+
+  // Parse nested objects if sent as strings via FormData
+  if (data.notificationPrefs && typeof data.notificationPrefs === 'string') {
+    try {
+      data.notificationPrefs = JSON.parse(data.notificationPrefs);
+    } catch (e) {
+      // ignore
+    }
   }
 
   const checkAuth = await Auth.findById(authId);

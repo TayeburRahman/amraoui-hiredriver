@@ -50,13 +50,13 @@ export const registrationSuccessEmailBody = (userData: any) => `
     </head>
     <body>
       <div class="container">
-        <h1>Welcome to Parcel Management System</h1>
+        <h1>Welcome to Amraoui HireDriver</h1>
         <p>Hello ${userData?.user?.name},</p>
-        <p>Thank you for registering with Parcel Management System. To activate your account, please use the following activation code:</p>
+        <p>Thank you for registering with Amraoui HireDriver. To activate your account, please use the following activation code:</p>
         <h1>${userData?.activationCode}</h1>
         <p>Please enter this code on the activation page within the next 5 minutes.</p>
-        <p>If you didn't register for Parcel Management System, please ignore this email.</p>
-        <p>If you have any questions, please contact us at <a href="mailto:yeasinarafat1734@gmail.com">yeasinarafat1734@gmail.com</a>.</p>
+        <p>If you didn't register for Amraoui HireDriver, please ignore this email.</p>
+        <p>If you have any questions, please contact us at <a href="mailto:support@amraoui.com">support@amraoui.com</a>.</p>
       </div>
     </body>
   </html>

@@ -10,6 +10,15 @@ export type ICustomers = Document & {
   phone_number?: string | null;
   date_of_birth?: Date;
   status: "active" | "deactivate";
+  notificationPrefs?: {
+    orderUpdates: boolean;
+    emailNotifs: boolean;
+    smsNotifs: boolean;
+    deliveryReminders: boolean;
+    promoOffers: boolean;
+  };
+  language?: string;
+  currency?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -72,6 +72,30 @@ const DriversSchema = new Schema<IDrivers>(
       enum: ['pending', 'approved', 'declined'],
       default: 'pending',
     },
+    license_document: {
+      type: String,
+      default: null,
+    },
+    id_document: {
+      type: String,
+      default: null,
+    },
+    contract_document: {
+      type: String,
+      default: null,
+    },
+    documents_submitted: {
+      type: Boolean,
+      default: false,
+    },
+    documents_submitted_at: {
+      type: Date,
+      default: null,
+    },
+    decline_reason: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

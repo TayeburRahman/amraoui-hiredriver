@@ -92,8 +92,8 @@ const resetEmailTemplate = (data: ResetEmailTemplateData): string => `
             <p>Thank you,<br>The Support Team</p>
           </div>
           <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Parcel Management System. All rights reserved.</p>
-            <p><a href="https://yourwebsite.com/privacy">Privacy Policy</a> | <a href="https://yourwebsite.com/contact">Contact Support</a></p>
+            <p>&copy; ${new Date().getFullYear()} Amraoui HireDriver. All rights reserved.</p>
+            <p><a href="https://amraoui.com/privacy">Privacy Policy</a> | <a href="https://amraoui.com/contact">Contact Support</a></p>
           </div>
         </div>
       </body>

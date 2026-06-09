@@ -20,6 +20,12 @@ export interface IDrivers extends Document {
   totalDeliveries: number;
   rating?: number;
   status: 'pending' | 'approved' | 'declined';
+  license_document?: string | null;
+  id_document?: string | null;
+  contract_document?: string | null;
+  documents_submitted?: boolean;
+  documents_submitted_at?: Date | null;
+  decline_reason?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

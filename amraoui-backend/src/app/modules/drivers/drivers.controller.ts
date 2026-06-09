@@ -4,7 +4,6 @@ import sendResponse from '../../../shared/sendResponse';
 import { DriverService } from './drivers.service';
 import { IReqUser } from '../auth/auth.interface';
 
-// ─── Admin: Get all drivers ──────────────────────────
 const getAllDrivers = catchAsync(async (req: Request, res: Response) => {
   const result = await DriverService.getAllDrivers(req.query);
   sendResponse(res, {
@@ -15,7 +14,6 @@ const getAllDrivers = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// ─── Admin: Get single driver ────────────────────────
 const getDriverById = catchAsync(async (req: Request, res: Response) => {
   const result = await DriverService.getDriverById(req.params.id);
   sendResponse(res, {
@@ -26,11 +24,33 @@ const getDriverById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// ─── Admin: Approve or Decline a driver ─────────────
+const getMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as IReqUser;
+  const result = await DriverService.getMyDriverProfile(user.userId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Driver profile retrieved successfully',
+    data: result,
+  });
+});
+
+const submitMyDocuments = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as IReqUser;
+  const files = (req as any).files as Record<string, Express.Multer.File[]>;
+  const result = await DriverService.submitDriverDocuments(user.userId, files);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Documents submitted successfully. Please wait for admin verification.',
+    data: result,
+  });
+});
+
 const updateDriverStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { status } = req.body;
-  const result = await DriverService.updateDriverStatus(id, status);
+  const { status, reason } = req.body;
+  const result = await DriverService.updateDriverStatus(id, status, reason);
   sendResponse(res, {
     statusCode: 200,
     success: true,
@@ -39,7 +59,6 @@ const updateDriverStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// ─── Driver: Update own location ─────────────────────
 const updateMyLocation = catchAsync(async (req: Request, res: Response) => {
   const user = req.user as IReqUser;
   const { longitude, latitude } = req.body;
@@ -58,6 +77,8 @@ const updateMyLocation = catchAsync(async (req: Request, res: Response) => {
 export const DriverController = {
   getAllDrivers,
   getDriverById,
+  getMyProfile,
+  submitMyDocuments,
   updateDriverStatus,
   updateMyLocation,
 };

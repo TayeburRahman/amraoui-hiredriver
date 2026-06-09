@@ -5,7 +5,6 @@ const createToken = (
   secret: Secret,
   expireTime: string,
 ): string => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return jwt.sign(payload, secret, { expiresIn: expireTime } as any);
 };
 
@@ -14,7 +13,6 @@ const createResetToken = (
   secret: Secret,
   expireTime: string,
 ): string => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return jwt.sign(payload, secret, { algorithm: 'HS256', expiresIn: expireTime } as any);
 };
 

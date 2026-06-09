@@ -5,6 +5,7 @@ const updateDriverStatusSchema = z.object({
     status: z.enum(['approved', 'declined'], {
       required_error: 'Status is required',
     }),
+    reason: z.string().optional(),
   }),
 });
 

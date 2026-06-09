@@ -38,6 +38,21 @@ const CustomersSchema = new Schema<ICustomers>(
       enum: ["active", "deactivate"],
       default: "active",
     },
+    notificationPrefs: {
+      orderUpdates: { type: Boolean, default: true },
+      emailNotifs: { type: Boolean, default: true },
+      smsNotifs: { type: Boolean, default: true },
+      deliveryReminders: { type: Boolean, default: false },
+      promoOffers: { type: Boolean, default: false },
+    },
+    language: {
+      type: String,
+      default: "en",
+    },
+    currency: {
+      type: String,
+      default: "usd",
+    },
   },
   {
     timestamps: true,

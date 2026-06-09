@@ -21,23 +21,39 @@ const authSlice = createSlice({
       state.user = user;
       state.token = token;
       state.isAuthenticated = true;
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
+      state.error = null;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('token', token);
+      }
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      state.error = null;
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+      }
     },
     initializeAuth: (state) => {
-      const user = localStorage.getItem('user');
-      const token = localStorage.getItem('token');
-      if (user && token) {
-        state.user = JSON.parse(user);
-        state.token = token;
-        state.isAuthenticated = true;
+      if (typeof window !== 'undefined') {
+        const user = localStorage.getItem('user');
+        const token = localStorage.getItem('token');
+        if (user && token) {
+          state.user = JSON.parse(user);
+          state.token = token;
+          state.isAuthenticated = true;
+        }
+      }
+    },
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(state.user));
+        }
       }
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
@@ -49,7 +65,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, logout, initializeAuth, setLoading, setError } =
+export const { setCredentials, logout, initializeAuth, updateUser, setLoading, setError } =
   authSlice.actions;
 
 export default authSlice.reducer;

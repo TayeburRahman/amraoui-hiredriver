@@ -1,0 +1,51 @@
+"use client";
+
+import * as React from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import Sidebar from "./sidebar";
+import Header from "./Header";
+import { getToken } from "@/lib/api";
+
+interface AppLayoutProps {
+  children: React.ReactNode;
+}
+
+const DashboardLayout = ({ children }: AppLayoutProps) => {
+  const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [authChecked, setAuthChecked] = React.useState(false);
+
+  React.useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    setAuthChecked(true);
+  }, [router]);
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted/40">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative min-h-screen">
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+
+      <div className="lg:pl-64">
+        <Header onMenuClick={() => setSidebarOpen(true)} />
+
+        <main className="min-h-[calc(100vh-4rem)] bg-muted/40 p-4 lg:p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardLayout;

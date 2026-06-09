@@ -1,0 +1,18 @@
+﻿Analyzing amraoui_app...                                        
+
+warning - Unused import: 'dart:async' - lib\routes\Internet_check_middle_ware.dart:3:8 - unused_import
+   info - 'Bindings' is deprecated and shouldn't be used. Use Binding instead - lib\routes\bindings\app_auth_binding.dart:3:30 - deprecated_member_use
+   info - 'Bindings' is deprecated and shouldn't be used. Use Binding instead - lib\routes\bindings\app_initial_binding.dart:5:33 - deprecated_member_use
+   info - 'Bindings' is deprecated and shouldn't be used. Use Binding instead - lib\routes\bindings\navigation_app_bindings.dart:3:37 - deprecated_member_use
+warning - Unused import: 'package:amraoui_app/enum_types/app_user_type.dart' - lib\screens\splash_screen\controllers\splash_screen_controller.dart:3:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\custom_button.dart\custom_drop_down_button.dart:121:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\custom_button.dart\custom_drop_down_button.dart:170:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\dialog_boxes\close_app_dailog.dart:76:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\dialog_boxes\log_out_dailog.dart:77:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\dialog_boxes\theme_change_dialog_box.dart:12:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\inputs\app_input_widget.dart:127:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\inputs\app_input_widget_three.dart:123:63 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\inputs\app_input_widget_three.dart:292:61 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\inputs\app_input_widget_two.dart:163:57 - deprecated_member_use
+   info - 'desiredAccuracy' is deprecated and shouldn't be used. use settings parameter with AndroidSettings, AppleSettings, WebSettings, or LocationSettings - lib\widgets\map_address_widget.dart\map_value_get.dart:47:9 - deprecated_member_use
+

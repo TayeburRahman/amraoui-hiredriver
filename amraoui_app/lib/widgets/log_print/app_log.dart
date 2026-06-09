@@ -1,0 +1,20 @@
+import 'dart:developer';
+import 'package:flutter/foundation.dart';
+import 'package:amraoui_app/widgets/log_print/error_log.dart';
+
+void appLog(dynamic message) {
+  try {
+    if (kDebugMode) {
+      log("""
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+$message
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+""");
+    }
+  } catch (e) {
+    errorLog("app log", e);
+  }
+}

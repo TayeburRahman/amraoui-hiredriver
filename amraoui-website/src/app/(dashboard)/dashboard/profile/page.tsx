@@ -1,37 +1,31 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  User, 
-  Lock, 
-  CreditCard, 
-  Bell, 
-  Globe, 
-  Camera, 
-  Mail, 
-  Phone, 
-  Building2, 
-  MapPin,
-  HelpCircle,
-  FileText,
-  LogOut
+import {
+  User, Lock, Bell, Globe, Camera, Mail, Phone,
+  HelpCircle, FileText, LogOut, Eye, EyeOff, Loader2,
+  CheckCircle2, AlertCircle,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useAppSelector } from '@/hooks/redux';
+import { useAppSelector, useAppDispatch } from '@/hooks/redux';
+import { logout, updateUser } from '@/store/slices/authSlice';
 import { toast } from 'sonner';
+import { getMyProfile, updateMyProfile, changePassword } from '@/lib/auth.api';
+import { useRouter } from 'next/navigation';
+import { setLanguage } from '@/store/slices/settingsSlice';
 
-// Custom Toggle Switch Component
+// ─── Toggle Switch ─────────────────────────────────────────────────
 const Toggle = ({ checked, onChange }: { checked: boolean; onChange: () => void }) => (
   <button
     type="button"
     role="switch"
     aria-checked={checked}
     onClick={onChange}
-    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 focus:ring-offset-white ${checked ? 'bg-brand-blue' : 'bg-slate-200'}`}
+    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 ${checked ? 'bg-brand-blue' : 'bg-slate-200'}`}
   >
     <span
       className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'}`}
@@ -39,212 +33,419 @@ const Toggle = ({ checked, onChange }: { checked: boolean; onChange: () => void 
   </button>
 );
 
-// --- Tab Components ---
+// ─── Base URL for static images (backend serves from root)
+const getImageUrl = (path: string | null | undefined): string | null => {
+  if (!path) return null;
+  const base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace('/api/v1', '');
+  return `${base}${path}`;
+};
 
-const ProfileTab = ({ t, user }: { t: any; user: any }) => (
-  <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
-    <h3 className="text-xl font-bold text-brand-text">{t.settings?.personalInfo || 'Personal Information'}</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.fullName || 'Full Name'}</label>
-        <div className="relative">
-          <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input defaultValue={user?.name || "Amraoui"} className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium" />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.emailAddress || 'Email Address'}</label>
-        <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input defaultValue={user?.email || "amraoui@email.com"} className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium" />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.phoneNumber || 'Phone Number'}</label>
-        <div className="relative">
-          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input defaultValue="+33 6 12 34 56 78" className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium" />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.companyName || 'Company Name'}</label>
-        <div className="relative">
-          <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input defaultValue="Hiflow Transport Co." className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium" />
-        </div>
-      </div>
-      <div className="space-y-2 md:col-span-2">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.address || 'Address'}</label>
-        <div className="relative">
-          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input defaultValue="123 Rue de Rivoli, Paris, France" className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium" />
-        </div>
-      </div>
-    </div>
-    <div className="flex justify-end gap-3 pt-6 border-t border-slate-50 mt-6">
-      <Button variant="outline" className="rounded-xl font-bold h-11 px-6 border-slate-200 text-slate-600 hover:bg-slate-50">
-        {t.settings?.cancel || 'Cancel'}
-      </Button>
-      <Button onClick={() => toast.success('Profile updated successfully')} className="rounded-xl font-bold h-11 px-6 bg-brand-blue hover:bg-brand-blue-hover text-white shadow-md shadow-blue-100">
-        {t.settings?.saveChanges || 'Save Changes'}
-      </Button>
-    </div>
-  </Card>
-);
+// ─── Profile Tab ───────────────────────────────────────────────────
+const ProfileTab = ({
+  t,
+  profile,
+  onSaved,
+}: {
+  t: any;
+  profile: any;
+  onSaved: (updated: any) => void;
+}) => {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState(profile?.authId?.name || profile?.name || '');
+  const [phone, setPhone] = useState(profile?.phone_number || '');
+  const [preview, setPreview] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
-const SecurityTab = ({ t }: { t: any }) => (
-  <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
-    <h3 className="text-xl font-bold text-brand-text">{t.settings?.securitySettings || 'Security Settings'}</h3>
-    <div className="space-y-6">
-      <div className="space-y-2 max-w-lg">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.currentPassword || 'Current Password'}</label>
-        <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input type="password" placeholder="Enter current password" className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium" />
-        </div>
-      </div>
-      <div className="space-y-2 max-w-lg">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.newPassword || 'New Password'}</label>
-        <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input type="password" placeholder="Enter new password" className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium" />
-        </div>
-      </div>
-      <div className="space-y-2 max-w-lg">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.confirmNewPassword || 'Confirm New Password'}</label>
-        <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input type="password" placeholder="Confirm new password" className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium" />
-        </div>
-      </div>
-    </div>
-    <div className="flex justify-end pt-6 border-t border-slate-50 mt-6">
-      <Button className="rounded-xl font-bold h-11 px-6 bg-brand-blue hover:bg-brand-blue-hover text-white shadow-md shadow-blue-100">
-        {t.settings?.updatePassword || 'Update Password'}
-      </Button>
-    </div>
-  </Card>
-);
+  const currentImage = profile?.profile_image || profile?.authId?.profile_image;
+  const imageUrl = getImageUrl(currentImage);
 
-const PaymentTab = ({ t }: { t: any }) => (
-  <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-      <h3 className="text-xl font-bold text-brand-text">{t.settings?.paymentMethods || 'Payment Methods'}</h3>
-      <Button className="rounded-xl font-bold h-10 px-4 bg-brand-blue hover:bg-brand-blue-hover text-white shadow-md shadow-blue-100">
-        {t.settings?.addCard || '+ Add Card'}
-      </Button>
-    </div>
-    
-    <div className="space-y-4">
-      <div className="p-4 sm:p-5 rounded-2xl border border-brand-blue/30 bg-blue-50/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-white flex items-center justify-center border border-slate-100 shadow-sm flex-shrink-0">
-            <CreditCard className="h-6 w-6 text-brand-blue" />
-          </div>
-          <div>
-            <p className="font-bold text-brand-text">Visa ending 4242</p>
-            <p className="text-xs font-medium text-slate-500 mt-0.5">{t.settings?.expires || 'Expires'} 08/28</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <Badge className="bg-brand-blue text-white hover:bg-brand-blue px-3 py-1 rounded-full text-[10px] font-bold border-none uppercase tracking-wider">
-            {t.settings?.default || 'Default'}
-          </Badge>
-          <button className="text-sm font-bold text-red-500 hover:text-red-600 transition-colors">
-            {t.settings?.remove || 'Remove'}
-          </button>
-        </div>
-      </div>
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) {
+      setFile(f);
+      setPreview(URL.createObjectURL(f));
+    }
+  };
 
-      <div className="p-4 sm:p-5 rounded-2xl border border-slate-100 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-xl bg-white flex items-center justify-center border border-slate-100 shadow-sm flex-shrink-0">
-            <CreditCard className="h-6 w-6 text-slate-400" />
-          </div>
-          <div>
-            <p className="font-bold text-brand-text">Mastercard ending 8891</p>
-            <p className="text-xs font-medium text-slate-500 mt-0.5">{t.settings?.expires || 'Expires'} 12/27</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <button className="text-sm font-bold text-brand-blue hover:text-brand-blue-hover transition-colors">
-            {t.settings?.setDefault || 'Set Default'}
-          </button>
-          <button className="text-sm font-bold text-red-500 hover:text-red-600 transition-colors">
-            {t.settings?.remove || 'Remove'}
-          </button>
-        </div>
-      </div>
-    </div>
-  </Card>
-);
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      if (name) formData.append('name', name);
+      if (phone) formData.append('phone_number', phone);
+      if (file) formData.append('profile_image', file);
 
-const NotificationsTab = ({ t }: { t: any }) => {
-  const [orderUpdates, setOrderUpdates] = useState(true);
-  const [emailNotifs, setEmailNotifs] = useState(true);
-  const [smsNotifs, setSmsNotifs] = useState(true);
-  const [deliveryReminders, setDeliveryReminders] = useState(false);
-  const [promoOffers, setPromoOffers] = useState(false);
+      const res = await updateMyProfile(formData);
+      onSaved(res.data);
+      toast.success('Profile updated successfully!');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to update profile.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
-      <h3 className="text-xl font-bold text-brand-text">{t.settings?.notificationPreferences || 'Notification Preferences'}</h3>
-      <div className="space-y-4">
-        {[
-          { id: 'orderUpdates', label: t.settings?.orderUpdates || 'Order updates', desc: t.settings?.orderUpdatesDesc || 'Notifications about order status changes', state: orderUpdates, setter: setOrderUpdates },
-          { id: 'emailNotifs', label: t.settings?.emailNotifs || 'Email notifications', desc: t.settings?.emailNotifsDesc || 'Receive updates via email', state: emailNotifs, setter: setEmailNotifs },
-          { id: 'smsNotifs', label: t.settings?.smsNotifs || 'SMS notifications', desc: t.settings?.smsNotifsDesc || 'Receive updates via SMS', state: smsNotifs, setter: setSmsNotifs },
-          { id: 'deliveryReminders', label: t.settings?.deliveryReminders || 'Delivery reminders', desc: t.settings?.deliveryRemindersDesc || 'Get reminded about upcoming deliveries', state: deliveryReminders, setter: setDeliveryReminders },
-          { id: 'promoOffers', label: t.settings?.promoOffers || 'Promotional offers', desc: t.settings?.promoOffersDesc || 'Receive special offers and discounts', state: promoOffers, setter: setPromoOffers },
-        ].map(item => (
-          <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
-            <div className="pr-4">
-              <p className="font-bold text-brand-text">{item.label}</p>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">{item.desc}</p>
-            </div>
-            <Toggle checked={item.state} onChange={() => item.setter(!item.state)} />
+      <h3 className="text-xl font-bold text-brand-text">{t.settings?.personalInfo || 'Personal Information'}</h3>
+
+      {/* Avatar upload */}
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          <div className="h-20 w-20 rounded-full bg-brand-blue text-white flex items-center justify-center text-2xl font-black shadow-md overflow-hidden">
+            {preview || imageUrl ? (
+              <img src={preview || imageUrl!} alt="avatar" className="h-full w-full object-cover" />
+            ) : (
+              (name || profile?.authId?.name || 'U').substring(0, 2).toUpperCase()
+            )}
           </div>
-        ))}
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-brand-blue text-white shadow-md flex items-center justify-center hover:bg-brand-blue-hover transition-colors"
+          >
+            <Camera className="h-3.5 w-3.5" />
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+        </div>
+        <div>
+          <p className="font-bold text-brand-text">{name || '—'}</p>
+          <p className="text-xs font-medium text-slate-400">{profile?.authId?.email || profile?.email || '—'}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-brand-text">{t.settings?.fullName || 'Full Name'}</label>
+          <div className="relative">
+            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium"
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-brand-text">{t.settings?.emailAddress || 'Email Address'}</label>
+          <div className="relative">
+            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              value={profile?.authId?.email || profile?.email || ''}
+              readOnly
+              className="pl-11 h-12 rounded-xl bg-slate-100 border-slate-200 font-medium text-slate-400 cursor-not-allowed"
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-brand-text">{t.settings?.phoneNumber || 'Phone Number'}</label>
+          <div className="relative">
+            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+1 555 000 0000"
+              className="pl-11 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium"
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-brand-text">Account Role</label>
+          <div className="relative">
+            <Input
+              value="Customer"
+              readOnly
+              className="h-12 rounded-xl bg-slate-100 border-slate-200 font-medium text-slate-400 cursor-not-allowed"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-3 pt-6 border-t border-slate-50 mt-6">
+        <Button
+          variant="outline"
+          className="rounded-xl font-bold h-11 px-6 border-slate-200 text-slate-600 hover:bg-slate-50"
+          onClick={() => {
+            setName(profile?.authId?.name || profile?.name || '');
+            setPhone(profile?.phone_number || '');
+            setPreview(null);
+            setFile(null);
+          }}
+        >
+          {t.settings?.cancel || 'Cancel'}
+        </Button>
+        <Button
+          onClick={handleSave}
+          disabled={isLoading}
+          className="rounded-xl font-bold h-11 px-6 bg-brand-blue hover:bg-brand-blue-hover text-white shadow-md shadow-blue-100"
+        >
+          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {t.settings?.saveChanges || 'Save Changes'}
+        </Button>
       </div>
     </Card>
   );
 };
 
-const PreferencesTab = ({ t }: { t: any }) => (
-  <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
-    <h3 className="text-xl font-bold text-brand-text">{t.settings?.preferences || 'Preferences'}</h3>
-    <div className="space-y-6 max-w-lg">
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.language || 'Language'}</label>
-        <select className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 px-4 focus:outline-none focus:ring-2 focus:ring-brand-blue font-medium text-brand-text appearance-none cursor-pointer">
-          <option value="en">English (US)</option>
-          <option value="fr">Français</option>
-          <option value="nl">Nederlands</option>
-        </select>
+// ─── Security Tab ──────────────────────────────────────────────────
+const SecurityTab = ({ t }: { t: any }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [show, setShow] = useState({ old: false, new: false, confirm: false });
+  const [form, setForm] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!form.oldPassword) e.oldPassword = 'Current password is required';
+    if (form.newPassword.length < 6) e.newPassword = 'Minimum 6 characters';
+    if (form.newPassword !== form.confirmPassword) e.confirmPassword = "Passwords don't match";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleUpdate = async () => {
+    if (!validate()) return;
+    setIsLoading(true);
+    try {
+      await changePassword(form);
+      toast.success('Password changed successfully!');
+      setForm({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to change password.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const Field = ({
+    label,
+    key_,
+    showKey,
+  }: {
+    label: string;
+    key_: 'oldPassword' | 'newPassword' | 'confirmPassword';
+    showKey: 'old' | 'new' | 'confirm';
+  }) => (
+    <div className="space-y-2 max-w-lg">
+      <label className="text-xs font-bold text-brand-text">{label}</label>
+      <div className="relative">
+        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <Input
+          type={show[showKey] ? 'text' : 'password'}
+          value={form[key_]}
+          onChange={(e) => setForm((f) => ({ ...f, [key_]: e.target.value }))}
+          placeholder="••••••••"
+          className="pl-11 pr-12 h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-brand-blue font-medium"
+        />
+        <button
+          type="button"
+          onClick={() => setShow((s) => ({ ...s, [showKey]: !s[showKey] }))}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          {show[showKey] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
       </div>
-      <div className="space-y-2">
-        <label className="text-xs font-bold text-brand-text">{t.settings?.currency || 'Currency'}</label>
-        <select className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 px-4 focus:outline-none focus:ring-2 focus:ring-brand-blue font-medium text-brand-text appearance-none cursor-pointer">
-          <option value="eur">Euro (€)</option>
-          <option value="usd">US Dollar ($)</option>
-          <option value="gbp">British Pound (£)</option>
-        </select>
-      </div>
+      {errors[key_] && <p className="text-xs font-medium text-red-500">{errors[key_]}</p>}
     </div>
-  </Card>
-);
+  );
 
-// --- Main Profile Page Component ---
+  return (
+    <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
+      <h3 className="text-xl font-bold text-brand-text">{t.settings?.securitySettings || 'Security Settings'}</h3>
+      <div className="space-y-6">
+        <Field label={t.settings?.currentPassword || 'Current Password'} key_="oldPassword" showKey="old" />
+        <Field label={t.settings?.newPassword || 'New Password'} key_="newPassword" showKey="new" />
+        <Field label={t.settings?.confirmNewPassword || 'Confirm New Password'} key_="confirmPassword" showKey="confirm" />
+      </div>
+      <div className="flex justify-end pt-6 border-t border-slate-50 mt-6">
+        <Button
+          onClick={handleUpdate}
+          disabled={isLoading}
+          className="rounded-xl font-bold h-11 px-6 bg-brand-blue hover:bg-brand-blue-hover text-white shadow-md shadow-blue-100"
+        >
+          {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {t.settings?.updatePassword || 'Update Password'}
+        </Button>
+      </div>
+    </Card>
+  );
+};
 
+// ─── Notifications Tab ─────────────────────────────────────────────
+const NotificationsTab = ({ t, prefs, setPrefs, onSave }: { t: any; prefs: any; setPrefs: any; onSave: () => void }) => {
+  const toggle = (k: string) => setPrefs((p: any) => ({ ...p, [k]: !p[k] }));
+
+  const items = [
+    { id: 'orderUpdates' as const, label: 'Order updates', desc: 'Notifications about order status changes' },
+    { id: 'emailNotifs' as const, label: 'Email notifications', desc: 'Receive updates via email' },
+    { id: 'smsNotifs' as const, label: 'SMS notifications', desc: 'Receive updates via SMS' },
+    { id: 'deliveryReminders' as const, label: 'Delivery reminders', desc: 'Get reminded about upcoming deliveries' },
+    { id: 'promoOffers' as const, label: 'Promotional offers', desc: 'Receive special offers and discounts' },
+  ];
+
+  return (
+    <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
+      <h3 className="text-xl font-bold text-brand-text">{t.settings?.notificationPreferences || 'Notification Preferences'}</h3>
+      <div className="space-y-4">
+        {items.map((item) => (
+          <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100">
+            <div className="pr-4">
+              <p className="font-bold text-brand-text">{item.label}</p>
+              <p className="text-xs font-medium text-slate-500 mt-0.5">{item.desc}</p>
+            </div>
+            <Toggle checked={prefs[item.id]} onChange={() => toggle(item.id)} />
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-end pt-6 border-t border-slate-50 mt-6">
+        <Button
+          onClick={onSave}
+          className="rounded-xl font-bold h-11 px-6 bg-brand-blue hover:bg-brand-blue-hover text-white shadow-md shadow-blue-100"
+        >
+          {t.settings?.saveChanges || 'Save Changes'}
+        </Button>
+      </div>
+    </Card>
+  );
+};
+
+// ─── Preferences Tab ───────────────────────────────────────────────
+const PreferencesTab = ({ 
+  t, 
+  language, 
+  onLanguageChange,
+  currency,
+  onCurrencyChange,
+  onSave
+}: { 
+  t: any; 
+  language: string; 
+  onLanguageChange: (l: string) => void;
+  currency: string;
+  onCurrencyChange: (c: string) => void;
+  onSave: () => void;
+}) => {
+  return (
+    <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
+      <h3 className="text-xl font-bold text-brand-text">{t.settings?.preferences || 'Preferences'}</h3>
+      <div className="space-y-6 max-w-lg">
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-brand-text">{t.settings?.language || 'Language'}</label>
+          <select 
+            value={language}
+            onChange={(e) => onLanguageChange(e.target.value)}
+            className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 px-4 focus:outline-none focus:ring-2 focus:ring-brand-blue font-medium text-brand-text appearance-none cursor-pointer"
+          >
+            <option value="en">English (US)</option>
+            <option value="fr">Français</option>
+            <option value="nl">Nederlands</option>
+          </select>
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-brand-text">{t.settings?.currency || 'Currency'}</label>
+          <select 
+            value={currency}
+            onChange={(e) => onCurrencyChange(e.target.value)}
+            className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 px-4 focus:outline-none focus:ring-2 focus:ring-brand-blue font-medium text-brand-text appearance-none cursor-pointer"
+          >
+            <option value="usd">US Dollar ($)</option>
+            <option value="eur">Euro (€)</option>
+            <option value="gbp">British Pound (£)</option>
+          </select>
+        </div>
+      </div>
+      <div className="flex justify-end pt-6 border-t border-slate-50 mt-6">
+        <Button
+          onClick={onSave}
+          className="rounded-xl font-bold h-11 px-6 bg-brand-blue hover:bg-brand-blue-hover text-white shadow-md shadow-blue-100"
+        >
+          {t.settings?.saveChanges || 'Save Changes'}
+        </Button>
+      </div>
+    </Card>
+  );
+};
+
+// ─── Main Profile Page ─────────────────────────────────────────────
 export default function ProfilePage() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { user } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
+  const [profile, setProfile] = useState<any>(null);
+  const [isFetching, setIsFetching] = useState(true);
+
+  // Lifted state to persist across tab changes
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    orderUpdates: true,
+    emailNotifs: true,
+    smsNotifs: true,
+    deliveryReminders: false,
+    promoOffers: false,
+  });
+  const [currency, setCurrency] = useState('usd');
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await getMyProfile();
+        setProfile(res.data);
+        if (res.data?.notificationPrefs) {
+          setNotificationPrefs(res.data.notificationPrefs);
+        }
+        if (res.data?.currency) {
+          setCurrency(res.data.currency);
+        }
+        if (res.data?.language) {
+          dispatch(setLanguage(res.data.language as any));
+        }
+      } catch (err) {
+        toast.error('Failed to load profile data.');
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    fetchProfile();
+  }, [dispatch]);
+
+  const handleSaveSettings = async (type: 'notifications' | 'preferences') => {
+    try {
+      const formData = new FormData();
+      if (type === 'notifications') {
+        formData.append('notificationPrefs', JSON.stringify(notificationPrefs));
+      } else {
+        formData.append('currency', currency);
+        formData.append('language', language);
+      }
+      
+      const res = await updateMyProfile(formData);
+      handleProfileSaved(res.data);
+      toast.success(type === 'notifications' ? 'Notification preferences updated!' : 'Preferences updated successfully!');
+    } catch (err) {
+      toast.error('Failed to save settings.');
+    }
+  };
+
+  const handleProfileSaved = (updatedData: any) => {
+    setProfile(updatedData);
+    dispatch(updateUser(updatedData));
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push('/login');
+    toast.success('You have been logged out.');
+  };
+
+  const displayName = profile?.authId?.name || profile?.name || user?.name || 'Customer';
+  const displayEmail = profile?.authId?.email || profile?.email || user?.email || '—';
+  const profileImage = profile?.profile_image || profile?.authId?.profile_image;
+  const imageUrl = getImageUrl(profileImage);
 
   const tabs = [
     { id: 'profile', label: t.settings?.profile || 'Profile', icon: User },
     { id: 'security', label: t.settings?.security || 'Security', icon: Lock },
-    { id: 'payment', label: t.settings?.paymentMethods || 'Payment Methods', icon: CreditCard },
     { id: 'notifications', label: t.settings?.notifications || 'Notifications', icon: Bell },
     { id: 'preferences', label: t.settings?.preferences || 'Preferences', icon: Globe },
   ];
@@ -253,30 +454,36 @@ export default function ProfilePage() {
     <div className="max-w-[1000px] mx-auto min-h-screen pb-12 px-4 sm:px-6 space-y-6 sm:space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-brand-text">Profile & Settings</h1>
+        <h1 className="text-2xl sm:text-3xl font-black text-brand-text">Profile &amp; Settings</h1>
         <p className="text-sm font-medium text-slate-400 mt-1">Manage your account information and preferences.</p>
       </div>
 
-      {/* Top Cover Card */}
+      {/* Cover Card */}
       <Card className="rounded-[2rem] border border-slate-100 shadow-sm bg-white overflow-hidden">
         <div className="h-32 sm:h-40 bg-gradient-to-r from-brand-blue to-cyan-400 w-full" />
         <div className="px-6 sm:px-8 pb-6 sm:pb-8 relative">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12 sm:-mt-16 mb-4 sm:mb-0">
             <div className="relative inline-block">
-              <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-full border-4 border-white bg-brand-blue text-white flex items-center justify-center text-3xl sm:text-4xl font-black shadow-md">
-                {user?.name?.substring(0, 2).toUpperCase() || 'AM'}
+              <div className="h-24 w-24 sm:h-32 sm:w-32 rounded-full border-4 border-white bg-brand-blue text-white flex items-center justify-center text-3xl sm:text-4xl font-black shadow-md overflow-hidden">
+                {isFetching ? (
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                ) : imageUrl ? (
+                  <img src={imageUrl} alt={displayName} className="h-full w-full object-cover" />
+                ) : (
+                  displayName.substring(0, 2).toUpperCase()
+                )}
               </div>
-              <button className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 h-8 w-8 rounded-full bg-white text-brand-blue shadow-md flex items-center justify-center border border-slate-100 hover:bg-slate-50 transition-colors">
+              <button
+                onClick={() => setActiveTab('profile')}
+                className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 h-8 w-8 rounded-full bg-white text-brand-blue shadow-md flex items-center justify-center border border-slate-100 hover:bg-slate-50 transition-colors"
+              >
                 <Camera className="h-4 w-4" />
               </button>
             </div>
             <div className="mt-2 sm:mt-0 sm:mb-2 w-full sm:w-auto">
-              <Button 
-                onClick={() => {
-                  setActiveTab('profile');
-                  window.scrollTo({ top: 400, behavior: 'smooth' });
-                }} 
-                variant="outline" 
+              <Button
+                onClick={() => setActiveTab('profile')}
+                variant="outline"
                 className="w-full sm:w-auto rounded-2xl border-slate-200 text-slate-700 font-bold hover:bg-slate-50 transition-colors h-10 px-6"
               >
                 {t.settings?.editProfile || 'Edit Profile'}
@@ -284,14 +491,15 @@ export default function ProfilePage() {
             </div>
           </div>
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black text-brand-text">{user?.name || 'Amraoui'}</h2>
-            <p className="text-sm font-medium text-slate-500 mt-1">{user?.email || 'amraoui@email.com'}</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-brand-text">{displayName}</h2>
+            <p className="text-sm font-medium text-slate-500 mt-1">{displayEmail}</p>
             <div className="flex items-center gap-2 mt-4">
               <Badge className="bg-brand-blue/10 text-brand-blue hover:bg-brand-blue/10 px-3 py-1 rounded-full text-xs font-bold border-none">
-                {t.settings?.premiumMember || 'Premium Member'}
+                Customer
               </Badge>
               <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-50 px-3 py-1 rounded-full text-xs font-bold border-none">
-                {t.settings?.verified || 'Verified'}
+                <CheckCircle2 className="mr-1 h-3 w-3" />
+                Verified
               </Badge>
             </div>
           </div>
@@ -300,11 +508,11 @@ export default function ProfilePage() {
 
       {/* Tabs */}
       <div className="rounded-[2rem] bg-white border border-slate-100 shadow-sm p-2 flex overflow-x-auto hide-scrollbar">
-        {tabs.map(tab => (
-          <button 
+        {tabs.map((tab) => (
+          <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 min-w-[140px] h-12 rounded-2xl font-bold flex items-center justify-center transition-colors text-sm whitespace-nowrap px-4
+            className={`flex-1 min-w-[130px] h-12 rounded-2xl font-bold flex items-center justify-center transition-colors text-sm whitespace-nowrap px-4
               ${activeTab === tab.id ? 'bg-brand-blue text-white shadow-md shadow-blue-100' : 'text-slate-500 hover:bg-slate-50'}`}
           >
             <tab.icon className="mr-2 h-4 w-4" />
@@ -313,13 +521,38 @@ export default function ProfilePage() {
         ))}
       </div>
 
-      {/* Content Area */}
+      {/* Tab Content */}
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {activeTab === 'profile' && <ProfileTab t={t} user={user} />}
-        {activeTab === 'security' && <SecurityTab t={t} />}
-        {activeTab === 'payment' && <PaymentTab t={t} />}
-        {activeTab === 'notifications' && <NotificationsTab t={t} />}
-        {activeTab === 'preferences' && <PreferencesTab t={t} />}
+        {isFetching ? (
+          <Card className="p-12 rounded-[2rem] border border-slate-100 shadow-sm bg-white flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-brand-blue" />
+          </Card>
+        ) : (
+          <>
+            {activeTab === 'profile' && (
+              <ProfileTab t={t} profile={profile} onSaved={handleProfileSaved} />
+            )}
+            {activeTab === 'security' && <SecurityTab t={t} />}
+            {activeTab === 'notifications' && (
+              <NotificationsTab 
+                t={t} 
+                prefs={notificationPrefs} 
+                setPrefs={setNotificationPrefs} 
+                onSave={() => handleSaveSettings('notifications')} 
+              />
+            )}
+            {activeTab === 'preferences' && (
+              <PreferencesTab 
+                t={t} 
+                language={language} 
+                onLanguageChange={(l) => dispatch(setLanguage(l as any))} 
+                currency={currency}
+                onCurrencyChange={setCurrency}
+                onSave={() => handleSaveSettings('preferences')}
+              />
+            )}
+          </>
+        )}
       </div>
 
       {/* Footer Cards */}
@@ -334,7 +567,10 @@ export default function ProfilePage() {
           <h4 className="font-bold text-brand-text mb-1">{t.settings?.privacyTerms || 'Privacy & Terms'}</h4>
           <p className="text-xs font-medium text-slate-500">{t.settings?.privacyTermsDesc || 'Review our policies'}</p>
         </Card>
-        <Card className="p-5 sm:p-6 rounded-[2rem] border border-red-200 shadow-sm bg-white hover:bg-red-50 cursor-pointer transition-colors group">
+        <Card
+          onClick={handleLogout}
+          className="p-5 sm:p-6 rounded-[2rem] border border-red-100 shadow-sm bg-white hover:bg-red-50 cursor-pointer transition-colors group"
+        >
           <LogOut className="h-6 w-6 text-red-500 mb-4 group-hover:scale-110 transition-transform" />
           <h4 className="font-bold text-red-600 mb-1">{t.settings?.logout || 'Logout'}</h4>
           <p className="text-xs font-medium text-slate-500">{t.settings?.logoutDesc || 'Sign out of your account'}</p>

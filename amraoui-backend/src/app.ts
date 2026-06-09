@@ -9,14 +9,34 @@ import bodyParser from 'body-parser';
 export const app: Application = express();
 
 // ─── CORS ─────────────────────────────────────────────
+const isDev = process.env.NODE_ENV !== 'production';
+
 app.use(
   cors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://192.168.10.16:3000',
-      // add your production domain(s) here
-    ],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      const allowedProduction = [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://192.168.10.16:3000',
+      ];
+
+      if (allowedProduction.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Dev: allow Flutter web, Next.js, and LAN origins
+      if (isDev) {
+        const devAllowed =
+          /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+          /^https?:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
+          /^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin);
+        if (devAllowed) return callback(null, true);
+      }
+
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   })
 );

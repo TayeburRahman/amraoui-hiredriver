@@ -21,7 +21,7 @@ export const logger = createLogger({
   format: combine(label({ label: 'BACKEND' }), timestamp(), myFormat),
   transports: [
     new transports.Console(),
-    ...(process.env.NODE_ENV === 'production' ? [] : [
+    ...(process.env.NODE_ENV === 'production' || process.env.VERCEL ? [] : [
       new transports.File({
         level: 'info',
         filename: path.join(logDir, 'successes', 'um-success.log'),
@@ -43,7 +43,7 @@ export const errorLogger = createLogger({
   format: combine(label({ label: 'BACKEND' }), timestamp(), myFormat),
   transports: [
     new transports.Console(),
-    ...(process.env.NODE_ENV === 'production' ? [] : [
+    ...(process.env.NODE_ENV === 'production' || process.env.VERCEL ? [] : [
       new DailyRotateFile({
         level: 'error',
         filename: path.join(logDir, 'errors', 'um-%DATE%-error.log'),

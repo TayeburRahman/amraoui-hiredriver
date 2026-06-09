@@ -20,6 +20,7 @@ app.use(
         'http://localhost:3000',
         'http://localhost:5173',
         'http://192.168.10.16:3000',
+        'https://amraoui-hiredriver.vercel.app'
       ];
 
       if (allowedProduction.includes(origin)) {
@@ -60,9 +61,9 @@ app.get('/', (_req: Request, res: Response) => {
     message: 'Amraoui HireDriver API is running ✅',
     version: 'v1',
     endpoints: {
-      auth:      '/api/v1/auth',
-      admin:     '/api/v1/admin',
-      drivers:   '/api/v1/drivers',
+      auth: '/api/v1/auth',
+      admin: '/api/v1/admin',
+      drivers: '/api/v1/drivers',
       customers: '/api/v1/customers',
     },
   });

@@ -2,7 +2,8 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-const uploadDir = 'uploads/documents/drivers';
+const isVercel = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+const uploadDir = isVercel ? '/tmp/uploads/documents/drivers' : 'uploads/documents/drivers';
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }

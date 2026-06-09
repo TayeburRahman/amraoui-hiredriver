@@ -20,6 +20,15 @@ export const uploadFile = () => {
         uploadPath = 'uploads';
       }
 
+      const isVercel = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+      if (isVercel) {
+        uploadPath = '/tmp/' + uploadPath;
+        const fs = require('fs');
+        if (!fs.existsSync(uploadPath)) {
+          fs.mkdirSync(uploadPath, { recursive: true });
+        }
+      }
+
       if (
         file.mimetype === 'image/jpeg' ||
         file.mimetype === 'image/png' ||

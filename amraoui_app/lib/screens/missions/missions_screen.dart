@@ -2,12 +2,38 @@ import 'package:amraoui_app/utils/app_size.dart';
 import 'package:amraoui_app/utils/gap.dart';
 import 'package:amraoui_app/widgets/texts/app_text.dart';
 import 'package:amraoui_app/routes/app_routes.dart';
+import 'package:amraoui_app/service/repository/mission_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class MissionsController extends GetxController {
   var activeMainTab = 0.obs; // 0: Open Missions, 1: My Missions
   var activeFilter = 'All'.obs;
+  
+  var isLoading = true.obs;
+  var missions = [].obs;
+
+  final MissionRepository _repo = MissionRepository();
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchMissions();
+  }
+
+  Future<void> fetchMissions() async {
+    try {
+      isLoading(true);
+      final res = await _repo.getMissions();
+      if (res.data != null && res.data['success'] == true) {
+        missions.value = res.data['data'];
+      }
+    } catch (e) {
+      print("Error fetching missions: $e");
+    } finally {
+      isLoading(false);
+    }
+  }
 
   void setMainTab(int index) => activeMainTab.value = index;
   void setFilter(String filter) => activeFilter.value = filter;
@@ -217,54 +243,79 @@ class MissionsScreen extends StatelessWidget {
 
   Widget _buildMissionsList(MissionsController controller) {
     return Obx(() {
-      if (controller.activeMainTab.value == 0) {
-        return Column(
-          children: [
-            _buildMissionCard(
-              route: 'Paris → Lyon',
-              id: '#MS-20458',
-              price: '€72',
-              date: 'Submitted: Today, 10:45 AM',
-              details: 'Service €46 • Expenses €26',
-              status: 'New',
-              statusBg: const Color(0xFFEFF6FF),
-              statusText: const Color(0xFF2563EB),
-            ),
-            const Gap(height: 16),
-            _buildMissionCard(
-              route: 'Strasbourg → Metz',
-              id: '#MS-20399',
-              price: '€38',
-              date: 'Submitted: 20 Apr 2026',
-              details: 'Service €28 • Expenses €10',
-              status: 'Pending',
-              statusBg: const Color(0xFFFFFBEB),
-              statusText: const Color(0xFFF59E0B),
-            ),
-          ],
-        );
-      } else {
-        return Column(
-          children: [
-            _buildMissionCard(
-              route: 'Lyon → Marseille',
-              id: '#MS-19882',
-              price: '€55',
-              date: 'Submitted: Yesterday',
-              details: 'Service €35 • Expenses €20',
-              status: 'Accepted',
-              statusBg: const Color(0xFFF0FDF4),
-              statusText: const Color(0xFF22C55E),
-            ),
-          ],
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      
+      final isMyMissions = controller.activeMainTab.value == 1;
+      
+      // Basic filter logic
+      final filteredMissions = controller.missions.where((m) {
+        // Driver assigned checking would typically be matched with logged-in user id
+        // Assuming "assignedDriverId" is not null for 'My Missions' 
+        final isAssigned = m['assignedDriverId'] != null;
+        if (isMyMissions && !isAssigned) return false;
+        if (!isMyMissions && isAssigned) return false;
+
+        // Apply string filters (All, New, Pending, Rejected)
+        if (controller.activeFilter.value != 'All') {
+          // Simplistic mapping
+        }
+        return true;
+      }).toList();
+
+      if (filteredMissions.isEmpty) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 40),
+          child: AppText(
+            data: 'No missions found',
+            fontSize: 14,
+            color: const Color(0xFF64748B),
+          ),
         );
       }
+
+      return Column(
+        children: filteredMissions.map((m) {
+          final id = '#REQ-${(m['_id'] as String).substring((m['_id'] as String).length - 5).toUpperCase()}';
+          final realId = m['_id'];
+          final type = m['type'];
+          String route = 'Transport';
+          if (type == 'TRANSPORT') {
+            route = '${m['details']['pickupCity'] ?? 'N/A'} → ${m['details']['dropoffCity'] ?? 'N/A'}';
+          } else if (type == 'HIRE_DRIVER') {
+            route = m['details']['driverCity'] ?? 'N/A';
+          } else if (type == 'INSPECTION') {
+            route = m['details']['inspectionLocation'] ?? 'N/A';
+          }
+
+          final date = DateTime.parse(m['createdAt'] ?? DateTime.now().toIso8601String());
+          final dateStr = '${date.day}/${date.month}/${date.year}';
+          final price = m['adminQuote'] != null ? '€${m['adminQuote']['amount']}' : 'Pending';
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _buildMissionCard(
+              route: route,
+              id: id,
+              realId: realId,
+              price: price,
+              date: 'Submitted: $dateStr',
+              details: type == 'TRANSPORT' ? '${m['details']['make']} ${m['details']['model']}' : type,
+              status: isMyMissions ? 'Assigned' : 'Open',
+              statusBg: isMyMissions ? const Color(0xFFF0FDF4) : const Color(0xFFEFF6FF),
+              statusText: isMyMissions ? const Color(0xFF22C55E) : const Color(0xFF2563EB),
+            ),
+          );
+        }).toList(),
+      );
     });
   }
 
   Widget _buildMissionCard({
     required String route,
     required String id,
+    required String realId,
     required String price,
     required String date,
     required String details,
@@ -273,17 +324,7 @@ class MissionsScreen extends StatelessWidget {
     required Color statusText,
   }) {
     return GestureDetector(
-      onTap: () => Get.toNamed(AppRoutes.detail, arguments: {
-        'title': 'Mission Details',
-        'subtitle': id,
-        'fields': {
-          'Route': route,
-          'Price': price,
-          'Submitted': date,
-          'Breakdown': details,
-          'Status': status,
-        },
-      }),
+      onTap: () => _showQuoteDialog(realId, id),
       behavior: HitTestBehavior.opaque,
       child: Container(
       padding: const EdgeInsets.all(20),
@@ -348,6 +389,75 @@ class MissionsScreen extends StatelessWidget {
         ],
       ),
     ),
+    );
+  }
+
+  void _showQuoteDialog(String missionId, String displayId) {
+    final amountCtrl = TextEditingController();
+    final notesCtrl = TextEditingController();
+    final timeCtrl = TextEditingController();
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AppText(data: 'Submit Quote for $displayId', fontSize: 20, fontWeight: FontWeight.bold),
+              const Gap(height: 16),
+              TextField(
+                controller: amountCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Amount (€)', border: OutlineInputBorder()),
+              ),
+              const Gap(height: 12),
+              TextField(
+                controller: notesCtrl,
+                decoration: const InputDecoration(labelText: 'Message / Notes', border: OutlineInputBorder()),
+                maxLines: 2,
+              ),
+              const Gap(height: 12),
+              TextField(
+                controller: timeCtrl,
+                decoration: const InputDecoration(labelText: 'Estimated Time (e.g., 2 hours)', border: OutlineInputBorder()),
+              ),
+              const Gap(height: 24),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2563EB)),
+                  onPressed: () async {
+                    if (amountCtrl.text.isEmpty) return;
+                    Get.back();
+                    Get.snackbar('Submitting...', 'Sending your quote');
+                    try {
+                      final repo = MissionRepository();
+                      await repo.submitQuote(
+                        missionId, 
+                        double.parse(amountCtrl.text), 
+                        notesCtrl.text, 
+                        timeCtrl.text,
+                      );
+                      Get.snackbar('Success', 'Quote submitted successfully');
+                      Get.find<MissionsController>().fetchMissions();
+                    } catch (e) {
+                      Get.snackbar('Error', 'Failed to submit quote');
+                    }
+                  },
+                  child: const AppText(data: 'Submit Quote', color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
     );
   }
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
+import api from '@/lib/axios';
 import { ArrowLeft, Check, Calendar, Clock, MapPin, User, Phone, Mail, CarFront, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +11,7 @@ export default function TechnicalInspectionPage() {
   const router = useRouter();
   const { t, language } = useTranslation();
   const isRTL = language === 'ar';
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     customerName: '',
@@ -56,6 +58,26 @@ export default function TechnicalInspectionPage() {
     formData.inspectionType && 
     formData.inspectionLocation && 
     formData.inspectionDate;
+
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      const payload = {
+        type: 'INSPECTION',
+        details: formData,
+      };
+      
+      const res = await api.post('/requests', payload);
+      if (res.data?.success) {
+        router.push('/dashboard/orders');
+      }
+    } catch (error) {
+      console.error('Error submitting request:', error);
+      alert('Failed to submit request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -285,15 +307,15 @@ export default function TechnicalInspectionPage() {
 
             <button
               type="button"
-              disabled={!canSubmit}
-              onClick={() => alert('Inspection Request Submitted!')}
+              disabled={!canSubmit || isSubmitting}
+              onClick={handleSubmit}
               className={`h-14 w-full sm:w-auto sm:px-14 rounded-2xl text-sm font-bold transition ${
-                canSubmit
+                canSubmit && !isSubmitting
                   ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
                   : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
             >
-              {t.common.submit}
+              {isSubmitting ? 'Submitting...' : t.common.submit}
             </button>
           </div>
         </div>

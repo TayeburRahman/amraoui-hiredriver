@@ -24,6 +24,10 @@ class AppApiUrl {
   static const String driverMyProfileUrl = "/drivers/my/profile";
   static const String driverSubmitDocumentsUrl = "/drivers/my/documents";
   static const String driverUpdateLocationUrl = "/drivers/my/location";
+
+  // Missions
+  static const String missionsUrl = "/requests/missions";
+  static const String submitDriverQuoteUrl = "/requests"; // e.g., /requests/{id}/driver-quote
 }
 
 String _domain() {

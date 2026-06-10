@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import api from '@/lib/axios';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +31,7 @@ export default function TransportRequestPage() {
   const isRTL = language === 'ar';
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     make: '',
     model: '',
@@ -123,6 +125,27 @@ export default function TransportRequestPage() {
 
   const handlePrev = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      const payload = {
+        type: 'TRANSPORT',
+        details: formData,
+      };
+      
+      const res = await api.post('/requests', payload);
+      if (res.data?.success) {
+        // Handle success - maybe redirect to orders
+        router.push('/dashboard/orders');
+      }
+    } catch (error) {
+      console.error('Error submitting request:', error);
+      alert('Failed to submit request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -1082,9 +1105,11 @@ export default function TransportRequestPage() {
 
                 {currentStep === 8 && (
                   <Button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
                     className="w-full sm:w-auto h-14 px-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold shadow-lg shadow-emerald-200 transition-all duration-200"
                   >
-                    {t.common.submit}
+                    {isSubmitting ? 'Submitting...' : t.common.submit}
                   </Button>
                 )}
               </div>

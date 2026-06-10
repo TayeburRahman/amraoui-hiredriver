@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import api from '@/lib/axios';
 import { useSearchParams } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -64,21 +65,83 @@ function OrdersPageContent() {
     }
   };
 
-  // Expanded mock data to demonstrate pagination
-  const initialOrders: Order[] = [
-    { id: '#VQ-20458', vehicle: 'BMW X5', plate: 'AB-123-CD', from: 'Paris', to: 'Lyon', date: 'May 2, 2026', status: 'Active', statusColor: 'bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light', actionText: t.orders.track },
-    { id: '#VQ-20412', vehicle: 'Audi A4', plate: 'XY-456-EF', from: 'Marseille', to: 'Nice', date: 'Apr 28, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
-    { id: '#VQ-20389', vehicle: 'Mercedes C-Class', plate: 'CD-789-GH', from: 'Paris', to: 'Lille', date: 'Apr 25, 2026', status: 'Pending', statusColor: 'bg-amber-50 text-amber-600 hover:bg-amber-50', actionText: t.orders.view },
-    { id: '#VQ-20388', vehicle: 'Mercedes C-Class', plate: 'CD-789-GH', from: 'Paris', to: 'Lille', date: 'Apr 25, 2026', status: 'PendingReview', statusColor: 'bg-blue-50 text-blue-600 hover:bg-blue-50', actionText: t.orders.view },
-    { id: '#VQ-20340', vehicle: 'Renault Clio', plate: 'IJ-012-KL', from: 'Lyon', to: 'Bordeaux', date: 'Apr 20, 2026', status: 'Cancelled', statusColor: 'bg-red-50 text-red-600 hover:bg-red-50', actionText: t.orders.view },
-    { id: '#VQ-20339', vehicle: 'Tesla Model 3', plate: 'TE-5LA-EV', from: 'Berlin', to: 'Munich', date: 'Apr 18, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
-    { id: '#VQ-20338', vehicle: 'Porsche 911', plate: 'PO-911-RS', from: 'Stuttgart', to: 'Frankfurt', date: 'Apr 17, 2026', status: 'Active', statusColor: 'bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light', actionText: t.orders.track },
-    { id: '#VQ-20337', vehicle: 'Volkswagen Golf', plate: 'VW-123-GO', from: 'Hamburg', to: 'Bremen', date: 'Apr 15, 2026', status: 'Pending', statusColor: 'bg-amber-50 text-amber-600 hover:bg-amber-50', actionText: t.orders.view },
-    { id: '#VQ-20336', vehicle: 'Audi Q7', plate: 'AQ-777-ZZ', from: 'Vienna', to: 'Salzburg', date: 'Apr 14, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
-    { id: '#VQ-20335', vehicle: 'Ford Mustang', plate: 'FM-555-GT', from: 'Madrid', to: 'Barcelona', date: 'Apr 12, 2026', status: 'Cancelled', statusColor: 'bg-red-50 text-red-600 hover:bg-red-50', actionText: t.orders.view },
-    { id: '#VQ-20334', vehicle: 'Fiat 500', plate: 'FI-500-IT', from: 'Rome', to: 'Milan', date: 'Apr 10, 2026', status: 'PendingReview', statusColor: 'bg-blue-50 text-blue-600 hover:bg-blue-50', actionText: t.orders.view },
-    { id: '#VQ-20333', vehicle: 'Volvo XC90', plate: 'VO-999-XC', from: 'Stockholm', to: 'Gothenburg', date: 'Apr 08, 2026', status: 'Completed', statusColor: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50', actionText: t.orders.view },
-  ];
+  const [initialOrders, setInitialOrders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await api.get('/requests');
+        if (res.data?.success) {
+          const mapped = res.data.data.map((req: any) => {
+            let status = 'Pending';
+            let statusColor = 'bg-amber-50 text-amber-600 hover:bg-amber-50';
+            let actionText = t.orders.view;
+
+            if (req.status === 'PENDING_ADMIN_QUOTE' || req.status === 'ADMIN_REVIEWING_DRIVERS') {
+               status = 'Pending';
+            } else if (req.status === 'CUSTOMER_REVIEWING_QUOTE') {
+               status = 'PendingReview';
+               statusColor = 'bg-blue-50 text-blue-600 hover:bg-blue-50';
+            } else if (req.status === 'OPEN_FOR_DRIVERS') {
+               status = 'Active';
+               statusColor = 'bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light';
+               actionText = t.orders.track;
+            } else if (req.status === 'ASSIGNED' || req.status === 'IN_PROGRESS') {
+               status = 'Active';
+               statusColor = 'bg-brand-blue-light text-brand-blue hover:bg-brand-blue-light';
+               actionText = t.orders.track;
+            } else if (req.status === 'COMPLETED') {
+               status = 'Completed';
+               statusColor = 'bg-emerald-50 text-emerald-600 hover:bg-emerald-50';
+            } else if (req.status === 'REJECTED_BY_CUSTOMER' || req.status === 'CANCELLED') {
+               status = 'Cancelled';
+               statusColor = 'bg-red-50 text-red-600 hover:bg-red-50';
+            }
+
+            let vehicleStr = "Vehicle";
+            let plateStr = "N/A";
+            let fromStr = "N/A";
+            let toStr = "N/A";
+
+            if (req.type === 'TRANSPORT') {
+              vehicleStr = `${req.details?.make || ''} ${req.details?.model || ''}`.trim() || 'Transport';
+              plateStr = req.details?.plate || 'N/A';
+              fromStr = req.details?.pickupCity || 'N/A';
+              toStr = req.details?.dropoffCity || 'N/A';
+            } else if (req.type === 'HIRE_DRIVER') {
+              vehicleStr = `Driver Request (${req.details?.driverCount || 1})`;
+              fromStr = req.details?.driverCity || 'N/A';
+            } else if (req.type === 'INSPECTION') {
+              vehicleStr = `${req.details?.vehicleBrand || ''} ${req.details?.vehicleModel || ''}`.trim() || 'Inspection';
+              plateStr = req.details?.licensePlate || 'N/A';
+              fromStr = req.details?.inspectionLocation || 'N/A';
+            }
+
+            return {
+              id: `#REQ-${req._id.slice(-5).toUpperCase()}`,
+              realId: req._id,
+              vehicle: vehicleStr,
+              plate: plateStr,
+              from: fromStr,
+              to: toStr,
+              date: new Date(req.createdAt).toLocaleDateString(),
+              status,
+              statusColor,
+              actionText,
+              raw: req
+            };
+          });
+          setInitialOrders(mapped);
+        }
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchOrders();
+  }, [t.orders.view, t.orders.track]);
 
   // Derive stats dynamically from data
   const totalCount = initialOrders.length;
@@ -133,6 +196,14 @@ function OrdersPageContent() {
     setSearchQuery(e.target.value);
     setCurrentPage(1); // Reset page on search
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-slate-500 font-medium">Loading orders...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 md:space-y-8 max-w-[1400px] mx-auto min-h-screen pb-12 px-4 sm:px-6 lg:px-8">
@@ -237,13 +308,13 @@ function OrdersPageContent() {
                     </td>
                     <td className="py-5 px-6 sm:px-8 align-middle text-right">
                       {order.status === 'PendingReview' || order.status === 'Pending' ? (
-                        <OfferReceivedModal>
+                        <OfferReceivedModal order={order.raw}>
                           <Button variant="link" className="text-brand-blue font-bold px-0 h-auto hover:no-underline">
                             {order.actionText}
                           </Button>
                         </OfferReceivedModal>
                       ) : (
-                        <Link href={`/dashboard/orders/${order.id.replace('#', '')}`}>
+                        <Link href={`/dashboard/orders/${order.realId}`}>
                           <Button variant="link" className="text-brand-blue font-bold px-0 h-auto hover:no-underline">
                             {order.actionText}
                           </Button>

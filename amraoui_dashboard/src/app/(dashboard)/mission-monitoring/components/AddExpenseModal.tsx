@@ -1,26 +1,85 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Fuel, Clock, ClipboardList, Upload, Car } from 'lucide-react';
+import { X, Fuel, Clock, ClipboardList, Upload, Car, CheckCircle2, Ticket, Wrench, Droplet, Coffee, AlertTriangle, Home } from 'lucide-react';
+
+import { apiFetch } from '@/lib/api';
 
 interface AddExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
+  mission: any;
 }
 
-export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClose }) => {
+export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClose, mission }) => {
   const [selectedType, setSelectedType] = useState("Toll");
-  const [uploadedBy, setUploadedBy] = useState("Driver");
+  const [uploadedBy, setUploadedBy] = useState<"Admin" | "Driver">("Admin");
+  const [amount, setAmount] = useState('');
+  const [driverNote, setDriverNote] = useState('');
+  const [adminNote, setAdminNote] = useState('');
+  const [proofUrl, setProofUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
   const expenseTypes = [
-    { name: "Toll", icon: Car },
+    { name: "Toll", icon: Ticket },
     { name: "Fuel", icon: Fuel },
-    { name: "Parking", icon: Car }, // Using Car as placeholder for Parking if ParkingCircle not found
-    { name: "Waiting charge", icon: Clock },
+    { name: "Parking", icon: Car },
+    { name: "Hotel", icon: Home },
+    { name: "Maintenance", icon: Wrench },
+    { name: "Cleaning", icon: Droplet },
+    { name: "Meals", icon: Coffee },
+    { name: "Fines", icon: AlertTriangle },
     { name: "Other", icon: ClipboardList }
   ];
+
+  const handleApproveExpense = async () => {
+    if (!amount || isNaN(Number(amount))) return;
+    try {
+      setIsSubmitting(true);
+      const res = await apiFetch(`/requests/${mission.realId}/expenses`, {
+        method: 'POST',
+        body: JSON.stringify({
+          type: selectedType,
+          amount: Number(amount),
+          uploadedBy,
+          driverNote,
+          adminNote,
+          proofUrl: proofUrl,
+        }),
+        auth: true,
+      });
+      if (res.ok) {
+        const result: any = res.data;
+        // The backend returns the updated request in result.data
+        if (result?.data?.expenses) {
+           mission.raw.expenses = result.data.expenses;
+        } else {
+           if (!mission.raw.expenses) mission.raw.expenses = [];
+           mission.raw.expenses.push({
+             type: selectedType,
+             amount: Number(amount),
+             proofUrl: proofUrl
+           });
+        }
+        setAmount('');
+        setDriverNote('');
+        setAdminNote('');
+        setProofUrl(null);
+        onClose();
+      } else {
+        const err: any = res.data || {};
+        alert('Failed to add expense: ' + (err.message || JSON.stringify(err)));
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error adding expense');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -40,19 +99,19 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
           <div className="grid grid-cols-2 gap-3 bg-gray-50/50 p-4 rounded-xl border border-gray-100 text-xs">
             <div>
               <p className="text-gray-400">Mission ID</p>
-              <p className="font-bold text-gray-900">MS-20470</p>
+              <p className="font-bold text-gray-900">{mission?.id || 'N/A'}</p>
             </div>
             <div>
               <p className="text-gray-400">Driver</p>
-              <p className="font-bold text-gray-900">James Davis</p>
+              <p className="font-bold text-gray-900">{mission?.driver || 'N/A'}</p>
             </div>
             <div>
               <p className="text-gray-400">Customer</p>
-              <p className="font-bold text-gray-900">Luxury Cars Marrakech</p>
+              <p className="font-bold text-gray-900">{mission?.customer || 'N/A'}</p>
             </div>
             <div>
               <p className="text-gray-400">Route</p>
-              <p className="font-bold text-gray-900">Casablanca → Marrakech</p>
+              <p className="font-bold text-gray-900">{mission?.route || 'N/A'}</p>
             </div>
           </div>
 
@@ -83,56 +142,75 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
             <input 
               type="text" 
               placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
               className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* Uploaded By */}
-          <div>
-            <p className="font-bold text-gray-900 mb-2 text-xs">Uploaded By</p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setUploadedBy("Driver")}
-                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  uploadedBy === "Driver"
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                Driver
-              </button>
-              <button
-                onClick={() => setUploadedBy("Admin")}
-                className={`px-4 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                  uploadedBy === "Admin"
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                Admin
-              </button>
-            </div>
-          </div>
+
 
           {/* Receipt / Proof */}
           <div>
             <p className="font-bold text-gray-900 mb-2 text-xs">Receipt / Proof</p>
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-blue-300 transition-colors cursor-pointer">
-              <Upload className="w-6 h-6 text-gray-400 mb-2" />
-              <p className="text-sm font-medium text-gray-900">Upload Receipt</p>
-              <p className="text-xs text-gray-400 mt-1">Click or drag file to upload</p>
-            </div>
+            <label className={`border-2 border-dashed ${proofUrl ? 'border-green-400 bg-green-50' : 'border-gray-200'} rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-blue-300 transition-colors cursor-pointer relative overflow-hidden`}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+
+                  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'demo'; 
+                  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'unsigned_preset'; // Replace with your actual preset
+
+                  const formData = new FormData();
+                  formData.append('file', file);
+                  formData.append('upload_preset', uploadPreset);
+
+                  try {
+                    setIsUploading(true);
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                      method: 'POST',
+                      body: formData,
+                    });
+                    const data = await res.json();
+                    if (data.secure_url) {
+                      setProofUrl(data.secure_url);
+                    } else {
+                      alert('Upload failed: ' + (data.error?.message || 'Unknown error. Check your Cloudinary Cloud Name and Upload Preset in .env.local'));
+                    }
+                  } catch (error) {
+                    console.error('Error uploading file:', error);
+                    alert('Error uploading file');
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+              />
+              {isUploading ? (
+                <div className="flex flex-col items-center gap-2">
+                   <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                   <p className="text-sm font-medium text-blue-600">Uploading...</p>
+                </div>
+              ) : proofUrl ? (
+                <div className="flex flex-col items-center gap-2">
+                  <CheckCircle2 className="w-6 h-6 text-green-500" />
+                  <p className="text-sm font-medium text-green-700">Receipt Uploaded Successfully</p>
+                  <p className="text-xs text-green-600 underline">Click to change</p>
+                </div>
+              ) : (
+                <>
+                  <Upload className="w-6 h-6 text-gray-400 mb-2" />
+                  <p className="text-sm font-medium text-gray-900">Upload Receipt</p>
+                  <p className="text-xs text-gray-400 mt-1">Click or drag file to upload</p>
+                </>
+              )}
+            </label>
           </div>
 
-          {/* Driver Note */}
-          <div>
-            <p className="font-bold text-gray-900 mb-2 text-xs">Driver Note</p>
-            <textarea 
-              className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows={2}
-              placeholder="Driver's note..."
-            ></textarea>
-          </div>
+
 
           {/* Admin Note */}
           <div>
@@ -141,6 +219,8 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
               className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={2}
               placeholder="Add internal admin note (optional)"
+              value={adminNote}
+              onChange={(e) => setAdminNote(e.target.value)}
             ></textarea>
           </div>
 
@@ -153,13 +233,13 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
 
         {/* Footer */}
         <div className="p-6 border-t border-gray-100 flex gap-3 text-sm">
-          <button onClick={onClose} className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+          <button onClick={onClose} disabled={isSubmitting} className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
             Cancel
           </button>
-          <button className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-            Save Draft
-          </button>
-          <button className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity">
+          <button 
+            disabled={isSubmitting || !amount || isUploading}
+            onClick={handleApproveExpense}
+            className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity disabled:opacity-50">
             Approve Expense
           </button>
         </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
+import api from '@/lib/axios';
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
 import {
   ArrowLeft,
@@ -47,6 +48,7 @@ export default function HireDriverPage() {
   const isRTL = language === 'ar';
   
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     driverCount: 1,
     driverTasks: [] as string[],
@@ -100,6 +102,26 @@ export default function HireDriverPage() {
     formData.driverEndTime &&
     formData.driverLocation &&
     selectedTasks.length > 0;
+
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      const payload = {
+        type: 'HIRE_DRIVER',
+        details: formData,
+      };
+      
+      const res = await api.post('/requests', payload);
+      if (res.data?.success) {
+        router.push('/dashboard/orders');
+      }
+    } catch (error) {
+      console.error('Error submitting request:', error);
+      alert('Failed to submit request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className={`min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -378,15 +400,15 @@ export default function HireDriverPage() {
 
             <button
               type="button"
-              disabled={!canContinue}
-              onClick={() => alert('Request Submitted!')}
+              disabled={!canContinue || isSubmitting}
+              onClick={handleSubmit}
               className={`h-14 w-full sm:w-auto sm:px-14 rounded-2xl text-sm font-bold transition ${
-                canContinue
+                canContinue && !isSubmitting
                   ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/20 hover:opacity-90"
                   : "cursor-not-allowed bg-slate-200 text-slate-400"
               }`}
             >
-              {t.common.submit}
+              {isSubmitting ? 'Submitting...' : t.common.submit}
             </button>
           </div>
         </div>

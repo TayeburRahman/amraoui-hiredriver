@@ -1,13 +1,96 @@
 "use client";
 
-import React, { useState } from 'react';
-import { MapPin, Car, FileText, CheckCircle2, User, Mail, Phone, Building, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect, use } from 'react';
+import { MapPin, Car, FileText, CheckCircle2, User, Mail, Phone, Building, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { ViewDetailsModal } from '@/app/(dashboard)/customer-request/components/ViewDetailsModal';
+import { apiFetch } from '@/lib/api';
 
+const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
+    const { id } = use(params);
+    const searchParams = useSearchParams();
+    const reqId = searchParams.get('reqId') || id; // Fallback to id if reqId is missing
 
-const QuoteDetails = ({ params }: { params: { id: string } }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [request, setRequest] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isAssigning, setIsAssigning] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+    useEffect(() => {
+        const fetchRequest = async () => {
+            try {
+                const res = await apiFetch<any>(`/requests/${reqId}`, { auth: true });
+                if (res.data?.success) {
+                    setRequest(res.data.data);
+                }
+            } catch (error) {
+                console.error("Error fetching request details:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchRequest();
+    }, [id, reqId]);
+
+    const handleApprove = async () => {
+        setShowConfirmModal(false); // Close the modal
+        if (!quotesToDisplay || quotesToDisplay.length === 0) return;
+        const quoteId = quotesToDisplay[0]._id;
+        
+        try {
+            setIsAssigning(true);
+            const res = await apiFetch<any>(`/requests/${reqId}/assign-driver`, { 
+                method: 'PATCH', 
+                auth: true, 
+                body: JSON.stringify({ quoteId }) 
+            });
+            if (res.data?.success) {
+                // Update local state with the exact backend response to support multiple drivers
+                setRequest(res.data.data);
+            }
+        } catch (error) {
+            console.error("Error approving quote:", error);
+            alert("Failed to assign driver. Please try again.");
+        } finally {
+            setIsAssigning(false);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        );
+    }
+
+    if (!request) {
+        return <div className="p-6 text-center text-gray-500">Request not found.</div>;
+    }
+
+    const date = new Date(request.createdAt);
+    const idString = request._id ? (typeof request._id === 'object' ? (request._id.$oid || String(request._id)) : String(request._id)) : 'UNKNOWN';
+    const displayId = (request.missionId && request.missionId.trim() !== '') ? request.missionId : `MS-${idString.slice(-5).toUpperCase()}`;
+    
+    // Filter to only show the specific quote that was clicked
+    const allQuotes = request.driverQuotes || [];
+    const quotes = allQuotes.filter((q: any) => String(q._id) === String(id));
+    
+    // If quote not found by ID (maybe accessed directly), just show all or fallback
+    const quotesToDisplay = quotes.length > 0 ? quotes : allQuotes;
+
+    let lowestQuote = 0, highestQuote = 0, avgQuote = 0;
+    if (allQuotes.length > 0) {
+        lowestQuote = Math.min(...allQuotes.map((q: any) => q.amount));
+        highestQuote = Math.max(...allQuotes.map((q: any) => q.amount));
+        avgQuote = Math.round(allQuotes.reduce((acc: number, q: any) => acc + q.amount, 0) / allQuotes.length);
+    }
+
+    const proposedPrice = request.adminQuote?.amount || 0;
+    let statusDisplay = request.status === 'ASSIGNED' ? 'Assigned' :
+        request.status === 'ADMIN_REVIEWING_DRIVERS' ? 'Pending Assignment' :
+            request.driverQuotes?.length > 0 ? 'Quotes Received' : 'Waiting for Quotes';
 
     return (
         <div className="p-6 max-w-7xl mx-auto overflow-auto">
@@ -18,6 +101,105 @@ const QuoteDetails = ({ params }: { params: { id: string } }) => {
 
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Request Details</h1>
 
+            {/* Driver Quotations List */}
+            {quotesToDisplay.length > 0 && (
+                <div className="mb-8">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                        <User className="w-5 h-5 text-blue-600" />
+                        Submitted Driver Quote
+                    </h2>
+                    <div className="flex flex-col gap-6">
+                        {quotesToDisplay.map((quote: any, index: number) => {
+                            const driver = quote.driverId || {};
+                            return (
+                                <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="flex flex-col lg:flex-row gap-6">
+                                        {/* Driver Profile Section (Left) */}
+                                        <div className="flex items-start gap-4 lg:w-1/3">
+                                            <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
+                                                {driver.profile_image ? (
+                                                    <img src={driver.profile_image} alt={driver.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                        <User className="w-8 h-8" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-bold text-gray-900">{driver.name || 'Unknown Driver'}</h3>
+                                                <p className="text-sm text-gray-500 flex items-center gap-1 mb-2">
+                                                    <Car className="w-4 h-4" />
+                                                    {driver.vehicle_plate || 'No Plate'} • {driver.vehicle_type || 'Standard'}
+                                                </p>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="px-2 py-1 bg-amber-50 text-amber-600 rounded-lg text-xs font-bold border border-amber-100">
+                                                        ★ {driver.rating || 'New'}
+                                                    </span>
+                                                    <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold border border-blue-100">
+                                                        {driver.totalDeliveries || 0} Deliveries
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Driver Contact & Quote Details (Middle) */}
+                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-3">
+                                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Contact Info</h4>
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <Phone className="w-4 h-4 text-gray-400"/>
+                                                    <span className="font-medium text-gray-900">{driver.phone_number || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <Mail className="w-4 h-4 text-gray-400"/>
+                                                    <span className="font-medium text-gray-900">{driver.email || 'N/A'}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Quote Details</h4>
+                                                <div className="flex items-end gap-4">
+                                                    <div>
+                                                        <p className="text-xs text-gray-500 font-medium">Amount</p>
+                                                        <p className="text-2xl font-black text-blue-600">€{quote.amount}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-gray-500 font-medium">Est. Time</p>
+                                                        <p className="text-lg font-bold text-gray-900">{quote.estimatedTime || 'N/A'}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Status (Right) */}
+                                        <div className="lg:w-1/6 flex flex-col items-start lg:items-end justify-start border-t lg:border-t-0 border-gray-100 pt-4 lg:pt-0">
+                                            <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                                                quote.status === 'ACCEPTED' ? 'bg-green-50 text-green-600 border-green-200' :
+                                                quote.status === 'REJECTED' ? 'bg-red-50 text-red-600 border-red-200' :
+                                                'bg-gray-50 text-gray-600 border-gray-200'
+                                            }`}>
+                                                {quote.status}
+                                            </span>
+                                            <span className="text-xs text-gray-400 mt-2">
+                                                {new Date(quote.createdAt).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Driver Message */}
+                                    <div className="mt-6 pt-6 border-t border-gray-100">
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Driver Message</p>
+                                        <p className="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-100 italic">
+                                            "{quote.message || 'No additional message provided.'}"
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Column */}
                 <div className="space-y-6">
@@ -27,55 +209,103 @@ const QuoteDetails = ({ params }: { params: { id: string } }) => {
                         <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Request ID</span>
-                                <span className="font-bold text-blue-600">REQ-20458</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Mission ID</span>
-                                <span className="font-bold text-gray-900">MISS-10245</span>
+                                <span className="font-bold text-blue-600">{displayId}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Status</span>
-                                <span className="px-2 py-0.5 bg-yellow-50 text-yellow-600 rounded-full text-xs font-medium">Pending Assignment</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Priority</span>
-                                <span className="font-bold text-gray-900">Normal</span>
+                                <span className="px-2 py-0.5 bg-yellow-50 text-yellow-600 rounded-full text-xs font-medium">{statusDisplay}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Customer</span>
-                                <span className="font-bold text-gray-900">Amraoui / Premium Motors</span>
+                                <span className="font-bold text-gray-900">{request.customerId?.name || request.details?.customerName || request.details?.firstName || 'Anonymous'}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Submitted</span>
-                                <span className="font-bold text-gray-900">10 May, 3:20 PM</span>
+                                <span className="font-bold text-gray-900">{date.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-400">Contact Email</span>
+                                <span className="font-bold text-gray-900">{request.customerId?.email || request.details?.customerEmail || request.details?.email || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-400">Contact Phone</span>
+                                <span className="font-bold text-gray-900">{request.customerId?.phone_number || request.details?.customerPhone || request.details?.phone || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Route Information */}
+                    {/* Route & Schedule Information */}
                     <div className="bg-white rounded-xl border border-gray-200 p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <MapPin className="w-4 h-4 text-gray-400" />
-                            <h2 className="text-sm font-bold text-gray-900">Route Information</h2>
+                            <h2 className="text-sm font-bold text-gray-900">Route & Schedule Information</h2>
                         </div>
                         <div className="space-y-4 text-sm">
-                            <div>
-                                <p className="text-xs text-gray-400 font-medium mb-1">Pickup</p>
-                                <p className="font-bold text-gray-900">Paris</p>
-                                <p className="text-gray-500 text-xs">15 Rue de la Paix, 75002 Paris</p>
-                                <p className="text-gray-500 text-xs">Contact: Jean Martin • +33 1 23 45 67 89</p>
-                                <p className="text-blue-600 text-xs mt-1">12 May, 10:30 AM</p>
-                            </div>
-                            <div className="border-t border-gray-100 pt-4">
-                                <p className="text-xs text-gray-400 font-medium mb-1">Delivery</p>
-                                <p className="font-bold text-gray-900">Lyon</p>
-                                <p className="text-gray-500 text-xs">42 Avenue Victor Hugo, 69003 Lyon</p>
-                                <p className="text-gray-500 text-xs">Contact: Marie Dupont • +33 4 78 90 12 34</p>
-                                <p className="text-blue-600 text-xs mt-1">12 May, 6:00 PM</p>
-                            </div>
-                            <div className="border-t border-gray-100 pt-4">
-                                <p className="text-xs text-gray-400">Estimated Distance: 465 km</p>
-                            </div>
+                            {request.type === 'TRANSPORT' ? (
+                                <>
+                                    <div className="flex gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                                            <span className="text-blue-600 font-bold">A</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-400 font-medium mb-1">Pickup</p>
+                                            <p className="font-bold text-gray-900">{request.details?.pickupCity}</p>
+                                            <p className="text-gray-500 text-xs">{request.details?.pickupAddress}</p>
+                                            <p className="text-gray-500 text-xs mt-1">{request.details?.pickupDate} at {request.details?.pickupTime}</p>
+                                        </div>
+                                    </div>
+                                    <div className="border-l-2 border-dashed border-gray-200 ml-5 h-6"></div>
+                                    <div className="flex gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center shrink-0">
+                                            <span className="text-green-600 font-bold">B</span>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-gray-400 font-medium mb-1">Delivery</p>
+                                            <p className="font-bold text-gray-900">{request.details?.dropoffCity}</p>
+                                            <p className="text-gray-500 text-xs">{request.details?.dropoffAddress}</p>
+                                            <p className="text-gray-500 text-xs mt-1">{request.details?.dropoffDate} at {request.details?.dropoffTime}</p>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : request.type === 'HIRE_DRIVER' ? (
+                                <>
+                                    <div className="flex justify-between border-b border-gray-100 pb-2">
+                                        <span className="text-gray-400">City/Location</span>
+                                        <span className="font-bold text-gray-900 text-right">{request.details?.driverCity} <br /> <span className="text-xs font-normal text-gray-500">{request.details?.driverLocation}</span></span>
+                                    </div>
+                                    <div className="flex justify-between border-b border-gray-100 pb-2">
+                                        <span className="text-gray-400">Start Time</span>
+                                        <span className="font-bold text-gray-900">{request.details?.driverStartDate} at {request.details?.driverStartTime}</span>
+                                    </div>
+                                    <div className="flex justify-between border-b border-gray-100 pb-2">
+                                        <span className="text-gray-400">End Time</span>
+                                        <span className="font-bold text-gray-900">{request.details?.driverEndDate} at {request.details?.driverEndTime}</span>
+                                    </div>
+                                    <div className="flex justify-between border-b border-gray-100 pb-2">
+                                        <span className="text-gray-400">Drivers Required</span>
+                                        <span className="font-bold text-gray-900">{request.details?.driverCount || 1} Drivers</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Tasks</span>
+                                        <span className="font-bold text-gray-900 max-w-[200px] text-right">{(request.details?.driverTasks || []).join(', ')}</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex justify-between border-b border-gray-100 pb-2">
+                                        <span className="text-gray-400">Location</span>
+                                        <span className="font-bold text-gray-900">{request.details?.inspectionLocation}</span>
+                                    </div>
+                                    <div className="flex justify-between border-b border-gray-100 pb-2">
+                                        <span className="text-gray-400">Date</span>
+                                        <span className="font-bold text-gray-900">{request.details?.inspectionDate} at {request.details?.inspectionTime}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Type</span>
+                                        <span className="font-bold text-gray-900">{request.details?.inspectionType}</span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -86,29 +316,31 @@ const QuoteDetails = ({ params }: { params: { id: string } }) => {
                     <div className="bg-white rounded-xl border border-gray-200 p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Car className="w-4 h-4 text-gray-400" />
-                            <h2 className="text-sm font-bold text-gray-900">Vehicle Information</h2>
+                            <h2 className="text-sm font-bold text-gray-900">Vehicle / Request Type</h2>
                         </div>
                         <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-gray-400">Vehicle Type</span>
-                                <span className="font-bold text-gray-900">SUV</span>
+                                <span className="text-gray-400">Type</span>
+                                <span className="font-bold text-gray-900">{request.type}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Brand</span>
-                                <span className="font-bold text-gray-900">BMW</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Model</span>
-                                <span className="font-bold text-gray-900">X5</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">License Plate</span>
-                                <span className="font-bold text-gray-900">AB-123-CD</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">Engine Type</span>
-                                <span className="px-2 py-0.5 bg-green-50 text-green-600 rounded-full text-xs font-medium">Electric</span>
-                            </div>
+                            {request.type === 'TRANSPORT' && (
+                                <>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Make</span>
+                                        <span className="font-bold text-gray-900">{request.details?.make}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Model</span>
+                                        <span className="font-bold text-gray-900">{request.details?.model}</span>
+                                    </div>
+                                    {request.details?.year && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-400">Year</span>
+                                            <span className="font-bold text-gray-900">{request.details?.year}</span>
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -116,16 +348,11 @@ const QuoteDetails = ({ params }: { params: { id: string } }) => {
                     <div className="bg-white rounded-xl border border-gray-200 p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <FileText className="w-4 h-4 text-gray-400" />
-                            <h2 className="text-sm font-bold text-gray-900">Customer Instructions</h2>
+                            <h2 className="text-sm font-bold text-gray-900">Customer Notes</h2>
                         </div>
-                        <p className="text-sm text-gray-600 mb-4">
-                            Please handle the vehicle carefully. Call before pickup. Vehicle has documents inside.
+                        <p className="text-sm text-gray-600">
+                            {request.details?.notes || 'No additional notes provided.'}
                         </p>
-                        <div className="flex flex-wrap gap-2">
-                            <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">Call before pickup</span>
-                            <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">Documents inside vehicle</span>
-                            <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-medium">Handle carefully</span>
-                        </div>
                     </div>
 
                     {/* Quote Summary */}
@@ -134,27 +361,23 @@ const QuoteDetails = ({ params }: { params: { id: string } }) => {
                         <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
                             <div>
                                 <p className="text-gray-400 text-xs font-medium">Quotes Received</p>
-                                <p className="text-2xl font-bold text-blue-600">4</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-400 text-xs font-medium">Lowest Quote</p>
-                                <p className="text-2xl font-bold text-green-500">€430</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-400 text-xs font-medium">Highest Quote</p>
-                                <p className="text-2xl font-bold text-red-500">€500</p>
+                                <p className="text-2xl font-bold text-blue-600">{allQuotes.length}</p>
                             </div>
                             <div>
                                 <p className="text-gray-400 text-xs font-medium">Average Quote</p>
-                                <p className="text-2xl font-bold text-amber-500">€462</p>
+                                <p className="text-2xl font-bold text-amber-500">€{avgQuote}</p>
                             </div>
                             <div className="border-t border-blue-100 pt-3">
-                                <p className="text-gray-400 text-xs font-medium">Our Proposed Price</p>
-                                <p className="text-2xl font-bold text-blue-600">€462</p>
+                                <p className="text-gray-400 text-xs font-medium">Base Admin Price</p>
+                                <p className="text-2xl font-bold text-blue-600">€{proposedPrice}</p>
                             </div>
                             <div className="border-t border-blue-100 pt-3">
-                                <p className="text-gray-400 text-xs font-medium">Our Max Price</p>
-                                <p className="text-2xl font-bold text-blue-600">€500</p>
+                                <p className="text-gray-400 text-xs font-medium">Extra Expenses</p>
+                                <p className="text-2xl font-bold text-red-500">€{request.expenses?.reduce((sum: number, exp: any) => sum + exp.amount, 0) || 0}</p>
+                            </div>
+                            <div className="col-span-2 pt-2">
+                                <p className="text-gray-400 text-xs font-medium">Total Billed to Customer</p>
+                                <p className="text-3xl font-black text-gray-900">€{proposedPrice + (request.expenses?.reduce((sum: number, exp: any) => sum + exp.amount, 0) || 0)}</p>
                             </div>
                         </div>
                     </div>
@@ -163,54 +386,69 @@ const QuoteDetails = ({ params }: { params: { id: string } }) => {
                     <div className="bg-white rounded-xl border border-gray-200 p-6">
                         <h2 className="text-sm font-bold text-gray-900 mb-2">Admin Note</h2>
                         <p className="text-xs text-gray-400 mb-3">Internal only — not visible to customer or driver.</p>
-                        <textarea 
+                        <textarea
                             placeholder="Add internal note..."
-                            className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+                            className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                             rows={3}
                         ></textarea>
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-                            Save Note
-                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button 
-                    onClick={() => setIsModalOpen(true)}
-                    className="py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
-                >
-                    View Full Request
-                </button>
 
-                <Link href={`/quote-desk/${params.id}/compare`} className="py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+            {/* Action Buttons */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Link href={`/quote-desk/${id}/compare?reqId=${reqId}`} className="py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                     Compare Drivers
                 </Link>
 
-                <button className="py-2.5 bg-white border border-amber-300 text-amber-600 rounded-lg text-sm font-medium hover:bg-amber-50 transition-colors">
-                    Put On Hold
-                </button>
-                <button className="py-2.5 bg-white border border-red-200 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors">
-                    Cancel Request
+                <button
+                    onClick={() => setShowConfirmModal(true)}
+                    disabled={isAssigning || request?.status === 'ASSIGNED' || quotesToDisplay[0]?.status === 'ACCEPTED'}
+                    className={`py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2 ${
+                        quotesToDisplay[0]?.status === 'ACCEPTED'
+                            ? 'bg-green-600 text-white cursor-not-allowed'
+                            : request?.status === 'ASSIGNED' 
+                                ? 'bg-gray-400 text-white cursor-not-allowed'
+                                : isAssigning
+                                    ? 'bg-blue-400 text-white cursor-not-allowed'
+                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                >
+                    {isAssigning && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {quotesToDisplay[0]?.status === 'ACCEPTED' ? 'Quote Accepted' : request?.status === 'ASSIGNED' ? 'Mission Full' : 'Accept Quote'}
                 </button>
             </div>
-            <ViewDetailsModal 
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                request={{
-                    requestId: "REQ-20458",
-                    status: "Pending",
-                    priority: "Urgent",
-                    type: "Transport Request",
-                    customer: "Amraoui",
-                    company: "Premium Motors",
-                    vehicle: "BMW X5",
-                }}
-            />
+
+            {/* Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">Confirm Assignment</h3>
+                            <p className="text-gray-600 text-sm mb-6">
+                                Are you sure you want to assign this driver to the mission? This will notify the driver and you cannot undo this action.
+                            </p>
+                            <div className="flex items-center justify-end gap-3">
+                                <button
+                                    onClick={() => setShowConfirmModal(false)}
+                                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleApprove}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                                >
+                                    Confirm Assignment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
-
 
 export default QuoteDetails;

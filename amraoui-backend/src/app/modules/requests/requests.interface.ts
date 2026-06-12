@@ -45,6 +45,7 @@ export type IDriverQuote = {
 
 export type IRequest = Document & {
   _id: mongoose.Schema.Types.ObjectId;
+  missionId: string;
   customerId: mongoose.Schema.Types.ObjectId;
   type: RequestType;
   status: RequestStatus;
@@ -53,6 +54,7 @@ export type IRequest = Document & {
   driverQuotes: IDriverQuote[];
   expenses: IExpense[];
   assignedDriverId?: mongoose.Schema.Types.ObjectId;
+  assignedDriverIds?: mongoose.Schema.Types.ObjectId[];
   createdAt?: Date;
   updatedAt?: Date;
 };

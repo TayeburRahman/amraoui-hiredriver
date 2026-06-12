@@ -578,7 +578,7 @@ const updateMyProfile = async (req: RequestData) => {
 
   let profile_image: string | undefined = undefined;
   if (files && files.profile_image) {
-    profile_image = `/images/profile/${files.profile_image[0].filename}`;
+    profile_image = files.profile_image[0].path;
   }
 
   switch (role) {

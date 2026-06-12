@@ -1,50 +1,34 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Request } from 'express';
 import multer from 'multer';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from '../../config/cloudinary';
 
 export const uploadFile = () => {
-  const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      let uploadPath = '';
+  const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: async (req, file) => {
+      let folderName = 'amraoui';
 
       if (
         file.fieldname === 'cover_image' ||
         file.fieldname === 'profile_image'
       ) {
-        uploadPath = 'uploads/images/profile';
+        folderName = 'amraoui/images/profile';
       } else if (file.fieldname === 'product_img') {
-        uploadPath = 'uploads/images/products';
+        folderName = 'amraoui/images/products';
       } else if (file.fieldname === 'image') {
-        uploadPath = 'uploads/images/image';
+        folderName = 'amraoui/images/image';
       } else {
-        uploadPath = 'uploads';
+        folderName = 'amraoui/uploads';
       }
 
-      const isVercel = process.env.NODE_ENV === 'production' || process.env.VERCEL;
-      if (isVercel) {
-        uploadPath = '/tmp/' + uploadPath;
-        const fs = require('fs');
-        if (!fs.existsSync(uploadPath)) {
-          fs.mkdirSync(uploadPath, { recursive: true });
-        }
-      }
-
-      if (
-        file.mimetype === 'image/jpeg' ||
-        file.mimetype === 'image/png' ||
-        file.mimetype === 'image/jpg' ||
-        // file.mimetype === 'image/webp' ||
-        file.mimetype === 'video/mp4'
-      ) {
-        cb(null, uploadPath);
-      } else {
-        //@ts-ignore
-        cb(new Error('Invalid file type'));
-      }
-    },
-    filename: function (req, file, cb) {
-      const name = Date.now() + '-' + file.originalname;
-      cb(null, name);
+      return {
+        folder: folderName,
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'mp4'],
+        resource_type: 'auto',
+        public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+      };
     },
   });
 

@@ -79,8 +79,10 @@ const MissionMonitoringPage = () => {
             }
 
             return {
-              id: `MS-${req._id.slice(-5).toUpperCase()}`,
-              requestId: `REQ-${req._id.slice(-5).toUpperCase()}`,
+              id: req.missionId || `MS-${req._id.slice(-5).toUpperCase()}`,
+              type: req.type === 'HIRE_DRIVER' ? 'Hire Driver' : 
+                    req.type === 'TRANSPORT' ? 'Transport' : 
+                    req.type === 'INSPECTION' ? 'Inspection' : (req.type || 'Unknown'),
               realId: req._id,
               customer: req.customerId?.name || req.details?.customerName || req.details?.firstName || 'Guest',
               driver: req.assignedDriverId?.name || 'Unassigned',
@@ -111,7 +113,7 @@ const MissionMonitoringPage = () => {
     const matchesTab = activeTab === "All" ? true : mission.status === activeTab || (activeTab === "New request" && mission.status === "Pending");
     const matchesSearch =
       mission.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mission.requestId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      mission.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mission.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mission.driver.toLowerCase().includes(searchQuery.toLowerCase()) ||
       mission.vehicle.toLowerCase().includes(searchQuery.toLowerCase());

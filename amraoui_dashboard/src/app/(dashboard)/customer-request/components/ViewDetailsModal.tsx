@@ -41,21 +41,21 @@ export const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({ isOpen, onCl
               <User className="w-4 h-4 text-gray-400" />
               <div>
                 <p className="text-xs text-gray-400">Customer Name</p>
-                <p className="font-medium text-gray-900">{request.customer || "Amraoui"}</p>
+                <p className="font-medium text-gray-900">{request.customerId?.name || request.details?.customerName || request.details?.firstName || request.details?.name || request.customer || "Unknown"}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="w-4 h-4 text-gray-400" />
               <div>
                 <p className="text-xs text-gray-400">Email</p>
-                <p className="font-medium text-gray-900">amraoui@premiumMotors.com</p>
+                <p className="font-medium text-gray-900">{request.customerId?.email || request.details?.customerEmail || request.details?.email || "Unknown"}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Phone className="w-4 h-4 text-gray-400" />
               <div>
                 <p className="text-xs text-gray-400">Phone</p>
-                <p className="font-medium text-gray-900">+33 6 12 34 56 78</p>
+                <p className="font-medium text-gray-900">{request.customerId?.phone_number || request.details?.customerPhone || request.details?.phone || "Unknown"}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -231,21 +231,21 @@ export const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({ isOpen, onCl
               <User className="w-4 h-4 text-gray-400" />
               <div>
                 <p className="text-xs text-gray-400">Customer Name</p>
-                <p className="font-medium text-gray-900">{request.customer || "Amraoui"}</p>
+                <p className="font-medium text-gray-900">{request.customerId?.name || request.details?.customerName || request.details?.firstName || request.details?.name || request.customer || "Unknown"}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Phone className="w-4 h-4 text-gray-400" />
               <div>
                 <p className="text-xs text-gray-400">Phone</p>
-                <p className="font-medium text-gray-900">+33 6 12 34 56 78</p>
+                <p className="font-medium text-gray-900">{request.customerId?.phone_number || request.details?.customerPhone || request.details?.phone || "Unknown"}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="w-4 h-4 text-gray-400" />
               <div>
                 <p className="text-xs text-gray-400">Email</p>
-                <p className="font-medium text-gray-900">amraoui@premiumMotors.com</p>
+                <p className="font-medium text-gray-900">{request.customerId?.email || request.details?.customerEmail || request.details?.email || "Unknown"}</p>
               </div>
             </div>
           </div>
@@ -334,6 +334,34 @@ export const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({ isOpen, onCl
           <p className="text-gray-400 text-xs">Submitted: Today, 10:15 AM</p>
           <p className="font-bold text-lg text-gray-900 mt-1">Hire a Driver Request</p>
           <p className="text-gray-500 text-xs">Driver service required for vehicle pickup and delivery support</p>
+        </div>
+
+        {/* Customer Details */}
+        <div>
+          <h3 className="text-sm font-bold text-gray-900 mb-3">Customer Details</h3>
+          <div className="space-y-3 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+            <div className="flex items-center gap-3">
+              <User className="w-4 h-4 text-gray-400" />
+              <div>
+                <p className="text-xs text-gray-400">Customer Name</p>
+                <p className="font-medium text-gray-900">{request.customerId?.name || request.details?.customerName || request.details?.firstName || request.details?.name || request.customer || "Unknown"}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Phone className="w-4 h-4 text-gray-400" />
+              <div>
+                <p className="text-xs text-gray-400">Phone</p>
+                <p className="font-medium text-gray-900">{request.customerId?.phone_number || request.details?.customerPhone || request.details?.phone || "Unknown"}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Mail className="w-4 h-4 text-gray-400" />
+              <div>
+                <p className="text-xs text-gray-400">Email</p>
+                <p className="font-medium text-gray-900">{request.customerId?.email || request.details?.customerEmail || request.details?.email || "Unknown"}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Driver Requirement */}

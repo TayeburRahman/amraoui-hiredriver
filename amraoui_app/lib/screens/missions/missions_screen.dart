@@ -152,7 +152,7 @@ class MissionsScreen extends StatelessWidget {
         () => Row(
           children: [
             _buildTabItem(
-              title: 'Open Missions',
+              title: 'Open List',
               isActive: controller.activeMainTab.value == 0,
               onTap: () => controller.setMainTab(0),
             ),
@@ -200,7 +200,7 @@ class MissionsScreen extends StatelessWidget {
   }
 
   Widget _buildFilterChips(MissionsController controller) {
-    final filters = ['All', 'New', 'Pending', 'Rejected'];
+    final filters = ['All', 'Pending', 'Rejected'];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Obx(
@@ -251,15 +251,22 @@ class MissionsScreen extends StatelessWidget {
       
       // Basic filter logic
       final filteredMissions = controller.missions.where((m) {
-        // Driver assigned checking would typically be matched with logged-in user id
-        // Assuming "assignedDriverId" is not null for 'My Missions' 
         final isAssigned = m['assignedDriverId'] != null;
         if (isMyMissions && !isAssigned) return false;
-        if (!isMyMissions && isAssigned) return false;
+        if (!isMyMissions && isAssigned) {
+          // If not in 'My Missions' but it is assigned, it means we are in 'Open List'.
+          // Assigned missions should only appear in 'Open List' if they are 'Rejected' for this driver.
+          if (m['myQuoteStatus'] != 'REJECTED') return false;
+        }
 
-        // Apply string filters (All, New, Pending, Rejected)
-        if (controller.activeFilter.value != 'All') {
-          // Simplistic mapping
+        // Apply string filters (All, Pending, Rejected)
+        final filter = controller.activeFilter.value;
+        if (filter != 'All') {
+          if (filter == 'Pending' && m['myQuoteStatus'] != 'PENDING') return false;
+          if (filter == 'Rejected' && m['myQuoteStatus'] != 'REJECTED') return false;
+        } else {
+           // Default 'All' in Open List shouldn't show REJECTED missions unless filtered? 
+           // Let's show everything the driver has access to in "All"
         }
         return true;
       }).toList();
@@ -293,6 +300,20 @@ class MissionsScreen extends StatelessWidget {
           final dateStr = '${date.day}/${date.month}/${date.year}';
           final price = m['adminQuote'] != null ? '€${m['adminQuote']['amount']}' : 'Pending';
 
+          String displayStatus = isMyMissions ? 'Assigned' : 'Open';
+          Color statusBgColor = isMyMissions ? const Color(0xFFF0FDF4) : const Color(0xFFEFF6FF);
+          Color statusTextColor = isMyMissions ? const Color(0xFF22C55E) : const Color(0xFF2563EB);
+
+          if (!isMyMissions && m['myQuoteStatus'] == 'PENDING') {
+            displayStatus = 'Pending';
+            statusBgColor = const Color(0xFFFEF9C3); // yellow-100
+            statusTextColor = const Color(0xFFCA8A04); // yellow-600
+          } else if (!isMyMissions && m['myQuoteStatus'] == 'REJECTED') {
+            displayStatus = 'Rejected';
+            statusBgColor = const Color(0xFFFEE2E2); // red-100
+            statusTextColor = const Color(0xFFDC2626); // red-600
+          }
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: _buildMissionCard(
@@ -302,9 +323,9 @@ class MissionsScreen extends StatelessWidget {
               price: price,
               date: 'Submitted: $dateStr',
               details: type == 'TRANSPORT' ? '${m['details']['make']} ${m['details']['model']}' : type,
-              status: isMyMissions ? 'Assigned' : 'Open',
-              statusBg: isMyMissions ? const Color(0xFFF0FDF4) : const Color(0xFFEFF6FF),
-              statusText: isMyMissions ? const Color(0xFF22C55E) : const Color(0xFF2563EB),
+              status: displayStatus,
+              statusBg: statusBgColor,
+              statusText: statusTextColor,
             ),
           );
         }).toList(),

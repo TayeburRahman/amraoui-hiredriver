@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api';
 import { X, User, Mail, Phone, MapPin, Car, FileText, CheckCircle2, Clock, Plus, Eye, Download, Send, Play } from 'lucide-react';
 import { ProofViewerModal } from './ProofViewerModal';
 import { AddExpenseModal } from './AddExpenseModal';
+import Link from 'next/link';
 
 
 interface MissionDetailsModalProps {
@@ -52,12 +53,12 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
     }
   };
 
-  const handleAssignDriver = async (driverId: string) => {
+  const handleAssignDriver = async (quoteId: string) => {
     try {
       setIsSubmitting(true);
       const res = await apiFetch(`/requests/${mission.realId}/assign-driver`, {
         method: 'PATCH',
-        body: JSON.stringify({ driverId }),
+        body: JSON.stringify({ quoteId }),
         auth: true,
       });
       if (res.ok) {
@@ -346,17 +347,25 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
 
           {(mission.raw?.status === 'OPEN_FOR_DRIVERS' || mission.raw?.status === 'ADMIN_REVIEWING_DRIVERS') && (
             <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
-              <h3 className="font-bold text-purple-900 mb-3 text-sm">Driver Quotes ({mission.raw?.driverQuotes?.length || 0})</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-purple-900 text-sm">Driver Quotes ({mission.raw?.driverQuotes?.length || 0})</h3>
+                <Link 
+                  href={`/quote-desk/${mission.realId}/compare?reqId=${mission.realId}`} 
+                  className="px-3 py-1.5 bg-white border border-purple-200 text-purple-700 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors"
+                >
+                  Compare Quotes
+                </Link>
+              </div>
               {mission.raw?.driverQuotes?.length > 0 ? (
                 <div className="space-y-2">
                   {mission.raw.driverQuotes.map((q: any, i: number) => (
                     <div key={i} className="flex items-center justify-between bg-white p-3 rounded-lg border border-purple-200">
                       <div>
-                        <p className="text-sm font-bold text-purple-900">Driver {q.driverId}</p>
+                        <p className="text-sm font-bold text-purple-900">{q.driverId?.name || "Unknown Driver"}</p>
                         <p className="text-xs text-purple-700">Amount: €{q.amount} | Est: {q.estimatedTime || 'N/A'}</p>
                       </div>
                       <button 
-                        onClick={() => handleAssignDriver(q.driverId)}
+                        onClick={() => handleAssignDriver(q._id)}
                         disabled={isSubmitting}
                         className="px-3 py-1.5 bg-purple-600 text-white rounded-md text-xs font-medium hover:bg-purple-700"
                       >
@@ -389,7 +398,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               </div>
               <div>
                 <p className="text-gray-400">Assigned Quote</p>
-                <p className="font-bold text-gray-900">€450</p>
+                <p className="font-bold text-gray-900">€{mission.raw?.adminQuote?.amount || 0}</p>
               </div>
             </div>
           </div>
@@ -402,15 +411,15 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">Amraoui</span>
+                  <span className="text-gray-600">{mission.customer || "Unknown Customer"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">customer@example.com</span>
+                  <span className="text-gray-600">{mission.raw?.customerId?.email || mission.raw?.details?.email || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">+33 6 12 34 56 78</span>
+                  <span className="text-gray-600">{mission.raw?.customerId?.phone_number || mission.raw?.details?.phone || "N/A"}</span>
                 </div>
               </div>
             </div>
@@ -420,15 +429,15 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">Marc Dubois</span>
+                  <span className="text-gray-600">{mission.raw?.assignedDriverId?.name || "Unassigned"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">driver@example.com</span>
+                  <span className="text-gray-600">{mission.raw?.assignedDriverId?.email || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">+33 6 98 76 54 32</span>
+                  <span className="text-gray-600">{mission.raw?.assignedDriverId?.phone_number || "N/A"}</span>
                 </div>
               </div>
             </div>
@@ -440,35 +449,28 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
             <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100">
               <div className="space-y-3 relative before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-green-500">
                 <div className="relative pl-7 text-xs flex items-center justify-between">
-                  <span className="absolute left-0 top-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${mission.raw?.status !== 'PENDING_ADMIN_QUOTE' && mission.raw?.status !== 'CUSTOMER_REVIEWING_QUOTE' && mission.raw?.status !== 'REJECTED_BY_CUSTOMER' ? 'bg-green-500' : 'bg-gray-300'}`}>
                     <CheckCircle2 className="w-2.5 h-2.5 text-white" />
                   </span>
                   <span className="font-medium text-gray-900">Request accepted</span>
                 </div>
                 <div className="relative pl-7 text-xs flex items-center justify-between">
-                  <span className="absolute left-0 top-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${mission.raw?.assignedDriverId || (mission.raw?.assignedDriverIds && mission.raw?.assignedDriverIds.length > 0) ? 'bg-green-500' : 'bg-gray-300'}`}>
                     <CheckCircle2 className="w-2.5 h-2.5 text-white" />
                   </span>
                   <span className="font-medium text-gray-900">Driver assigned</span>
                 </div>
                 <div className="relative pl-7 text-xs flex items-center justify-between">
-                  <span className="absolute left-0 top-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
                     <CheckCircle2 className="w-2.5 h-2.5 text-white" />
                   </span>
                   <span className="font-medium text-gray-900">Pickup started</span>
                 </div>
                 <div className="relative pl-7 text-xs flex items-center justify-between">
-                  <span className="absolute left-0 top-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">
+                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
                     <CheckCircle2 className="w-2.5 h-2.5 text-white" />
                   </span>
-                  <span className="font-medium text-gray-900">Vehicle verified</span>
-                </div>
-                <div className="relative pl-7 text-xs flex items-center justify-between">
-                  <span className="absolute left-0 top-1 w-4 h-4 bg-blue-500 rounded-full border-2 border-white flex items-center justify-center">
-                    <Clock className="w-2.5 h-2.5 text-white" />
-                  </span>
-                  <span className="font-medium text-gray-900">In transit</span>
-                  <span className="text-gray-400">Current step</span>
+                  <span className="font-medium text-gray-900">Mission Completed</span>
                 </div>
               </div>
             </div>
@@ -480,19 +482,27 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
                 <span className="text-gray-600">Pickup Photos</span>
-                <span className="text-green-600 font-medium">Completed</span>
+                <span className={['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
+                  {['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "Completed" : "Pending"}
+                </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
                 <span className="text-gray-600">Pickup Signature</span>
-                <span className="text-green-600 font-medium">Completed</span>
+                <span className={['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
+                  {['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "Completed" : "Pending"}
+                </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
                 <span className="text-gray-600">Delivery Photos</span>
-                <span className="text-gray-400">Pending</span>
+                <span className={['COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
+                  {['COMPLETED'].includes(mission.raw?.status) ? "Completed" : "Pending"}
+                </span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
                 <span className="text-gray-600">Damage Report</span>
-                <span className="text-green-600 font-medium">No Damage</span>
+                <span className={['COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
+                  {['COMPLETED'].includes(mission.raw?.status) ? "No Damage" : "Pending"}
+                </span>
               </div>
             </div>
           </div>

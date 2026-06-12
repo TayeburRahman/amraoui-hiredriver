@@ -88,8 +88,8 @@ const submitDriverDocuments = async (
   }
 
   const updateData: Record<string, any> = {
-    license_document: `/documents/drivers/${licenseFile.filename}`,
-    id_document: `/documents/drivers/${idFile.filename}`,
+    license_document: licenseFile.path,
+    id_document: idFile.path,
     documents_submitted: true,
     documents_submitted_at: new Date(),
     status: 'pending',
@@ -97,7 +97,7 @@ const submitDriverDocuments = async (
   };
 
   if (contractFile) {
-    updateData.contract_document = `/documents/drivers/${contractFile.filename}`;
+    updateData.contract_document = contractFile.path;
   }
 
   const updated = await Drivers.findByIdAndUpdate(driverId, updateData, {

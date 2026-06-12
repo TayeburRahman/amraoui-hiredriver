@@ -24,7 +24,7 @@ import logo from "../../app/asstes/logo.png"
 
  const menuItems = [
     { icon: LayoutDashboard, label: "Overview", href: "overview" },
-    { icon: Users, label: "Customer Request", href: "/customer-request" },
+    // { icon: Users, label: "Customer Request", href: "/customer-request" },
     { icon: FileText, label: "Quote Desk", href: "/quote-desk" },
     { icon: MapPin, label: "Mission Monitoring", href: "/mission-monitoring" },
     { icon: Car, label: "Drivers", href: "/drivers" },

@@ -13,6 +13,9 @@ import {
   Calendar,
   Clock,
   MapPin,
+  User,
+  Phone,
+  Mail,
 } from "lucide-react";
 
 const driverQuickOptions = [1, 2, 3, 4];
@@ -95,6 +98,8 @@ export default function HireDriverPage() {
   };
 
   const canContinue =
+    formData.customerName &&
+    formData.customerPhone &&
     driverCount >= 1 &&
     formData.driverStartDate &&
     formData.driverStartTime &&
@@ -154,6 +159,53 @@ export default function HireDriverPage() {
             {language === 'ar' ? 'نوع الخدمة: استئجار سائق' : `Service Type: ${t.createRequest.hireDriver.title}`}
           </div>
         </div>
+
+        {/* Customer Information */}
+        <section className="mb-8">
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className={`flex items-center gap-2 mb-6 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <User className="h-5 w-5 text-blue-600" />
+              <h2 className={`text-xl font-extrabold text-slate-900 ${isRTL ? 'text-right' : 'text-left'}`}>
+                {t.createRequest.form.customerInfo}
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="relative">
+                <User className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
+                <input
+                  type="text"
+                  value={formData.customerName || ""}
+                  onChange={(e) => updateForm("customerName", e.target.value)}
+                  placeholder={t.createRequest.form.firstName + " & " + t.createRequest.form.lastName}
+                  className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                />
+              </div>
+
+              <div className="relative">
+                <Phone className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
+                <input
+                  type="tel"
+                  value={formData.customerPhone || ""}
+                  onChange={(e) => updateForm("customerPhone", e.target.value)}
+                  placeholder={t.createRequest.form.phone}
+                  className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                />
+              </div>
+
+              <div className="relative md:col-span-2">
+                <Mail className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
+                <input
+                  type="email"
+                  value={formData.customerEmail || ""}
+                  onChange={(e) => updateForm("customerEmail", e.target.value)}
+                  placeholder={t.createRequest.form.email}
+                  className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                />
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Driver Count */}
         <section className="mb-8">

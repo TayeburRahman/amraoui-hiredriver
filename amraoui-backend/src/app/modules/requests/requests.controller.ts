@@ -5,6 +5,10 @@ import httpStatus from 'http-status';
 import catchAsync from '../../../shared/catchasync';
 
 const createRequest = catchAsync(async (req: Request, res: Response) => {
+  const userId = (req as any).user?.userId;
+  if (userId) {
+    req.body.customerId = userId;
+  }
   const result = await RequestsService.createRequest(req.body);
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -26,7 +30,7 @@ const getAllRequests = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getRequestById = catchAsync(async (req: Request, res: Response) => {
-  const result = await RequestsService.getRequestById(req.params.id);
+  const result = await RequestsService.getRequestById(req.params.id, req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -68,7 +72,8 @@ const publishMission = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getMissionsForDrivers = catchAsync(async (req: Request, res: Response) => {
-  const result = await RequestsService.getMissionsForDrivers();
+  const driverId = (req as any).user?.userId;
+  const result = await RequestsService.getMissionsForDrivers(driverId);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -78,7 +83,9 @@ const getMissionsForDrivers = catchAsync(async (req: Request, res: Response) => 
 });
 
 const submitDriverQuote = catchAsync(async (req: Request, res: Response) => {
-  const { driverId, amount, message, estimatedTime } = req.body;
+  const { amount, message, estimatedTime } = req.body;
+  const driverId = (req as any).user.userId;
+  
   const result = await RequestsService.submitDriverQuote(req.params.id, {
     driverId,
     amount,
@@ -94,8 +101,8 @@ const submitDriverQuote = catchAsync(async (req: Request, res: Response) => {
 });
 
 const assignDriver = catchAsync(async (req: Request, res: Response) => {
-  const { driverId } = req.body;
-  const result = await RequestsService.assignDriver(req.params.id, driverId);
+  const { quoteId, driverId } = req.body;
+  const result = await RequestsService.assignDriver(req.params.id, quoteId || driverId);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,

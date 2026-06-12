@@ -37,6 +37,11 @@ const ExpenseSchema = new Schema(
 
 const RequestsSchema = new Schema<IRequest>(
   {
+    missionId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     customerId: {
       type: mongoose.Schema.Types.ObjectId,
       required: false, // Make false for now to allow anonymous requests, or true if auth is required
@@ -72,6 +77,10 @@ const RequestsSchema = new Schema<IRequest>(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Drivers",
       default: null,
+    },
+    assignedDriverIds: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Drivers" }],
+      default: [],
     },
   },
   {

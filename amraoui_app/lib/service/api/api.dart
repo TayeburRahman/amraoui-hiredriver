@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:amraoui_app/widgets/log_print/app_log.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../../const/api_url/api_url.dart';
 import '../../const/storage/get_storage.dart';
@@ -22,7 +22,9 @@ class AppApi {
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           options.baseUrl = AppApiUrl.baseUrl;
-          options.contentType = 'application/json';
+          if (options.data is! FormData) {
+            options.contentType = 'application/json';
+          }
           options.headers["Accept"] = "application/json";
 
           String token = AppStorage().getToken();

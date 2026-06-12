@@ -2,7 +2,7 @@ import React from 'react';
 
 export interface Mission {
   id: string;
-  requestId: string;
+  type: string;
   customer: string;
   driver: string;
   vehicle: string;
@@ -12,7 +12,10 @@ export interface Mission {
   expense: string;
   invoice: string;
   issue: string;
+  raw?: any;
 }
+
+import Link from 'next/link';
 
 interface MissionTableProps {
   missions: Mission[];
@@ -55,7 +58,7 @@ export const MissionTable: React.FC<MissionTableProps> = ({ missions, onViewMiss
         <thead className="bg-gray-50/50 text-xs text-gray-500 font-semibold uppercase border-b border-gray-200">
           <tr>
             <th className="px-4 py-4">Mission ID</th>
-            <th className="px-4 py-4">Request ID</th>
+            <th className="px-4 py-4">Type</th>
             <th className="px-4 py-4">Customer</th>
             <th className="px-4 py-4">Driver</th>
             <th className="px-4 py-4">Vehicle</th>
@@ -72,9 +75,25 @@ export const MissionTable: React.FC<MissionTableProps> = ({ missions, onViewMiss
           {missions.map((mission) => (
             <tr key={mission.id} className="hover:bg-gray-50 transition-colors">
               <td className="px-4 py-4 whitespace-nowrap font-semibold text-blue-600">{mission.id}</td>
-              <td className="px-4 py-4 whitespace-nowrap text-gray-500">{mission.requestId}</td>
+              <td className="px-4 py-4 whitespace-nowrap">
+                <span className="px-2.5 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-bold border border-gray-200">
+                  {mission.type}
+                </span>
+              </td>
               <td className="px-4 py-4 whitespace-nowrap font-bold text-gray-900">{mission.customer}</td>
-              <td className="px-4 py-4 whitespace-nowrap font-bold text-gray-900">{mission.driver}</td>
+              <td className="px-4 py-4 whitespace-nowrap font-bold text-gray-900">
+                {(mission.raw?.status === 'OPEN_FOR_DRIVERS' || mission.raw?.status === 'ADMIN_REVIEWING_DRIVERS') ? (
+                  <Link 
+                    href={`/quote-desk/${mission.raw?._id}/compare?reqId=${mission.raw?._id}`}
+                    className="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Driver Quotes ({mission.raw?.driverQuotes?.length || 0})
+                  </Link>
+                ) : (
+                  mission.driver
+                )}
+              </td>
               <td className="px-4 py-4 whitespace-nowrap">{mission.vehicle}</td>
               <td className="px-4 py-4 whitespace-nowrap">{mission.route}</td>
               <td className="px-4 py-4 whitespace-nowrap">

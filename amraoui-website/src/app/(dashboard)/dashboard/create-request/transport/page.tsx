@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/axios';
 import { Card } from '@/components/ui/card';
@@ -84,6 +84,34 @@ export default function TransportRequestPage() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load saved state on mount
+  useEffect(() => {
+    const savedStep = localStorage.getItem('transport_currentStep');
+    const savedForm = localStorage.getItem('transport_formData');
+    
+    if (savedStep) {
+      setCurrentStep(parseInt(savedStep, 10));
+    }
+    if (savedForm) {
+      try {
+        setFormData(JSON.parse(savedForm));
+      } catch (e) {
+        console.error('Failed to parse saved form data', e);
+      }
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Save state when it changes
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('transport_currentStep', currentStep.toString());
+      localStorage.setItem('transport_formData', JSON.stringify(formData));
+    }
+  }, [currentStep, formData, isLoaded]);
+
   const toggleDeliveryCondition = (condition: string) => {
     setFormData(prev => {
       const conditions = prev.deliveryConditions.includes(condition)
@@ -137,6 +165,9 @@ export default function TransportRequestPage() {
       
       const res = await api.post('/requests', payload);
       if (res.data?.success) {
+        // Clear saved state on successful submission
+        localStorage.removeItem('transport_currentStep');
+        localStorage.removeItem('transport_formData');
         // Handle success - maybe redirect to orders
         router.push('/dashboard/orders');
       }
@@ -147,6 +178,10 @@ export default function TransportRequestPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (!isLoaded) {
+    return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div></div>;
+  }
 
   return (
     <div className={`max-w-[1400px] mx-auto p-4 sm:p-6 md:p-8 lg:p-10 space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-x-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
@@ -329,7 +364,7 @@ export default function TransportRequestPage() {
                       </div>
                       <div>
                         <h2 className="text-xl font-bold text-brand-text">
-                          Delivery information
+                          Dropoff information
                         </h2>
                         <p className="text-slate-500 text-sm mt-1">
                           Add the final delivery address and receiver details.

@@ -1,24 +1,115 @@
 import Requests from './requests.model';
-import { IRequest, RequestStatus } from './requests.interface';
+import { IRequest, RequestStatus, RequestType } from './requests.interface';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
 
+const generateMissionId = () => {
+  return `MS-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+};
+
 const createRequest = async (payload: Partial<IRequest>): Promise<IRequest> => {
+  if (!payload.missionId) {
+    payload.missionId = generateMissionId();
+  }
   const request = await Requests.create(payload);
   return request;
 };
 
 const getAllRequests = async (query: any): Promise<IRequest[]> => {
-  const requests = await Requests.find(query).sort({ createdAt: -1 }).populate('customerId').populate('assignedDriverId');
+  const requests = await Requests.find(query)
+    .sort({ createdAt: -1 })
+    .populate('customerId')
+    .populate('assignedDriverId')
+    .populate('driverQuotes.driverId');
   return requests;
 };
 
-const getRequestById = async (id: string): Promise<IRequest | null> => {
-  const request = await Requests.findById(id).populate('customerId').populate('assignedDriverId');
+const getRequestById = async (id: string, query: any = {}): Promise<IRequest | null> => {
+  const request = await Requests.findById(id).populate('customerId').populate('assignedDriverId').populate('driverQuotes.driverId');
   if (!request) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
   }
-  return request;
+
+  // Calculate sameTypeDeliveries for each driver quote
+  const requestDoc = request.toObject() as any;
+  if (requestDoc.driverQuotes && requestDoc.driverQuotes.length > 0) {
+    for (let i = 0; i < requestDoc.driverQuotes.length; i++) {
+      const driverId = requestDoc.driverQuotes[i].driverId?._id || requestDoc.driverQuotes[i].driverId;
+      if (driverId) {
+        const count = await Requests.countDocuments({
+          $or: [{ assignedDriverId: driverId }, { assignedDriverIds: driverId }],
+          type: request.type,
+          status: RequestStatus.COMPLETED
+        });
+        requestDoc.driverQuotes[i].driverId.sameTypeDeliveries = count;
+
+        const activeCount = await Requests.countDocuments({
+          $or: [{ assignedDriverId: driverId }, { assignedDriverIds: driverId }],
+          status: { $in: [RequestStatus.ASSIGNED, RequestStatus.IN_PROGRESS] }
+        });
+        requestDoc.driverQuotes[i].driverId.activeMissionsCount = activeCount;
+      }
+    }
+    // Apply API filtering and sorting based on query params
+    const { filter, sort } = query;
+    let baseQuotes = requestDoc.driverQuotes;
+
+    if (filter === "Available Now") {
+      baseQuotes = baseQuotes.filter((quote: any) => {
+          const activeMissionsCount = quote.driverId?.activeMissionsCount || 0;
+          return quote.status === 'PENDING' && activeMissionsCount === 0;
+      });
+    }
+
+    if (filter === "Best Match") {
+      baseQuotes = baseQuotes.map((quote: any) => {
+        let score = 0;
+        
+        const sameTypeDeliveries = quote.driverId?.sameTypeDeliveries || 0;
+        score += sameTypeDeliveries * 50;
+
+        const rating = parseFloat(quote.driverId?.rating || "0");
+        score += rating * 20;
+
+        const proposedPrice = Number(requestDoc.adminQuote?.amount) || Number(requestDoc.details?.servicePrice) || 0;
+        const totalExpenses = requestDoc.expenses?.reduce((sum: number, exp: any) => sum + Number(exp.amount), 0) || 0;
+        const totalBilledToCustomer = proposedPrice + totalExpenses;
+
+        if (totalBilledToCustomer > 0) {
+            const quoteRatio = Number(quote.amount) / totalBilledToCustomer;
+            if (quoteRatio < 0.05) {
+                score -= 100;
+            } else if (quoteRatio <= 1.0) {
+                const distanceToOptimal = Math.abs(0.8 - quoteRatio);
+                score += Math.max(0, 100 - (distanceToOptimal * 200)); 
+            } else {
+                score -= 50;
+            }
+        }
+        
+        return { ...quote, matchScore: score };
+      });
+
+      const maxScore = baseQuotes.length > 0 ? Math.max(...baseQuotes.map((q: any) => q.matchScore)) : 0;
+      baseQuotes = baseQuotes.filter((quote: any) => quote.matchScore === maxScore);
+    }
+
+    // Sort the quotes
+    if (sort === "Highest Rating") {
+      baseQuotes = baseQuotes.sort((a: any, b: any) => {
+        const ratingA = parseFloat(a.driverId?.rating || "0");
+        const ratingB = parseFloat(b.driverId?.rating || "0");
+        return ratingB - ratingA;
+      });
+    } else {
+      // Default sort is Lowest Quote
+      baseQuotes = baseQuotes.sort((a: any, b: any) => a.amount - b.amount);
+    }
+
+    requestDoc.driverQuotes = baseQuotes;
+  }
+
+  return requestDoc;
 };
 
 const sendAdminQuote = async (id: string, amount: number, message: string): Promise<IRequest | null> => {
@@ -64,12 +155,29 @@ const publishMission = async (id: string): Promise<IRequest | null> => {
   return request;
 };
 
-const getMissionsForDrivers = async (): Promise<IRequest[]> => {
-  // Drivers can only see missions that are open for drivers or where they are assigned (handling assignments later)
-  const missions = await Requests.find({
-    status: { $in: [RequestStatus.OPEN_FOR_DRIVERS, RequestStatus.ADMIN_REVIEWING_DRIVERS] }
-  }).sort({ createdAt: -1 });
-  return missions;
+const getMissionsForDrivers = async (driverId?: string): Promise<any[]> => {
+  // Drivers can only see missions that are open for drivers or where they have submitted a quote
+  const query: any = {
+    $or: [
+      { status: { $in: [RequestStatus.OPEN_FOR_DRIVERS, RequestStatus.ADMIN_REVIEWING_DRIVERS] } }
+    ]
+  };
+
+  if (driverId) {
+    query.$or.push({ 'driverQuotes.driverId': driverId });
+  }
+
+  const missions = await Requests.find(query).sort({ createdAt: -1 });
+
+  return missions.map(mission => {
+    const doc = mission.toObject();
+    const myQuote = doc.driverQuotes?.find((q: any) => q.driverId?.toString() === driverId?.toString());
+    return {
+      ...doc,
+      myQuoteStatus: myQuote ? myQuote.status : null,
+      myQuoteAmount: myQuote ? myQuote.amount : null,
+    };
+  });
 };
 
 const submitDriverQuote = async (id: string, quoteData: any): Promise<IRequest | null> => {
@@ -98,23 +206,64 @@ const submitDriverQuote = async (id: string, quoteData: any): Promise<IRequest |
   return request;
 };
 
-const assignDriver = async (id: string, driverId: string): Promise<IRequest | null> => {
+const assignDriver = async (id: string, quoteId: string): Promise<IRequest | null> => {
   const request = await Requests.findById(id);
   if (!request) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
   }
 
-  request.assignedDriverId = driverId as any;
-  request.status = RequestStatus.ASSIGNED;
+  // Handle legacy records missing missionId
+  if (!request.missionId) {
+    request.missionId = generateMissionId();
+  }
+
+  // Find the specific quote and mark it accepted
+  const quoteIndex = request.driverQuotes.findIndex((q: any) => 
+    (quoteId && q._id?.toString() === quoteId.toString()) || 
+    (q.driverId && q.driverId.toString() === quoteId.toString())
+  );
+  if (quoteIndex === -1) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Quote not found');
+  }
   
-  // Mark the specific quote as accepted, others as rejected
-  request.driverQuotes.forEach((quote) => {
-    if (quote.driverId.toString() === driverId.toString()) {
-      quote.status = 'ACCEPTED';
-    } else {
-      quote.status = 'REJECTED';
+  const driverIdStr = request.driverQuotes[quoteIndex].driverId.toString();
+  request.driverQuotes[quoteIndex].status = 'ACCEPTED';
+
+  // Initialize assignedDriverIds array if it doesn't exist
+  if (!request.assignedDriverIds) {
+    request.assignedDriverIds = [];
+    if (request.assignedDriverId) {
+      request.assignedDriverIds.push(request.assignedDriverId as any);
     }
-  });
+  }
+
+  // Add the new driver if not already added
+  if (!request.assignedDriverIds.includes(driverIdStr as any)) {
+    request.assignedDriverIds.push(driverIdStr as any);
+  }
+
+  // Maintain the legacy field (set it to the first assigned driver)
+  if (!request.assignedDriverId) {
+    request.assignedDriverId = driverIdStr as any;
+  }
+
+  // Determine required drivers count
+  let requiredDrivers = 1;
+  if (request.type === RequestType.HIRE_DRIVER) {
+    requiredDrivers = request.details?.driverCount ? parseInt(request.details.driverCount.toString()) : 1;
+  }
+
+  // Check if mission is fully staffed
+  const acceptedQuotesCount = request.driverQuotes.filter((q: any) => q.status === 'ACCEPTED').length;
+  if (acceptedQuotesCount >= requiredDrivers) {
+    request.status = RequestStatus.ASSIGNED;
+    // Mark all other PENDING quotes as REJECTED
+    request.driverQuotes.forEach((quote) => {
+      if (quote.status === 'PENDING') {
+        quote.status = 'REJECTED';
+      }
+    });
+  }
 
   await request.save();
   return request;

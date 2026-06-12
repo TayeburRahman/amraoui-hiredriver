@@ -15,8 +15,10 @@ const DashboardLayout = ({ children }: AppLayoutProps) => {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [authChecked, setAuthChecked] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setMounted(true);
     const token = getToken();
     if (!token) {
       router.replace("/login");
@@ -24,6 +26,10 @@ const DashboardLayout = ({ children }: AppLayoutProps) => {
     }
     setAuthChecked(true);
   }, [router]);
+
+  if (!mounted) {
+    return <div className="min-h-screen bg-muted/40" />;
+  }
 
   if (!authChecked) {
     return (

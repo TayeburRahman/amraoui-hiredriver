@@ -31,7 +31,6 @@ class DriverRepository {
     final res = await _auth.post(
       AppApiUrl.driverSubmitDocumentsUrl,
       data: formData,
-      options: Options(contentType: 'multipart/form-data'),
     );
 
     final data = res.data as Map<String, dynamic>?;

@@ -53,6 +53,9 @@ export default function HireDriverPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
+    customerName: '',
+    customerPhone: '',
+    customerEmail: '',
     driverCount: 1,
     driverTasks: [] as string[],
     driverRequirements: [] as string[],

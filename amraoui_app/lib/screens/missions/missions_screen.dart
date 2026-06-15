@@ -611,7 +611,8 @@ class MissionsScreen extends StatelessWidget {
                     ),
                     const Gap(height: 12),
                     const AppText(
-                      data: 'You have already submitted a quote for this mission. Do you want to update it?',
+                      data:
+                          'You have already submitted a quote for this mission. Do you want to update it?',
                       fontSize: 14,
                       color: Color(0xFF64748B),
                       textAlign: TextAlign.center,
@@ -654,14 +655,13 @@ class MissionsScreen extends StatelessWidget {
                               elevation: 0,
                             ),
                             onPressed: () {
-                              if (Get.overlayContext != null) {
-                                Navigator.of(Get.overlayContext!).pop();
-                              } else {
-                                Get.back();
-                              }
-                              Future.delayed(const Duration(milliseconds: 100), () {
-                                _showQuoteDialog(mission, id);
-                              });
+                              Get.back();
+                              Future.delayed(
+                                const Duration(milliseconds: 100),
+                                () {
+                                  _showQuoteDialog(mission, id);
+                                },
+                              );
                             },
                             child: const AppText(
                               data: 'Update',
@@ -1029,7 +1029,7 @@ class MissionsScreen extends StatelessWidget {
                           );
                           // Dismiss keyboard to prevent it from consuming the back event
                           FocusManager.instance.primaryFocus?.unfocus();
-                          
+
                           // Ensure we close the bottom sheet robustly
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);

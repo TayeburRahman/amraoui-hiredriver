@@ -49,7 +49,7 @@ export default function HireDriverPage() {
   const router = useRouter();
   const { t, language } = useTranslation();
   const isRTL = language === 'ar';
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -119,7 +119,7 @@ export default function HireDriverPage() {
   const handleSubmit = async () => {
     const newErrors: Record<string, string> = {};
     const reqMsg = language === 'ar' ? 'هذا الحقل مطلوب' : 'This field is required';
-    
+
     if (!formData.customerName) newErrors.customerName = reqMsg;
     if (!formData.customerPhone) newErrors.customerPhone = reqMsg;
     if (!formData.driverStartDate) newErrors.driverStartDate = reqMsg;
@@ -134,7 +134,7 @@ export default function HireDriverPage() {
       // Optional: scroll to first error or just let user see them
       return;
     }
-    
+
     setErrors({});
     try {
       setIsSubmitting(true);
@@ -142,7 +142,7 @@ export default function HireDriverPage() {
         type: 'HIRE_DRIVER',
         details: formData,
       };
-      
+
       const res = await api.post('/requests', payload);
       if (res.data?.success) {
         router.push('/dashboard/orders');
@@ -158,7 +158,7 @@ export default function HireDriverPage() {
   return (
     <div className={`min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="mx-auto w-full max-w-5xl">
-        
+
         {/* Back */}
         <button
           type="button"
@@ -281,14 +281,13 @@ export default function HireDriverPage() {
                     key={count}
                     type="button"
                     onClick={() => updateForm("driverCount", count)}
-                    className={`rounded-xl border px-5 py-3 text-sm font-extrabold transition sm:min-w-32 ${
-                      isActive
+                    className={`rounded-xl border px-5 py-3 text-sm font-extrabold transition sm:min-w-32 ${isActive
                         ? "border-transparent bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-sm"
                         : "border-slate-200 bg-white text-slate-600 hover:border-blue-200 hover:bg-blue-50"
-                    }`}
+                      }`}
                   >
-                    {count === 4 ? 
-                      (language === 'ar' ? '٤+ سائقين' : '4+ Drivers') : 
+                    {count === 4 ?
+                      (language === 'ar' ? '٤+ سائقين' : '4+ Drivers') :
                       `${count} ${language === 'ar' ? 'سائق' : `Driver${count > 1 ? "s" : ""}`}`}
                   </button>
                 );
@@ -305,7 +304,7 @@ export default function HireDriverPage() {
 
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
             <div className={`grid grid-cols-1 gap-6 md:grid-cols-2 ${isRTL ? 'md:grid-cols-reverse' : ''}`}>
-              
+
               {/* Start */}
               <div className={isRTL ? 'text-right' : 'text-left'}>
                 <h3 className="mb-3 font-extrabold text-slate-500">
@@ -321,9 +320,8 @@ export default function HireDriverPage() {
                       onChange={(e) =>
                         updateForm("driverStartDate", e.target.value)
                       }
-                      className={`h-14 w-full rounded-2xl border ${errors.driverStartDate ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-blue-100'} pr-4 font-medium text-slate-700 outline-none transition focus:ring-4 ${isRTL ? 'pr-12' : 'pl-12'}`}
+                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-white pr-4 font-medium text-slate-700 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12' : 'pl-12'}`}
                     />
-                    {errors.driverStartDate && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.driverStartDate}</p>}
                   </div>
 
                   <div className="relative">
@@ -334,9 +332,8 @@ export default function HireDriverPage() {
                       onChange={(e) =>
                         updateForm("driverStartTime", e.target.value)
                       }
-                      className={`h-14 w-full rounded-2xl border ${errors.driverStartTime ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-blue-100'} pr-4 font-medium text-slate-700 outline-none transition focus:ring-4 ${isRTL ? 'pr-12' : 'pl-12'}`}
+                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-white pr-4 font-medium text-slate-700 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12' : 'pl-12'}`}
                     />
-                    {errors.driverStartTime && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.driverStartTime}</p>}
                   </div>
                 </div>
               </div>
@@ -356,9 +353,8 @@ export default function HireDriverPage() {
                       onChange={(e) =>
                         updateForm("driverEndDate", e.target.value)
                       }
-                      className={`h-14 w-full rounded-2xl border ${errors.driverEndDate ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-blue-100'} pr-4 font-medium text-slate-700 outline-none transition focus:ring-4 ${isRTL ? 'pr-12' : 'pl-12'}`}
+                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-white pr-4 font-medium text-slate-700 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12' : 'pl-12'}`}
                     />
-                    {errors.driverEndDate && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.driverEndDate}</p>}
                   </div>
 
                   <div className="relative">
@@ -369,9 +365,8 @@ export default function HireDriverPage() {
                       onChange={(e) =>
                         updateForm("driverEndTime", e.target.value)
                       }
-                      className={`h-14 w-full rounded-2xl border ${errors.driverEndTime ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-white focus:border-blue-400 focus:ring-blue-100'} pr-4 font-medium text-slate-700 outline-none transition focus:ring-4 ${isRTL ? 'pr-12' : 'pl-12'}`}
+                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-white pr-4 font-medium text-slate-700 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12' : 'pl-12'}`}
                     />
-                    {errors.driverEndTime && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.driverEndTime}</p>}
                   </div>
                 </div>
               </div>
@@ -387,7 +382,7 @@ export default function HireDriverPage() {
 
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
             <div className="space-y-5">
-              
+
               <div className={isRTL ? 'text-right' : 'text-left'}>
                 <label className="mb-3 block font-extrabold text-slate-500">
                   {t.createRequest.form.address}
@@ -462,11 +457,10 @@ export default function HireDriverPage() {
                       toggleArrayValue("driverTasks", task.id);
                       if (errors.driverTasks) setErrors(prev => ({ ...prev, driverTasks: '' }));
                     }}
-                    className={`flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border p-4 transition-all duration-300 ${
-                      isSelected
+                    className={`flex flex-col items-center justify-center gap-3 rounded-[1.5rem] border p-4 transition-all duration-300 ${isSelected
                         ? "border-brand-blue bg-brand-blue-light/30 text-brand-blue ring-4 ring-brand-blue-light/50 shadow-lg -translate-y-1"
                         : "border-slate-100 bg-slate-50/50 text-slate-600 hover:border-brand-blue-light hover:bg-white hover:shadow-md"
-                    }`}
+                      }`}
                   >
                     <span className="text-3xl sm:text-4xl filter drop-shadow-sm">{task.icon}</span>
                     <span className="text-xs sm:text-sm font-bold text-center leading-tight">{task.label}</span>
@@ -492,11 +486,10 @@ export default function HireDriverPage() {
               type="button"
               disabled={isSubmitting}
               onClick={handleSubmit}
-              className={`h-14 w-full sm:w-auto sm:px-14 rounded-2xl text-sm font-bold transition ${
-                canContinue && !isSubmitting
+              className={`h-14 w-full sm:w-auto sm:px-14 rounded-2xl text-sm font-bold transition ${canContinue && !isSubmitting
                   ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/20 hover:opacity-90"
                   : "bg-slate-200 text-slate-400"
-              }`}
+                }`}
             >
               {isSubmitting ? 'Submitting...' : t.common.submit}
             </button>

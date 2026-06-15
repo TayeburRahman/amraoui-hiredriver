@@ -29,7 +29,7 @@ interface Order {
 function OrdersPageContent() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<string>('All');
+  const [activeTabId, setActiveTabId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -38,20 +38,20 @@ function OrdersPageContent() {
 
   useEffect(() => {
     if (tabQuery === 'active') {
-      setActiveTab(t.orders.active);
+      setActiveTabId('active');
     } else if (tabQuery === 'completed') {
-      setActiveTab(t.orders.completed);
+      setActiveTabId('completed');
     } else if (tabQuery === 'pending') {
-      setActiveTab(t.orders.pending);
+      setActiveTabId('pending');
     }
-  }, [tabQuery, t.orders.active, t.orders.completed, t.orders.pending]);
+  }, [tabQuery]);
 
   const tabs = [
-    t.orders.all,
-    t.orders.active,
-    t.orders.completed,
-    t.orders.cancelled,
-    t.orders.pending
+    { id: 'all', label: t.orders.all },
+    { id: 'active', label: t.orders.active },
+    { id: 'completed', label: t.orders.completed },
+    { id: 'cancelled', label: t.orders.cancelled },
+    { id: 'pending', label: t.orders.pending }
   ];
 
   const getStatusText = (status: OrderStatus) => {
@@ -160,10 +160,12 @@ function OrdersPageContent() {
   const filteredOrders = useMemo(() => {
     return initialOrders.filter((order) => {
       // 1. Filter by tab
-      const isAll = activeTab === 'All' || activeTab === t.orders.all;
-      const matchTab = isAll ||
-        getStatusText(order.status) === activeTab ||
-        (activeTab === t.orders.pending && order.status === 'PendingReview');
+      const isAll = activeTabId === 'all';
+      const matchTab = isAll || 
+        (activeTabId === 'active' && order.status === 'Active') ||
+        (activeTabId === 'completed' && order.status === 'Completed') ||
+        (activeTabId === 'cancelled' && order.status === 'Cancelled') ||
+        (activeTabId === 'pending' && (order.status === 'Pending' || order.status === 'PendingReview'));
 
       // 2. Filter by search query
       const lowerQuery = searchQuery.toLowerCase();
@@ -177,7 +179,7 @@ function OrdersPageContent() {
       return matchTab && matchSearch;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, searchQuery, t.orders]);
+  }, [activeTabId, searchQuery, initialOrders]);
 
   // Pagination Logic
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
@@ -187,8 +189,8 @@ function OrdersPageContent() {
   );
 
   // Handlers
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
+  const handleTabChange = (tabId: string) => {
+    setActiveTabId(tabId);
     setCurrentPage(1); // Reset page on filter
   };
 
@@ -221,17 +223,17 @@ function OrdersPageContent() {
       <Card className="p-2 sm:p-3 rounded-full border border-slate-100 shadow-sm bg-white flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-1 overflow-x-auto hide-scrollbar px-2">
           {tabs.map((tab) => {
-            const isActive = activeTab === tab || (activeTab === 'All' && tab === t.orders.all);
+            const isActive = activeTabId === tab.id;
             return (
               <button
-                key={tab}
-                onClick={() => handleTabChange(tab)}
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
                 className={`px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all ${isActive
                   ? 'bg-brand-blue text-white shadow-md shadow-blue-200'
                   : 'text-slate-500 hover:bg-slate-100 bg-slate-50'
                   }`}
               >
-                {tab}
+                {tab.label}
               </button>
             )
           })}

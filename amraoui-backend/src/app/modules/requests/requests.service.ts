@@ -176,6 +176,8 @@ const getMissionsForDrivers = async (driverId?: string): Promise<any[]> => {
       ...doc,
       myQuoteStatus: myQuote ? myQuote.status : null,
       myQuoteAmount: myQuote ? myQuote.amount : null,
+      myQuoteMessage: myQuote ? myQuote.message : null,
+      myQuoteTime: myQuote ? myQuote.estimatedTime : null,
     };
   });
 };
@@ -195,12 +197,22 @@ const submitDriverQuote = async (id: string, quoteData: any): Promise<IRequest |
     request.status = RequestStatus.ADMIN_REVIEWING_DRIVERS;
   }
 
-  // Add the quote
-  request.driverQuotes.push({
-    ...quoteData,
-    status: 'PENDING',
-    createdAt: new Date(),
-  });
+  const existingQuoteIndex = request.driverQuotes.findIndex((q: any) => q.driverId?.toString() === quoteData.driverId?.toString());
+
+  if (existingQuoteIndex !== -1) {
+    // Update existing quote
+    request.driverQuotes[existingQuoteIndex].amount = quoteData.amount;
+    request.driverQuotes[existingQuoteIndex].message = quoteData.message;
+    request.driverQuotes[existingQuoteIndex].estimatedTime = quoteData.estimatedTime;
+    request.driverQuotes[existingQuoteIndex].createdAt = new Date();
+  } else {
+    // Add the quote
+    request.driverQuotes.push({
+      ...quoteData,
+      status: 'PENDING',
+      createdAt: new Date(),
+    });
+  }
 
   await request.save();
   return request;

@@ -32,6 +32,7 @@ export default function TransportRequestPage() {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     make: '',
     model: '',
@@ -82,6 +83,9 @@ export default function TransportRequestPage() {
 
   const updateForm = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -148,6 +152,51 @@ export default function TransportRequestPage() {
   ];
 
   const handleNext = () => {
+    const newErrors: Record<string, string> = {};
+    const reqMsg = language === 'ar' ? 'هذا الحقل مطلوب' : 'This field is required';
+
+    if (currentStep === 1) {
+      if (!formData.firstName) newErrors.firstName = reqMsg;
+      if (!formData.lastName) newErrors.lastName = reqMsg;
+      if (!formData.email) newErrors.email = reqMsg;
+      if (!formData.phone) newErrors.phone = reqMsg;
+    }
+    
+    if (currentStep === 2) {
+      if (!formData.pickupAddress) newErrors.pickupAddress = reqMsg;
+      if (!formData.pickupZip) newErrors.pickupZip = reqMsg;
+      if (!formData.pickupDate) newErrors.pickupDate = reqMsg;
+    }
+
+    if (currentStep === 3) {
+      if (!formData.dropoffAddress) newErrors.dropoffAddress = reqMsg;
+      if (!formData.dropoffZip) newErrors.dropoffZip = reqMsg;
+      if (!formData.dropoffDate) newErrors.dropoffDate = reqMsg;
+    }
+
+    if (currentStep === 4) {
+      if (!formData.vehicleType) newErrors.vehicleType = reqMsg;
+      if (!formData.make) newErrors.make = reqMsg;
+      if (!formData.model) newErrors.model = reqMsg;
+      if (!formData.plate) newErrors.plate = reqMsg;
+      if (!formData.deliveryType) newErrors.deliveryType = reqMsg;
+      if (formData.deliveryType === 'tow' && !formData.vehicleWeight) {
+         newErrors.vehicleWeight = language === 'ar' ? 'الرجاء إدخال وزن المركبة للنقل' : 'Please enter vehicle weight for tow delivery.';
+      }
+    }
+
+    if (currentStep === 7) {
+       if (!formData.pickupTime) newErrors.pickupTime = reqMsg;
+       if (!formData.dropoffTime) newErrors.dropoffTime = reqMsg;
+       if (!formData.confirmSchedulePayment) newErrors.confirmSchedulePayment = language === 'ar' ? 'الرجاء تأكيد الجدول الزمني وتفاصيل الدفع' : 'Please confirm the schedule and payment details.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
     if (currentStep < 8) setCurrentStep(currentStep + 1);
   };
 
@@ -271,19 +320,23 @@ export default function TransportRequestPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.firstName}</Label>
-                        <Input value={formData.firstName} onChange={(e) => updateForm('firstName', e.target.value)} placeholder={t.createRequest.placeholders.firstName} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Input value={formData.firstName} onChange={(e) => updateForm('firstName', e.target.value)} placeholder={t.createRequest.placeholders.firstName} className={`h-12 rounded-2xl ${errors.firstName ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
+                        {errors.firstName && <p className="text-sm text-red-500 mt-1 ml-1">{errors.firstName}</p>}
                       </div>
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.lastName}</Label>
-                        <Input value={formData.lastName} onChange={(e) => updateForm('lastName', e.target.value)} placeholder={t.createRequest.placeholders.lastName} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Input value={formData.lastName} onChange={(e) => updateForm('lastName', e.target.value)} placeholder={t.createRequest.placeholders.lastName} className={`h-12 rounded-2xl ${errors.lastName ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
+                        {errors.lastName && <p className="text-sm text-red-500 mt-1 ml-1">{errors.lastName}</p>}
                       </div>
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.email}</Label>
-                        <Input value={formData.email} type="email" onChange={(e) => updateForm('email', e.target.value)} placeholder={t.createRequest.placeholders.email} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Input value={formData.email} type="email" onChange={(e) => updateForm('email', e.target.value)} placeholder={t.createRequest.placeholders.email} className={`h-12 rounded-2xl ${errors.email ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
+                        {errors.email && <p className="text-sm text-red-500 mt-1 ml-1">{errors.email}</p>}
                       </div>
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.phone}</Label>
-                        <Input value={formData.phone} type="tel" onChange={(e) => updateForm('phone', e.target.value)} placeholder={t.createRequest.placeholders.phone} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Input value={formData.phone} type="tel" onChange={(e) => updateForm('phone', e.target.value)} placeholder={t.createRequest.placeholders.phone} className={`h-12 rounded-2xl ${errors.phone ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
+                        {errors.phone && <p className="text-sm text-red-500 mt-1 ml-1">{errors.phone}</p>}
                       </div>
                       <div className="space-y-2 md:col-span-2">
                         <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.company}</Label>
@@ -312,24 +365,28 @@ export default function TransportRequestPage() {
                           onSelect={(address, zip, city) => {
                             if (zip) updateForm('pickupZip', zip);
                             if (city) updateForm('pickupCity', city);
+                            if (errors.pickupAddress) setErrors(prev => ({ ...prev, pickupAddress: '' }));
                           }}
                           placeholder={t.createRequest.placeholders.address} 
-                          className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'pr-10' : 'pl-10'}`} 
+                          className={`h-12 rounded-2xl ${errors.pickupAddress ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200 ${isRTL ? 'pr-10' : 'pl-10'}`} 
                           iconClassName={isRTL ? 'right-3 left-auto' : 'left-3'}
                         />
+                        {errors.pickupAddress && <p className="text-sm text-red-500 mt-1 ml-1">{errors.pickupAddress}</p>}
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <Label className="text-brand-text font-bold ml-1">Zip Code</Label>
-                          <Input value={formData.pickupZip} onChange={(e) => updateForm('pickupZip', e.target.value)} placeholder="10115" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                          <Input value={formData.pickupZip} onChange={(e) => updateForm('pickupZip', e.target.value)} placeholder="10115" className={`h-12 rounded-2xl ${errors.pickupZip ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
+                          {errors.pickupZip && <p className="text-sm text-red-500 mt-1 ml-1">{errors.pickupZip}</p>}
                         </div>
                         <div className="space-y-2">
                           <Label className="text-brand-text font-bold ml-1">Pickup Date</Label>
                           <div className="relative">
-                            <Input type="date" value={formData.pickupDate} onChange={(e) => updateForm('pickupDate', e.target.value)} className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                            <Input type="date" value={formData.pickupDate} onChange={(e) => updateForm('pickupDate', e.target.value)} className={`h-12 pl-10 rounded-2xl ${errors.pickupDate ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
                             <Calendar className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                           </div>
+                          {errors.pickupDate && <p className="text-sm text-red-500 mt-1 ml-1">{errors.pickupDate}</p>}
                         </div>
                       </div>
 
@@ -383,23 +440,27 @@ export default function TransportRequestPage() {
                           onSelect={(address, zip, city) => {
                             if (zip) updateForm('dropoffZip', zip);
                             if (city) updateForm('dropoffCity', city);
+                            if (errors.dropoffAddress) setErrors(prev => ({ ...prev, dropoffAddress: '' }));
                           }}
                           placeholder="Delivery address"
-                          className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          className={`h-12 pl-10 rounded-2xl ${errors.dropoffAddress ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`}
                         />
+                        {errors.dropoffAddress && <p className="text-sm text-red-500 mt-1 ml-1">{errors.dropoffAddress}</p>}
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <Label className="text-brand-text font-bold ml-1">Zip Code</Label>
-                          <Input value={formData.dropoffZip} onChange={(e) => updateForm('dropoffZip', e.target.value)} placeholder="10115" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                          <Input value={formData.dropoffZip} onChange={(e) => updateForm('dropoffZip', e.target.value)} placeholder="10115" className={`h-12 rounded-2xl ${errors.dropoffZip ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
+                          {errors.dropoffZip && <p className="text-sm text-red-500 mt-1 ml-1">{errors.dropoffZip}</p>}
                         </div>
                         <div className="space-y-2">
                           <Label className="text-brand-text font-bold ml-1">Delivery Date</Label>
                           <div className="relative">
-                            <Input type="date" value={formData.dropoffDate} onChange={(e) => updateForm('dropoffDate', e.target.value)} className="h-12 pl-10 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                            <Input type="date" value={formData.dropoffDate} onChange={(e) => updateForm('dropoffDate', e.target.value)} className={`h-12 pl-10 rounded-2xl ${errors.dropoffDate ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
                             <Calendar className="h-5 w-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                           </div>
+                          {errors.dropoffDate && <p className="text-sm text-red-500 mt-1 ml-1">{errors.dropoffDate}</p>}
                         </div>
                       </div>
 
@@ -471,7 +532,7 @@ export default function TransportRequestPage() {
                           value={formData.vehicleType}
                           onValueChange={(value) => updateForm("vehicleType", value)}
                         >
-                          <SelectTrigger className={`!h-12 !w-full rounded-2xl border-slate-100 bg-slate-50 px-4 text-slate-600 focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <SelectTrigger className={`!h-12 !w-full rounded-2xl ${errors.vehicleType ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50'} px-4 text-slate-600 focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200 ${isRTL ? 'flex-row-reverse' : ''}`}>
                             {formData.vehicleType ? (
                               <div className={`flex flex-1 items-center gap-2 ${isRTL ? 'flex-row-reverse text-right' : 'text-left'}`}>
                                 {(() => {
@@ -497,6 +558,7 @@ export default function TransportRequestPage() {
                             ))}
                           </SelectContent>
                         </Select>
+                        {errors.vehicleType && <p className="text-sm text-red-500 mt-1 ml-1">{errors.vehicleType}</p>}
                       </div>
 
                       <div className="space-y-2">
@@ -505,8 +567,9 @@ export default function TransportRequestPage() {
                           value={formData.make}
                           onChange={(e) => updateForm("make", e.target.value)}
                           placeholder={t.createRequest.placeholders.make}
-                          className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
+                          className={`h-12 rounded-2xl ${errors.make ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
                         />
+                        {errors.make && <p className="text-sm text-red-500 mt-1 ml-1">{errors.make}</p>}
                       </div>
 
                       <div className="space-y-2">
@@ -515,8 +578,9 @@ export default function TransportRequestPage() {
                           value={formData.model}
                           onChange={(e) => updateForm("model", e.target.value)}
                           placeholder={t.createRequest.placeholders.model}
-                          className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
+                          className={`h-12 rounded-2xl ${errors.model ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
                         />
+                        {errors.model && <p className="text-sm text-red-500 mt-1 ml-1">{errors.model}</p>}
                       </div>
 
                       <div className="space-y-2">
@@ -525,8 +589,9 @@ export default function TransportRequestPage() {
                           value={formData.plate}
                           onChange={(e) => updateForm("plate", e.target.value)}
                           placeholder={t.createRequest.placeholders.make}
-                          className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
+                          className={`h-12 rounded-2xl ${errors.plate ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
                         />
+                        {errors.plate && <p className="text-sm text-red-500 mt-1 ml-1">{errors.plate}</p>}
                       </div>
 
                       <div className="space-y-2 md:col-span-2">
@@ -608,8 +673,9 @@ export default function TransportRequestPage() {
                           value={formData.vehicleWeight}
                           onChange={(e) => updateForm("vehicleWeight", e.target.value)}
                           placeholder="e.g. 1500"
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          className={`h-12 rounded-2xl ${errors.vehicleWeight ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`}
                         />
+                        {errors.vehicleWeight && <p className="text-sm text-red-500 mt-1 ml-1">{errors.vehicleWeight}</p>}
                       </div>
                     )}
                   </div>
@@ -856,13 +922,14 @@ export default function TransportRequestPage() {
                             type="time"
                             value={formData.pickupTime || ""}
                             onChange={(e) => updateForm("pickupTime", e.target.value)}
-                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                            className={`h-14 rounded-2xl ${errors.pickupTime ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white'} pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100`}
                           />
                           {!formData.pickupTime && (
                             <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
                               Select pickup time
                             </span>
                           )}
+                          {errors.pickupTime && <p className="text-sm text-red-500 mt-1 ml-1">{errors.pickupTime}</p>}
                         </div>
                       </div>
                     </div>
@@ -895,13 +962,14 @@ export default function TransportRequestPage() {
                             type="time"
                             value={formData.dropoffTime || ""}
                             onChange={(e) => updateForm("dropoffTime", e.target.value)}
-                            className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                            className={`h-14 rounded-2xl ${errors.dropoffTime ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white'} pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100`}
                           />
                           {!formData.dropoffTime && (
                             <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
                               Select delivery time
                             </span>
                           )}
+                          {errors.dropoffTime && <p className="text-sm text-red-500 mt-1 ml-1">{errors.dropoffTime}</p>}
                         </div>
                       </div>
                     </div>
@@ -965,12 +1033,13 @@ export default function TransportRequestPage() {
                       />
 
                       <div>
-                        <p className="font-medium text-slate-800">
+                        <p className={`font-medium ${errors.confirmSchedulePayment ? 'text-red-600' : 'text-slate-800'}`}>
                           I confirm the schedule and payment details
                         </p>
                         <p className="mt-2 text-sm text-slate-500">
                           Payment is processed securely.
                         </p>
+                        {errors.confirmSchedulePayment && <p className="text-sm text-red-500 mt-1">{errors.confirmSchedulePayment}</p>}
                       </div>
                     </label>
                   </div>

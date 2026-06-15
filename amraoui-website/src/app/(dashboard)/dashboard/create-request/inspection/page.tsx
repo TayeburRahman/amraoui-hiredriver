@@ -12,6 +12,7 @@ export default function TechnicalInspectionPage() {
   const { t, language } = useTranslation();
   const isRTL = language === 'ar';
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     customerName: '',
@@ -31,6 +32,9 @@ export default function TechnicalInspectionPage() {
 
   const updateForm = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
   };
 
   const inspectionTypes = [
@@ -60,6 +64,23 @@ export default function TechnicalInspectionPage() {
     formData.inspectionDate;
 
   const handleSubmit = async () => {
+    const newErrors: Record<string, string> = {};
+    const reqMsg = language === 'ar' ? 'هذا الحقل مطلوب' : 'This field is required';
+    
+    if (!formData.customerName) newErrors.customerName = reqMsg;
+    if (!formData.customerPhone) newErrors.customerPhone = reqMsg;
+    if (!formData.vehicleBrand) newErrors.vehicleBrand = reqMsg;
+    if (!formData.licensePlate) newErrors.licensePlate = reqMsg;
+    if (!formData.inspectionType) newErrors.inspectionType = language === 'ar' ? 'الرجاء تحديد نوع الفحص' : 'Please select inspection type';
+    if (!formData.inspectionLocation) newErrors.inspectionLocation = reqMsg;
+    if (!formData.inspectionDate) newErrors.inspectionDate = reqMsg;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    setErrors({});
     try {
       setIsSubmitting(true);
       const payload = {
@@ -121,8 +142,9 @@ export default function TechnicalInspectionPage() {
                     value={formData.customerName || ""}
                     onChange={(e) => updateForm("customerName", e.target.value)}
                     placeholder={t.createRequest.form.firstName + " & " + t.createRequest.form.lastName}
-                    className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    className={`h-14 w-full rounded-2xl border ${errors.customerName ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
                   />
+                  {errors.customerName && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.customerName}</p>}
                 </div>
 
                 <div className="relative">
@@ -132,8 +154,9 @@ export default function TechnicalInspectionPage() {
                     value={formData.customerPhone || ""}
                     onChange={(e) => updateForm("customerPhone", e.target.value)}
                     placeholder={t.createRequest.form.phone}
-                    className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    className={`h-14 w-full rounded-2xl border ${errors.customerPhone ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
                   />
+                  {errors.customerPhone && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.customerPhone}</p>}
                 </div>
 
                 <div className="relative md:col-span-2">
@@ -159,37 +182,47 @@ export default function TechnicalInspectionPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <input
-                  type="text"
-                  value={formData.vehicleBrand || ""}
-                  onChange={(e) => updateForm("vehicleBrand", e.target.value)}
-                  placeholder={t.createRequest.form.make}
-                  className={inputClass}
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={formData.vehicleBrand || ""}
+                    onChange={(e) => updateForm("vehicleBrand", e.target.value)}
+                    placeholder={t.createRequest.form.make}
+                    className={`h-14 w-full rounded-2xl border ${errors.vehicleBrand ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'text-right' : 'text-left'}`}
+                  />
+                  {errors.vehicleBrand && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.vehicleBrand}</p>}
+                </div>
 
-                <input
-                  type="text"
-                  value={formData.vehicleModel || ""}
-                  onChange={(e) => updateForm("vehicleModel", e.target.value)}
-                  placeholder={t.createRequest.form.model}
-                  className={inputClass}
-                />
+                <div>
+                  <input
+                    type="text"
+                    value={formData.vehicleModel || ""}
+                    onChange={(e) => updateForm("vehicleModel", e.target.value)}
+                    placeholder={t.createRequest.form.model}
+                    className={inputClass}
+                  />
+                </div>
 
-                <input
-                  type="text"
-                  value={formData.licensePlate || ""}
-                  onChange={(e) => updateForm("licensePlate", e.target.value)}
-                  placeholder={t.createRequest.form.plate}
-                  className={`md:col-span-2 ${inputClass}`}
-                />
+                <div className="md:col-span-2">
+                  <input
+                    type="text"
+                    value={formData.licensePlate || ""}
+                    onChange={(e) => updateForm("licensePlate", e.target.value)}
+                    placeholder={t.createRequest.form.plate}
+                    className={`h-14 w-full rounded-2xl border ${errors.licensePlate ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'text-right' : 'text-left'}`}
+                  />
+                  {errors.licensePlate && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.licensePlate}</p>}
+                </div>
 
-                <input
-                  type="text"
-                  value={formData.vinNumber || ""}
-                  onChange={(e) => updateForm("vinNumber", e.target.value)}
-                  placeholder={t.createRequest.form.vin}
-                  className={`md:col-span-2 ${inputClass}`}
-                />
+                <div className="md:col-span-2">
+                  <input
+                    type="text"
+                    value={formData.vinNumber || ""}
+                    onChange={(e) => updateForm("vinNumber", e.target.value)}
+                    placeholder={t.createRequest.form.vin}
+                    className={inputClass}
+                  />
+                </div>
               </div>
             </div>
           </section>
@@ -224,6 +257,7 @@ export default function TechnicalInspectionPage() {
                 );
               })}
             </div>
+            {errors.inspectionType && <p className={`mt-4 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.inspectionType}</p>}
           </section>
 
           {/* Inspection Location & Date */}
@@ -244,8 +278,9 @@ export default function TechnicalInspectionPage() {
                       updateForm("inspectionLocation", e.target.value)
                     }
                     placeholder={t.createRequest.form.address}
-                    className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    className={`h-14 w-full rounded-2xl border ${errors.inspectionLocation ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
                   />
+                  {errors.inspectionLocation && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.inspectionLocation}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -257,8 +292,9 @@ export default function TechnicalInspectionPage() {
                       onChange={(e) =>
                         updateForm("inspectionDate", e.target.value)
                       }
-                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                      className={`h-14 w-full rounded-2xl border ${errors.inspectionDate ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
                     />
+                    {errors.inspectionDate && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.inspectionDate}</p>}
                   </div>
 
                   <div className="relative">
@@ -307,12 +343,12 @@ export default function TechnicalInspectionPage() {
 
             <button
               type="button"
-              disabled={!canSubmit || isSubmitting}
+              disabled={isSubmitting}
               onClick={handleSubmit}
               className={`h-14 w-full sm:w-auto sm:px-14 rounded-2xl text-sm font-bold transition ${
                 canSubmit && !isSubmitting
                   ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
-                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  : "bg-slate-200 text-slate-400"
               }`}
             >
               {isSubmitting ? 'Submitting...' : t.common.submit}

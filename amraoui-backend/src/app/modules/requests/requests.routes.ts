@@ -10,7 +10,7 @@ router.post('/', auth('CUSTOMERS', 'ADMIN', 'SUPER_ADMIN'), RequestsController.c
 
 // Customer / Admin view all or specific requests
 router.get('/', RequestsController.getAllRequests);
-router.get('/missions', RequestsController.getMissionsForDrivers); // Specific route for drivers
+router.get('/missions', auth(ENUM_USER_ROLE.DRIVER), RequestsController.getMissionsForDrivers); // Specific route for drivers
 router.get('/:id', RequestsController.getRequestById);
 
 // Admin actions

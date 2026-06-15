@@ -41,5 +41,5 @@ String _domain() {
   }
 
   // Use the LAN IP for all mobile devices (emulator or physical device)
-  return 'http://10.10.20.50:5000';
+  return 'http://10.10.28.71:5000';
 }

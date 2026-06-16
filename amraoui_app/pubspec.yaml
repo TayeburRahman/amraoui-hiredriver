@@ -52,6 +52,7 @@ dependencies:
   flutter_image_compress: ^2.4.0
   pretty_dio_logger: ^1.4.0
   country_picker: ^2.0.27
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

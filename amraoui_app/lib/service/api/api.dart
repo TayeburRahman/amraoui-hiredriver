@@ -13,9 +13,9 @@ class AppApi {
 
   AppApi() {
     _dio.options.baseUrl = AppApiUrl.baseUrl;
-    _dio.options.sendTimeout = const Duration(seconds: 120);
-    _dio.options.connectTimeout = const Duration(seconds: 120);
-    _dio.options.receiveTimeout = const Duration(seconds: 120);
+    _dio.options.sendTimeout = const Duration(seconds: 30);
+    _dio.options.connectTimeout = const Duration(seconds: 30);
+    _dio.options.receiveTimeout = const Duration(seconds: 30);
     _dio.options.followRedirects = false;
 
     _dio.interceptors.addAll({

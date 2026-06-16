@@ -20,12 +20,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final driver = AuthNavigation.getStoredDriver();
-      if (driver != null && !driver.isApproved) {
-        AuthNavigation.routeDriver(driver);
-      }
-    });
+    // Routing is handled by splash screen — no redirect here
   }
 
   @override

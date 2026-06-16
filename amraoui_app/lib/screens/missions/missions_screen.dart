@@ -5,13 +5,17 @@ import 'package:amraoui_app/routes/app_routes.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'mission_details_screen.dart';
 
 class MissionsController extends GetxController {
-  var activeMainTab = 0.obs; // 0: Open Missions, 1: My Missions
+  var activeMainTab = 0.obs; // 0: Open List, 1: My Missions
   var activeFilter = 'All'.obs;
+  var myMissionsFilter = 'Assigned'.obs; // Assigned, Active, Completed
   var searchQuery = ''.obs;
 
   var isLoading = true.obs;
+  var isStartingMission = false.obs;
   var missions = [].obs;
 
   final MissionRepository _repo = MissionRepository();
@@ -36,17 +40,67 @@ class MissionsController extends GetxController {
     }
   }
 
-  void setMainTab(int index) => activeMainTab.value = index;
+  Future<bool> startMission(String id) async {
+    try {
+      isStartingMission.value = true;
+      final res = await _repo.startMission(id);
+      if (res.statusCode == 200) {
+        await fetchMissions(); // Refresh
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    } finally {
+      isStartingMission.value = false;
+    }
+  }
+
+  Future<bool> cancelMission(String id, String reason, String note) async {
+    try {
+      final res = await _repo.cancelMission(id, reason, note);
+      if (res.statusCode == 200) {
+        await fetchMissions(); // Refresh
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  void setMainTab(int index) {
+    activeMainTab.value = index;
+    if (index == 1) {
+      myMissionsFilter.value = 'Assigned';
+    } else {
+      activeFilter.value = 'All';
+    }
+  }
+
   void setFilter(String filter) => activeFilter.value = filter;
+  void setMyMissionsFilter(String filter) => myMissionsFilter.value = filter;
   void setSearchQuery(String query) => searchQuery.value = query;
 }
 
-class MissionsScreen extends StatelessWidget {
+class MissionsScreen extends StatefulWidget {
   const MissionsScreen({super.key});
 
   @override
+  State<MissionsScreen> createState() => _MissionsScreenState();
+}
+
+class _MissionsScreenState extends State<MissionsScreen> {
+  late final MissionsController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(MissionsController());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = Get.put(MissionsController());
     AppSize.size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -71,7 +125,9 @@ class MissionsScreen extends StatelessWidget {
                       const Gap(height: 24),
                       _buildMainTabs(controller),
                       const Gap(height: 24),
-                      _buildFilterChips(controller),
+                      Obx(() => controller.activeMainTab.value == 0
+                          ? _buildFilterChips(controller)
+                          : _buildMyMissionsFilterTabs(controller)),
                       const Gap(height: 24),
                       _buildMissionsList(controller),
                       const Gap(height: 100),
@@ -249,6 +305,51 @@ class MissionsScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildMyMissionsFilterTabs(MissionsController controller) {
+    final filters = ['Assigned', 'Active', 'Completed'];
+    return Obx(
+      () => Row(
+        children: filters.map((filter) {
+          final isActive = controller.myMissionsFilter.value == filter;
+          Color activeColor;
+          if (filter == 'Assigned') {
+            activeColor = const Color(0xFFD97706); // amber
+          } else if (filter == 'Active') {
+            activeColor = const Color(0xFF2563EB); // blue
+          } else {
+            activeColor = const Color(0xFF10B981); // green
+          }
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => controller.setMyMissionsFilter(filter),
+              child: Container(
+                margin: EdgeInsets.only(
+                  right: filter != 'Completed' ? 8 : 0,
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: isActive ? activeColor : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isActive ? activeColor : const Color(0xFFE2E8F0),
+                  ),
+                ),
+                child: Center(
+                  child: AppText(
+                    data: filter,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: isActive ? Colors.white : const Color(0xFF64748B),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _buildMissionsList(MissionsController controller) {
     return Obx(() {
       if (controller.isLoading.value) {
@@ -256,92 +357,116 @@ class MissionsScreen extends StatelessWidget {
       }
 
       final isMyMissions = controller.activeMainTab.value == 1;
+      final myFilter = controller.myMissionsFilter.value;
 
-      // Basic filter logic
+      // My Missions filter logic
       final filteredMissions = controller.missions.where((m) {
-        final isAssigned = m['assignedDriverId'] != null;
-
         if (isMyMissions) {
-          if (!isAssigned) return false;
-        } else {
-          // Open List: Show missions that are not yet fully assigned
-          if (isAssigned) {
-            // Only show if the quote was rejected
-            if (m['myQuoteStatus'] != 'REJECTED') return false;
+          if (m['myQuoteStatus'] == null) return false;
+          final mStatus = (m['status'] ?? '').toString();
+          if (myFilter == 'Assigned') {
+            // Assigned = my quote accepted, mission not yet started
+            return m['myQuoteStatus'] == 'ACCEPTED' && mStatus == 'ASSIGNED';
+          } else if (myFilter == 'Active') {
+            // Active = my quote accepted, mission in progress
+            return m['myQuoteStatus'] == 'ACCEPTED' && mStatus == 'IN_PROGRESS';
+          } else if (myFilter == 'Completed') {
+            return mStatus == 'COMPLETED';
           }
-        }
+          return false;
+        } else {
+          // Open List: Show missions open for bidding
+          final mStatus = (m['status'] ?? '').toString();
+          // Hide missions that are already ASSIGNED/IN_PROGRESS/COMPLETED unless driver has a quote
+          if (mStatus == 'ASSIGNED' || mStatus == 'IN_PROGRESS' || mStatus == 'COMPLETED') {
+            if (m['myQuoteStatus'] == null) return false;
+          }
 
-        // Apply string filters by type
-        final filter = controller.activeFilter.value;
-        if (filter != 'All') {
-          if (filter == 'Transport' && m['type'] != 'TRANSPORT') return false;
-          if (filter == 'Technical' && m['type'] != 'INSPECTION') return false;
-          if (filter == 'Driver' && m['type'] != 'HIRE_DRIVER') return false;
+          // Apply type filter chips
+          final filter = controller.activeFilter.value;
+          if (filter != 'All') {
+            if (filter == 'Transport' && m['type'] != 'TRANSPORT') return false;
+            if (filter == 'Technical' && m['type'] != 'INSPECTION') return false;
+            if (filter == 'Driver' && m['type'] != 'HIRE_DRIVER') return false;
+          }
         }
 
         // Apply search query
         final query = controller.searchQuery.value.trim().toLowerCase();
         if (query.isNotEmpty) {
-          final id =
-              '#REQ-${(m['_id'] as String).substring((m['_id'] as String).length - 5).toLowerCase()}';
+          final id = '#REQ-${(m['_id'] as String).substring((m['_id'] as String).length - 5).toLowerCase()}';
           final type = m['type'];
           final detailsObj = m['details'] ?? {};
-
           bool matches = id.contains(query);
-
           if (!matches) {
             if (type == 'TRANSPORT') {
-              final city1 = (detailsObj['pickupCity'] ?? '')
-                  .toString()
-                  .toLowerCase();
-              final city2 = (detailsObj['dropoffCity'] ?? '')
-                  .toString()
-                  .toLowerCase();
+              final city1 = (detailsObj['pickupCity'] ?? '').toString().toLowerCase();
+              final city2 = (detailsObj['dropoffCity'] ?? '').toString().toLowerCase();
               final make = (detailsObj['make'] ?? '').toString().toLowerCase();
-              final model = (detailsObj['model'] ?? '')
-                  .toString()
-                  .toLowerCase();
-              matches =
-                  city1.contains(query) ||
-                  city2.contains(query) ||
-                  make.contains(query) ||
-                  model.contains(query);
+              final model = (detailsObj['model'] ?? '').toString().toLowerCase();
+              matches = city1.contains(query) || city2.contains(query) ||
+                  make.contains(query) || model.contains(query);
             } else if (type == 'HIRE_DRIVER') {
-              final city = (detailsObj['driverCity'] ?? '')
-                  .toString()
-                  .toLowerCase();
+              final city = (detailsObj['driverCity'] ?? '').toString().toLowerCase();
               matches = city.contains(query);
             } else if (type == 'INSPECTION') {
-              final loc = (detailsObj['inspectionLocation'] ?? '')
-                  .toString()
-                  .toLowerCase();
-              final make = (detailsObj['vehicleBrand'] ?? '')
-                  .toString()
-                  .toLowerCase();
-              final model = (detailsObj['vehicleModel'] ?? '')
-                  .toString()
-                  .toLowerCase();
-              matches =
-                  loc.contains(query) ||
-                  make.contains(query) ||
-                  model.contains(query);
+              final loc = (detailsObj['inspectionLocation'] ?? '').toString().toLowerCase();
+              final make = (detailsObj['vehicleBrand'] ?? '').toString().toLowerCase();
+              final model = (detailsObj['vehicleModel'] ?? '').toString().toLowerCase();
+              matches = loc.contains(query) || make.contains(query) || model.contains(query);
             }
           }
-
           if (!matches) return false;
         }
-
         return true;
       }).toList();
 
       if (filteredMissions.isEmpty) {
         return Padding(
-          padding: const EdgeInsets.only(top: 40),
-          child: AppText(
-            data:
-                'No missions found (Total fetched: ${controller.missions.length})',
-            fontSize: 14,
-            color: const Color(0xFF64748B),
+          padding: const EdgeInsets.only(top: 60),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isMyMissions
+                      ? (myFilter == 'Assigned'
+                          ? Icons.hourglass_top_outlined
+                          : myFilter == 'Active'
+                              ? Icons.directions_car_outlined
+                              : Icons.check_circle_outline)
+                      : Icons.search_off,
+                  size: 36,
+                  color: const Color(0xFF94A3B8),
+                ),
+              ),
+              const Gap(height: 16),
+              AppText(
+                data: isMyMissions
+                    ? 'No $myFilter missions'
+                    : 'No open missions found',
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF334155),
+              ),
+              const Gap(height: 6),
+              AppText(
+                data: isMyMissions
+                    ? (myFilter == 'Assigned'
+                        ? 'Missions assigned to you will appear here.'
+                        : myFilter == 'Active'
+                            ? 'Missions you have started will appear here.'
+                            : 'Your completed missions will appear here.')
+                    : 'Check back later for new available missions.',
+                fontSize: 13,
+                color: const Color(0xFF94A3B8),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         );
       }
@@ -407,22 +532,46 @@ class MissionsScreen extends StatelessWidget {
               ? '€${m['adminQuote']['amount']}'
               : 'Pending';
 
-          String displayStatus = isMyMissions ? 'Assigned' : 'Open';
-          Color statusBgColor = isMyMissions
-              ? const Color(0xFFF0FDF4)
-              : const Color(0xFFEFF6FF);
-          Color statusTextColor = isMyMissions
-              ? const Color(0xFF22C55E)
-              : const Color(0xFF2563EB);
+          // Status badge
+          String displayStatus;
+          Color statusBgColor;
+          Color statusTextColor;
 
-          if (!isMyMissions && m['myQuoteStatus'] == 'PENDING') {
-            displayStatus = 'Pending';
-            statusBgColor = const Color(0xFFFEF9C3); // yellow-100
-            statusTextColor = const Color(0xFFCA8A04); // yellow-600
-          } else if (!isMyMissions && m['myQuoteStatus'] == 'REJECTED') {
-            displayStatus = 'Rejected';
-            statusBgColor = const Color(0xFFFEE2E2); // red-100
-            statusTextColor = const Color(0xFFDC2626); // red-600
+          if (isMyMissions) {
+            final mStatus = (m['status'] ?? '').toString();
+            if (myFilter == 'Active') {
+              if (mStatus == 'IN_PROGRESS') {
+                displayStatus = 'In Progress';
+                statusBgColor = const Color(0xFFEFF6FF);
+                statusTextColor = const Color(0xFF2563EB);
+              } else {
+                displayStatus = 'Assigned';
+                statusBgColor = const Color(0xFFF0FDF4);
+                statusTextColor = const Color(0xFF22C55E);
+              }
+            } else if (myFilter == 'Pending') {
+              displayStatus = 'Pending';
+              statusBgColor = const Color(0xFFFEF9C3);
+              statusTextColor = const Color(0xFFCA8A04);
+            } else {
+              displayStatus = 'Completed';
+              statusBgColor = const Color(0xFFF0FDF4);
+              statusTextColor = const Color(0xFF10B981);
+            }
+          } else {
+            displayStatus = 'Open';
+            statusBgColor = const Color(0xFFEFF6FF);
+            statusTextColor = const Color(0xFF2563EB);
+
+            if (m['myQuoteStatus'] == 'PENDING') {
+              displayStatus = 'Pending';
+              statusBgColor = const Color(0xFFFEF9C3);
+              statusTextColor = const Color(0xFFCA8A04);
+            } else if (m['myQuoteStatus'] == 'REJECTED') {
+              displayStatus = 'Rejected';
+              statusBgColor = const Color(0xFFFEE2E2);
+              statusTextColor = const Color(0xFFDC2626);
+            }
           }
 
           String detailsText = '';
@@ -517,6 +666,7 @@ class MissionsScreen extends StatelessWidget {
               status: displayStatus,
               statusBg: statusBgColor,
               statusText: statusTextColor,
+              isMyMissions: isMyMissions,
             ),
           );
         }).toList(),
@@ -574,15 +724,18 @@ class MissionsScreen extends StatelessWidget {
     required String status,
     required Color statusBg,
     required Color statusText,
+    required bool isMyMissions,
   }) {
     return GestureDetector(
       onTap: () {
-        if (mission['myQuoteStatus'] != null) {
+        if (isMyMissions && mission['myQuoteStatus'] == 'ACCEPTED') {
+          // Show full details for assigned/active missions ONLY in My Missions tab
+          _showMissionDetails(mission, id);
+        } else if (mission['myQuoteStatus'] != null) {
+          // Already submitted a quote — offer to update
           Get.dialog(
             Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               backgroundColor: Colors.white,
               elevation: 0,
               child: Padding(
@@ -592,30 +745,15 @@ class MissionsScreen extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFEFF6FF), // blue-50
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.info_outline,
-                        color: Color(0xFF2563EB), // blue-600
-                        size: 32,
-                      ),
+                      decoration: const BoxDecoration(color: Color(0xFFEFF6FF), shape: BoxShape.circle),
+                      child: const Icon(Icons.info_outline, color: Color(0xFF2563EB), size: 32),
                     ),
                     const Gap(height: 20),
-                    const AppText(
-                      data: 'Already Submitted',
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
-                    ),
+                    const AppText(data: 'Already Submitted', fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                     const Gap(height: 12),
                     const AppText(
-                      data:
-                          'You have already submitted a quote for this mission. Do you want to update it?',
-                      fontSize: 14,
-                      color: Color(0xFF64748B),
-                      textAlign: TextAlign.center,
+                      data: 'You have already submitted a quote for this mission. Do you want to update it?',
+                      fontSize: 14, color: Color(0xFF64748B), textAlign: TextAlign.center,
                     ),
                     const Gap(height: 24),
                     Row(
@@ -625,9 +763,7 @@ class MissionsScreen extends StatelessWidget {
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               side: const BorderSide(color: Color(0xFFE2E8F0)),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                             ),
                             onPressed: () {
                               if (Get.overlayContext != null) {
@@ -636,11 +772,7 @@ class MissionsScreen extends StatelessWidget {
                                 Get.back();
                               }
                             },
-                            child: const AppText(
-                              data: 'Cancel',
-                              color: Color(0xFF64748B),
-                              fontWeight: FontWeight.w600,
-                            ),
+                            child: const AppText(data: 'Cancel', color: Color(0xFF64748B), fontWeight: FontWeight.w600),
                           ),
                         ),
                         const Gap(width: 12),
@@ -649,25 +781,14 @@ class MissionsScreen extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF2563EB),
                               padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               elevation: 0,
                             ),
                             onPressed: () {
                               Get.back();
-                              Future.delayed(
-                                const Duration(milliseconds: 100),
-                                () {
-                                  _showQuoteDialog(mission, id);
-                                },
-                              );
+                              Future.delayed(const Duration(milliseconds: 100), () => _showQuoteDialog(mission, id));
                             },
-                            child: const AppText(
-                              data: 'Update',
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            child: const AppText(data: 'Update', color: Colors.white, fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -1027,10 +1148,8 @@ class MissionsScreen extends StatelessWidget {
                             notesCtrl.text,
                             timeCtrl.text,
                           );
-                          // Dismiss keyboard to prevent it from consuming the back event
                           FocusManager.instance.primaryFocus?.unfocus();
 
-                          // Ensure we close the bottom sheet robustly
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           } else {
@@ -1046,13 +1165,8 @@ class MissionsScreen extends StatelessWidget {
                             colorText: Colors.white,
                             borderRadius: 12,
                             margin: const EdgeInsets.all(16),
-                            icon: const Icon(
-                              Icons.check_circle,
-                              color: Colors.white,
-                            ),
+                            icon: const Icon(Icons.check_circle, color: Colors.white),
                             duration: const Duration(seconds: 3),
-                            isDismissible: true,
-                            forwardAnimationCurve: Curves.easeOutBack,
                           );
                           Get.find<MissionsController>().fetchMissions();
                         } catch (e) {
@@ -1064,13 +1178,7 @@ class MissionsScreen extends StatelessWidget {
                             colorText: Colors.white,
                             borderRadius: 12,
                             margin: const EdgeInsets.all(16),
-                            icon: const Icon(
-                              Icons.error_outline,
-                              color: Colors.white,
-                            ),
-                            duration: const Duration(seconds: 3),
-                            isDismissible: true,
-                            forwardAnimationCurve: Curves.easeOutBack,
+                            icon: const Icon(Icons.error_outline, color: Colors.white),
                           );
                         } finally {
                           isLoading.value = false;
@@ -1078,18 +1186,9 @@ class MissionsScreen extends StatelessWidget {
                       },
                       child: Obx(
                         () => isLoading.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                             : AppText(
-                                data: isUpdate
-                                    ? 'Update Quote'
-                                    : 'Submit Quote',
+                                data: isUpdate ? 'Update Quote' : 'Submit Quote',
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -1104,5 +1203,9 @@ class MissionsScreen extends StatelessWidget {
       ),
       isScrollControlled: true,
     );
+  }
+
+  void _showMissionDetails(Map<String, dynamic> mission, String reqId) {
+    Get.to(() => MissionDetailsScreen(mission: mission, reqId: reqId));
   }
 }

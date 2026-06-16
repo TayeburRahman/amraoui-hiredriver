@@ -11,6 +11,7 @@ void main() async {
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
   );
+
   await GetStorage.init();
   Get.put(ConnectivityService());
   SystemChrome.setPreferredOrientations([

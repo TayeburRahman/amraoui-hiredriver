@@ -32,6 +32,9 @@ class MissionsController extends GetxController {
       final res = await _repo.getMissions();
       if (res.data != null && res.data['success'] == true) {
         missions.value = res.data['data'];
+        for (var m in missions.value) {
+          print("MISSION DEBUG: id=${m['_id']}, myQuoteStatus=${m['myQuoteStatus']} (type: ${m['myQuoteStatus']?.runtimeType})");
+        }
       }
     } catch (e) {
       print("Error fetching missions: $e");
@@ -125,9 +128,11 @@ class _MissionsScreenState extends State<MissionsScreen> {
                       const Gap(height: 24),
                       _buildMainTabs(controller),
                       const Gap(height: 24),
-                      Obx(() => controller.activeMainTab.value == 0
-                          ? _buildFilterChips(controller)
-                          : _buildMyMissionsFilterTabs(controller)),
+                      Obx(
+                        () => controller.activeMainTab.value == 0
+                            ? _buildFilterChips(controller)
+                            : _buildMyMissionsFilterTabs(controller),
+                      ),
                       const Gap(height: 24),
                       _buildMissionsList(controller),
                       const Gap(height: 100),
@@ -323,9 +328,7 @@ class _MissionsScreenState extends State<MissionsScreen> {
             child: GestureDetector(
               onTap: () => controller.setMyMissionsFilter(filter),
               child: Container(
-                margin: EdgeInsets.only(
-                  right: filter != 'Completed' ? 8 : 0,
-                ),
+                margin: EdgeInsets.only(right: filter != 'Completed' ? 8 : 0),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   color: isActive ? activeColor : Colors.white,
@@ -362,14 +365,11 @@ class _MissionsScreenState extends State<MissionsScreen> {
       // My Missions filter logic
       final filteredMissions = controller.missions.where((m) {
         if (isMyMissions) {
-          if (m['myQuoteStatus'] == null) return false;
           final mStatus = (m['status'] ?? '').toString();
           if (myFilter == 'Assigned') {
-            // Assigned = my quote accepted, mission not yet started
-            return m['myQuoteStatus'] == 'ACCEPTED' && mStatus == 'ASSIGNED';
+            return mStatus == 'ASSIGNED';
           } else if (myFilter == 'Active') {
-            // Active = my quote accepted, mission in progress
-            return m['myQuoteStatus'] == 'ACCEPTED' && mStatus == 'IN_PROGRESS';
+            return mStatus == 'IN_PROGRESS';
           } else if (myFilter == 'Completed') {
             return mStatus == 'COMPLETED';
           }
@@ -378,7 +378,9 @@ class _MissionsScreenState extends State<MissionsScreen> {
           // Open List: Show missions open for bidding
           final mStatus = (m['status'] ?? '').toString();
           // Hide missions that are already ASSIGNED/IN_PROGRESS/COMPLETED unless driver has a quote
-          if (mStatus == 'ASSIGNED' || mStatus == 'IN_PROGRESS' || mStatus == 'COMPLETED') {
+          if (mStatus == 'ASSIGNED' ||
+              mStatus == 'IN_PROGRESS' ||
+              mStatus == 'COMPLETED') {
             if (m['myQuoteStatus'] == null) return false;
           }
 
@@ -386,7 +388,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
           final filter = controller.activeFilter.value;
           if (filter != 'All') {
             if (filter == 'Transport' && m['type'] != 'TRANSPORT') return false;
-            if (filter == 'Technical' && m['type'] != 'INSPECTION') return false;
+            if (filter == 'Technical' && m['type'] != 'INSPECTION')
+              return false;
             if (filter == 'Driver' && m['type'] != 'HIRE_DRIVER') return false;
           }
         }
@@ -394,26 +397,47 @@ class _MissionsScreenState extends State<MissionsScreen> {
         // Apply search query
         final query = controller.searchQuery.value.trim().toLowerCase();
         if (query.isNotEmpty) {
-          final id = '#REQ-${(m['_id'] as String).substring((m['_id'] as String).length - 5).toLowerCase()}';
+          final id =
+              '#REQ-${(m['_id'] as String).substring((m['_id'] as String).length - 5).toLowerCase()}';
           final type = m['type'];
           final detailsObj = m['details'] ?? {};
           bool matches = id.contains(query);
           if (!matches) {
             if (type == 'TRANSPORT') {
-              final city1 = (detailsObj['pickupCity'] ?? '').toString().toLowerCase();
-              final city2 = (detailsObj['dropoffCity'] ?? '').toString().toLowerCase();
+              final city1 = (detailsObj['pickupCity'] ?? '')
+                  .toString()
+                  .toLowerCase();
+              final city2 = (detailsObj['dropoffCity'] ?? '')
+                  .toString()
+                  .toLowerCase();
               final make = (detailsObj['make'] ?? '').toString().toLowerCase();
-              final model = (detailsObj['model'] ?? '').toString().toLowerCase();
-              matches = city1.contains(query) || city2.contains(query) ||
-                  make.contains(query) || model.contains(query);
+              final model = (detailsObj['model'] ?? '')
+                  .toString()
+                  .toLowerCase();
+              matches =
+                  city1.contains(query) ||
+                  city2.contains(query) ||
+                  make.contains(query) ||
+                  model.contains(query);
             } else if (type == 'HIRE_DRIVER') {
-              final city = (detailsObj['driverCity'] ?? '').toString().toLowerCase();
+              final city = (detailsObj['driverCity'] ?? '')
+                  .toString()
+                  .toLowerCase();
               matches = city.contains(query);
             } else if (type == 'INSPECTION') {
-              final loc = (detailsObj['inspectionLocation'] ?? '').toString().toLowerCase();
-              final make = (detailsObj['vehicleBrand'] ?? '').toString().toLowerCase();
-              final model = (detailsObj['vehicleModel'] ?? '').toString().toLowerCase();
-              matches = loc.contains(query) || make.contains(query) || model.contains(query);
+              final loc = (detailsObj['inspectionLocation'] ?? '')
+                  .toString()
+                  .toLowerCase();
+              final make = (detailsObj['vehicleBrand'] ?? '')
+                  .toString()
+                  .toLowerCase();
+              final model = (detailsObj['vehicleModel'] ?? '')
+                  .toString()
+                  .toLowerCase();
+              matches =
+                  loc.contains(query) ||
+                  make.contains(query) ||
+                  model.contains(query);
             }
           }
           if (!matches) return false;
@@ -435,10 +459,10 @@ class _MissionsScreenState extends State<MissionsScreen> {
                 child: Icon(
                   isMyMissions
                       ? (myFilter == 'Assigned'
-                          ? Icons.hourglass_top_outlined
-                          : myFilter == 'Active'
-                              ? Icons.directions_car_outlined
-                              : Icons.check_circle_outline)
+                            ? Icons.hourglass_top_outlined
+                            : myFilter == 'Active'
+                            ? Icons.directions_car_outlined
+                            : Icons.check_circle_outline)
                       : Icons.search_off,
                   size: 36,
                   color: const Color(0xFF94A3B8),
@@ -457,10 +481,10 @@ class _MissionsScreenState extends State<MissionsScreen> {
               AppText(
                 data: isMyMissions
                     ? (myFilter == 'Assigned'
-                        ? 'Missions assigned to you will appear here.'
-                        : myFilter == 'Active'
-                            ? 'Missions you have started will appear here.'
-                            : 'Your completed missions will appear here.')
+                          ? 'Missions assigned to you will appear here.'
+                          : myFilter == 'Active'
+                          ? 'Missions you have started will appear here.'
+                          : 'Your completed missions will appear here.')
                     : 'Check back later for new available missions.',
                 fontSize: 13,
                 color: const Color(0xFF94A3B8),
@@ -728,14 +752,23 @@ class _MissionsScreenState extends State<MissionsScreen> {
   }) {
     return GestureDetector(
       onTap: () {
-        if (isMyMissions && mission['myQuoteStatus'] == 'ACCEPTED') {
-          // Show full details for assigned/active missions ONLY in My Missions tab
+        final qStatus = mission['myQuoteStatus']?.toString();
+        final hasQuote = qStatus != null && qStatus != 'null' && qStatus.isNotEmpty;
+        print("TAP DEBUG: id=${mission['_id']}, myQuoteStatus=${mission['myQuoteStatus']}, myQuoteAmount=${mission['myQuoteAmount']}, myQuoteMessage=${mission['myQuoteMessage']}, myQuoteTime=${mission['myQuoteTime']}");
+
+        if (isMyMissions) {
+          // Show full details for assigned/active/completed missions in My Missions tab
           _showMissionDetails(mission, id);
-        } else if (mission['myQuoteStatus'] != null) {
+        } else if (!isMyMissions && !hasQuote) {
+          // Open List: no quote yet — go straight to quote dialog
+          _showQuoteDialog(mission, id);
+        } else if (hasQuote) {
           // Already submitted a quote — offer to update
           Get.dialog(
             Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
               backgroundColor: Colors.white,
               elevation: 0,
               child: Padding(
@@ -745,15 +778,30 @@ class _MissionsScreenState extends State<MissionsScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(color: Color(0xFFEFF6FF), shape: BoxShape.circle),
-                      child: const Icon(Icons.info_outline, color: Color(0xFF2563EB), size: 32),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEFF6FF),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.info_outline,
+                        color: Color(0xFF2563EB),
+                        size: 32,
+                      ),
                     ),
                     const Gap(height: 20),
-                    const AppText(data: 'Already Submitted', fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                    const AppText(
+                      data: 'Already Submitted',
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
                     const Gap(height: 12),
                     const AppText(
-                      data: 'You have already submitted a quote for this mission. Do you want to update it?',
-                      fontSize: 14, color: Color(0xFF64748B), textAlign: TextAlign.center,
+                      data:
+                          'You have already submitted a quote for this mission. Do you want to update it?',
+                      fontSize: 14,
+                      color: Color(0xFF64748B),
+                      textAlign: TextAlign.center,
                     ),
                     const Gap(height: 24),
                     Row(
@@ -763,7 +811,9 @@ class _MissionsScreenState extends State<MissionsScreen> {
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               side: const BorderSide(color: Color(0xFFE2E8F0)),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                             onPressed: () {
                               if (Get.overlayContext != null) {
@@ -772,7 +822,11 @@ class _MissionsScreenState extends State<MissionsScreen> {
                                 Get.back();
                               }
                             },
-                            child: const AppText(data: 'Cancel', color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                            child: const AppText(
+                              data: 'Cancel',
+                              color: Color(0xFF64748B),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                         const Gap(width: 12),
@@ -781,14 +835,23 @@ class _MissionsScreenState extends State<MissionsScreen> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF2563EB),
                               padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               elevation: 0,
                             ),
                             onPressed: () {
-                              Get.back();
-                              Future.delayed(const Duration(milliseconds: 100), () => _showQuoteDialog(mission, id));
+                              Get.back(); // Closes the 'Already Submitted' dialog immediately
+                              Future.delayed(
+                                const Duration(milliseconds: 100),
+                                () => _showQuoteDialog(mission, id),
+                              );
                             },
-                            child: const AppText(data: 'Update', color: Colors.white, fontWeight: FontWeight.w600),
+                            child: const AppText(
+                              data: 'Update',
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
@@ -1055,7 +1118,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
     final timeCtrl = TextEditingController(
       text: mission['myQuoteTime']?.toString() ?? '',
     );
-    final isUpdate = mission['myQuoteStatus'] != null;
+    final qStatus = mission['myQuoteStatus']?.toString();
+    final isUpdate = qStatus != null && qStatus != 'null' && qStatus.isNotEmpty;
     final isLoading = false.obs;
 
     Get.bottomSheet(
@@ -1165,7 +1229,10 @@ class _MissionsScreenState extends State<MissionsScreen> {
                             colorText: Colors.white,
                             borderRadius: 12,
                             margin: const EdgeInsets.all(16),
-                            icon: const Icon(Icons.check_circle, color: Colors.white),
+                            icon: const Icon(
+                              Icons.check_circle,
+                              color: Colors.white,
+                            ),
                             duration: const Duration(seconds: 3),
                           );
                           Get.find<MissionsController>().fetchMissions();
@@ -1178,7 +1245,10 @@ class _MissionsScreenState extends State<MissionsScreen> {
                             colorText: Colors.white,
                             borderRadius: 12,
                             margin: const EdgeInsets.all(16),
-                            icon: const Icon(Icons.error_outline, color: Colors.white),
+                            icon: const Icon(
+                              Icons.error_outline,
+                              color: Colors.white,
+                            ),
                           );
                         } finally {
                           isLoading.value = false;
@@ -1186,9 +1256,18 @@ class _MissionsScreenState extends State<MissionsScreen> {
                       },
                       child: Obx(
                         () => isLoading.value
-                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
                             : AppText(
-                                data: isUpdate ? 'Update Quote' : 'Submit Quote',
+                                data: isUpdate
+                                    ? 'Update Quote'
+                                    : 'Submit Quote',
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),

@@ -165,12 +165,16 @@ const getMissionsForDrivers = async (driverId?: string): Promise<any[]> => {
 
   if (driverId) {
     query.$or.push({ 'driverQuotes.driverId': driverId });
+    // Also include ASSIGNED and IN_PROGRESS missions where this driver is assigned
+    query.$or.push({ assignedDriverId: driverId, status: { $in: [RequestStatus.ASSIGNED, RequestStatus.IN_PROGRESS, RequestStatus.COMPLETED] } });
   }
 
-  const missions = await Requests.find(query).sort({ createdAt: -1 });
+  const missions = await Requests.find(query)
+    .sort({ createdAt: -1 })
+    .populate('customerId', 'name email phone_number address profile_image');
 
   return missions.map(mission => {
-    const doc = mission.toObject();
+    const doc = mission.toObject() as any;
     const myQuote = doc.driverQuotes?.find((q: any) => q.driverId?.toString() === driverId?.toString());
     return {
       ...doc,
@@ -281,6 +285,30 @@ const assignDriver = async (id: string, quoteId: string): Promise<IRequest | nul
   return request;
 };
 
+const startMission = async (id: string, driverId: string): Promise<IRequest | null> => {
+  const request = await Requests.findById(id);
+  if (!request) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Mission not found');
+  }
+
+  if (request.status !== RequestStatus.ASSIGNED) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Mission is not in ASSIGNED status');
+  }
+
+  // Verify this driver is actually assigned
+  const isAssigned =
+    request.assignedDriverId?.toString() === driverId ||
+    (request.assignedDriverIds || []).some((d: any) => d.toString() === driverId);
+
+  if (!isAssigned) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'You are not assigned to this mission');
+  }
+
+  request.status = RequestStatus.IN_PROGRESS;
+  await request.save();
+  return request;
+};
+
 const addExpense = async (id: string, payload: any) => {
   const request = await Requests.findById(id);
   if (!request) {
@@ -334,6 +362,7 @@ export const RequestsService = {
   getMissionsForDrivers,
   submitDriverQuote,
   assignDriver,
+  startMission,
   addExpense,
   removeExpense,
   updateBaseFee,

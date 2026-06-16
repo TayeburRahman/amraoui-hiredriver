@@ -142,6 +142,17 @@ const updateBaseFee = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const startMission = catchAsync(async (req: Request, res: Response) => {
+  const driverId = (req as any).user.userId;
+  const result = await RequestsService.startMission(req.params.id, driverId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Mission started successfully',
+    data: result,
+  });
+});
+
 export const RequestsController = {
   createRequest,
   getAllRequests,
@@ -152,6 +163,7 @@ export const RequestsController = {
   getMissionsForDrivers,
   submitDriverQuote,
   assignDriver,
+  startMission,
   addExpense,
   removeExpense,
   updateBaseFee,

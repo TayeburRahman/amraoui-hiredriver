@@ -26,5 +26,6 @@ router.patch('/:id/customer-reply', RequestsController.customerReplyQuote);
 
 // Driver actions
 router.post('/:id/driver-quote', auth(ENUM_USER_ROLE.DRIVER), RequestsController.submitDriverQuote);
+router.patch('/:id/start-mission', auth(ENUM_USER_ROLE.DRIVER), RequestsController.startMission);
 
 export const RequestsRoutes = router;

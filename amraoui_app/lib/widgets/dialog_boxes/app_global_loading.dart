@@ -40,7 +40,7 @@ class AppGlobalLoading {
 
   void hideLoader() {
     if (Get.isDialogOpen ?? false) {
-      Navigator.of(Get.overlayContext!).pop();
+      Get.back();
     }
   }
 }

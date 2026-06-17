@@ -26,4 +26,20 @@ class MissionRepository {
       'estimatedTime': estimatedTime,
     });
   }
+
+  Future<Response> verifyPickup(String id, double lat, double lng) async {
+    return await _auth.patch('/requests/missions/$id/pickup-verification', data: {
+      'lat': lat,
+      'lng': lng,
+    });
+  }
+
+  Future<Response> updatePickupInspection(String id, String section, Map<String, dynamic> data) async {
+    FormData formData = FormData.fromMap({
+      'section': section,
+      ...data
+    });
+
+    return await _auth.patch('/requests/missions/$id/pickup-inspection', data: formData);
+  }
 }

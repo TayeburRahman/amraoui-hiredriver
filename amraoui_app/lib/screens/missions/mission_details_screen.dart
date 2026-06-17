@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'cancel_mission_screen.dart';
 import 'missions_screen.dart'; // To access MissionsController
+import 'pickup_verification_screen.dart';
+import 'pickup_inspection_screen.dart';
 
 class MissionDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> mission;
@@ -459,6 +461,39 @@ class MissionDetailsScreen extends StatelessWidget {
 
   Widget _buildBottomActions() {
     final status = mission['status'];
+    final type = mission['type'];
+
+    if (status == 'IN_PROGRESS' && type == 'TRANSPORT') {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          height: 50,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF06B6D4),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            onPressed: () {
+              final details = mission['details'] ?? {};
+              final verification = details['pickupVerification'];
+              if (verification != null && verification['arrivalDeclared'] == true && verification['vehicleMatchConfirmed'] == true) {
+                Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
+              } else {
+                Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+              }
+            },
+            child: const AppText(data: 'Continue Mission', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        ),
+      );
+    }
+
     if (status != 'ASSIGNED') return const SizedBox.shrink();
 
     return Container(

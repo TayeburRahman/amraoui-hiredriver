@@ -43,7 +43,7 @@ class SignInController extends GetxController {
     appGlobalLoading();
     try {
       final res = await _authRepo.login(
-        email: emailController.text.trim(),
+        email: emailController.text.trim().toLowerCase(),
         password: passwordController.text,
       );
       hideGlobalLoading();
@@ -70,7 +70,13 @@ class SignInController extends GetxController {
       AuthNavigation.routeDriver(driver);
     } on DioException catch (e) {
       hideGlobalLoading();
-      AppSnackBar.error(e.response?.data?['message']?.toString() ?? 'Login failed');
+      String errorMsg = 'Login failed';
+      if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+        errorMsg = 'Connection timed out. Server might be offline.';
+      } else if (e.response?.data is Map<String, dynamic>) {
+        errorMsg = e.response?.data['message']?.toString() ?? 'Login failed';
+      }
+      AppSnackBar.error(errorMsg);
     } catch (e) {
       hideGlobalLoading();
       AppSnackBar.error('Login failed');

@@ -22,6 +22,7 @@ const getAllRequests = async (filters: {
     { path: 'customerId', select: 'name email phone profileImage' },
     { path: 'assignedDriverId', select: 'name email phone' },
     { path: 'assignedDriverIds', select: 'name email phone' },
+    { path: 'driverQuotes.driverId', select: 'name email phone_number profile_image license_number vehicle_type vehicle_plate status' },
   ];
 
   const [data, total] = await Promise.all([
@@ -43,6 +44,10 @@ const getRequestById = async (id: string) => {
     .populate({ path: 'customerId', select: 'name email phone profileImage' })
     .populate({ path: 'assignedDriverId', select: 'name email phone' })
     .populate({ path: 'assignedDriverIds', select: 'name email phone' })
+    .populate({
+      path: 'driverQuotes.driverId',
+      select: 'name email phone_number profile_image license_number vehicle_type vehicle_plate status rating jobsCompleted distance isVerified documents_submitted license_document id_document contract_document',
+    })
     .lean();
 };
 
@@ -181,6 +186,80 @@ const cancelMissionByDriver = async (
   return mission;
 };
 
+// ─── Assign Driver (Admin) ──────────────────────────────────────────────────
+const assignDriver = async (missionId: string, quoteId: string) => {
+  const mission = await Requests.findById(missionId);
+  if (!mission) throw new Error('Mission not found');
+
+  const quote = mission.driverQuotes.find((q: any) => q._id?.toString() === quoteId);
+  if (!quote) throw new Error('Quote not found');
+
+  // Mark this quote as ACCEPTED, others as REJECTED
+  mission.driverQuotes.forEach((q: any) => {
+    q.status = q._id?.toString() === quoteId ? 'ACCEPTED' : 'REJECTED';
+  });
+
+  mission.assignedDriverId = quote.driverId;
+  mission.status = RequestStatus.ASSIGNED;
+
+  await mission.save();
+  return Requests.findById(missionId).populate([
+    { path: 'customerId', select: 'name email phone profileImage' },
+    { path: 'assignedDriverId', select: 'name email phone' },
+  ]).lean();
+};
+
+const verifyPickup = async (missionId: string, driverId: string, lat: number, lng: number) => {
+  const mission = await Requests.findById(missionId);
+  if (!mission) throw new Error('Mission not found');
+
+  if (mission.assignedDriverId?.toString() !== driverId) {
+    throw new Error('Not authorized to update this mission');
+  }
+
+  const updatedDetails = {
+    ...mission.details,
+    pickupVerification: {
+      verifiedAt: new Date(),
+      location: { lat, lng },
+      vehicleMatchConfirmed: true,
+      arrivalDeclared: true
+    }
+  };
+
+  mission.set('details', updatedDetails);
+  mission.markModified('details');
+  
+  await mission.save();
+  return mission;
+};
+
+const updatePickupInspection = async (missionId: string, driverId: string, section: string, data: any) => {
+  const mission = await Requests.findById(missionId);
+  if (!mission) throw new Error('Mission not found');
+
+  if (mission.assignedDriverId?.toString() !== driverId) {
+    throw new Error('Not authorized to update this mission');
+  }
+
+  const updatedDetails = { ...mission.details };
+  if (!updatedDetails.pickupInspection) {
+    updatedDetails.pickupInspection = {};
+  }
+  
+  updatedDetails.pickupInspection[section] = {
+    ...updatedDetails.pickupInspection[section],
+    ...data,
+    updatedAt: new Date()
+  };
+
+  mission.set('details', updatedDetails);
+  mission.markModified('details');
+  
+  await mission.save();
+  return mission;
+};
+
 export const RequestsService = {
   getAllRequests,
   getRequestById,
@@ -190,4 +269,7 @@ export const RequestsService = {
   submitDriverQuote,
   startMission,
   cancelMissionByDriver,
+  assignDriver,
+  verifyPickup,
+  updatePickupInspection,
 };

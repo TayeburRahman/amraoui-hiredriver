@@ -1,5 +1,7 @@
 class AppApiUrl {
-  static const String domain = "http://10.10.28.71:5000"; // PC LAN IP — works for physical devices on the same network
+  // static const String domain = "http://10.10.28.71:5000"; // PC LAN IP — works for physical devices on the same network
+  static const String domain =
+      "http://127.0.0.1:5000"; // USB localhost (works with adb reverse)
   static const String baseUrl = "$domain/api/v1";
   static const String soketUrl = domain;
 
@@ -21,7 +23,8 @@ class AppApiUrl {
   // Other endpoints (commented out in repositories but defining them to prevent errors if uncommented)
   static const String userMakeProductLikeUrl = "/user/like-product";
   static const String userGetClosetCollectionUrl = "/user/closet";
-  static const String userGetClosetCollectionProductListUrl = "/user/closet-products/";
+  static const String userGetClosetCollectionProductListUrl =
+      "/user/closet-products/";
   static const String userSearchProductUrl = "/user/search-product";
   static const String userGetCartListUrl = "/user/cart";
   static const String userOrderHistoryListUrl = "/user/orders";

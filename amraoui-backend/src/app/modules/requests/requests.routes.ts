@@ -1,6 +1,7 @@
 import express from 'express';
 import auth from '../../middlewares/auth';
 import { ENUM_USER_ROLE } from '../../../enums/user';
+import { uploadFile } from '../../middlewares/fileUploader';
 import { RequestsController } from './requests.controller';
 
 const router = express.Router();
@@ -71,6 +72,28 @@ router.patch(
   '/:id/cancel',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
   RequestsController.cancelRequest
+);
+
+// PATCH /api/v1/requests/:id/assign-driver (Admin assign)
+router.patch(
+  '/:id/assign-driver',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  RequestsController.assignDriver
+);
+
+// PATCH /api/v1/requests/missions/:id/pickup-verification
+router.patch(
+  '/missions/:id/pickup-verification',
+  auth(ENUM_USER_ROLE.DRIVER),
+  RequestsController.verifyPickup
+);
+
+// PATCH /api/v1/requests/missions/:id/pickup-inspection
+router.patch(
+  '/missions/:id/pickup-inspection',
+  auth(ENUM_USER_ROLE.DRIVER),
+  uploadFile(),
+  RequestsController.updatePickupInspection
 );
 
 export const RequestsRoutes = router;

@@ -165,6 +165,90 @@ const cancelMissionByDriver = catchAsync(async (req: Request, res: Response) => 
   });
 });
 
+// ─── PATCH /api/v1/requests/:id/assign-driver (Admin) ──────────────────────
+const assignDriver = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { quoteId } = req.body;
+
+  if (!quoteId) {
+    return sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: 'quoteId is required',
+      data: null,
+    });
+  }
+
+  const updated = await RequestsService.assignDriver(id, quoteId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Driver assigned successfully',
+    data: updated,
+  });
+});
+
+// ─── PATCH /api/v1/requests/missions/:id/pickup-verification (Driver) ─────────
+const verifyPickup = catchAsync(async (req: Request, res: Response) => {
+  const driverId = (req as any).user?.userId;
+  const { id } = req.params;
+  const { lat, lng } = req.body;
+
+  if (lat === undefined || lng === undefined) {
+    return sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: 'lat and lng are required',
+      data: null,
+    });
+  }
+
+  const updated = await RequestsService.verifyPickup(id, driverId, lat, lng);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Pickup verified and location saved successfully',
+    data: updated,
+  });
+});
+
+const updatePickupInspection = catchAsync(async (req: Request, res: Response) => {
+  const driverId = (req as any).user?.userId;
+  const { id } = req.params;
+  const { section, imageLabels } = req.body;
+  
+  // If the request has files, map them into the data object
+  const data: any = { ...req.body };
+  delete data.section; // remove section from data payload
+  delete data.imageLabels; // remove labels from payload
+  
+  if (req.files) {
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    if (files['image']) {
+      const images = files['image'];
+      const labelsArray = Array.isArray(imageLabels) ? imageLabels : (imageLabels ? [imageLabels] : []);
+      
+      images.forEach((file, index) => {
+         const label = labelsArray[index];
+         if (label) {
+            data[label] = file.path;
+         }
+      });
+    }
+  }
+
+  const updated = await RequestsService.updatePickupInspection(id, driverId, section, data);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Inspection section updated successfully',
+    data: updated,
+  });
+});
+
 export const RequestsController = {
   getAllRequests,
   getRequestById,
@@ -174,4 +258,7 @@ export const RequestsController = {
   submitDriverQuote,
   startMission,
   cancelMissionByDriver,
+  assignDriver,
+  verifyPickup,
+  updatePickupInspection,
 };

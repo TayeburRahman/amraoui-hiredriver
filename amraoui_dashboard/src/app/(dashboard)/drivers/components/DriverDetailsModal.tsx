@@ -49,7 +49,7 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
               {driver.profile_image ? (
                 <img src={getProfileImageUrl(driver.profile_image) || ''} alt="" className="w-full h-full object-cover" />
               ) : (
-                driver.name[0]?.toUpperCase()
+                driver.name?.[0]?.toUpperCase() || 'U'
               )}
             </div>
             <div className="flex-1 space-y-1">

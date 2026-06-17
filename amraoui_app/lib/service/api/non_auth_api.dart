@@ -8,12 +8,18 @@ class NonAuthApi {
   final Dio _dio = Dio();
   NonAuthApi() {
     _dio.options.baseUrl = AppApiUrl.baseUrl;
-    _dio.options.sendTimeout = const Duration(seconds: 120);
-    _dio.options.connectTimeout = const Duration(seconds: 120);
-    _dio.options.receiveTimeout = const Duration(seconds: 120);
+    _dio.options.sendTimeout = const Duration(seconds: 10);
+    _dio.options.connectTimeout = const Duration(seconds: 10);
+    _dio.options.receiveTimeout = const Duration(seconds: 10);
     _dio.options.followRedirects = false;
 
     _dio.interceptors.addAll({
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          options.baseUrl = AppApiUrl.baseUrl;
+          return handler.next(options);
+        },
+      ),
       if (kDebugMode)
         PrettyDioLogger(
           requestHeader: true,

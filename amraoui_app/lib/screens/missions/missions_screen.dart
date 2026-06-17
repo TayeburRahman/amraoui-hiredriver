@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'mission_details_screen.dart';
+import 'package:amraoui_app/screens/missions/pickup_inspection_screen.dart';
+import 'package:amraoui_app/screens/missions/pickup_verification_screen.dart';
 
 class MissionsController extends GetxController {
   var activeMainTab = 0.obs; // 0: Open List, 1: My Missions
@@ -1285,6 +1287,22 @@ class _MissionsScreenState extends State<MissionsScreen> {
   }
 
   void _showMissionDetails(Map<String, dynamic> mission, String reqId) {
+    if (mission['status'] == 'IN_PROGRESS' && mission['type'] == 'TRANSPORT') {
+      final details = mission['details'] ?? {};
+      final verification = details['pickupVerification'];
+      
+      // If pickup is verified, jump straight to inspection screen
+      if (verification != null && verification['arrivalDeclared'] == true && verification['vehicleMatchConfirmed'] == true) {
+        Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
+        return;
+      }
+      
+      // Otherwise, jump straight to verification screen
+      Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+      return;
+    }
+    
+    // For ASSIGNED or other statuses, show the standard details screen
     Get.to(() => MissionDetailsScreen(mission: mission, reqId: reqId));
   }
 }

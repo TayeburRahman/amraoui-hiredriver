@@ -14,10 +14,9 @@ void main() async {
 
   await GetStorage.init();
   Get.put(ConnectivityService());
-  SystemChrome.setPreferredOrientations([
-    // DeviceOrientation.portraitDown, // Lock to portrait mode
-    DeviceOrientation.portraitUp, // Lock to portrait mode
-  ]).then((_) {
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
+    _,
+  ) {
     runApp(const MainAppEntry());
   });
 }

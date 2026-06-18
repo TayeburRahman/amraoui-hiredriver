@@ -80,24 +80,26 @@ const submitDriverDocuments = async (
   const idFile = files?.id_document?.[0];
   const contractFile = files?.contract_document?.[0];
 
-  if (!licenseFile || !idFile) {
-    throw new ApiError(
-      httpStatus.BAD_REQUEST,
-      'Driver license and ID document are required'
-    );
+  if (!licenseFile && !idFile && !contractFile) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Please upload at least one document');
   }
 
   const updateData: Record<string, any> = {
-    license_document: licenseFile.path,
-    id_document: idFile.path,
-    documents_submitted: true,
-    documents_submitted_at: new Date(),
     status: 'pending',
     decline_reason: null,
   };
 
-  if (contractFile) {
-    updateData.contract_document = contractFile.path;
+  if (licenseFile) updateData.license_document = licenseFile.path;
+  if (idFile) updateData.id_document = idFile.path;
+  if (contractFile) updateData.contract_document = contractFile.path;
+
+  // Mark as submitted only if they have provided both required docs at some point
+  if (
+    (driver.license_document || licenseFile) &&
+    (driver.id_document || idFile)
+  ) {
+    updateData.documents_submitted = true;
+    updateData.documents_submitted_at = driver.documents_submitted_at || new Date();
   }
 
   const updated = await Drivers.findByIdAndUpdate(driverId, updateData, {
@@ -125,6 +127,35 @@ const submitDriverDocuments = async (
       }),
     }).catch((err) => console.error('Admin notify email failed:', err.message));
   }
+
+  return updated;
+};
+
+const deleteMyDocument = async (driverId: string, documentType: string) => {
+  const allowedTypes = ['license_document', 'id_document', 'contract_document'];
+  if (!allowedTypes.includes(documentType)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid document type');
+  }
+
+  const driver = await Drivers.findById(driverId);
+  if (!driver) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
+  }
+
+  const updateData: Record<string, any> = {
+    [documentType]: null,
+    status: 'pending',
+  };
+
+  // If deleting a required document, mark documents_submitted as false
+  if (documentType === 'license_document' || documentType === 'id_document') {
+    updateData.documents_submitted = false;
+  }
+
+  const updated = await Drivers.findByIdAndUpdate(driverId, updateData, {
+    new: true,
+    runValidators: true,
+  });
 
   return updated;
 };
@@ -195,6 +226,56 @@ const updateDriverLocation = async (
   return driver;
 };
 
+const updateProfileImage = async (driverId: string, file?: Express.Multer.File) => {
+  if (!file) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Profile image is required');
+  }
+
+  const driver = await Drivers.findByIdAndUpdate(
+    driverId,
+    { profile_image: file.path },
+    { new: true, runValidators: true }
+  ).populate('authId', 'email name isActive is_block role');
+
+  if (!driver) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
+  }
+
+  return driver;
+};
+
+const updateMyProfile = async (driverId: string, payload: Partial<IDrivers>) => {
+  const driver = await Drivers.findByIdAndUpdate(driverId, payload, {
+    new: true,
+    runValidators: true,
+  }).populate('authId', 'email name isActive is_block role');
+
+  if (!driver) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
+  }
+
+  // Update Auth collection if name is updated
+  if (payload.name) {
+    await Auth.findByIdAndUpdate(driver.authId, { name: payload.name });
+  }
+
+  return driver;
+};
+
+const updateMySkills = async (driverId: string, skills: { name: string; stars: number }[]) => {
+  const driver = await Drivers.findByIdAndUpdate(
+    driverId,
+    { skills },
+    { new: true, runValidators: true }
+  ).populate('authId', 'email name isActive is_block role');
+
+  if (!driver) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
+  }
+
+  return driver;
+};
+
 export const DriverService = {
   getAllDrivers,
   getDriverById,
@@ -202,4 +283,8 @@ export const DriverService = {
   submitDriverDocuments,
   updateDriverStatus,
   updateDriverLocation,
+  updateProfileImage,
+  updateMySkills,
+  updateMyProfile,
+  deleteMyDocument,
 };

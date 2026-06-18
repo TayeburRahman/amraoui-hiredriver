@@ -12,6 +12,7 @@ export interface IDrivers extends Document {
   email: string;
   phone_number?: string | null;
   address?: string | null;
+  dateOfBirth?: string | null;
   profile_image?: string | null;
   license_number?: string | null;
   vehicle_type?: string | null;
@@ -26,6 +27,7 @@ export interface IDrivers extends Document {
   documents_submitted?: boolean;
   documents_submitted_at?: Date | null;
   decline_reason?: string | null;
+  skills?: { name: string; stars: number }[];
   createdAt?: Date;
   updatedAt?: Date;
 }

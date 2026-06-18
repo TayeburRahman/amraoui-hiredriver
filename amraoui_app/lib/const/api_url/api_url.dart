@@ -18,7 +18,12 @@ class AppApiUrl {
   static const String profileUrl = "/auth/profile";
 
   // Driver Endpoints
-  static const String driverSubmitDocumentsUrl = "/drivers/submit-documents";
+  static const String driverSubmitDocumentsUrl = "/drivers/my/documents";
+  static const String driverDeleteDocumentUrl = "/drivers/my/documents/delete";
+  static const String driverMyProfileUrl = "/drivers/my/profile";
+  static const String driverUpdateProfileUrl = "/drivers/my/profile";
+  static const String driverUpdateProfileImageUrl = "/drivers/my/profile-image";
+  static const String driverUpdateSkillsUrl = "/drivers/my/skills";
 
   // Other endpoints (commented out in repositories but defining them to prevent errors if uncommented)
   static const String userMakeProductLikeUrl = "/user/like-product";

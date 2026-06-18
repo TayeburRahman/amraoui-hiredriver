@@ -39,6 +39,10 @@ const DriversSchema = new Schema<IDrivers>(
       type: String,
       default: null,
     },
+    dateOfBirth: {
+      type: String,
+      default: null,
+    },
     profile_image: {
       type: String,
       default: null,
@@ -95,6 +99,15 @@ const DriversSchema = new Schema<IDrivers>(
     decline_reason: {
       type: String,
       default: null,
+    },
+    skills: {
+      type: [
+        {
+          name: { type: String, required: true },
+          stars: { type: Number, required: true, min: 1, max: 5 },
+        },
+      ],
+      default: [],
     },
   },
   {

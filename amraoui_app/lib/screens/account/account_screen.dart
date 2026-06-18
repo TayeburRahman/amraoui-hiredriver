@@ -5,6 +5,8 @@ import 'package:amraoui_app/routes/app_routes.dart';
 import 'package:amraoui_app/widgets/dialog_boxes/log_out_dailog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'controllers/account_controller.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -12,6 +14,7 @@ class AccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppSize.size = MediaQuery.of(context).size;
+    final AccountController controller = Get.put(AccountController());
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -43,7 +46,7 @@ class AccountScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Gap(height: 16),
-              _buildProfileCard(),
+              _buildProfileCard(controller),
               const Gap(height: 32),
               _buildSectionTitle('Work & Earnings'),
               const Gap(height: 16),
@@ -140,175 +143,211 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFFE2E8F0),
-                    ),
-                    // Placeholder for actual image
-                    child: const Icon(
-                      Icons.person,
-                      size: 40,
-                      color: Color(0xFF94A3B8),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF2563EB),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 14,
-                      ),
-                    ),
-                  ),
-                ],
+  Widget _buildProfileCard(AccountController controller) {
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
               ),
-              const Gap(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const AppText(
-                      data: 'Jean Dupont',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
-                    ),
-                    const Gap(height: 4),
-                    const AppText(
-                      data: 'jean.dupont@example.com',
-                      fontSize: 14,
-                      color: Color(0xFF64748B),
-                    ),
-                    const AppText(
-                      data: '+33 6 12 34 56 78',
-                      fontSize: 14,
-                      color: Color(0xFF64748B),
-                    ),
-                    const Gap(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
+            ],
+          ),
+          child: const Center(child: CircularProgressIndicator()),
+        );
+      }
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () => controller.pickAndUploadImage(),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFE2E8F0),
+                        ),
+                        child: controller.profileImage.value.isNotEmpty
+                            ? ClipOval(
+                                child: CachedNetworkImage(
+                                  imageUrl: controller.profileImage.value,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) => const Icon(Icons.person, size: 40, color: Color(0xFF94A3B8)),
+                                ),
+                              )
+                            : const Icon(
+                                Icons.person,
+                                size: 40,
+                                color: Color(0xFF94A3B8),
+                              ),
                       ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF16A34A),
-                              shape: BoxShape.circle,
-                            ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF2563EB),
+                            shape: BoxShape.circle,
                           ),
-                          const Gap(width: 6),
-                          const AppText(
-                            data: 'Verified Driver',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF16A34A),
+                          child: controller.isUploading.value
+                              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                              : const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 14,
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Gap(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        data: controller.name.value,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF0F172A),
+                      ),
+                      const Gap(height: 4),
+                      AppText(
+                        data: controller.email.value,
+                        fontSize: 14,
+                        color: const Color(0xFF64748B),
+                      ),
+                      if (controller.phone.value.isNotEmpty) ...[
+                        AppText(
+                          data: controller.phone.value,
+                          fontSize: 14,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ],
+                      const Gap(height: 12),
+                      if (controller.isVerified.value) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDCFCE7),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF16A34A),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const Gap(width: 6),
+                              const AppText(
+                                data: 'Verified Driver',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF16A34A),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Gap(height: 24),
+            const Divider(color: Color(0xFFF1F5F9), thickness: 1.5),
+            const Gap(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AppText(
+                        data: 'Completed Jobs',
+                        fontSize: 13,
+                        color: Color(0xFF64748B),
+                      ),
+                      const Gap(height: 4),
+                      AppText(
+                        data: controller.completedJobs.value.toString(),
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFF0F172A),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AppText(
+                        data: 'Rating',
+                        fontSize: 13,
+                        color: Color(0xFF64748B),
+                      ),
+                      const Gap(height: 4),
+                      Row(
+                        children: [
+                          AppText(
+                            data: controller.rating.value.toStringAsFixed(1),
+                            fontSize: 24,
+                            fontWeight: FontWeight.w900,
+                            color: const Color(0xFF0F172A),
+                          ),
+                          const Gap(width: 4),
+                          const Icon(
+                            Icons.star,
+                            color: Color(0xFFFBBF24),
+                            size: 24,
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const Gap(height: 24),
-          const Divider(color: Color(0xFFF1F5F9), thickness: 1.5),
-          const Gap(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const AppText(
-                      data: 'Completed Jobs',
-                      fontSize: 13,
-                      color: Color(0xFF64748B),
-                    ),
-                    const Gap(height: 4),
-                    const AppText(
-                      data: '127',
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF0F172A),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const AppText(
-                      data: 'Rating',
-                      fontSize: 13,
-                      color: Color(0xFF64748B),
-                    ),
-                    const Gap(height: 4),
-                    Row(
-                      children: [
-                        const AppText(
-                          data: '4.9',
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF0F172A),
-                        ),
-                        const Gap(width: 4),
-                        const Icon(
-                          Icons.star,
-                          color: Color(0xFFFBBF24),
-                          size: 24,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildSectionTitle(String title) {

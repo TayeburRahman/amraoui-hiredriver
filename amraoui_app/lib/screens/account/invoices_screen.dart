@@ -2,26 +2,75 @@ import 'package:amraoui_app/utils/gap.dart';
 import 'package:amraoui_app/widgets/layout/account_sub_page_layout.dart';
 import 'package:amraoui_app/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'controllers/invoices_controller.dart';
 
 class InvoicesScreen extends StatelessWidget {
   const InvoicesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final InvoicesController controller = Get.put(InvoicesController());
+
     return AccountSubPageLayout(
       title: 'Invoices / Commission',
       subtitle: 'Track your earnings and commission payments.',
-      child: Column(
-        children: [
-          _summaryCard('Total Earnings', '€2,840', const Color(0xFF2563EB)),
-          const Gap(height: 12),
-          _summaryCard('This Month', '€420', const Color(0xFF10B981)),
-          const Gap(height: 24),
-          _invoiceTile('#INV-1042', 'Paris → Lyon', '€46', 'Paid'),
-          const Gap(height: 12),
-          _invoiceTile('#INV-1038', 'Marseille → Nice', '€72', 'Pending'),
-        ],
-      ),
+      child: Obx(() {
+        if (controller.isLoading.value) {
+          return const Padding(
+            padding: EdgeInsets.all(32.0),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return Column(
+          children: [
+            _summaryCard('Total Earnings', '€${controller.totalEarnings.value.toStringAsFixed(2)}', const Color(0xFF2563EB)),
+            const Gap(height: 12),
+            _summaryCard('This Month', '€${controller.thisMonthEarnings.value.toStringAsFixed(2)}', const Color(0xFF10B981)),
+            const Gap(height: 24),
+            if (controller.completedMissions.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(32.0),
+                child: AppText(
+                  data: 'No completed missions yet.',
+                  fontSize: 16,
+                  color: Color(0xFF64748B),
+                ),
+              )
+            else
+              ...controller.completedMissions.map((mission) {
+                // Extract mission details
+                final idStr = mission['_id'].toString().substring(0, 6).toUpperCase();
+                
+                String route = 'Mission';
+                if (mission['type'] == 'TRANSPORT' && mission['detailsObj'] != null) {
+                  final pickupCity = mission['detailsObj']['pickupLocation']?['city'] ?? 'Unknown';
+                  final deliveryCity = mission['detailsObj']['deliveryLocation']?['city'] ?? 'Unknown';
+                  route = '$pickupCity → $deliveryCity';
+                } else if (mission['type'] == 'INSPECTION' || mission['type'] == 'HIRE_DRIVER') {
+                  route = mission['type'];
+                }
+
+                double amount = 0.0;
+                if (mission['driverQuotes'] != null) {
+                  for (var quote in mission['driverQuotes']) {
+                    if (quote['status'] == 'ACCEPTED') {
+                      amount = (quote['amount'] as num).toDouble();
+                      break;
+                    }
+                  }
+                }
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _invoiceTile('#INV-$idStr', route, '€${amount.toStringAsFixed(2)}', 'Paid'),
+                );
+              }),
+          ],
+        );
+      }),
     );
   }
 

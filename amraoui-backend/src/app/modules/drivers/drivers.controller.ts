@@ -47,6 +47,24 @@ const submitMyDocuments = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const deleteMyDocument = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as IReqUser;
+  const { documentType } = req.body;
+
+  if (!documentType) {
+    throw new ApiError(400, 'Document type is required');
+  }
+
+  const result = await DriverService.deleteMyDocument(user.userId, documentType);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Document deleted successfully',
+    data: result,
+  });
+});
+
 const updateDriverStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status, reason } = req.body;
@@ -74,6 +92,42 @@ const updateMyLocation = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const uploadProfileImage = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as IReqUser;
+  const file = req.file;
+  const result = await DriverService.updateProfileImage(user.userId, file);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Profile image updated successfully',
+    data: result,
+  });
+});
+
+const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as IReqUser;
+  const result = await DriverService.updateMyProfile(user.userId, req.body);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Driver profile updated successfully',
+    data: result,
+  });
+});
+
+const updateMySkills = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as IReqUser;
+  const { skills } = req.body;
+  const result = await DriverService.updateMySkills(user.userId, skills);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Skills updated successfully',
+    data: result,
+  });
+});
+
 export const DriverController = {
   getAllDrivers,
   getDriverById,
@@ -81,4 +135,8 @@ export const DriverController = {
   submitMyDocuments,
   updateDriverStatus,
   updateMyLocation,
+  uploadProfileImage,
+  updateMyProfile,
+  updateMySkills,
+  deleteMyDocument,
 };

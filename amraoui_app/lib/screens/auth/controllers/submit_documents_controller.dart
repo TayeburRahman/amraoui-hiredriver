@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:amraoui_app/const/storage/get_storage.dart';
+import 'package:amraoui_app/models/driver_model.dart';
 import 'package:amraoui_app/routes/app_routes.dart';
 import 'package:amraoui_app/service/repository/auth_repository.dart';
 import 'package:amraoui_app/service/repository/driver_repository.dart';
@@ -42,20 +43,21 @@ class SubmitDocumentsController extends GetxController {
 
     appGlobalLoading();
     try {
-      final driver = await _driverRepo.submitDocuments(
-        licenseDocument: licenseFile.value!,
-        idDocument: idFile.value!,
+      final driverMap = await _driverRepo.submitDocuments(
+        licenseDocument: licenseFile.value,
+        idDocument: idFile.value,
         contractDocument: contractFile.value,
       );
       hideGlobalLoading();
 
-      if (driver == null) {
+      if (driverMap == null) {
         AppSnackBar.error('Failed to submit documents');
         return;
       }
 
+      final driverModel = DriverModel.fromJson(driverMap);
       final profile = await _authRepo.getProfile();
-      final updated = profile ?? driver;
+      final updated = profile ?? driverModel;
 
       final access = AppStorage().getToken();
       final refresh = AppStorage().getRefreshToken() ?? '';

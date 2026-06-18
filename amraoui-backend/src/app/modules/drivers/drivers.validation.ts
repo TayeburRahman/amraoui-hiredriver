@@ -22,7 +22,29 @@ const updateLocationSchema = z.object({
   }),
 });
 
+const updateSkillsSchema = z.object({
+  body: z.object({
+    skills: z.array(
+      z.object({
+        name: z.string({ required_error: 'Skill name is required' }),
+        stars: z.number().min(1).max(5),
+      })
+    ),
+  }),
+});
+
+const updateProfileSchema = z.object({
+  body: z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters').optional(),
+    phone_number: z.string().optional(),
+    address: z.string().optional(),
+    dateOfBirth: z.string().optional(),
+  }),
+});
+
 export const DriverValidation = {
   updateDriverStatusSchema,
   updateLocationSchema,
+  updateSkillsSchema,
+  updateProfileSchema,
 };

@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 import 'pickup_inspection_screen.dart';
+import 'delivery_inspection_screen.dart';
 
 class PickupVerificationScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
@@ -79,10 +80,33 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final type = widget.mission['type'];
     final details = widget.mission['details'] ?? {};
-    final pLocation = details['pickupAddress'] ?? details['pickupCity'] ?? 'Unknown Location';
-    final pDate = details['pickupDate'] ?? '';
-    final pTime = details['pickupTime'] ?? '';
+    final customer = widget.mission['customerId'] ?? {};
+
+    String pLocation = 'Unknown Location';
+    String pDate = '';
+    String pTime = '';
+    String titleText = 'Pickup Verification';
+    String locTitleText = 'Pickup Location';
+
+    if (type == 'INSPECTION') {
+      pLocation = details['inspectionLocation'] ?? 'Unknown Location';
+      pDate = details['inspectionDate'] ?? '';
+      pTime = details['inspectionTime'] ?? '';
+      titleText = 'Arrival Declaration';
+      locTitleText = 'Inspection Location';
+    } else if (type == 'HIRE_DRIVER') {
+      pLocation = details['driverLocation'] ?? details['driverCity'] ?? 'Unknown Location';
+      pDate = details['driverStartDate'] ?? '';
+      pTime = details['driverStartTime'] ?? '';
+      titleText = 'Client Arrival Declaration';
+      locTitleText = 'Client Location';
+    } else {
+      pLocation = details['pickupAddress'] ?? details['pickupCity'] ?? 'Unknown Location';
+      pDate = details['pickupDate'] ?? '';
+      pTime = details['pickupTime'] ?? '';
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -101,11 +125,11 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const AppText(
-                data: 'Pickup Verification',
+              AppText(
+                data: titleText,
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
+                color: const Color(0xFF0F172A),
               ),
               const Gap(height: 4),
               AppText(
@@ -125,7 +149,7 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
                       children: [
                         const Icon(Icons.location_on_outlined, color: Color(0xFF06B6D4), size: 20),
                         const Gap(width: 8),
-                        const AppText(data: 'Pickup Location', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        AppText(data: locTitleText, fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
                       ],
                     ),
                     const Gap(height: 16),
@@ -227,16 +251,17 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
               const Gap(height: 16),
               
               // Vehicle Registration Card
-              _buildCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.directions_car_outlined, color: Color(0xFF3B82F6), size: 20),
-                        const Gap(width: 8),
-                        const AppText(data: 'Vehicle Registration', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                      ],
+              if (type != 'HIRE_DRIVER') ...[
+                _buildCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.directions_car_outlined, color: Color(0xFF3B82F6), size: 20),
+                          const Gap(width: 8),
+                          const AppText(data: 'Vehicle Registration', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        ],
                     ),
                     const Gap(height: 16),
                     const AppText(data: 'License Plate', fontSize: 12, color: Color(0xFF64748B)),
@@ -289,23 +314,32 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
                   ],
                 ),
               ),
+              ],
               const Gap(height: 16),
               
               // Vehicle Details Confirmation
-              _buildCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const AppText(data: 'Vehicle Details Confirmation', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                    const Gap(height: 16),
-                    _buildInfoRow('Vehicle Type', details['vehicleType'] ?? 'N/A'),
-                    _buildInfoRow('Brand', details['make'] ?? 'N/A'),
-                    _buildInfoRow('Model', details['model'] ?? 'N/A'),
-                    _buildInfoRow('Engine Type', details['engineType'] ?? 'N/A'),
-                  ],
+              if (type != 'HIRE_DRIVER') ...[
+                _buildCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AppText(data: 'Vehicle Details Confirmation', fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      const Gap(height: 16),
+                      if (type == 'INSPECTION') ...[
+                        _buildInfoRow('Vehicle Type', details['vehicleType'] ?? 'N/A'),
+                        _buildInfoRow('Brand', details['vehicleBrand'] ?? 'N/A'),
+                        _buildInfoRow('Model', details['vehicleModel'] ?? 'N/A'),
+                      ] else ...[
+                        _buildInfoRow('Vehicle Type', details['vehicleType'] ?? 'N/A'),
+                        _buildInfoRow('Brand', details['make'] ?? 'N/A'),
+                        _buildInfoRow('Model', details['model'] ?? 'N/A'),
+                        _buildInfoRow('Engine Type', details['engineType'] ?? 'N/A'),
+                      ]
+                    ],
+                  ),
                 ),
-              ),
-              const Gap(height: 100),
+                const Gap(height: 100),
+              ],
             ],
           ),
         ),
@@ -318,11 +352,11 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
           height: 50,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: (arrivalDeclared && vehicleMatchConfirmed) ? const Color(0xFF60A5FA) : const Color(0xFF93C5FD),
+              backgroundColor: (arrivalDeclared && (vehicleMatchConfirmed || type == 'HIRE_DRIVER')) ? const Color(0xFF60A5FA) : const Color(0xFF93C5FD),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 0,
             ),
-            onPressed: (arrivalDeclared && vehicleMatchConfirmed) ? () async {
+            onPressed: (arrivalDeclared && (vehicleMatchConfirmed || type == 'HIRE_DRIVER')) ? () async {
               if (driverLocation == null) {
                 Get.snackbar(
                   'Location Required', 
@@ -360,7 +394,11 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
                     'vehicleMatchConfirmed': true,
                   };
 
-                  Get.to(() => PickupInspectionScreen(mission: widget.mission, reqId: widget.reqId));
+                  if (type == 'INSPECTION') {
+                    Get.to(() => DeliveryInspectionScreen(mission: widget.mission, reqId: widget.reqId));
+                  } else {
+                    Get.to(() => PickupInspectionScreen(mission: widget.mission, reqId: widget.reqId));
+                  }
                 } else {
                   Get.snackbar('Error', 'Failed to verify pickup and store location');
                 }

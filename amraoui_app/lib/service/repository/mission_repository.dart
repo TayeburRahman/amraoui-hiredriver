@@ -34,6 +34,13 @@ class MissionRepository {
     });
   }
 
+  Future<Response> verifyDeliveryArrival(String id, double lat, double lng) async {
+    return await _auth.patch('/requests/missions/$id/delivery-arrival', data: {
+      'lat': lat,
+      'lng': lng,
+    });
+  }
+
   Future<Response> updatePickupInspection(String id, String section, Map<String, dynamic> data) async {
     FormData formData = FormData.fromMap({
       'section': section,
@@ -41,5 +48,14 @@ class MissionRepository {
     });
 
     return await _auth.patch('/requests/missions/$id/pickup-inspection', data: formData);
+  }
+
+  Future<Response> updateDeliveryInspection(String id, String section, Map<String, dynamic> data) async {
+    FormData formData = FormData.fromMap({
+      'section': section,
+      ...data
+    });
+
+    return await _auth.patch('/requests/missions/$id/delivery-inspection', data: formData);
   }
 }

@@ -7,7 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'cancel_mission_screen.dart';
 import 'missions_screen.dart'; // To access MissionsController
 import 'pickup_verification_screen.dart';
-import 'pickup_inspection_screen.dart';
+import 'pickup_inspection_screen.dart' hide Gap;
+import 'delivery_inspection_screen.dart' hide Gap;
 
 class MissionDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> mission;
@@ -463,7 +464,7 @@ class MissionDetailsScreen extends StatelessWidget {
     final status = mission['status'];
     final type = mission['type'];
 
-    if (status == 'IN_PROGRESS' && type == 'TRANSPORT') {
+    if (status == 'IN_PROGRESS') {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
@@ -482,10 +483,20 @@ class MissionDetailsScreen extends StatelessWidget {
             onPressed: () {
               final details = mission['details'] ?? {};
               final verification = details['pickupVerification'];
-              if (verification != null && verification['arrivalDeclared'] == true && verification['vehicleMatchConfirmed'] == true) {
-                Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
+              final bool isVerified = verification != null && verification['arrivalDeclared'] == true;
+              
+              if (type == 'INSPECTION') {
+                if (isVerified) {
+                  Get.to(() => DeliveryInspectionScreen(mission: mission, reqId: reqId));
+                } else {
+                  Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+                }
               } else {
-                Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+                if (isVerified && (verification['vehicleMatchConfirmed'] == true || type == 'HIRE_DRIVER')) {
+                  Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
+                } else {
+                  Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+                }
               }
             },
             child: const AppText(data: 'Continue Mission', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),

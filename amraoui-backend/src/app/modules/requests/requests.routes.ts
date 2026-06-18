@@ -88,12 +88,27 @@ router.patch(
   RequestsController.verifyPickup
 );
 
+// PATCH /api/v1/requests/missions/:id/delivery-arrival
+router.patch(
+  '/missions/:id/delivery-arrival',
+  auth(ENUM_USER_ROLE.DRIVER),
+  RequestsController.verifyDeliveryArrival
+);
+
 // PATCH /api/v1/requests/missions/:id/pickup-inspection
 router.patch(
   '/missions/:id/pickup-inspection',
   auth(ENUM_USER_ROLE.DRIVER),
   uploadFile(),
   RequestsController.updatePickupInspection
+);
+
+// PATCH /api/v1/requests/missions/:id/delivery-inspection
+router.patch(
+  '/missions/:id/delivery-inspection',
+  auth(ENUM_USER_ROLE.DRIVER),
+  uploadFile(),
+  RequestsController.updateDeliveryInspection
 );
 
 export const RequestsRoutes = router;

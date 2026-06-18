@@ -34,19 +34,23 @@ class SignInController extends GetxController {
     if (value != null) rememberMe.value = value;
   }
 
+  var isLoading = false.obs;
+
   Future<void> login() async {
     if (emailController.text.trim().isEmpty || passwordController.text.isEmpty) {
       AppSnackBar.error('Email and password are required');
       return;
     }
 
-    appGlobalLoading();
+    if (isLoading.value) return;
+    isLoading.value = true;
+
     try {
       final res = await _authRepo.login(
         email: emailController.text.trim().toLowerCase(),
         password: passwordController.text,
       );
-      hideGlobalLoading();
+      isLoading.value = false;
 
       if (res?['success'] != true || res?['data'] == null) {
         AppSnackBar.error(res?['message']?.toString() ?? 'Login failed');
@@ -69,7 +73,7 @@ class SignInController extends GetxController {
 
       AuthNavigation.routeDriver(driver);
     } on DioException catch (e) {
-      hideGlobalLoading();
+      isLoading.value = false;
       String errorMsg = 'Login failed';
       if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
         errorMsg = 'Connection timed out. Server might be offline.';
@@ -78,7 +82,7 @@ class SignInController extends GetxController {
       }
       AppSnackBar.error(errorMsg);
     } catch (e) {
-      hideGlobalLoading();
+      isLoading.value = false;
       AppSnackBar.error('Login failed');
     }
   }

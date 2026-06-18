@@ -214,26 +214,73 @@ const verifyPickup = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const verifyDeliveryArrival = catchAsync(async (req: Request, res: Response) => {
+  const driverId = (req as any).user?.userId;
+  const { id } = req.params;
+  const { lat, lng } = req.body;
+
+  if (lat === undefined || lng === undefined) {
+    return sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: 'lat and lng are required',
+      data: null,
+    });
+  }
+
+  const updated = await RequestsService.verifyDeliveryArrival(id, driverId, lat, lng);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Delivery arrival declared and location saved successfully',
+    data: updated,
+  });
+});
+
 const updatePickupInspection = catchAsync(async (req: Request, res: Response) => {
   const driverId = (req as any).user?.userId;
   const { id } = req.params;
-  const { section, imageLabels } = req.body;
+  const { section } = req.body;
+  console.log('Update Pickup Inspection REQ BODY:', req.body);
+  const imageLabels = req.body.imageLabels || req.body['imageLabels[]'];
+  console.log('Parsed imageLabels:', imageLabels);
   
   // If the request has files, map them into the data object
   const data: any = { ...req.body };
   delete data.section; // remove section from data payload
   delete data.imageLabels; // remove labels from payload
+  delete data['imageLabels[]'];
   
   if (req.files) {
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     if (files['image']) {
       const images = files['image'];
-      const labelsArray = Array.isArray(imageLabels) ? imageLabels : (imageLabels ? [imageLabels] : []);
+      let labelsArray: string[] = [];
+      if (Array.isArray(imageLabels)) {
+         labelsArray = imageLabels;
+      } else if (typeof imageLabels === 'string') {
+         if (imageLabels.startsWith('[') && imageLabels.endsWith(']')) {
+            try {
+               labelsArray = JSON.parse(imageLabels);
+            } catch (e) {
+               // If JSON parse fails, it might be literally "[Front, Front Right]" from Dart toString()
+               labelsArray = imageLabels.substring(1, imageLabels.length - 1).split(',').map(s => s.trim());
+            }
+         } else {
+            labelsArray = imageLabels.split(',').map(s => s.trim());
+         }
+      }
       
       images.forEach((file, index) => {
          const label = labelsArray[index];
          if (label) {
-            data[label] = file.path;
+            if (label === 'document') {
+               if (!data.documents) data.documents = [];
+               data.documents.push(file.path);
+            } else {
+               data[label] = file.path;
+            }
          }
       });
     }
@@ -244,7 +291,65 @@ const updatePickupInspection = catchAsync(async (req: Request, res: Response) =>
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Inspection section updated successfully',
+    message: 'Pickup inspection updated successfully',
+    data: updated,
+  });
+});
+
+const updateDeliveryInspection = catchAsync(async (req: Request, res: Response) => {
+  const driverId = (req as any).user?.userId;
+  const { id } = req.params;
+  const { section } = req.body;
+  console.log('Update Delivery Inspection REQ BODY:', req.body);
+  const imageLabels = req.body.imageLabels || req.body['imageLabels[]'];
+  console.log('Parsed imageLabels for delivery:', imageLabels);
+  
+  // If the request has files, map them into the data object
+  const data: any = { ...req.body };
+  delete data.section; // remove section from data payload
+  delete data.imageLabels; // remove labels from payload
+  delete data['imageLabels[]'];
+  
+  if (req.files) {
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    if (files['image']) {
+      const images = files['image'];
+      let labelsArray: string[] = [];
+      if (Array.isArray(imageLabels)) {
+         labelsArray = imageLabels;
+      } else if (typeof imageLabels === 'string') {
+         if (imageLabels.startsWith('[') && imageLabels.endsWith(']')) {
+            try {
+               labelsArray = JSON.parse(imageLabels);
+            } catch (e) {
+               // If JSON parse fails, it might be literally "[Front, Front Right]" from Dart toString()
+               labelsArray = imageLabels.substring(1, imageLabels.length - 1).split(',').map(s => s.trim());
+            }
+         } else {
+            labelsArray = imageLabels.split(',').map(s => s.trim());
+         }
+      }
+      
+      images.forEach((file, index) => {
+         const label = labelsArray[index];
+         if (label) {
+            if (label === 'document') {
+               if (!data.documents) data.documents = [];
+               data.documents.push(file.path);
+            } else {
+               data[label] = file.path;
+            }
+         }
+      });
+    }
+  }
+
+  const updated = await RequestsService.updateDeliveryInspection(id, driverId, section, data);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Delivery inspection updated successfully',
     data: updated,
   });
 });
@@ -260,5 +365,7 @@ export const RequestsController = {
   cancelMissionByDriver,
   assignDriver,
   verifyPickup,
+  verifyDeliveryArrival,
   updatePickupInspection,
+  updateDeliveryInspection,
 };

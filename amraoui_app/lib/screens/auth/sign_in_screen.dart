@@ -255,13 +255,22 @@ class SignInScreen extends StatelessWidget {
                           ),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Center(
-                          child: AppText(
-                            data: 'Log In',
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        child: Center(
+                          child: Obx(() => controller.isLoading.value
+                              ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const AppText(
+                                  data: 'Log In',
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                )),
                         ),
                       ),
                     ),

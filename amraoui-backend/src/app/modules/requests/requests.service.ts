@@ -234,6 +234,31 @@ const verifyPickup = async (missionId: string, driverId: string, lat: number, ln
   return mission;
 };
 
+const verifyDeliveryArrival = async (missionId: string, driverId: string, lat: number, lng: number) => {
+  const mission = await Requests.findById(missionId);
+  if (!mission) throw new Error('Mission not found');
+
+  if (mission.assignedDriverId?.toString() !== driverId) {
+    throw new Error('Not authorized to update this mission');
+  }
+
+  const updatedDetails = {
+    ...mission.details,
+    deliveryArrivalDeclared: true,
+    deliveryArrivalTime: new Date().toISOString(),
+    deliveryArrivalLocation: {
+      type: 'Point',
+      coordinates: [lng, lat]
+    }
+  };
+
+  mission.set('details', updatedDetails);
+  mission.markModified('details');
+  
+  await mission.save();
+  return mission;
+};
+
 const updatePickupInspection = async (missionId: string, driverId: string, section: string, data: any) => {
   const mission = await Requests.findById(missionId);
   if (!mission) throw new Error('Mission not found');
@@ -247,14 +272,66 @@ const updatePickupInspection = async (missionId: string, driverId: string, secti
     updatedDetails.pickupInspection = {};
   }
   
-  updatedDetails.pickupInspection[section] = {
-    ...updatedDetails.pickupInspection[section],
-    ...data,
-    updatedAt: new Date()
-  };
+  if (section === 'uploadDocuments') {
+    const existing = data.existingDocuments || [];
+    const newDocs = data.documents || [];
+    
+    // Ensure both are arrays
+    const existingArray = Array.isArray(existing) ? existing : [existing];
+    const newDocsArray = Array.isArray(newDocs) ? newDocs : [newDocs];
+    
+    updatedDetails.pickupInspection[section] = [...existingArray, ...newDocsArray];
+  } else {
+    updatedDetails.pickupInspection[section] = {
+      ...updatedDetails.pickupInspection[section],
+      ...data,
+      updatedAt: new Date()
+    };
+  }
 
   mission.set('details', updatedDetails);
   mission.markModified('details');
+  
+  await mission.save();
+  return mission;
+};
+
+const updateDeliveryInspection = async (missionId: string, driverId: string, section: string, data: any) => {
+  const mission = await Requests.findById(missionId);
+  if (!mission) throw new Error('Mission not found');
+
+  if (mission.assignedDriverId?.toString() !== driverId) {
+    throw new Error('Not authorized to update this mission');
+  }
+
+  const updatedDetails = { ...mission.details };
+  if (!updatedDetails.deliveryInspection) {
+    updatedDetails.deliveryInspection = {};
+  }
+  
+  if (section === 'uploadDocuments') {
+    const existing = data.existingDocuments || [];
+    const newDocs = data.documents || [];
+    
+    // Ensure both are arrays
+    const existingArray = Array.isArray(existing) ? existing : [existing];
+    const newDocsArray = Array.isArray(newDocs) ? newDocs : [newDocs];
+    
+    updatedDetails.deliveryInspection[section] = [...existingArray, ...newDocsArray];
+  } else {
+    updatedDetails.deliveryInspection[section] = {
+      ...updatedDetails.deliveryInspection[section],
+      ...data,
+      updatedAt: new Date()
+    };
+  }
+
+  mission.set('details', updatedDetails);
+  mission.markModified('details');
+  
+  if (section === 'driverConfirmation') {
+    mission.status = RequestStatus.COMPLETED;
+  }
   
   await mission.save();
   return mission;
@@ -271,5 +348,7 @@ export const RequestsService = {
   cancelMissionByDriver,
   assignDriver,
   verifyPickup,
+  verifyDeliveryArrival,
   updatePickupInspection,
+  updateDeliveryInspection,
 };

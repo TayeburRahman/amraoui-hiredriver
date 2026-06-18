@@ -7,14 +7,14 @@ import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
-import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
-class ExteriorPhotosScreen extends StatefulWidget {
+
+class InteriorPhotosScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
   final String reqId;
   final Map<String, String?> existingPhotos;
   final bool isDelivery;
 
-  const ExteriorPhotosScreen({
+  const InteriorPhotosScreen({
     super.key,
     required this.mission,
     required this.reqId,
@@ -23,46 +23,38 @@ class ExteriorPhotosScreen extends StatefulWidget {
   });
 
   @override
-  State<ExteriorPhotosScreen> createState() => _ExteriorPhotosScreenState();
+  State<InteriorPhotosScreen> createState() => _InteriorPhotosScreenState();
 }
 
-class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
+class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
   final ImagePicker _picker = ImagePicker();
-  
-  late Map<String, String?> capturedImages;
+  Map<String, String?> capturedImages = {
+    'Front': null,
+    'Front Right': null,
+    'Rear Right': null,
+    'Rear': null,
+  };
 
   @override
   void initState() {
     super.initState();
-    // Initialize with existing photos if any
-    capturedImages = {
-      'Front': widget.existingPhotos['Front'],
-      'Front Right': widget.existingPhotos['Front Right'],
-      'Rear Right': widget.existingPhotos['Rear Right'],
-      'Rear': widget.existingPhotos['Rear'],
-      'Rear Left': widget.existingPhotos['Rear Left'],
-      'Front Left': widget.existingPhotos['Front Left'],
-    };
+    capturedImages.addAll(widget.existingPhotos);
   }
 
-  Future<void> _takePhoto(String position) async {
-    try {
-      final XFile? photo = await _picker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 80,
-      );
-      if (photo != null) {
-        setState(() {
-          capturedImages[position] = photo.path;
-        });
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to take photo. Please check permissions.');
+  Future<void> _takePhoto(String title) async {
+    final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+    if (photo != null) {
+      setState(() {
+        capturedImages[title] = photo.path;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    int count = capturedImages.values.where((v) => v != null).length;
+    bool allDone = count == 4;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -71,7 +63,7 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
-          onPressed: () => Get.back(result: capturedImages), // return data on back
+          onPressed: () => Get.back(result: capturedImages),
         ),
       ),
       body: SafeArea(
@@ -81,60 +73,55 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               AppText(
-                data: widget.isDelivery ? 'Exterior Photos at Delivery' : 'Exterior Photos',
+                data: widget.isDelivery ? 'Interior Photos at Delivery' : 'Interior Photos',
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF0F172A),
               ),
               const Gap(height: 4),
               AppText(
-                data: widget.isDelivery ? 'Take final exterior photos' : 'Take exterior photos of the vehicle',
+                data: '$count photos captured',
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: const Color(0xFF64748B),
               ),
               const Gap(height: 24),
               
-              // Diagram Card
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Image.asset('assets/images/exterior_diagram.jpg', fit: BoxFit.contain),
+              Row(
+                children: [
+                  Expanded(child: _buildPhotoGridItem('Front')),
+                  const Gap(width: 16),
+                  Expanded(child: _buildPhotoGridItem('Front Right')),
+                ],
               ),
-              const Gap(height: 24),
-
-              // Required Photos Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const AppText(
-                      data: 'Required Photos',
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
-                    ),
-                    const Gap(height: 16),
-                    _buildPhotoItem('Front'),
-                    _buildPhotoItem('Front Right'),
-                    _buildPhotoItem('Rear Right'),
-                    _buildPhotoItem('Rear'),
-                    _buildPhotoItem('Rear Left'),
-                    _buildPhotoItem('Front Left', isLast: true),
-                  ],
-                ),
+              const Gap(height: 16),
+              Row(
+                children: [
+                  Expanded(child: _buildPhotoGridItem('Rear Right')),
+                  const Gap(width: 16),
+                  Expanded(child: _buildPhotoGridItem('Rear')),
+                ],
               ),
               
+              if (allDone) ...[
+                const Gap(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFECFDF5),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFA7F3D0)),
+                  ),
+                  child: const Center(
+                    child: AppText(
+                      data: 'All Interior photos captured successfully',
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF047857),
+                    ),
+                  ),
+                ),
+              ],
               const Gap(height: 100),
             ],
           ),
@@ -153,11 +140,10 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
               elevation: 0,
             ),
             onPressed: () async {
-              // Upload photos to backend
-              if (capturedImages.values.where((v) => v != null).length < 6) {
+              if (!allDone) {
                 Get.snackbar(
                   'Required', 
-                  'Please capture all 6 exterior photos to continue.',
+                  'Please capture all 4 interior photos to continue.',
                   backgroundColor: Colors.red.withOpacity(0.9),
                   colorText: Colors.white,
                   snackPosition: SnackPosition.bottom,
@@ -181,7 +167,6 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
                 for (var entry in capturedImages.entries) {
                   if (entry.value != null) {
                     if (entry.value!.startsWith('http') && !entry.value!.startsWith('blob:http')) {
-                      // Already uploaded to server (not a web blob)
                       uploadData[entry.key] = entry.value;
                     } else {
                       final bytes = await XFile(entry.value!).readAsBytes();
@@ -200,13 +185,13 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
                 if (widget.isDelivery) {
                   res = await repo.updateDeliveryInspection(
                     widget.mission['_id'] ?? widget.reqId, 
-                    'exteriorPhotos', 
+                    'interiorPhotos', 
                     uploadData
                   );
                 } else {
                   res = await repo.updatePickupInspection(
                     widget.mission['_id'] ?? widget.reqId, 
-                    'exteriorPhotos', 
+                    'interiorPhotos', 
                     uploadData
                   );
                 }
@@ -221,18 +206,14 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
                   if (widget.mission['details'][inspectionKey] == null) {
                     widget.mission['details'][inspectionKey] = <String, dynamic>{};
                   }
-                  widget.mission['details'][inspectionKey]['exteriorPhotos'] = res.data['data']['details'][inspectionKey]['exteriorPhotos'];
+                  widget.mission['details'][inspectionKey]['interiorPhotos'] = res.data['data']['details'][inspectionKey]['interiorPhotos'];
 
-                  if (mounted) {
-                    Navigator.of(context).pop(capturedImages); // close screen and return data
-                  }
+                  if (mounted) Navigator.of(context).pop(capturedImages);
                 } else {
                   Get.snackbar('Error', 'Failed to save photos');
                 }
               } catch (e) {
-                if (mounted) {
-                  Navigator.of(context).pop(); // close dialog
-                }
+                if (mounted) Navigator.of(context).pop();
                 Get.snackbar('Error', 'Network error while saving photos');
               }
             },
@@ -245,7 +226,7 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
               ),
               child: Container(
                 alignment: Alignment.center,
-                child: const AppText(data: 'Save Photos', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                child: const AppText(data: 'Done - Return to Overview', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
               ),
             ),
           ),
@@ -254,62 +235,51 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
     );
   }
 
-  Widget _buildPhotoItem(String title, {bool isLast = false}) {
+  Widget _buildPhotoGridItem(String title) {
     final imagePath = capturedImages[title];
     final bool hasImage = imagePath != null;
 
     return GestureDetector(
       onTap: () => _takePhoto(title),
       child: Container(
-        margin: EdgeInsets.only(bottom: isLast ? 0 : 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        height: 140,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: const Color(0xFFE2E8F0)),
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: hasImage ? Colors.transparent : const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(8),
-                image: hasImage ? DecorationImage(
-                  image: imagePath!.startsWith('http') || imagePath.startsWith('blob:') 
-                      ? NetworkImage(imagePath) as ImageProvider
-                      : FileImage(File(imagePath)),
-                  fit: BoxFit.cover,
-                ) : null,
-              ),
-              child: hasImage 
-                  ? null 
-                  : const Icon(Icons.camera_alt_outlined, color: Color(0xFF94A3B8), size: 24),
-            ),
-            const Gap(width: 16),
             Expanded(
-              child: AppText(
-                data: title,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF0F172A),
-              ),
-            ),
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: hasImage ? const Color(0xFF10B981) : Colors.transparent,
-                border: Border.all(
-                  color: hasImage ? const Color(0xFF10B981) : const Color(0xFFCBD5E1),
-                  width: 2,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: hasImage ? Colors.transparent : const Color(0xFFE2E8F0),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
+                  image: hasImage ? DecorationImage(
+                    image: imagePath!.startsWith('http') || imagePath.startsWith('blob:') 
+                        ? NetworkImage(imagePath) as ImageProvider
+                        : FileImage(File(imagePath)),
+                    fit: BoxFit.cover,
+                  ) : null,
+                ),
+                child: hasImage ? null : const Center(
+                  child: Icon(Icons.camera_alt_outlined, color: Color(0xFF94A3B8), size: 32),
                 ),
               ),
-              child: hasImage 
-                  ? const Icon(Icons.check, size: 14, color: Colors.white)
-                  : null,
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: const BoxDecoration(
+                border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppText(data: title, fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+                  const Icon(Icons.refresh, size: 16, color: Color(0xFF06B6D4)),
+                ],
+              ),
             ),
           ],
         ),

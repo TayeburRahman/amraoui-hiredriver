@@ -46,25 +46,52 @@ router.patch(
 //  ADMIN ROUTES  (Dashboard — /api/v1/requests/*)
 // ═══════════════════════════════════════════════════════════════════
 
+// POST /api/v1/requests (Create a new request, can be anonymous)
+router.post(
+  '/',
+  RequestsController.createRequest
+);
+
 // GET /api/v1/requests
 router.get(
   '/',
-  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
   RequestsController.getAllRequests
 );
 
 // GET /api/v1/requests/:id
 router.get(
   '/:id',
-  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
   RequestsController.getRequestById
 );
 
 // PATCH /api/v1/requests/:id/status
 router.patch(
   '/:id/status',
-  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
   RequestsController.updateRequestStatus
+);
+
+// PATCH /api/v1/requests/:id/base-fee
+router.patch(
+  '/:id/base-fee',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.updateBaseFee
+);
+
+// PATCH /api/v1/requests/:id/admin-quote
+router.patch(
+  '/:id/admin-quote',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.sendAdminQuote
+);
+
+// PATCH /api/v1/requests/:id/customer-reply
+router.patch(
+  '/:id/customer-reply',
+  auth(ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.customerReply
 );
 
 // PATCH /api/v1/requests/:id/cancel  (Admin cancel)
@@ -72,6 +99,28 @@ router.patch(
   '/:id/cancel',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
   RequestsController.cancelRequest
+);
+
+// POST /api/v1/requests/:id/expenses
+router.post(
+  '/:id/expenses',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
+  uploadFile(),
+  RequestsController.addExpense
+);
+
+// DELETE /api/v1/requests/:id/expenses/:expenseId
+router.delete(
+  '/:id/expenses/:expenseId',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.deleteExpense
+);
+
+// DELETE /api/v1/requests/:id  (Admin delete)
+router.delete(
+  '/:id',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.deleteRequest
 );
 
 // PATCH /api/v1/requests/:id/assign-driver (Admin assign)

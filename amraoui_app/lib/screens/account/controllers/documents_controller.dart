@@ -67,21 +67,4 @@ class DocumentsController extends GetxController {
     }
   }
 
-  Future<void> deleteDocument(String docType) async {
-    try {
-      isUploading.value = true;
-      final success = await _repository.deleteDocument(docType);
-      if (success) {
-        if (docType == 'license_document') licenseDoc.value = '';
-        if (docType == 'id_document') idDoc.value = '';
-        if (docType == 'contract_document') contractDoc.value = '';
-        Get.snackbar('Success', 'Document deleted successfully');
-      }
-    } catch (e) {
-      final msg = e.toString().replaceAll('Exception: ', '');
-      Get.snackbar('Delete Failed', msg);
-    } finally {
-      isUploading.value = false;
-    }
-  }
 }

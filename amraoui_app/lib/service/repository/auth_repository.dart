@@ -165,4 +165,27 @@ class AuthRepository {
       rethrow;
     }
   }
+
+  Future<Map<String, dynamic>?> changePassword({
+    required String oldPassword,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      final res = await _auth.patch(
+        AppApiUrl.changePasswordUrl,
+        data: {
+          'oldPassword': oldPassword,
+          'newPassword': newPassword,
+          'confirmPassword': confirmPassword,
+        },
+      );
+      return res.data as Map<String, dynamic>?;
+    } on DioException catch (e) {
+      final msg = e.response?.data?['message'] ?? e.message;
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+  }
 }

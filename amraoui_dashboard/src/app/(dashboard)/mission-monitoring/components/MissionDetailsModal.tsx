@@ -53,6 +53,43 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
     }
   };
 
+  const handleDeleteMission = async () => {
+    if (!confirm('Are you sure you want to delete this mission completely? This action cannot be undone.')) return;
+    try {
+      setIsSubmitting(true);
+      const res = await apiFetch(`/requests/${mission.realId}`, {
+        method: 'DELETE',
+        auth: true,
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Failed to delete mission');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOpenForDrivers = async () => {
+    if (!confirm('Are you sure you want to open this mission for drivers to quote?')) return;
+    try {
+      setIsSubmitting(true);
+      const res = await apiFetch(`/requests/${mission.realId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'OPEN_FOR_DRIVERS' }),
+        auth: true,
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Failed to open mission for drivers');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleAssignDriver = async (quoteId: string) => {
     try {
       setIsSubmitting(true);
@@ -235,7 +272,15 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                       <tr key={i}>
                         <td className="px-3 py-2">{exp.type}</td>
                         <td className="px-3 py-2">€{exp.amount}</td>
-                        <td className="px-3 py-2 text-blue-600">{exp.proofUrl || 'No proof'}</td>
+                        <td className="px-3 py-2">
+                          {exp.proofUrl ? (
+                            <a href={exp.proofUrl} target="_blank" rel="noopener noreferrer">
+                              <img src={exp.proofUrl} alt="Proof" className="h-8 w-12 object-cover rounded border border-gray-200 hover:opacity-80 transition-opacity" />
+                            </a>
+                          ) : (
+                            <span className="text-gray-400">No proof</span>
+                          )}
+                        </td>
                         <td className="px-3 py-2 flex items-center gap-2">
                           <button className="text-blue-600 font-medium hover:underline">View</button>
                           <button onClick={() => handleDeleteExpense(exp._id)} disabled={isSubmitting} className="text-red-500 font-medium hover:underline disabled:opacity-50">Delete</button>
@@ -443,6 +488,36 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
             </div>
           </div>
 
+          {/* Original Request Details */}
+          {mission.raw?.details && (
+            <div>
+              <h3 className="text-sm font-bold text-gray-900 mb-3">Original Request Details</h3>
+              <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {Object.entries(mission.raw.details).map(([key, value]) => {
+                    // Skip already displayed contact fields
+                    if (['firstName', 'lastName', 'email', 'phone', 'company'].includes(key)) return null;
+                    
+                    let displayValue = value;
+                    if (typeof displayValue === 'boolean') displayValue = displayValue ? 'Yes' : 'No';
+                    if (Array.isArray(displayValue)) displayValue = displayValue.join(', ');
+                    if (typeof displayValue === 'object' && displayValue !== null) displayValue = JSON.stringify(displayValue);
+                    if (!displayValue || displayValue === '') return null;
+                    
+                    const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+
+                    return (
+                      <div key={key} className={String(displayValue).length > 50 ? "col-span-1 sm:col-span-2 md:col-span-3" : ""}>
+                        <p className="text-gray-400">{formattedKey}</p>
+                        <p className="font-bold text-gray-900 whitespace-pre-wrap">{String(displayValue)}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Mission Status Timeline */}
           <div>
             <h3 className="text-sm font-bold text-gray-900 mb-3">Mission Status Timeline</h3>
@@ -519,8 +594,20 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
             <Download className="w-4 h-4" /> View Proof
           </button>
 
-          <button className="flex-1 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center justify-center gap-1">
-            Cancel Mission
+          <button 
+            onClick={handleDeleteMission}
+            disabled={isSubmitting}
+            className="flex-1 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+          >
+            Delete Mission
+          </button>
+          
+          <button 
+            onClick={handleOpenForDrivers}
+            disabled={isSubmitting}
+            className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+          >
+            Open for Drivers
           </button>
         </div>
       </div>

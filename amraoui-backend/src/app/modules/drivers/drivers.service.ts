@@ -4,6 +4,7 @@ import Drivers from './drivers.model';
 import Auth from '../auth/auth.model';
 import { ENUM_USER_ROLE } from '../../../enums/user';
 import sendEmail from '../../../utils/sendEmail';
+import { IDrivers } from './drivers.interface';
 import config from '../../../config';
 import {
   adminNewDriverDocumentsEmailBody,
@@ -11,6 +12,8 @@ import {
   driverDeclinedEmailBody,
   driverDocumentsSubmittedEmailBody,
 } from '../../../mails/driver.emails';
+import Requests from '../requests/requests.model';
+import { RequestStatus } from '../requests/requests.interface';
 
 const getAllDrivers = async (query: Record<string, any>) => {
   const { status, page = 1, limit = 10, search } = query;
@@ -45,10 +48,18 @@ const getDriverById = async (driverId: string) => {
   const driver = await Drivers.findById(driverId).populate(
     'authId',
     'email name isActive is_block'
-  );
+  ).lean();
   if (!driver) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
   }
+
+  const totalDeliveries = await Requests.countDocuments({
+    $or: [{ assignedDriverId: driverId }, { assignedDriverIds: driverId }],
+    status: RequestStatus.COMPLETED,
+  });
+
+  driver.totalDeliveries = totalDeliveries;
+
   return driver;
 };
 
@@ -56,10 +67,18 @@ const getMyDriverProfile = async (driverId: string) => {
   const driver = await Drivers.findById(driverId).populate(
     'authId',
     'email name isActive is_block role'
-  );
+  ).lean();
   if (!driver) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Driver profile not found');
   }
+
+  const totalDeliveries = await Requests.countDocuments({
+    $or: [{ assignedDriverId: driverId }, { assignedDriverIds: driverId }],
+    status: RequestStatus.COMPLETED,
+  });
+
+  driver.totalDeliveries = totalDeliveries;
+
   return driver;
 };
 

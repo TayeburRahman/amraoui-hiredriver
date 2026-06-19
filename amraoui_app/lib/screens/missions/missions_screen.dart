@@ -555,9 +555,27 @@ class _MissionsScreenState extends State<MissionsScreen> {
               subtitle = 'Inspection Request';
           }
 
-          final price = m['adminQuote'] != null
-              ? '€${m['adminQuote']['amount']}'
-              : 'Pending';
+          String price = 'Pending';
+          double baseAmount = 0.0;
+          
+          if (isMyMissions && m['myQuoteAmount'] != null) {
+            baseAmount = double.tryParse(m['myQuoteAmount']?.toString() ?? '0') ?? 0.0;
+          } else {
+            baseAmount = double.tryParse(m['adminQuote']?['amount']?.toString() ?? '0') ?? 0.0;
+          }
+          
+          double totalExpenses = 0.0;
+          if (m['expenses'] != null && m['expenses'] is List) {
+            for (var exp in m['expenses']) {
+              totalExpenses += double.tryParse(exp['amount']?.toString() ?? '0') ?? 0.0;
+            }
+          }
+          
+          final finalTotal = baseAmount + totalExpenses;
+
+          if (finalTotal > 0) {
+            price = '€${finalTotal.toStringAsFixed(2)}';
+          }
 
           // Status badge
           String displayStatus;
@@ -1111,19 +1129,70 @@ class _MissionsScreenState extends State<MissionsScreen> {
     return const SizedBox.shrink();
   }
 
-  void _showQuoteDialog(Map<String, dynamic> mission, String displayId) {
-    final amountCtrl = TextEditingController(
-      text: mission['myQuoteAmount']?.toString() ?? '',
+  InputDecoration _modernInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(fontSize: 14, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+      filled: true,
+      fillColor: const Color(0xFFF1F5F9), // Darker slate for modern contrast without border
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      isDense: true,
     );
+  }
+
+  void _showQuoteDialog(Map<String, dynamic> mission, String displayId) {
+    final fuelCtrl = TextEditingController(text: mission['myQuoteFuelCost']?.toString() ?? '');
+    final tollCtrl = TextEditingController(text: mission['myQuoteTollCharges']?.toString() ?? '');
+    final travelCtrl = TextEditingController(text: mission['myQuoteTravelCost']?.toString() ?? '');
+    final taxiCtrl = TextEditingController(text: mission['myQuoteTaxiCost']?.toString() ?? '');
+    final exceptionalCtrl = TextEditingController(text: mission['myQuoteExceptionalCosts']?.toString() ?? '');
+    
     final notesCtrl = TextEditingController(
       text: mission['myQuoteMessage']?.toString() ?? '',
     );
     final timeCtrl = TextEditingController(
       text: mission['myQuoteTime']?.toString() ?? '',
     );
+    
     final qStatus = mission['myQuoteStatus']?.toString();
     final isUpdate = qStatus != null && qStatus != 'null' && qStatus.isNotEmpty;
     final isLoading = false.obs;
+
+    final totalAmount = (double.tryParse(mission['myQuoteAmount']?.toString() ?? '0') ?? 0.0).obs;
+
+    void calculateTotal() {
+      double f = double.tryParse(fuelCtrl.text) ?? 0;
+      double to = double.tryParse(tollCtrl.text) ?? 0;
+      double tr = double.tryParse(travelCtrl.text) ?? 0;
+      double ta = double.tryParse(taxiCtrl.text) ?? 0;
+      double e = double.tryParse(exceptionalCtrl.text) ?? 0;
+      totalAmount.value = f + to + tr + ta + e;
+    }
+
+    fuelCtrl.addListener(calculateTotal);
+    tollCtrl.addListener(calculateTotal);
+    travelCtrl.addListener(calculateTotal);
+    taxiCtrl.addListener(calculateTotal);
+    exceptionalCtrl.addListener(calculateTotal);
+    
+    // Calculate initial total
+    calculateTotal();
+    // If legacy quote with amount but no detailed costs
+    if (isUpdate && totalAmount.value == 0 && mission['myQuoteAmount'] != null) {
+      totalAmount.value = double.tryParse(mission['myQuoteAmount'].toString()) ?? 0.0;
+    }
 
     Get.bottomSheet(
       Builder(
@@ -1171,49 +1240,129 @@ class _MissionsScreenState extends State<MissionsScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                   const Gap(height: 16),
-                  TextField(
-                    controller: amountCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Amount (€)',
-                      border: OutlineInputBorder(),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: fuelCtrl,
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: _modernInputDecoration('Fuel cost (€)'),
+                        ),
+                      ),
+                      const Gap(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: tollCtrl,
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: _modernInputDecoration('Toll charges (€)'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: travelCtrl,
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: _modernInputDecoration('Travel cost (€)'),
+                        ),
+                      ),
+                      const Gap(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: taxiCtrl,
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: _modernInputDecoration('Taxi cost (€)'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: exceptionalCtrl,
+                          keyboardType: TextInputType.number,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: _modernInputDecoration('Exceptional costs (€)'),
+                        ),
+                      ),
+                      const Gap(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: timeCtrl,
+                          style: const TextStyle(fontSize: 14),
+                          decoration: _modernInputDecoration('Est. Time (e.g. 2 hr)'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F5F9),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const AppText(
+                          data: 'Total Price',
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF334155),
+                        ),
+                        Obx(() => AppText(
+                          data: '€${totalAmount.value.toStringAsFixed(2)}',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF2563EB),
+                        )),
+                      ],
                     ),
                   ),
                   const Gap(height: 12),
                   TextField(
                     controller: notesCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Message / Notes',
-                      border: OutlineInputBorder(),
-                    ),
-                    maxLines: 2,
-                  ),
-                  const Gap(height: 12),
-                  TextField(
-                    controller: timeCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Estimated Time (e.g., 2 hours)',
-                      border: OutlineInputBorder(),
-                    ),
+                    style: const TextStyle(fontSize: 14),
+                    decoration: _modernInputDecoration('Message / Notes'),
+                    maxLines: 3,
                   ),
                   const Gap(height: 24),
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: 54,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2563EB),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
                       ),
                       onPressed: () async {
-                        if (amountCtrl.text.isEmpty || isLoading.value) return;
+                        if (totalAmount.value == 0 || isLoading.value) return;
                         isLoading.value = true;
                         try {
                           final repo = MissionRepository();
                           await repo.submitQuote(
                             mission['_id'],
-                            double.parse(amountCtrl.text),
+                            totalAmount.value,
                             notesCtrl.text,
                             timeCtrl.text,
+                            fuelCost: double.tryParse(fuelCtrl.text) ?? 0,
+                            tollCharges: double.tryParse(tollCtrl.text) ?? 0,
+                            travelCost: double.tryParse(travelCtrl.text) ?? 0,
+                            taxiCost: double.tryParse(taxiCtrl.text) ?? 0,
+                            exceptionalCosts: double.tryParse(exceptionalCtrl.text) ?? 0,
                           );
                           FocusManager.instance.primaryFocus?.unfocus();
 

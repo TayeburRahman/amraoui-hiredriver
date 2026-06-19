@@ -107,8 +107,8 @@ function OrdersPageContent() {
             if (req.type === 'TRANSPORT') {
               vehicleStr = `${req.details?.make || ''} ${req.details?.model || ''}`.trim() || 'Transport';
               plateStr = req.details?.plate || 'N/A';
-              fromStr = req.details?.pickupCity || 'N/A';
-              toStr = req.details?.dropoffCity || 'N/A';
+              fromStr = req.details?.pickupCity || req.details?.pickupAddress || 'N/A';
+              toStr = req.details?.dropoffCity || req.details?.dropoffAddress || 'N/A';
             } else if (req.type === 'HIRE_DRIVER') {
               vehicleStr = `Driver Request (${req.details?.driverCount || 1})`;
               fromStr = req.details?.driverCity || 'N/A';
@@ -119,7 +119,7 @@ function OrdersPageContent() {
             }
 
             return {
-              id: `#REQ-${req._id.slice(-5).toUpperCase()}`,
+              id: req.missionId || `#REQ-${req._id.slice(-5).toUpperCase()}`,
               realId: req._id,
               vehicle: vehicleStr,
               plate: plateStr,

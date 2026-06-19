@@ -140,7 +140,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-slate-400 mb-0.5">Pickup Location</p>
-                      <p className="text-sm font-bold text-slate-900">{order?.details?.pickupCity || order?.details?.driverCity || order?.details?.inspectionLocation || 'N/A'}</p>
+                      <p className="text-sm font-bold text-slate-900">{order?.details?.pickupCity || order?.details?.pickupAddress || order?.details?.driverCity || order?.details?.inspectionLocation || 'N/A'}</p>
                     </div>
                   </div>
 
@@ -155,7 +155,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
                         </div>
                         <div>
                           <p className="text-xs font-semibold text-slate-400 mb-0.5">Drop-off Location</p>
-                          <p className="text-sm font-bold text-slate-900">{order?.details?.dropoffCity || 'N/A'}</p>
+                          <p className="text-sm font-bold text-slate-900">{order?.details?.dropoffCity || order?.details?.dropoffAddress || 'N/A'}</p>
                         </div>
                       </div>
                       <div className="w-full h-px bg-slate-100" />
@@ -187,6 +187,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
                   </div>
                 </div>
               </Card>
+
             </div>
 
             {/* Right Column */}
@@ -257,6 +258,41 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
               </Card>
             </div>
           </div>
+
+          {/* Full-Width Original Request Details */}
+          <Card className="rounded-[20px] border border-slate-100 shadow-sm p-4 sm:p-5 mt-5 sm:mt-6 lg:mt-8">
+            <h3 className="font-bold text-slate-900 text-base mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-500" />
+              Original Request Details
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+              {order?.details ? (
+                Object.entries(order.details).map(([key, value]) => {
+                  const excludeKeys = ['make', 'model', 'pickupCity', 'pickupAddress', 'dropoffCity', 'dropoffAddress', 'driverCity', 'inspectionLocation'];
+                  if (!value || typeof value === 'object' || excludeKeys.includes(key)) return null;
+                  const strVal = String(value);
+                  const isLongText = strVal.length > 50;
+                  const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                  return (
+                    <div key={key} className={`bg-slate-50 rounded-[16px] p-4 border border-slate-100/50 hover:bg-slate-100/50 transition-colors ${isLongText ? 'sm:col-span-2 lg:col-span-3' : ''}`}>
+                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{formattedKey}</p>
+                      {strVal.startsWith('http') ? (
+                        <a href={strVal} target="_blank" rel="noopener noreferrer" className="text-[13px] font-bold text-blue-600 hover:underline break-words">
+                          View File / Link
+                        </a>
+                      ) : (
+                        <p className="text-[13px] font-bold text-slate-900 leading-relaxed whitespace-pre-wrap break-words">{strVal}</p>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-full">
+                  <p className="text-sm font-medium text-slate-500 italic text-center py-4">No additional details provided.</p>
+                </div>
+              )}
+            </div>
+          </Card>
 
           {/* Signature Section - Only visible during PDF generation */}
           {isGeneratingPDF && (

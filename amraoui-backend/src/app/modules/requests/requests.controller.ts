@@ -4,10 +4,51 @@ import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
 import { RequestsService } from './requests.service';
 import { RequestStatus } from './requests.interface';
+import { jwtHelpers } from '../../../helpers/jwtHelpers';
+import config from '../../../config';
+import { Secret } from 'jsonwebtoken';
+
+// ─── POST /api/v1/requests ────────────────────────────────────────────────────
+const createRequest = catchAsync(async (req: Request, res: Response) => {
+  const tokenWithBearer = req.headers.authorization;
+  let customerId;
+
+  if (tokenWithBearer && tokenWithBearer.startsWith('Bearer')) {
+    try {
+      const token = tokenWithBearer.split(' ')[1];
+      const verifyUser = jwtHelpers.verifyToken(token, config.jwt.secret as Secret);
+      if (verifyUser && verifyUser.role === 'CUSTOMERS') {
+        customerId = verifyUser.userId;
+      }
+    } catch (err) {
+      // Ignore token errors for optional auth
+    }
+  }
+
+  const payload = req.body;
+  if (customerId) {
+    payload.customerId = customerId;
+  }
+
+  const result = await RequestsService.createRequest(payload);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'Request created successfully',
+    data: result,
+  });
+});
 
 // ─── GET /api/v1/requests ───────────────────────────────────────────────────
 const getAllRequests = catchAsync(async (req: Request, res: Response) => {
   const { status, type, search, page, limit } = req.query as Record<string, string>;
+  const user = (req as any).user;
+  
+  let customerId;
+  if (user && user.role === 'CUSTOMERS') {
+    customerId = user.userId;
+  }
 
   const result = await RequestsService.getAllRequests({
     status,
@@ -15,6 +56,7 @@ const getAllRequests = catchAsync(async (req: Request, res: Response) => {
     search,
     page: page ? Number(page) : undefined,
     limit: limit ? Number(limit) : undefined,
+    customerId,
   });
 
   sendResponse(res, {
@@ -34,12 +76,22 @@ const getAllRequests = catchAsync(async (req: Request, res: Response) => {
 const getRequestById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const request = await RequestsService.getRequestById(id);
+  const user = (req as any).user;
 
   if (!request) {
     return sendResponse(res, {
       statusCode: httpStatus.NOT_FOUND,
       success: false,
       message: 'Request not found',
+      data: null,
+    });
+  }
+
+  if (user && user.role === 'CUSTOMERS' && request.customerId?.toString() !== user.userId) {
+    return sendResponse(res, {
+      statusCode: httpStatus.FORBIDDEN,
+      success: false,
+      message: 'Access Forbidden: You do not have permission to view this request',
       data: null,
     });
   }
@@ -76,7 +128,88 @@ const updateRequestStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// ─── PATCH /api/v1/requests/:id/cancel (Admin) ─────────────────────────────
+// ─── PATCH /api/v1/requests/:id/base-fee ────────────────────────────────────
+const updateBaseFee = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { amount } = req.body;
+
+  const updated = await RequestsService.updateBaseFee(id, amount);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Base fee updated successfully',
+    data: updated,
+  });
+});
+
+// ─── PATCH /api/v1/requests/:id/admin-quote ─────────────────────────────────
+const sendAdminQuote = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const quoteData = req.body;
+
+  const updated = await RequestsService.sendAdminQuote(id, quoteData);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Quote sent successfully',
+    data: updated,
+  });
+});
+
+// ─── PATCH /api/v1/requests/:id/customer-reply ──────────────────────────────
+const customerReply = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { action } = req.body;
+
+  const updated = await RequestsService.customerReply(id, action);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `Quote ${action.toLowerCase()}ed successfully`,
+    data: updated,
+  });
+});
+
+// ─── POST /api/v1/requests/:id/expenses ─────────────────────────────────────
+const addExpense = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const expenseData = { ...req.body };
+  
+  // If proof file uploaded via backend Multer
+  if (req.files) {
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    if (files['image']) {
+      expenseData.proofUrl = files['image'][0].path;
+    }
+  }
+
+  const updated = await RequestsService.addExpense(id, expenseData);
+
+  sendResponse(res, {
+    statusCode: httpStatus.CREATED,
+    success: true,
+    message: 'Expense added successfully',
+    data: updated,
+  });
+});
+
+// ─── DELETE /api/v1/requests/:id/expenses/:expenseId ────────────────────────
+const deleteExpense = catchAsync(async (req: Request, res: Response) => {
+  const { id, expenseId } = req.params;
+  const updated = await RequestsService.deleteExpense(id, expenseId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Expense deleted successfully',
+    data: updated,
+  });
+});
+
+// ─── Cancel Request (Admin) ─────────────────────────────────────────────
 const cancelRequest = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const updated = await RequestsService.cancelRequest(id);
@@ -95,6 +228,28 @@ const cancelRequest = catchAsync(async (req: Request, res: Response) => {
     success: true,
     message: 'Request cancelled successfully',
     data: updated,
+  });
+});
+
+// ─── Delete Request (Admin) ─────────────────────────────────────────────
+const deleteRequest = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const deleted = await RequestsService.deleteRequest(id);
+
+  if (!deleted) {
+    return sendResponse(res, {
+      statusCode: httpStatus.NOT_FOUND,
+      success: false,
+      message: 'Request not found',
+      data: null,
+    });
+  }
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Request deleted successfully',
+    data: deleted,
   });
 });
 
@@ -120,10 +275,21 @@ const getMissionsForDriver = catchAsync(async (req: Request, res: Response) => {
 const submitDriverQuote = catchAsync(async (req: Request, res: Response) => {
   const driverId = (req as any).user?.userId;
   const { id } = req.params;
-  const { amount, message, estimatedTime } = req.body;
+  const { amount, fuelCost, tollCharges, travelCost, taxiCost, exceptionalCosts, message, estimatedTime } = req.body;
+
+  const quoteData = {
+    amount: Number(amount),
+    fuelCost: fuelCost ? Number(fuelCost) : 0,
+    tollCharges: tollCharges ? Number(tollCharges) : 0,
+    travelCost: travelCost ? Number(travelCost) : 0,
+    taxiCost: taxiCost ? Number(taxiCost) : 0,
+    exceptionalCosts: exceptionalCosts ? Number(exceptionalCosts) : 0,
+    message,
+    estimatedTime
+  };
 
   const updated = await RequestsService.submitDriverQuote(
-    id, driverId, Number(amount), message, estimatedTime
+    id, driverId, quoteData
   );
 
   sendResponse(res, {
@@ -355,10 +521,13 @@ const updateDeliveryInspection = catchAsync(async (req: Request, res: Response) 
 });
 
 export const RequestsController = {
+  createRequest,
   getAllRequests,
   getRequestById,
   updateRequestStatus,
+  updateBaseFee,
   cancelRequest,
+  deleteRequest,
   getMissionsForDriver,
   submitDriverQuote,
   startMission,
@@ -368,4 +537,8 @@ export const RequestsController = {
   verifyDeliveryArrival,
   updatePickupInspection,
   updateDeliveryInspection,
+  addExpense,
+  deleteExpense,
+  sendAdminQuote,
+  customerReply,
 };

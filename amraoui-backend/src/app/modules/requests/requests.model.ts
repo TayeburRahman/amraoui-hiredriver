@@ -14,6 +14,11 @@ const DriverQuoteSchema = new Schema(
   {
     driverId: { type: mongoose.Schema.Types.ObjectId, ref: "Drivers", required: true },
     amount: { type: Number, required: true },
+    fuelCost: { type: Number, default: 0 },
+    tollCharges: { type: Number, default: 0 },
+    travelCost: { type: Number, default: 0 },
+    taxiCost: { type: Number, default: 0 },
+    exceptionalCosts: { type: Number, default: 0 },
     message: { type: String, required: true },
     estimatedTime: { type: String },
     status: { type: String, enum: ["PENDING", "ACCEPTED", "REJECTED"], default: "PENDING" },

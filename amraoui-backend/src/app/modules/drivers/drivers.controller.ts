@@ -3,6 +3,7 @@ import catchAsync from '../../../shared/catchasync';
 import sendResponse from '../../../shared/sendResponse';
 import { DriverService } from './drivers.service';
 import { IReqUser } from '../auth/auth.interface';
+import ApiError from '../../../errors/ApiError';
 
 const getAllDrivers = catchAsync(async (req: Request, res: Response) => {
   const result = await DriverService.getAllDrivers(req.query);

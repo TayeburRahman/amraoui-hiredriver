@@ -18,6 +18,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
   const [driverNote, setDriverNote] = useState('');
   const [adminNote, setAdminNote] = useState('');
   const [proofUrl, setProofUrl] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,16 +40,19 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
     if (!amount || isNaN(Number(amount))) return;
     try {
       setIsSubmitting(true);
+      const formData = new FormData();
+      formData.append('type', selectedType);
+      formData.append('amount', amount);
+      formData.append('uploadedBy', uploadedBy);
+      formData.append('driverNote', driverNote);
+      formData.append('adminNote', adminNote);
+      if (selectedFile) {
+        formData.append('image', selectedFile);
+      }
+
       const res = await apiFetch(`/requests/${mission.realId}/expenses`, {
         method: 'POST',
-        body: JSON.stringify({
-          type: selectedType,
-          amount: Number(amount),
-          uploadedBy,
-          driverNote,
-          adminNote,
-          proofUrl: proofUrl,
-        }),
+        body: formData,
         auth: true,
       });
       if (res.ok) {
@@ -59,15 +63,14 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
         } else {
            if (!mission.raw.expenses) mission.raw.expenses = [];
            mission.raw.expenses.push({
-             type: selectedType,
-             amount: Number(amount),
-             proofUrl: proofUrl
+             ...result.data, // use the returned object which has the actual proofUrl
            });
         }
         setAmount('');
         setDriverNote('');
         setAdminNote('');
         setProofUrl(null);
+        setSelectedFile(null);
         onClose();
       } else {
         const err: any = res.data || {};
@@ -161,43 +164,17 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
-
-                  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'demo'; 
-                  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'unsigned_preset'; // Replace with your actual preset
-
-                  const formData = new FormData();
-                  formData.append('file', file);
-                  formData.append('upload_preset', uploadPreset);
-
-                  try {
-                    setIsUploading(true);
-                    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-                      method: 'POST',
-                      body: formData,
-                    });
-                    const data = await res.json();
-                    if (data.secure_url) {
-                      setProofUrl(data.secure_url);
-                    } else {
-                      alert('Upload failed: ' + (data.error?.message || 'Unknown error. Check your Cloudinary Cloud Name and Upload Preset in .env.local'));
-                    }
-                  } catch (error) {
-                    console.error('Error uploading file:', error);
-                    alert('Error uploading file');
-                  } finally {
-                    setIsUploading(false);
-                  }
+                  
+                  // Instead of uploading directly to Cloudinary from the client,
+                  // we just hold onto the file and upload it securely via the backend.
+                  setSelectedFile(file);
+                  setProofUrl(URL.createObjectURL(file)); // for preview purposes
                 }}
               />
-              {isUploading ? (
-                <div className="flex flex-col items-center gap-2">
-                   <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                   <p className="text-sm font-medium text-blue-600">Uploading...</p>
-                </div>
-              ) : proofUrl ? (
+              {selectedFile ? (
                 <div className="flex flex-col items-center gap-2">
                   <CheckCircle2 className="w-6 h-6 text-green-500" />
-                  <p className="text-sm font-medium text-green-700">Receipt Uploaded Successfully</p>
+                  <p className="text-sm font-medium text-green-700">Receipt Selected</p>
                   <p className="text-xs text-green-600 underline">Click to change</p>
                 </div>
               ) : (

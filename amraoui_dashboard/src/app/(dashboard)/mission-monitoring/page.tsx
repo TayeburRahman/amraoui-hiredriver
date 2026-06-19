@@ -16,7 +16,8 @@ import {
   RefreshCw,
   Search,
   Filter,
-  RotateCcw
+  RotateCcw,
+  Users
 } from 'lucide-react';
 import { MetricCard } from './components/MetricCard';
 import { FilterTabs, TabOption } from './components/FilterTabs';
@@ -69,7 +70,9 @@ const MissionMonitoringPage = () => {
 
             if (req.type === 'TRANSPORT') {
               vehicleStr = `${req.details?.make || ''} ${req.details?.model || ''}`.trim() || 'Transport';
-              routeStr = `${req.details?.pickupCity || 'N/A'} → ${req.details?.dropoffCity || 'N/A'}`;
+              const fromStr = req.details?.pickupCity || req.details?.pickupAddress || 'N/A';
+              const toStr = req.details?.dropoffCity || req.details?.dropoffAddress || 'N/A';
+              routeStr = `${fromStr} → ${toStr}`;
             } else if (req.type === 'HIRE_DRIVER') {
               vehicleStr = `Driver Request (${req.details?.driverCount || 1})`;
               routeStr = req.details?.driverCity || 'N/A';
@@ -222,19 +225,19 @@ const MissionMonitoringPage = () => {
     },
     {
       title: "Pending Expenses",
-      value: "0",
+      value: missionsData.filter(m => m.raw?.expenses?.length > 0).length.toString(),
       description: "Driver receipts need admin review",
       icon: Clock,
       iconBgColor: "bg-orange-100",
       iconColor: "text-orange-600"
     },
     {
-      title: "Needs Attention",
-      value: "0",
-      description: "Missing proof / issue found",
-      icon: AlertCircle,
-      iconBgColor: "bg-red-100",
-      iconColor: "text-red-600"
+      title: "Open for Drivers",
+      value: missionsData.filter(m => m.status === 'Open for Drivers').length.toString(),
+      description: "Waiting for driver quotes",
+      icon: Users,
+      iconBgColor: "bg-purple-100",
+      iconColor: "text-purple-600"
     }
   ];
 

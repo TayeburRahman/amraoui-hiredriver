@@ -114,11 +114,6 @@ class DocumentsScreen extends StatelessWidget {
               onPressed: () => controller.pickAndUploadDocument(docType),
               tooltip: 'Update Document',
             ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: Color(0xFFEF4444)),
-              onPressed: () => _confirmDelete(Get.context!, controller, docType, title),
-              tooltip: 'Delete Document',
-            ),
           ] else ...[
             ElevatedButton.icon(
               onPressed: () => controller.pickAndUploadDocument(docType),
@@ -131,30 +126,6 @@ class DocumentsScreen extends StatelessWidget {
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, DocumentsController controller, String docType, String title) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: AppText(data: 'Delete $title?', fontSize: 18, fontWeight: FontWeight.bold),
-        content: const AppText(data: 'Are you sure you want to remove this document?', fontSize: 14),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const AppText(data: 'Cancel', fontSize: 16, color: Color(0xFF64748B)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
-            onPressed: () {
-              Navigator.pop(context);
-              controller.deleteDocument(docType);
-            },
-            child: const AppText(data: 'Delete', fontSize: 16, color: Colors.white),
-          ),
         ],
       ),
     );

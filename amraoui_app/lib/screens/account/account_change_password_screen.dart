@@ -3,6 +3,7 @@ import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
 import 'package:amraoui_app/widgets/inputs/app_input_widget.dart';
 import 'package:amraoui_app/widgets/layout/account_sub_page_layout.dart';
 import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:amraoui_app/service/repository/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,6 +19,9 @@ class _AccountChangePasswordScreenState extends State<AccountChangePasswordScree
   final _newController = TextEditingController();
   final _confirmController = TextEditingController();
 
+  bool _isLoading = false;
+  final AuthRepository _repository = AuthRepository();
+
   @override
   void dispose() {
     _currentController.dispose();
@@ -26,7 +30,11 @@ class _AccountChangePasswordScreenState extends State<AccountChangePasswordScree
     super.dispose();
   }
 
-  void _submit() {
+  void _submit() async {
+    if (_currentController.text.isEmpty || _newController.text.isEmpty || _confirmController.text.isEmpty) {
+      AppSnackBar.error('Please fill all fields');
+      return;
+    }
     if (_newController.text != _confirmController.text) {
       AppSnackBar.error('Passwords do not match');
       return;
@@ -35,8 +43,34 @@ class _AccountChangePasswordScreenState extends State<AccountChangePasswordScree
       AppSnackBar.error('Password must be at least 6 characters');
       return;
     }
-    AppSnackBar.success('Password updated successfully');
-    Get.back();
+    
+    setState(() {
+      _isLoading = true;
+    });
+    
+    try {
+      final res = await _repository.changePassword(
+        oldPassword: _currentController.text,
+        newPassword: _newController.text,
+        confirmPassword: _confirmController.text,
+      );
+      
+      if (res != null && res['success'] == true) {
+        AppSnackBar.success('Password updated successfully');
+        Get.back();
+      } else {
+        AppSnackBar.error(res?['message'] ?? 'Failed to update password');
+      }
+    } catch (e) {
+      final msg = e.toString().replaceAll('Exception: ', '');
+      AppSnackBar.error(msg);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -75,12 +109,21 @@ class _AccountChangePasswordScreenState extends State<AccountChangePasswordScree
                 ),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Center(
-                child: AppText(
-                  data: 'Update Password',
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Center(
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const AppText(
+                        data: 'Update Password',
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
               ),
             ),
           ),

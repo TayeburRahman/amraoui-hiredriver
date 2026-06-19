@@ -14,6 +14,7 @@ class AppApiUrl {
   static const String verifyOtpUrl = "/auth/verify-otp";
   static const String resendForgotUrl = "/auth/resend-forgot-password";
   static const String resetPasswordUrl = "/auth/reset-password";
+  static const String changePasswordUrl = "/auth/change-password";
   static const String refreshTokenUrl = "/auth/refresh-token";
   static const String profileUrl = "/auth/profile";
 

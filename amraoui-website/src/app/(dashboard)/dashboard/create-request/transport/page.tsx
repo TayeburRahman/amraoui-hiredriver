@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import api from '@/lib/axios';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -217,12 +218,13 @@ export default function TransportRequestPage() {
         // Clear saved state on successful submission
         localStorage.removeItem('transport_currentStep');
         localStorage.removeItem('transport_formData');
+        toast.success(t.createRequest?.successMessage || 'Transport request created successfully!');
         // Handle success - maybe redirect to orders
         router.push('/dashboard/orders');
       }
     } catch (error) {
       console.error('Error submitting request:', error);
-      alert('Failed to submit request. Please try again.');
+      toast.error('Failed to submit request. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -907,6 +909,11 @@ export default function TransportRequestPage() {
                             type="date"
                             value={formData.pickupDate || ""}
                             onChange={(e) => updateForm("pickupDate", e.target.value)}
+                            onClick={(e) => {
+                              try {
+                                (e.target as HTMLInputElement).showPicker();
+                              } catch (err) {}
+                            }}
                             className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
                           />
                           {!formData.pickupDate && (
@@ -922,6 +929,11 @@ export default function TransportRequestPage() {
                             type="time"
                             value={formData.pickupTime || ""}
                             onChange={(e) => updateForm("pickupTime", e.target.value)}
+                            onClick={(e) => {
+                              try {
+                                (e.target as HTMLInputElement).showPicker();
+                              } catch (err) {}
+                            }}
                             className={`h-14 rounded-2xl ${errors.pickupTime ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white'} pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100`}
                           />
                           {!formData.pickupTime && (
@@ -947,6 +959,11 @@ export default function TransportRequestPage() {
                             type="date"
                             value={formData.dropoffDate || ""}
                             onChange={(e) => updateForm("dropoffDate", e.target.value)}
+                            onClick={(e) => {
+                              try {
+                                (e.target as HTMLInputElement).showPicker();
+                              } catch (err) {}
+                            }}
                             className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
                           />
                           {!formData.dropoffDate && (
@@ -962,6 +979,11 @@ export default function TransportRequestPage() {
                             type="time"
                             value={formData.dropoffTime || ""}
                             onChange={(e) => updateForm("dropoffTime", e.target.value)}
+                            onClick={(e) => {
+                              try {
+                                (e.target as HTMLInputElement).showPicker();
+                              } catch (err) {}
+                            }}
                             className={`h-14 rounded-2xl ${errors.dropoffTime ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white'} pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100`}
                           />
                           {!formData.dropoffTime && (

@@ -19,9 +19,24 @@ class MissionRepository {
     });
   }
 
-  Future<Response> submitQuote(String missionId, double amount, String message, String estimatedTime) async {
+  Future<Response> submitQuote(
+    String missionId,
+    double amount,
+    String message,
+    String estimatedTime, {
+    double fuelCost = 0,
+    double tollCharges = 0,
+    double travelCost = 0,
+    double taxiCost = 0,
+    double exceptionalCosts = 0,
+  }) async {
     return await _auth.post('/requests/missions/$missionId/quote', data: {
       'amount': amount,
+      'fuelCost': fuelCost,
+      'tollCharges': tollCharges,
+      'travelCost': travelCost,
+      'taxiCost': taxiCost,
+      'exceptionalCosts': exceptionalCosts,
       'message': message,
       'estimatedTime': estimatedTime,
     });

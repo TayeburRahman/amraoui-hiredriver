@@ -87,7 +87,9 @@ const getRequestById = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
-  if (user && user.role === 'CUSTOMERS' && request.customerId?.toString() !== user.userId) {
+  const customerIdString = (request.customerId as any)?._id?.toString() || request.customerId?.toString();
+
+  if (user && user.role === 'CUSTOMERS' && customerIdString !== user.userId) {
     return sendResponse(res, {
       statusCode: httpStatus.FORBIDDEN,
       success: false,

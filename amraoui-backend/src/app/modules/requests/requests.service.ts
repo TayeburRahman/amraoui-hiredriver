@@ -57,7 +57,10 @@ const createRequest = async (payload: any) => {
 
 // ─── Get Single Request ─────────────────────────────────────────────────────
 const getRequestById = async (id: string) => {
-  return Requests.findById(id)
+  const isObjectId = Types.ObjectId.isValid(id);
+  const query = isObjectId ? { _id: id } : { missionId: id };
+  
+  return Requests.findOne(query)
     .populate({ path: 'customerId', select: 'name email phone profileImage' })
     .populate({ path: 'assignedDriverId', select: 'name email phone' })
     .populate({ path: 'assignedDriverIds', select: 'name email phone' })

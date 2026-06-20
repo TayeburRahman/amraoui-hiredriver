@@ -23,6 +23,7 @@ app.use(
         'http://localhost:3001',
         'http://localhost:5173',
         'http://192.168.10.16:3000',
+        "https://amraoui-hiredriver-admin.vercel.app",
         'https://amraoui-hiredriver.vercel.app'
       ];
 

@@ -211,7 +211,8 @@ class _MileageFuelScreenState extends State<MileageFuelScreen> {
 
                 if (fuelLevel != 'Empty') {
                   if (odometerPhoto != null) {
-                    if (!odometerPhoto!.startsWith('http') && !odometerPhoto!.startsWith('blob:http')) {
+                    bool isNetOdo = odometerPhoto!.startsWith('http') && !odometerPhoto!.startsWith('blob:http');
+                    if (!isNetOdo) {
                       final bytes = await XFile(odometerPhoto!).readAsBytes();
                       files.add(MultipartFile.fromBytes(bytes, filename: 'odometer.jpg'));
                       labels.add('odometerPhoto');
@@ -221,7 +222,8 @@ class _MileageFuelScreenState extends State<MileageFuelScreen> {
                   }
 
                   if (fuelGaugePhoto != null) {
-                    if (!fuelGaugePhoto!.startsWith('http') && !fuelGaugePhoto!.startsWith('blob:http')) {
+                    bool isNetFuel = fuelGaugePhoto!.startsWith('http') && !fuelGaugePhoto!.startsWith('blob:http');
+                    if (!isNetFuel) {
                       final bytes = await XFile(fuelGaugePhoto!).readAsBytes();
                       files.add(MultipartFile.fromBytes(bytes, filename: 'fuel.jpg'));
                       labels.add('fuelGaugePhoto');

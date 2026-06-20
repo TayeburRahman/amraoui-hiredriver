@@ -22,6 +22,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditingBaseFee, setIsEditingBaseFee] = useState(false);
   const [baseFeeInput, setBaseFeeInput] = useState('');
+  const [driverPriceInput, setDriverPriceInput] = useState('');
+  const [isEditingDriverPrice, setIsEditingDriverPrice] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
@@ -31,6 +33,9 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
       const canEdit = ['PENDING_ADMIN_QUOTE', 'CUSTOMER_REVIEWING_QUOTE'].includes(mission.raw?.status);
       setIsEditingBaseFee(!amount && canEdit);
       setBaseFeeInput(amount ? String(amount) : '');
+      const dPrice = mission.raw?.adminQuote?.driverPrice;
+      setDriverPriceInput(dPrice ? String(dPrice) : '');
+      setIsEditingDriverPrice(!dPrice && canEdit);
     }
   }, [isOpen, mission]);
 
@@ -130,6 +135,32 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
     }
   };
 
+  const handleUpdateDriverPrice = async () => {
+    if (!driverPriceInput || Number(driverPriceInput) <= 0) {
+      alert("Please enter a valid driver price.");
+      return;
+    }
+    try {
+      setIsSubmitting(true);
+      const res = await apiFetch(`/requests/${mission.realId}/driver-price`, {
+        method: 'PATCH',
+        body: JSON.stringify({ driverPrice: Number(driverPriceInput) }),
+        auth: true,
+      });
+      if (res.ok) {
+        if (!mission.raw.adminQuote) {
+          mission.raw.adminQuote = {};
+        }
+        mission.raw.adminQuote.driverPrice = Number(driverPriceInput);
+        setIsEditingDriverPrice(false);
+      } else {
+        alert('Failed to update driver price');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleDeleteExpense = async (expenseId: string) => {
     if (!confirm('Are you sure you want to delete this expense?')) return;
     try {
@@ -152,12 +183,17 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
   };
 
   const handleSendCustomerQuote = async () => {
+    if (!driverPriceInput || Number(driverPriceInput) <= 0) {
+      alert("Driver Price is mandatory before sending the quote.");
+      return;
+    }
     try {
       setIsSubmitting(true);
       const res = await apiFetch(`/requests/${mission.realId}/admin-quote`, {
         method: 'PATCH',
         body: JSON.stringify({
-          amount: Number(mission.raw?.adminQuote?.amount || 0),
+          amount: Number(mission.raw?.adminQuote?.amount || baseFeeInput || 0),
+          driverPrice: Number(driverPriceInput),
           message: quoteMessage,
         }),
         auth: true,
@@ -305,6 +341,53 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
 
           </div>
 
+          {/* Internal Pricing */}
+          <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-100 text-xs mb-6">
+            <h3 className="font-bold text-purple-900 mb-3">Internal Pricing (Admin/Driver Only)</h3>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-500">Driver Price</span>
+              {isEditingDriverPrice ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    className="w-20 px-2 py-1 text-xs border border-gray-200 rounded text-right focus:outline-none focus:border-purple-500"
+                    value={driverPriceInput}
+                    onChange={e => setDriverPriceInput(e.target.value)}
+                    placeholder="0"
+                  />
+                  <button
+                    onClick={handleUpdateDriverPrice}
+                    disabled={isSubmitting || !driverPriceInput}
+                    className="text-purple-600 font-bold hover:underline disabled:opacity-50"
+                  >
+                    Save
+                  </button>
+                  {mission.raw?.adminQuote?.driverPrice && (
+                    <button
+                      onClick={() => setIsEditingDriverPrice(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-purple-900">€{mission.raw?.adminQuote?.driverPrice || 0}</span>
+                  <button
+                    onClick={() => {
+                      setIsEditingDriverPrice(true);
+                      setDriverPriceInput(String(mission.raw?.adminQuote?.driverPrice || 0));
+                    }}
+                    className="text-purple-600 text-xs underline hover:text-purple-800"
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Final Invoice Summary */}
           <div className="bg-green-50/50 p-4 rounded-xl border border-green-100 text-xs">
             <h3 className="font-bold text-gray-900 mb-3">Final Invoice Summary</h3>
@@ -377,7 +460,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                 Send Customer Quote
               </button>
             </div>
-          </div>          {mission.raw?.status === 'CUSTOMER_REVIEWING_QUOTE' && (
+          </div>
+          {mission.raw?.status === 'CUSTOMER_REVIEWING_QUOTE' && (
             <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-center justify-between">
               <span className="text-amber-800 text-sm font-medium">Waiting for customer to accept/reject the quote (€{mission.raw?.adminQuote?.amount}).</span>
               <button 

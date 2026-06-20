@@ -20,6 +20,7 @@ export enum RequestStatus {
 
 export type IAdminQuote = {
   amount: number;
+  driverPrice?: number;
   message: string;
   createdAt: Date;
 };

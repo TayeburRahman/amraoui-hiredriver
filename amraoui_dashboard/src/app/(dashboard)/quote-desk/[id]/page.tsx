@@ -247,11 +247,17 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                         <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
                                             <span className="text-blue-600 font-bold">A</span>
                                         </div>
-                                        <div>
+                                        <div className="flex-1">
                                             <p className="text-xs text-gray-400 font-medium mb-1">Pickup</p>
                                             <p className="font-bold text-gray-900">{request.details?.pickupCity}</p>
-                                            <p className="text-gray-500 text-xs">{request.details?.pickupAddress}</p>
+                                            <p className="text-gray-500 text-xs">{request.details?.pickupAddress} {request.details?.pickupZip ? `(${request.details.pickupZip})` : ''}</p>
                                             <p className="text-gray-500 text-xs mt-1">{request.details?.pickupDate} at {request.details?.pickupTime}</p>
+                                            {(request.details?.pickupContactName || request.details?.pickupContactPhone) && (
+                                                <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-100 text-xs">
+                                                    <p className="font-medium text-gray-700">Contact: {request.details?.pickupContactName || 'N/A'}</p>
+                                                    <p className="text-gray-500">{request.details?.pickupContactPhone || 'N/A'}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="border-l-2 border-dashed border-gray-200 ml-5 h-6"></div>
@@ -259,11 +265,17 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                         <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center shrink-0">
                                             <span className="text-green-600 font-bold">B</span>
                                         </div>
-                                        <div>
+                                        <div className="flex-1">
                                             <p className="text-xs text-gray-400 font-medium mb-1">Delivery</p>
                                             <p className="font-bold text-gray-900">{request.details?.dropoffCity}</p>
-                                            <p className="text-gray-500 text-xs">{request.details?.dropoffAddress}</p>
+                                            <p className="text-gray-500 text-xs">{request.details?.dropoffAddress} {request.details?.dropoffZip ? `(${request.details.dropoffZip})` : ''}</p>
                                             <p className="text-gray-500 text-xs mt-1">{request.details?.dropoffDate} at {request.details?.dropoffTime}</p>
+                                            {(request.details?.dropoffContactName || request.details?.dropoffContactPhone) && (
+                                                <div className="mt-2 p-2 bg-gray-50 rounded border border-gray-100 text-xs">
+                                                    <p className="font-medium text-gray-700">Contact: {request.details?.dropoffContactName || 'N/A'}</p>
+                                                    <p className="text-gray-500">{request.details?.dropoffContactPhone || 'N/A'}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </>
@@ -316,22 +328,18 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                     <div className="bg-white rounded-xl border border-gray-200 p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <Car className="w-4 h-4 text-gray-400" />
-                            <h2 className="text-sm font-bold text-gray-900">Vehicle / Request Type</h2>
+                            <h2 className="text-sm font-bold text-gray-900">Vehicle / Request Details</h2>
                         </div>
                         <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-gray-400">Type</span>
+                                <span className="text-gray-400">Request Type</span>
                                 <span className="font-bold text-gray-900">{request.type}</span>
                             </div>
                             {request.type === 'TRANSPORT' && (
                                 <>
                                     <div className="flex justify-between">
-                                        <span className="text-gray-400">Make</span>
-                                        <span className="font-bold text-gray-900">{request.details?.make}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-400">Model</span>
-                                        <span className="font-bold text-gray-900">{request.details?.model}</span>
+                                        <span className="text-gray-400">Make & Model</span>
+                                        <span className="font-bold text-gray-900">{request.details?.make} {request.details?.model}</span>
                                     </div>
                                     {request.details?.year && (
                                         <div className="flex justify-between">
@@ -339,6 +347,34 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                             <span className="font-bold text-gray-900">{request.details?.year}</span>
                                         </div>
                                     )}
+                                    {request.details?.vin && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-400">VIN</span>
+                                            <span className="font-bold text-gray-900">{request.details?.vin}</span>
+                                        </div>
+                                    )}
+                                    {request.details?.plate && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-400">Plate</span>
+                                            <span className="font-bold text-gray-900">{request.details?.plate}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between border-t border-gray-100 pt-2 mt-2">
+                                        <span className="text-gray-400">Vehicle Type</span>
+                                        <span className="font-bold text-gray-900 capitalize">{request.details?.vehicleType || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Weight</span>
+                                        <span className="font-bold text-gray-900">{request.details?.vehicleWeight ? `${request.details?.vehicleWeight} kg` : 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between border-t border-gray-100 pt-2 mt-2">
+                                        <span className="text-gray-400">Delivery Type</span>
+                                        <span className="font-bold text-blue-600 capitalize">{request.details?.deliveryType || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Engine Type</span>
+                                        <span className="font-bold text-gray-900 capitalize">{request.details?.engineType || 'N/A'}</span>
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -348,11 +384,37 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                     <div className="bg-white rounded-xl border border-gray-200 p-6">
                         <div className="flex items-center gap-2 mb-4">
                             <FileText className="w-4 h-4 text-gray-400" />
-                            <h2 className="text-sm font-bold text-gray-900">Customer Notes</h2>
+                            <h2 className="text-sm font-bold text-gray-900">Instructions & Notes</h2>
                         </div>
-                        <p className="text-sm text-gray-600">
-                            {request.details?.notes || 'No additional notes provided.'}
-                        </p>
+                        <div className="space-y-4">
+                            {request.details?.specialInstructions && (
+                                <div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase mb-1">Special Instructions</p>
+                                    <p className="text-sm text-gray-700 bg-amber-50 border border-amber-100 p-3 rounded-lg">
+                                        {request.details.specialInstructions}
+                                    </p>
+                                </div>
+                            )}
+                            {request.details?.dropoffInstructions && (
+                                <div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase mb-1">Dropoff Instructions</p>
+                                    <p className="text-sm text-gray-700 bg-blue-50 border border-blue-100 p-3 rounded-lg">
+                                        {request.details.dropoffInstructions}
+                                    </p>
+                                </div>
+                            )}
+                            {(!request.details?.specialInstructions && !request.details?.dropoffInstructions && !request.details?.notes) && (
+                                <p className="text-sm text-gray-500">No additional instructions provided.</p>
+                            )}
+                            {request.details?.notes && (
+                                <div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase mb-1">General Notes</p>
+                                    <p className="text-sm text-gray-700 bg-gray-50 border border-gray-200 p-3 rounded-lg">
+                                        {request.details.notes}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Quote Summary */}

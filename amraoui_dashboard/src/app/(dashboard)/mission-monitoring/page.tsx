@@ -78,7 +78,9 @@ const MissionMonitoringPage = () => {
               routeStr = req.details?.driverCity || 'N/A';
             } else if (req.type === 'INSPECTION') {
               vehicleStr = `${req.details?.vehicleBrand || ''} ${req.details?.vehicleModel || ''}`.trim() || 'Inspection';
-              routeStr = req.details?.inspectionLocation || 'N/A';
+              const fromStr = req.details?.inspectionCity || req.details?.inspectionLocation || 'N/A';
+              const toStr = req.details?.destinationCity || req.details?.destinationAddress || 'N/A';
+              routeStr = toStr !== 'N/A' ? `${fromStr} → ${toStr}` : fromStr;
             }
 
             return {
@@ -253,14 +255,6 @@ const MissionMonitoringPage = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-medium rounded-lg transition-colors text-sm">
-            <PlayCircle className="w-4 h-4" />
-            Live Mission Tracking
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-lg transition-colors text-sm">
-            <MapPin className="w-4 h-4" />
-            Map View
-          </button>
           <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-lg transition-colors text-sm">
             <Download className="w-4 h-4" />
             Export

@@ -40,7 +40,7 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
   @override
   void initState() {
     super.initState();
-    totalCount = widget.mission['type'] == 'HIRE_DRIVER' ? 3 : 6;
+    totalCount = 6;
     final inspection = widget.mission['details']?['pickupInspection'];
     if (inspection != null) {
       if (inspection['exteriorPhotos'] != null) {
@@ -70,21 +70,19 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
     int count = 0;
     final type = widget.mission['type'];
     
-    if (type != 'HIRE_DRIVER') {
-      int extCount = 0;
-      for (String key in ['Front', 'Front Right', 'Rear Right', 'Rear', 'Rear Left', 'Front Left']) {
-        if (exteriorPhotos[key] != null && exteriorPhotos[key]!.isNotEmpty) extCount++;
-      }
-      if (extCount == 6) count++;
-      
-      int intCount = 0;
-      for (String key in ['Front', 'Front Right', 'Rear Right', 'Rear']) {
-        if (interiorPhotos[key] != null && interiorPhotos[key]!.isNotEmpty) intCount++;
-      }
-      if (intCount == 4) count++;
-      
-      if (uploadDocuments.isNotEmpty) count++;
+    int extCount = 0;
+    for (String key in ['Front', 'Front Right', 'Rear Right', 'Rear', 'Rear Left', 'Front Left']) {
+      if (exteriorPhotos[key] != null && exteriorPhotos[key]!.isNotEmpty) extCount++;
     }
+    if (extCount == 6) count++;
+    
+    int intCount = 0;
+    for (String key in ['Front', 'Front Right', 'Rear Right', 'Rear']) {
+      if (interiorPhotos[key] != null && interiorPhotos[key]!.isNotEmpty) intCount++;
+    }
+    if (intCount == 4) count++;
+    
+    if (uploadDocuments.isNotEmpty) count++;
     
     if (damageReport != null && damageReport!.isNotEmpty) count++;
     if (mileageAndFuel != null && mileageAndFuel!.isNotEmpty) count++;
@@ -174,7 +172,7 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
               ),
               const Gap(height: 16),
               
-              if (type != 'HIRE_DRIVER') _buildInspectionItem(
+              _buildInspectionItem(
                 Icons.camera_alt_outlined, 
                 'Exterior Photos', 
                 '6 photos required',
@@ -193,7 +191,7 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
                   }
                 }
               ),
-              if (type != 'HIRE_DRIVER') _buildInspectionItem(
+              _buildInspectionItem(
                 Icons.camera_alt_outlined, 
                 'Interior Photos', 
                 '4 photos required', 
@@ -250,7 +248,7 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
                   }
                 }
               ),
-              if (type != 'HIRE_DRIVER') _buildInspectionItem(
+              _buildInspectionItem(
                 Icons.upload_file_outlined, 
                 'Upload Documents', 
                 'Upload PV or other documents here', 

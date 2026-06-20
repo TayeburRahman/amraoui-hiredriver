@@ -3,13 +3,16 @@ import 'package:amraoui_app/utils/gap.dart';
 import 'package:amraoui_app/widgets/texts/app_text.dart';
 import 'package:amraoui_app/routes/app_routes.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
+import 'package:amraoui_app/widgets/cards/location_timeline_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'mission_details_screen.dart';
-import 'package:amraoui_app/screens/missions/pickup_inspection_screen.dart' hide Gap;
+import 'package:amraoui_app/screens/missions/pickup_inspection_screen.dart'
+    hide Gap;
 import 'package:amraoui_app/screens/missions/pickup_verification_screen.dart';
-import 'package:amraoui_app/screens/missions/delivery_inspection_screen.dart' hide Gap;
+import 'package:amraoui_app/screens/missions/delivery_inspection_screen.dart'
+    hide Gap;
 
 class MissionsController extends GetxController {
   var activeMainTab = 0.obs; // 0: Open List, 1: My Missions
@@ -36,7 +39,9 @@ class MissionsController extends GetxController {
       if (res.data != null && res.data['success'] == true) {
         missions.value = res.data['data'];
         for (var m in missions.value) {
-          print("MISSION DEBUG: id=${m['_id']}, myQuoteStatus=${m['myQuoteStatus']} (type: ${m['myQuoteStatus']?.runtimeType})");
+          print(
+            "MISSION DEBUG: id=${m['_id']}, myQuoteStatus=${m['myQuoteStatus']} (type: ${m['myQuoteStatus']?.runtimeType})",
+          );
         }
       }
     } catch (e) {
@@ -380,11 +385,9 @@ class _MissionsScreenState extends State<MissionsScreen> {
         } else {
           // Open List: Show missions open for bidding
           final mStatus = (m['status'] ?? '').toString();
-          // Hide missions that are already ASSIGNED/IN_PROGRESS/COMPLETED unless driver has a quote
-          if (mStatus == 'ASSIGNED' ||
-              mStatus == 'IN_PROGRESS' ||
-              mStatus == 'COMPLETED') {
-            if (m['myQuoteStatus'] == null) return false;
+          if (mStatus != 'OPEN_FOR_DRIVERS' &&
+              mStatus != 'ADMIN_REVIEWING_DRIVERS') {
+            return false;
           }
 
           // Apply type filter chips
@@ -557,20 +560,31 @@ class _MissionsScreenState extends State<MissionsScreen> {
 
           String price = 'Pending';
           double baseAmount = 0.0;
-          
+
           if (isMyMissions && m['myQuoteAmount'] != null) {
-            baseAmount = double.tryParse(m['myQuoteAmount']?.toString() ?? '0') ?? 0.0;
+            baseAmount =
+                double.tryParse(m['myQuoteAmount']?.toString() ?? '0') ?? 0.0;
           } else {
-            baseAmount = double.tryParse(m['adminQuote']?['amount']?.toString() ?? '0') ?? 0.0;
-          }
-          
-          double totalExpenses = 0.0;
-          if (m['expenses'] != null && m['expenses'] is List) {
-            for (var exp in m['expenses']) {
-              totalExpenses += double.tryParse(exp['amount']?.toString() ?? '0') ?? 0.0;
+            var aq = m['adminQuote'];
+            if (aq != null) {
+              var driverPriceStr = aq['driverPrice']?.toString();
+
+              if (driverPriceStr != null &&
+                  driverPriceStr.isNotEmpty &&
+                  driverPriceStr != 'null') {
+                baseAmount = double.tryParse(driverPriceStr) ?? 0.0;
+              }
             }
           }
-          
+
+          double totalExpenses = 0.0;
+          if (isMyMissions && m['expenses'] != null && m['expenses'] is List) {
+            for (var exp in m['expenses']) {
+              totalExpenses +=
+                  double.tryParse(exp['amount']?.toString() ?? '0') ?? 0.0;
+            }
+          }
+
           final finalTotal = baseAmount + totalExpenses;
 
           if (finalTotal > 0) {
@@ -583,25 +597,18 @@ class _MissionsScreenState extends State<MissionsScreen> {
           Color statusTextColor;
 
           if (isMyMissions) {
-            final mStatus = (m['status'] ?? '').toString();
-            if (myFilter == 'Active') {
-              if (mStatus == 'IN_PROGRESS') {
-                displayStatus = 'In Progress';
-                statusBgColor = const Color(0xFFEFF6FF);
-                statusTextColor = const Color(0xFF2563EB);
-              } else {
-                displayStatus = 'Assigned';
-                statusBgColor = const Color(0xFFF0FDF4);
-                statusTextColor = const Color(0xFF22C55E);
-              }
-            } else if (myFilter == 'Pending') {
-              displayStatus = 'Pending';
-              statusBgColor = const Color(0xFFFEF9C3);
-              statusTextColor = const Color(0xFFCA8A04);
+            if (myFilter == 'Assigned') {
+              displayStatus = 'Assigned';
+              statusBgColor = const Color(0xFFF0FDF4);
+              statusTextColor = const Color(0xFF22C55E);
+            } else if (myFilter == 'Active') {
+              displayStatus = 'In Progress';
+              statusBgColor = const Color(0xFFEFF6FF);
+              statusTextColor = const Color(0xFF2563EB);
             } else {
               displayStatus = 'Completed';
-              statusBgColor = const Color(0xFFF0FDF4);
-              statusTextColor = const Color(0xFF10B981);
+              statusBgColor = const Color(0xFFF1F5F9);
+              statusTextColor = const Color(0xFF64748B);
             }
           } else {
             displayStatus = 'Open';
@@ -773,9 +780,14 @@ class _MissionsScreenState extends State<MissionsScreen> {
   }) {
     return GestureDetector(
       onTap: () {
-        final qStatus = mission['myQuoteStatus']?.toString();
-        final hasQuote = qStatus != null && qStatus != 'null' && qStatus.isNotEmpty;
-        print("TAP DEBUG: id=${mission['_id']}, myQuoteStatus=${mission['myQuoteStatus']}, myQuoteAmount=${mission['myQuoteAmount']}, myQuoteMessage=${mission['myQuoteMessage']}, myQuoteTime=${mission['myQuoteTime']}");
+        final qStatus = mission['myQuoteStatus']?.toString().toUpperCase();
+        final hasQuote =
+            qStatus == 'PENDING' ||
+            qStatus == 'ACCEPTED' ||
+            qStatus == 'REJECTED';
+        print(
+          "TAP DEBUG: id=${mission['_id']}, myQuoteStatus=${mission['myQuoteStatus']}, myQuoteAmount=${mission['myQuoteAmount']}, myQuoteMessage=${mission['myQuoteMessage']}, myQuoteTime=${mission['myQuoteTime']}",
+        );
 
         if (isMyMissions) {
           // Show full details for assigned/active/completed missions in My Missions tab
@@ -919,18 +931,10 @@ class _MissionsScreenState extends State<MissionsScreen> {
                 ),
               ],
             ),
-            AppText(data: id, fontSize: 13, color: const Color(0xFF94A3B8)),
-            const Gap(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: AppText(
-                    data: subtitle,
-                    fontSize: 13,
-                    color: const Color(0xFF64748B),
-                  ),
-                ),
+                AppText(data: id, fontSize: 13, color: const Color(0xFF94A3B8)),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -949,6 +953,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
                 ),
               ],
             ),
+            const Gap(height: 16),
+            LocationTimelineWidget(mission: mission),
             const Gap(height: 16),
             const Divider(color: Color(0xFFF1F5F9)),
             const Gap(height: 12),
@@ -1132,9 +1138,15 @@ class _MissionsScreenState extends State<MissionsScreen> {
   InputDecoration _modernInputDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(fontSize: 14, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+      labelStyle: const TextStyle(
+        fontSize: 14,
+        color: Color(0xFF64748B),
+        fontWeight: FontWeight.w500,
+      ),
       filled: true,
-      fillColor: const Color(0xFFF1F5F9), // Darker slate for modern contrast without border
+      fillColor: const Color(
+        0xFFF1F5F9,
+      ), // Darker slate for modern contrast without border
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
@@ -1153,24 +1165,37 @@ class _MissionsScreenState extends State<MissionsScreen> {
   }
 
   void _showQuoteDialog(Map<String, dynamic> mission, String displayId) {
-    final fuelCtrl = TextEditingController(text: mission['myQuoteFuelCost']?.toString() ?? '');
-    final tollCtrl = TextEditingController(text: mission['myQuoteTollCharges']?.toString() ?? '');
-    final travelCtrl = TextEditingController(text: mission['myQuoteTravelCost']?.toString() ?? '');
-    final taxiCtrl = TextEditingController(text: mission['myQuoteTaxiCost']?.toString() ?? '');
-    final exceptionalCtrl = TextEditingController(text: mission['myQuoteExceptionalCosts']?.toString() ?? '');
-    
+    final fuelCtrl = TextEditingController(
+      text: mission['myQuoteFuelCost']?.toString() ?? '',
+    );
+    final tollCtrl = TextEditingController(
+      text: mission['myQuoteTollCharges']?.toString() ?? '',
+    );
+    final travelCtrl = TextEditingController(
+      text: mission['myQuoteTravelCost']?.toString() ?? '',
+    );
+    final taxiCtrl = TextEditingController(
+      text: mission['myQuoteTaxiCost']?.toString() ?? '',
+    );
+    final exceptionalCtrl = TextEditingController(
+      text: mission['myQuoteExceptionalCosts']?.toString() ?? '',
+    );
+
     final notesCtrl = TextEditingController(
       text: mission['myQuoteMessage']?.toString() ?? '',
     );
     final timeCtrl = TextEditingController(
       text: mission['myQuoteTime']?.toString() ?? '',
     );
-    
-    final qStatus = mission['myQuoteStatus']?.toString();
-    final isUpdate = qStatus != null && qStatus != 'null' && qStatus.isNotEmpty;
+
+    final qStatus = mission['myQuoteStatus']?.toString().toUpperCase();
+    final isUpdate =
+        qStatus == 'PENDING' || qStatus == 'ACCEPTED' || qStatus == 'REJECTED';
     final isLoading = false.obs;
 
-    final totalAmount = (double.tryParse(mission['myQuoteAmount']?.toString() ?? '0') ?? 0.0).obs;
+    final totalAmount =
+        (double.tryParse(mission['myQuoteAmount']?.toString() ?? '0') ?? 0.0)
+            .obs;
 
     void calculateTotal() {
       double f = double.tryParse(fuelCtrl.text) ?? 0;
@@ -1186,12 +1211,15 @@ class _MissionsScreenState extends State<MissionsScreen> {
     travelCtrl.addListener(calculateTotal);
     taxiCtrl.addListener(calculateTotal);
     exceptionalCtrl.addListener(calculateTotal);
-    
+
     // Calculate initial total
     calculateTotal();
     // If legacy quote with amount but no detailed costs
-    if (isUpdate && totalAmount.value == 0 && mission['myQuoteAmount'] != null) {
-      totalAmount.value = double.tryParse(mission['myQuoteAmount'].toString()) ?? 0.0;
+    if (isUpdate &&
+        totalAmount.value == 0 &&
+        mission['myQuoteAmount'] != null) {
+      totalAmount.value =
+          double.tryParse(mission['myQuoteAmount'].toString()) ?? 0.0;
     }
 
     Get.bottomSheet(
@@ -1256,7 +1284,9 @@ class _MissionsScreenState extends State<MissionsScreen> {
                           controller: tollCtrl,
                           keyboardType: TextInputType.number,
                           style: const TextStyle(fontSize: 14),
-                          decoration: _modernInputDecoration('Toll charges (€)'),
+                          decoration: _modernInputDecoration(
+                            'Toll charges (€)',
+                          ),
                         ),
                       ),
                     ],
@@ -1291,7 +1321,9 @@ class _MissionsScreenState extends State<MissionsScreen> {
                           controller: exceptionalCtrl,
                           keyboardType: TextInputType.number,
                           style: const TextStyle(fontSize: 14),
-                          decoration: _modernInputDecoration('Exceptional costs (€)'),
+                          decoration: _modernInputDecoration(
+                            'Exceptional costs (€)',
+                          ),
                         ),
                       ),
                       const Gap(width: 10),
@@ -1299,14 +1331,19 @@ class _MissionsScreenState extends State<MissionsScreen> {
                         child: TextField(
                           controller: timeCtrl,
                           style: const TextStyle(fontSize: 14),
-                          decoration: _modernInputDecoration('Est. Time (e.g. 2 hr)'),
+                          decoration: _modernInputDecoration(
+                            'Est. Time (e.g. 2 hr)',
+                          ),
                         ),
                       ),
                     ],
                   ),
                   const Gap(height: 16),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1F5F9),
                       borderRadius: BorderRadius.circular(16),
@@ -1320,12 +1357,14 @@ class _MissionsScreenState extends State<MissionsScreen> {
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF334155),
                         ),
-                        Obx(() => AppText(
-                          data: '€${totalAmount.value.toStringAsFixed(2)}',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: const Color(0xFF2563EB),
-                        )),
+                        Obx(
+                          () => AppText(
+                            data: '€${totalAmount.value.toStringAsFixed(2)}',
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: const Color(0xFF2563EB),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -1353,7 +1392,7 @@ class _MissionsScreenState extends State<MissionsScreen> {
                         isLoading.value = true;
                         try {
                           final repo = MissionRepository();
-                          await repo.submitQuote(
+                          final res = await repo.submitQuote(
                             mission['_id'],
                             totalAmount.value,
                             notesCtrl.text,
@@ -1362,9 +1401,18 @@ class _MissionsScreenState extends State<MissionsScreen> {
                             tollCharges: double.tryParse(tollCtrl.text) ?? 0,
                             travelCost: double.tryParse(travelCtrl.text) ?? 0,
                             taxiCost: double.tryParse(taxiCtrl.text) ?? 0,
-                            exceptionalCosts: double.tryParse(exceptionalCtrl.text) ?? 0,
+                            exceptionalCosts:
+                                double.tryParse(exceptionalCtrl.text) ?? 0,
                           );
                           FocusManager.instance.primaryFocus?.unfocus();
+
+                          bool isAutoAssigned = false;
+                          if (res.data != null && res.data['data'] != null) {
+                            final missionData = res.data['data'];
+                            if (missionData['status'] == 'ASSIGNED') {
+                              isAutoAssigned = true;
+                            }
+                          }
 
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);
@@ -1372,10 +1420,12 @@ class _MissionsScreenState extends State<MissionsScreen> {
                             Get.back();
                           }
                           Get.snackbar(
-                            'Success',
-                            isUpdate
-                                ? 'Quote updated successfully'
-                                : 'Quote submitted successfully',
+                            isAutoAssigned ? 'Instant Booking! 🚀' : 'Success',
+                            isAutoAssigned
+                                ? 'Your quote was accepted immediately. You have been assigned to this mission.'
+                                : (isUpdate
+                                    ? 'Quote updated successfully'
+                                    : 'Quote submitted successfully'),
                             snackPosition: SnackPosition.bottom,
                             backgroundColor: const Color(0xFF10B981),
                             colorText: Colors.white,
@@ -1385,7 +1435,7 @@ class _MissionsScreenState extends State<MissionsScreen> {
                               Icons.check_circle,
                               color: Colors.white,
                             ),
-                            duration: const Duration(seconds: 3),
+                            duration: const Duration(seconds: 4),
                           );
                           Get.find<MissionsController>().fetchMissions();
                         } catch (e) {
@@ -1441,26 +1491,35 @@ class _MissionsScreenState extends State<MissionsScreen> {
       final type = mission['type'];
       final details = mission['details'] ?? {};
       final verification = details['pickupVerification'];
-      final bool isVerified = verification != null && verification['arrivalDeclared'] == true;
+      final bool isVerified =
+          verification != null && verification['arrivalDeclared'] == true;
 
       if (type == 'INSPECTION') {
         if (isVerified) {
-          Get.to(() => DeliveryInspectionScreen(mission: mission, reqId: reqId));
+          Get.to(
+            () => DeliveryInspectionScreen(mission: mission, reqId: reqId),
+          );
         } else {
-          Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+          Get.to(
+            () => PickupVerificationScreen(mission: mission, reqId: reqId),
+          );
         }
         return;
       } else {
         // TRANSPORT and HIRE_DRIVER
-        if (isVerified && (verification['vehicleMatchConfirmed'] == true || type == 'HIRE_DRIVER')) {
+        if (isVerified &&
+            (verification['vehicleMatchConfirmed'] == true ||
+                type == 'HIRE_DRIVER')) {
           Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
         } else {
-          Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+          Get.to(
+            () => PickupVerificationScreen(mission: mission, reqId: reqId),
+          );
         }
         return;
       }
     }
-    
+
     // For ASSIGNED or other statuses, show the standard details screen
     Get.to(() => MissionDetailsScreen(mission: mission, reqId: reqId));
   }

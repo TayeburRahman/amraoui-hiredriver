@@ -6,6 +6,14 @@ import { useTranslation } from '@/hooks/useTranslation';
 import api from '@/lib/axios';
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TimeInput } from "@/components/ui/time-input";
+import {
   ArrowLeft,
   Users,
   Minus,
@@ -19,6 +27,12 @@ import {
 } from "lucide-react";
 
 const driverQuickOptions = [1, 2, 3, 4];
+
+const timeOptions = Array.from({ length: 48 }).map((_, i) => {
+  const hours = Math.floor(i / 2).toString().padStart(2, '0');
+  const minutes = (i % 2 === 0) ? '00' : '30';
+  return `${hours}:${minutes}`;
+});
 
 const driverTasks = [
   { id: "vehicle_pickup", label: "Vehicle pickup", icon: "🚗" },
@@ -69,6 +83,7 @@ export default function HireDriverPage() {
     driverPostalCode: '',
     driverLocationNote: '',
     driverTaskNotes: '',
+    idCheckRequired: false,
     status: 'draft'
   });
 
@@ -325,13 +340,10 @@ export default function HireDriverPage() {
                   </div>
 
                   <div className="relative">
-                    <Clock className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
-                    <input
-                      type="time"
+                    <Clock className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 z-10 ${isRTL ? 'right-4' : 'left-4'}`} />
+                    <TimeInput
                       value={formData.driverStartTime || ""}
-                      onChange={(e) =>
-                        updateForm("driverStartTime", e.target.value)
-                      }
+                      onChange={(val) => updateForm("driverStartTime", val)}
                       className={`h-14 w-full rounded-2xl border border-slate-200 bg-white pr-4 font-medium text-slate-700 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12' : 'pl-12'}`}
                     />
                   </div>
@@ -358,13 +370,10 @@ export default function HireDriverPage() {
                   </div>
 
                   <div className="relative">
-                    <Clock className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
-                    <input
-                      type="time"
+                    <Clock className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 z-10 ${isRTL ? 'right-4' : 'left-4'}`} />
+                    <TimeInput
                       value={formData.driverEndTime || ""}
-                      onChange={(e) =>
-                        updateForm("driverEndTime", e.target.value)
-                      }
+                      onChange={(val) => updateForm("driverEndTime", val)}
                       className={`h-14 w-full rounded-2xl border border-slate-200 bg-white pr-4 font-medium text-slate-700 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12' : 'pl-12'}`}
                     />
                   </div>
@@ -467,6 +476,26 @@ export default function HireDriverPage() {
                   </button>
                 );
               })}
+            </div>
+          </div>
+        </section>
+
+        {/* Security Options */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+            <div>
+              <h3 className="font-extrabold text-slate-900">
+                {language === 'ar' ? 'هل مطلوب التحقق من الهوية؟' : 'ID Check Required?'}
+              </h3>
+              <p className="mt-1 text-sm font-medium text-slate-500">
+                {language === 'ar' ? 'يجب على السائق مسح هوية الشخص الذي يستلم السيارة.' : 'Driver must scan the ID of the person receiving the car.'}
+              </p>
+            </div>
+            <div 
+              onClick={() => updateForm('idCheckRequired', !formData.idCheckRequired)}
+              className={`flex h-7 w-12 cursor-pointer items-center rounded-full p-1 transition-colors duration-300 ${formData.idCheckRequired ? 'bg-blue-600' : 'bg-slate-200'}`}
+            >
+              <div className={`h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${formData.idCheckRequired ? 'translate-x-5' : 'translate-x-0'}`}></div>
             </div>
           </div>
         </section>

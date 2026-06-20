@@ -1,8 +1,12 @@
 import { FilterQuery, Types } from 'mongoose';
 import Requests from './requests.model';
 import { IRequest, RequestStatus } from './requests.interface';
-import ApiError from '../../../errors/ApiError';
+
+import { customerQuoteEmailBody, customerDriverAssignedEmailBody, customerMissionCompleteEmailBody } from '../../../mails/quote.email';
+import { NotificationService } from '../notifications/notifications.service';
 import httpStatus from 'http-status';
+import ApiError from '../../../errors/ApiError';
+import sendEmail from '../../../utils/sendEmail';
 
 // ─── Get All Requests (Admin) ───────────────────────────────────────────────
 const getAllRequests = async (filters: {
@@ -44,8 +48,31 @@ const getAllRequests = async (filters: {
 
 // ─── Create Request ───────────────────────────────────────────────────────────
 const createRequest = async (payload: any) => {
-  const count = await Requests.countDocuments();
-  payload.missionId = `MS-${(count + 1).toString().padStart(5, '0')}`;
+  const lastRequest = await Requests.findOne({}, { missionId: 1 }).sort({ createdAt: -1 });
+  let nextIdNumber = 1;
+
+  if (lastRequest && lastRequest.missionId) {
+    const lastId = lastRequest.missionId.replace('MS-', '');
+    const parsedId = parseInt(lastId, 10);
+    if (!isNaN(parsedId)) {
+      nextIdNumber = parsedId + 1;
+    }
+  }
+
+  // Ensure it's globally unique by querying if it exists (very rare race condition, but good for safety)
+  let isUnique = false;
+  let proposedId = '';
+  while (!isUnique) {
+    proposedId = `MS-${nextIdNumber.toString().padStart(5, '0')}`;
+    const exists = await Requests.findOne({ missionId: proposedId }, { _id: 1 });
+    if (exists) {
+      nextIdNumber++;
+    } else {
+      isUnique = true;
+    }
+  }
+
+  payload.missionId = proposedId;
 
   if (!payload.status) {
     payload.status = RequestStatus.PENDING_ADMIN_QUOTE;
@@ -59,7 +86,7 @@ const createRequest = async (payload: any) => {
 const getRequestById = async (id: string) => {
   const isObjectId = Types.ObjectId.isValid(id);
   const query = isObjectId ? { _id: id } : { missionId: id };
-  
+
   return Requests.findOne(query)
     .populate({ path: 'customerId', select: 'name email phone profileImage' })
     .populate({ path: 'assignedDriverId', select: 'name email phone' })
@@ -151,18 +178,94 @@ const updateBaseFee = async (id: string, amount: number) => {
   return result;
 };
 
-// ─── Send Admin Quote ───────────────────────────────────────────────────────
-const sendAdminQuote = async (id: string, quoteData: any) => {
+const updateDriverPrice = async (id: string, driverPrice: number) => {
   const result = await Requests.findByIdAndUpdate(
     id,
-    { 
+    { 'adminQuote.driverPrice': driverPrice },
+    { new: true }
+  );
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
+  }
+  return result;
+};
+
+// ─── Send Admin Quote ───────────────────────────────────────────────────────
+const sendAdminQuote = async (id: string, quoteData: any) => {
+  if (quoteData.driverPrice === undefined || quoteData.driverPrice === null) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Driver Price is required');
+  }
+  const result = await Requests.findByIdAndUpdate(
+    id,
+    {
       'adminQuote.amount': quoteData.amount,
+      'adminQuote.driverPrice': quoteData.driverPrice,
       'adminQuote.message': quoteData.message,
       status: 'CUSTOMER_REVIEWING_QUOTE'
     },
     { new: true }
-  );
+  ).populate({ path: 'customerId', select: 'name email authId' });
+
   if (!result) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
+
+  // Retrieve customer info
+  let customerName = 'Customer';
+  let customerEmail = '';
+  let authId = null;
+
+  if (result.customerId) {
+    const customer = result.customerId as any;
+    customerName = customer.name || 'Customer';
+    customerEmail = customer.email;
+    authId = customer.authId || customer._id;
+  } else if (result.details) {
+    customerName = result.details.firstName ? `${result.details.firstName} ${result.details.lastName || ''}`.trim() : 'Customer';
+    customerEmail = result.details.email || result.details.customerEmail;
+  }
+
+  const vehicle = result.details?.vehicleBrand ? `${result.details.vehicleBrand} ${result.details.vehicleModel || ''}`.trim() : (result.type || 'Vehicle');
+
+  // Calculate final total amount including expenses
+  const baseAmount = Number(quoteData.amount) || Number(result.adminQuote?.amount) || 0;
+  const expensesTotal = result.expenses?.reduce((sum: number, exp: any) => sum + (Number(exp.amount) || 0), 0) || 0;
+  const finalTotalAmount = baseAmount + expensesTotal;
+
+  // 1. Send Email
+  if (customerEmail) {
+    const emailHtml = customerQuoteEmailBody({
+      name: customerName,
+      requestId: result.missionId || result._id.toString(),
+      vehicle,
+      baseAmount,
+      totalAmount: finalTotalAmount,
+      message: quoteData.message,
+      expenses: result.expenses || [],
+    });
+
+    // Fire and forget
+    sendEmail({
+      email: customerEmail,
+      subject: `Your Quote is Ready - ${result.missionId || 'Request'}`,
+      html: emailHtml
+    }).catch((err: any) => {
+      console.error('Error sending quote email:', err);
+    });
+  }
+
+  // 2. Create In-App Notification
+  if (authId) {
+    NotificationService.createNotification({
+      recipientId: authId,
+      title: 'New Quote Received',
+      message: `A quote of €${finalTotalAmount} has been provided for your request (${result.missionId || 'Vehicle'}).`,
+      type: 'QUOTE_RECEIVED',
+      link: '/dashboard/orders',
+      metadata: { requestId: result._id.toString() }
+    }).catch((err: any) => {
+      console.error('Error creating quote notification:', err);
+    });
+  }
+
   return result;
 };
 
@@ -221,6 +324,11 @@ const submitDriverQuote = async (
   const existingIdx = mission.driverQuotes.findIndex(
     (q) => q.driverId?.toString() === driverId
   );
+  
+  let isAutoAssigned = false;
+  if (mission.adminQuote?.driverPrice && quoteData.amount <= mission.adminQuote.driverPrice) {
+    isAutoAssigned = true;
+  }
 
   if (existingIdx >= 0) {
     // Update existing quote
@@ -232,7 +340,7 @@ const submitDriverQuote = async (
     mission.driverQuotes[existingIdx].exceptionalCosts = quoteData.exceptionalCosts || 0;
     mission.driverQuotes[existingIdx].message = quoteData.message;
     if (quoteData.estimatedTime) mission.driverQuotes[existingIdx].estimatedTime = quoteData.estimatedTime;
-    mission.driverQuotes[existingIdx].status = 'PENDING';
+    mission.driverQuotes[existingIdx].status = isAutoAssigned ? 'ACCEPTED' : 'PENDING';
   } else {
     // Add new quote
     mission.driverQuotes.push({
@@ -245,12 +353,84 @@ const submitDriverQuote = async (
       exceptionalCosts: quoteData.exceptionalCosts || 0,
       message: quoteData.message,
       estimatedTime: quoteData.estimatedTime,
-      status: 'PENDING',
+      status: isAutoAssigned ? 'ACCEPTED' : 'PENDING',
       createdAt: new Date(),
     });
   }
 
+  if (isAutoAssigned) {
+    // Reject other quotes
+    mission.driverQuotes.forEach((q: any) => {
+      if (q.driverId?.toString() !== driverId) {
+        q.status = 'REJECTED';
+      }
+    });
+
+    mission.assignedDriverId = driverObjId as any;
+    mission.status = RequestStatus.ASSIGNED;
+  }
+
   await mission.save();
+
+  if (isAutoAssigned) {
+    try {
+      await mission.populate([
+        { path: 'customerId', select: 'name email authId phone' },
+        { path: 'assignedDriverId', select: 'name email phone phone_number authId' }
+      ]);
+
+      const customer: any = mission.customerId;
+      const driver: any = mission.assignedDriverId;
+      const adminAuthId = null; // Admin notification usually doesn't need specific ID if handled globally, but let's notify role ADMIN if possible.
+
+      if (customer) {
+        const custAuthId = customer.authId || customer._id;
+        // Notify Customer
+        NotificationService.createNotification({
+          recipientId: custAuthId,
+          title: 'Driver Assigned!',
+          message: `A driver (${driver?.name || 'Unknown'}) has been assigned to your mission (${mission.missionId || 'Request'}).`,
+          type: 'DRIVER_ASSIGNED',
+          link: '/dashboard/orders',
+          metadata: { requestId: mission._id.toString() }
+        }).catch(console.error);
+
+        // Email Customer
+        if (customer.email) {
+          const emailHtml = customerDriverAssignedEmailBody({
+            name: customer.name || 'Customer',
+            requestId: mission.missionId || mission._id.toString(),
+            driverName: driver?.name || 'Assigned Driver',
+            driverPhone: driver?.phone_number || driver?.phone || 'N/A'
+          });
+          sendEmail({
+            email: customer.email,
+            subject: `Driver Assigned - ${mission.missionId || 'Request'}`,
+            html: emailHtml
+          }).catch(console.error);
+        }
+      }
+
+      if (driver) {
+        const driverAuthId = driver.authId || driver._id;
+        // Notify Driver
+        NotificationService.createNotification({
+          recipientId: driverAuthId,
+          title: 'Mission Assigned!',
+          message: `You have been automatically assigned to mission ${mission.missionId || 'Request'}.`,
+          type: 'MISSION_ASSIGNED',
+          link: '/driver/missions',
+          metadata: { requestId: mission._id.toString() }
+        }).catch(console.error);
+      }
+      
+      // We could add an admin notification here if there is a specific admin ID.
+      // Usually admins might be polling or we can insert a generic notification.
+    } catch (e) {
+      console.error('Error sending auto-assign notifications:', e);
+    }
+  }
+
   return mission;
 };
 
@@ -439,6 +619,73 @@ const updateDeliveryInspection = async (missionId: string, driverId: string, sec
 
   if (section === 'driverConfirmation') {
     mission.status = RequestStatus.COMPLETED;
+    await mission.save();
+
+    try {
+      await mission.populate([
+        { path: 'customerId', select: 'name email authId' },
+        { path: 'assignedDriverId', select: 'name email authId' }
+      ]);
+
+      const customer: any = mission.customerId;
+      const driver: any = mission.assignedDriverId;
+
+      if (customer) {
+        const custAuthId = customer.authId || customer._id;
+        
+        NotificationService.createNotification({
+          recipientId: custAuthId,
+          title: 'Mission Completed',
+          message: `Your request (${mission.missionId || 'Vehicle'}) has been completed by the driver.`,
+          type: 'MISSION_COMPLETED',
+          link: '/dashboard/orders',
+          metadata: { requestId: mission._id.toString() }
+        }).catch(console.error);
+
+        if (customer.email) {
+          const emailHtml = customerMissionCompleteEmailBody({
+            name: customer.name || 'Customer',
+            requestId: mission.missionId || mission._id.toString()
+          });
+          sendEmail({
+            email: customer.email,
+            subject: `Mission Completed - ${mission.missionId || 'Request'}`,
+            html: emailHtml
+          }).catch(console.error);
+        }
+      }
+
+      if (driver) {
+        const driverAuthId = driver.authId || driver._id;
+        NotificationService.createNotification({
+          recipientId: driverAuthId,
+          title: 'Mission Completed',
+          message: `You have successfully completed mission ${mission.missionId || 'Request'}.`,
+          type: 'MISSION_COMPLETED',
+          link: '/driver/missions',
+          metadata: { requestId: mission._id.toString() }
+        }).catch(console.error);
+      }
+
+      const Admin = (await import('../admin/admin.model')).default;
+      const admins = await Admin.find({}).select('authId').lean();
+      admins.forEach((admin: any) => {
+        if (admin.authId) {
+          NotificationService.createNotification({
+            recipientId: admin.authId,
+            title: 'Mission Completed',
+            message: `Mission ${mission.missionId || 'Request'} has been completed by the driver.`,
+            type: 'MISSION_COMPLETED',
+            link: '/dashboard/orders',
+            metadata: { requestId: mission._id.toString() }
+          }).catch(console.error);
+        }
+      });
+    } catch (e) {
+      console.error('Error sending mission complete notifications:', e);
+    }
+
+    return mission;
   }
 
   await mission.save();
@@ -462,6 +709,7 @@ export const RequestsService = {
   verifyDeliveryArrival,
   updatePickupInspection,
   updateDeliveryInspection,
+  updateDriverPrice,
   addExpense,
   deleteExpense,
   sendAdminQuote,

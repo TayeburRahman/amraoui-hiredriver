@@ -155,7 +155,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
 
           {/* Receipt / Proof */}
           <div>
-            <p className="font-bold text-gray-900 mb-2 text-xs">Receipt / Proof</p>
+            <p className="font-bold text-gray-900 mb-2 text-xs">Receipt / Proof (Optional)</p>
             <label className={`border-2 border-dashed ${proofUrl ? 'border-green-400 bg-green-50' : 'border-gray-200'} rounded-lg p-6 flex flex-col items-center justify-center text-center hover:border-blue-300 transition-colors cursor-pointer relative overflow-hidden`}>
               <input 
                 type="file" 
@@ -191,7 +191,7 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ isOpen, onClos
 
           {/* Admin Note */}
           <div>
-            <p className="font-bold text-gray-900 mb-2 text-xs">Admin Note</p>
+            <p className="font-bold text-gray-900 mb-2 text-xs">Admin Note (Optional)</p>
             <textarea 
               className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={2}

@@ -145,6 +145,21 @@ const updateBaseFee = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ─── PATCH /api/v1/requests/:id/driver-price ────────────────────────────────
+const updateDriverPrice = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { driverPrice } = req.body;
+
+  const updated = await RequestsService.updateDriverPrice(id, driverPrice);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Driver price updated successfully',
+    data: updated,
+  });
+});
+
 // ─── PATCH /api/v1/requests/:id/admin-quote ─────────────────────────────────
 const sendAdminQuote = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -528,6 +543,7 @@ export const RequestsController = {
   getRequestById,
   updateRequestStatus,
   updateBaseFee,
+  updateDriverPrice,
   cancelRequest,
   deleteRequest,
   getMissionsForDriver,

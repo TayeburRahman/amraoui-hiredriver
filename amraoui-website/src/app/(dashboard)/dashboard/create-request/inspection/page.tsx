@@ -4,7 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
 import api from '@/lib/axios';
-import { ArrowLeft, Check, Calendar, Clock, MapPin, User, Phone, Mail, CarFront, Info } from "lucide-react";
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TimeInput } from "@/components/ui/time-input";
+import { ArrowLeft, Check, Calendar, Clock, MapPin, User, Phone, Mail, CarFront, Info, ClipboardCheck, RefreshCcw, Truck, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function TechnicalInspectionPage() {
@@ -27,6 +36,14 @@ export default function TechnicalInspectionPage() {
     inspectionDate: '',
     inspectionTime: '',
     inspectionNotes: '',
+    destinationAddress: '',
+    destinationCity: '',
+    destinationZip: '',
+    destinationDate: '',
+    destinationContactName: '',
+    destinationContactPhone: '',
+    destinationInstructions: '',
+    idCheckRequired: false,
     status: 'draft'
   });
 
@@ -38,10 +55,10 @@ export default function TechnicalInspectionPage() {
   };
 
   const inspectionTypes = [
-    { id: "yearly_inspection", label: t.createRequest.inspection.yearly },
-    { id: "re_inspection", label: t.createRequest.inspection.reinspection },
-    { id: "towbar_inspection", label: t.createRequest.inspection.towbar },
-    { id: "inspection_after_accident", label: t.createRequest.inspection.accident },
+    { id: "yearly_inspection", label: t.createRequest.inspection.yearly, icon: ClipboardCheck },
+    { id: "re_inspection", label: t.createRequest.inspection.reinspection, icon: RefreshCcw },
+    { id: "towbar_inspection", label: t.createRequest.inspection.towbar, icon: Truck },
+    { id: "inspection_after_accident", label: t.createRequest.inspection.accident, icon: AlertTriangle },
   ];
 
   const selectedInspectionType = formData.inspectionType || "";
@@ -54,14 +71,7 @@ export default function TechnicalInspectionPage() {
 
   const labelClass = `mb-3 block text-base font-extrabold text-slate-900 ${isRTL ? 'text-right' : 'text-left'}`;
 
-  const canSubmit = 
-    formData.customerName && 
-    formData.customerPhone && 
-    formData.vehicleBrand && 
-    formData.licensePlate && 
-    formData.inspectionType && 
-    formData.inspectionLocation && 
-    formData.inspectionDate;
+  const canSubmit = true; // Button is always active to show validation errors
 
   const handleSubmit = async () => {
     const newErrors: Record<string, string> = {};
@@ -74,6 +84,9 @@ export default function TechnicalInspectionPage() {
     if (!formData.inspectionType) newErrors.inspectionType = language === 'ar' ? 'الرجاء تحديد نوع الفحص' : 'Please select inspection type';
     if (!formData.inspectionLocation) newErrors.inspectionLocation = reqMsg;
     if (!formData.inspectionDate) newErrors.inspectionDate = reqMsg;
+    if (!formData.destinationAddress) newErrors.destinationAddress = reqMsg;
+    if (!formData.destinationZip) newErrors.destinationZip = reqMsg;
+    if (!formData.destinationDate) newErrors.destinationDate = reqMsg;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -245,14 +258,11 @@ export default function TechnicalInspectionPage() {
                     className={`flex flex-col items-center justify-center gap-4 rounded-[1.5rem] border p-6 transition-all duration-300 min-h-[140px] ${
                       isSelected
                         ? "border-brand-blue bg-brand-blue-light/30 text-brand-blue ring-4 ring-brand-blue-light/50 shadow-lg -translate-y-1"
-                        : "border-slate-100 bg-white text-slate-600 hover:border-brand-blue-light hover:bg-white hover:shadow-md"
+                        : "border-slate-100 bg-slate-50/50 text-slate-600 hover:border-brand-blue-light hover:bg-white hover:shadow-md"
                     }`}
                   >
-                    <div className={`h-12 w-12 rounded-full flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-brand-blue text-white' : 'bg-slate-100 text-slate-400'}`}>
-                      <Check className={`h-6 w-6 transition-all duration-300 ${isSelected ? 'scale-100' : 'scale-0'}`} />
-                      {!isSelected && <span className="text-xs font-bold">{inspectionTypes.indexOf(type) + 1}</span>}
-                    </div>
-                    <span className="text-xs sm:text-sm font-bold text-center leading-tight">{type.label}</span>
+                    <type.icon className={`h-10 w-10 transition-all duration-300 ${isSelected ? 'text-brand-blue scale-110 drop-shadow-md' : 'text-slate-400'}`} strokeWidth={isSelected ? 2.5 : 1.5} />
+                    <span className="text-sm font-bold text-center leading-tight">{type.label}</span>
                   </button>
                 );
               })}
@@ -270,15 +280,15 @@ export default function TechnicalInspectionPage() {
 
               <div className="space-y-4">
                 <div className="relative">
-                  <MapPin className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
-                  <input
-                    type="text"
+                  <AddressAutocomplete
                     value={formData.inspectionLocation || ""}
-                    onChange={(e) =>
-                      updateForm("inspectionLocation", e.target.value)
-                    }
+                    onChange={(val) => updateForm("inspectionLocation", val)}
+                    onSelect={(address) => {
+                      if (errors.inspectionLocation) setErrors(prev => ({ ...prev, inspectionLocation: '' }));
+                    }}
                     placeholder={t.createRequest.form.address}
                     className={`h-14 w-full rounded-2xl border ${errors.inspectionLocation ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    iconClassName={isRTL ? 'right-4 left-auto' : 'left-4'}
                   />
                   {errors.inspectionLocation && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.inspectionLocation}</p>}
                 </div>
@@ -298,16 +308,100 @@ export default function TechnicalInspectionPage() {
                   </div>
 
                   <div className="relative">
-                    <Clock className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
-                    <input
-                      type="time"
+                    <Clock className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 z-10 ${isRTL ? 'right-4' : 'left-4'}`} />
+                    <TimeInput
                       value={formData.inspectionTime || ""}
-                      onChange={(e) =>
-                        updateForm("inspectionTime", e.target.value)
-                      }
-                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                      onChange={(val) => updateForm("inspectionTime", val)}
+                      className={`h-14 w-full rounded-2xl border ${errors.inspectionTime ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
                     />
                   </div>
+                  {errors.inspectionTime && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.inspectionTime}</p>}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Destination Location */}
+          <section>
+            <div className={cardClass}>
+              <div className={`flex items-center gap-2 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                <MapPin className="h-5 w-5 text-blue-600" />
+                <h2 className="text-lg font-extrabold text-slate-900">{language === 'ar' ? 'معلومات الإنزال' : 'Dropoff information'}</h2>
+              </div>
+
+              <div className="space-y-4">
+                <div className="relative">
+                  <AddressAutocomplete
+                    value={formData.destinationAddress || ""}
+                    onChange={(val) => updateForm("destinationAddress", val)}
+                    onSelect={(address, zip, city) => {
+                      if (zip) updateForm('destinationZip', zip);
+                      if (city) updateForm('destinationCity', city);
+                      if (errors.destinationAddress) setErrors(prev => ({ ...prev, destinationAddress: '' }));
+                    }}
+                    placeholder={t.createRequest.form.address}
+                    className={`h-14 w-full rounded-2xl border ${errors.destinationAddress ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    iconClassName={isRTL ? 'right-4 left-auto' : 'left-4'}
+                  />
+                  {errors.destinationAddress && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationAddress}</p>}
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <input
+                      type="text"
+                      value={formData.destinationZip || ""}
+                      onChange={(e) => updateForm("destinationZip", e.target.value)}
+                      placeholder={t.createRequest.placeholders.zip}
+                      className={`h-14 w-full rounded-2xl border ${errors.destinationZip ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'text-right' : 'text-left'}`}
+                    />
+                    {errors.destinationZip && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationZip}</p>}
+                  </div>
+
+                  <div className="relative">
+                    <Calendar className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
+                    <input
+                      type="date"
+                      value={formData.destinationDate || ""}
+                      onChange={(e) => updateForm("destinationDate", e.target.value)}
+                      className={`h-14 w-full rounded-2xl border ${errors.destinationDate ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    />
+                    {errors.destinationDate && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationDate}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="relative">
+                    <User className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
+                    <input
+                      type="text"
+                      value={formData.destinationContactName || ""}
+                      onChange={(e) => updateForm("destinationContactName", e.target.value)}
+                      placeholder={language === 'ar' ? 'اسم جهة الاتصال' : 'Contact Name'}
+                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <Phone className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
+                    <input
+                      type="tel"
+                      value={formData.destinationContactPhone || ""}
+                      onChange={(e) => updateForm("destinationContactPhone", e.target.value)}
+                      placeholder={language === 'ar' ? 'رقم هاتف جهة الاتصال' : 'Contact Phone'}
+                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <textarea
+                    rows={4}
+                    value={formData.destinationInstructions || ""}
+                    onChange={(e) => updateForm("destinationInstructions", e.target.value)}
+                    placeholder={language === 'ar' ? 'ملاحظات التسليم الخاصة (اختياري)' : 'Special delivery instructions (optional)'}
+                    className={`w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'text-right' : 'text-left'}`}
+                  />
                 </div>
               </div>
             </div>
@@ -331,6 +425,26 @@ export default function TechnicalInspectionPage() {
             </div>
           </section>
 
+          {/* Security Options */}
+          <section className="mb-8">
+            <div className="flex items-center justify-between rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+              <div>
+                <h3 className="font-extrabold text-slate-900">
+                  {language === 'ar' ? 'هل مطلوب التحقق من الهوية؟' : 'ID Check Required?'}
+                </h3>
+                <p className="mt-1 text-sm font-medium text-slate-500">
+                  {language === 'ar' ? 'يجب على السائق مسح هوية الشخص الذي يستلم السيارة.' : 'Driver must scan the ID of the person receiving the car.'}
+                </p>
+              </div>
+              <div 
+                onClick={() => updateForm('idCheckRequired', !formData.idCheckRequired)}
+                className={`flex h-7 w-12 cursor-pointer items-center rounded-full p-1 transition-colors duration-300 ${formData.idCheckRequired ? 'bg-blue-600' : 'bg-slate-200'}`}
+              >
+                <div className={`h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${formData.idCheckRequired ? 'translate-x-5' : 'translate-x-0'}`}></div>
+              </div>
+            </div>
+          </section>
+
           {/* Actions */}
           <div className={`flex flex-col sm:flex-row gap-4 mb-16 justify-end ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
             <button
@@ -346,9 +460,9 @@ export default function TechnicalInspectionPage() {
               disabled={isSubmitting}
               onClick={handleSubmit}
               className={`h-14 w-full sm:w-auto sm:px-14 rounded-2xl text-sm font-bold transition ${
-                canSubmit && !isSubmitting
+                !isSubmitting
                   ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
-                  : "bg-slate-200 text-slate-400"
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
             >
               {isSubmitting ? 'Submitting...' : t.common.submit}

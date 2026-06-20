@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Pagination } from '../mission-monitoring/components/Pagination';
 import { OrderDocumentModal } from './components/OrderDocumentModal';
+import { apiFetch } from '@/lib/api';
 
 interface VehicleDocument {
   id: string;
@@ -16,71 +17,148 @@ interface VehicleDocument {
   mission: string;
   status: string;
   updated: string;
+  rawDocsCount?: number;
+  documents?: string[];
+  documentChecklist?: { name: string; status: string }[];
 }
-
-const mockVehicles: VehicleDocument[] = [
-  { 
-    id: 'V-20458', 
-    brandModel: 'BMW X5 xDrive40i', 
-    type: 'SUV', 
-    licensePlate: 'AB-123-CD', 
-    vin: '5UXCR6C84L9C12345', 
-    engine: 'Hybrid', 
-    customer: 'Amraoui', 
-    mission: '#MS-20458', 
-    status: 'Complete', 
-    updated: 'Today' 
-  },
-  { 
-    id: 'V-20467', 
-    brandModel: 'Mercedes E-Class', 
-    type: 'Sedan', 
-    licensePlate: 'ABC-1234', 
-    vin: 'WDDHF8JB8CA123456', 
-    engine: 'Diesel', 
-    customer: 'Auto Palace SA', 
-    mission: '#MS-20467', 
-    status: 'Missing fuel proof', 
-    updated: 'Today' 
-  },
-  { 
-    id: 'V-20412', 
-    brandModel: 'Audi A4', 
-    type: 'Sedan', 
-    licensePlate: 'XY-988-KL', 
-    vin: 'WAUZZZF44KA123456', 
-    engine: 'Petrol', 
-    customer: 'Premium Motors SAS', 
-    mission: '#MS-20412', 
-    status: 'Verified', 
-    updated: '18 Apr 2026' 
-  },
-];
-
-const metrics = [
-  { title: "Total Vehicles", value: "1,420", subtitle: "Linked to customer requests", color: "text-gray-900" },
-  { title: "Mission Documents", value: "3,840", subtitle: "Uploaded files", color: "text-blue-600" },
-  { title: "Missing Documents", value: "38", subtitle: "Need re-upload", color: "text-red-500" },
-  { title: "Verified Documents", value: "2,960", subtitle: "Admin checked", color: "text-green-500" },
-  { title: "Needs Review", value: "74", subtitle: "Awaiting verification", color: "text-amber-500" },
-  { title: "Recent Uploads", value: "126", subtitle: "Last 7 days", color: "text-indigo-500" },
-];
 
 const OrderDocumentsPage = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleDocument | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      setIsLoading(true);
+      try {
+        const res = await apiFetch<any>('/requests?limit=1000', { auth: true });
+        if (res.ok && res.data?.success) {
+          setRequests(res.data.data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch requests", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchRequests();
+  }, []);
+
+  const dynamicVehicles: VehicleDocument[] = requests
+    .filter(r => r.type === 'TRANSPORT' || r.type === 'INSPECTION')
+    .map(r => {
+      let brandModel = 'N/A';
+      let type = 'N/A';
+      let licensePlate = 'N/A';
+      let vin = 'N/A';
+      let engine = 'N/A';
+
+      if (r.type === 'TRANSPORT') {
+        brandModel = `${r.details?.make || ''} ${r.details?.model || ''}`.trim() || 'N/A';
+        type = r.details?.vehicleType || 'N/A';
+        licensePlate = r.details?.plate || 'N/A';
+        vin = r.details?.vin || 'N/A';
+        engine = r.details?.engineType || 'N/A';
+      } else if (r.type === 'INSPECTION') {
+        brandModel = `${r.details?.vehicleBrand || ''} ${r.details?.vehicleModel || ''}`.trim() || 'N/A';
+        type = 'N/A';
+        licensePlate = r.details?.licensePlate || 'N/A';
+        vin = r.details?.vinNumber || 'N/A';
+        engine = 'N/A';
+      }
+
+      const pDocs = (r.details?.pickupInspection?.uploadDocuments || []).length;
+      const dDocs = (r.details?.deliveryInspection?.uploadDocuments || []).length;
+      const totalDocs = pDocs + dDocs;
+      
+      let status = 'Complete';
+      if (totalDocs === 0) status = 'Missing proof';
+      else if (r.status === 'COMPLETED') status = 'Verified';
+
+      const documents: string[] = [];
+      const documentChecklist = [
+        { name: 'Vehicle Photos', status: 'Pending' },
+        { name: 'Registration Document', status: 'Pending' },
+        { name: 'Pickup Inspection Photos', status: 'Pending' },
+        { name: 'Delivery Inspection Photos', status: 'Pending' },
+        { name: 'Mileage/Fuel Proof', status: 'Pending' },
+        { name: 'Signature Report', status: 'Pending' },
+      ];
+
+      // Example logic for populating Checklist and URLs:
+      if (r.details?.registrationDocument) {
+         documents.push(r.details.registrationDocument);
+         documentChecklist[1].status = 'Complete';
+      }
+      if (r.details?.pickupInspection?.uploadDocuments?.length > 0) {
+         documents.push(...r.details.pickupInspection.uploadDocuments);
+         documentChecklist[2].status = 'Complete';
+      }
+      if (r.details?.deliveryInspection?.uploadDocuments?.length > 0) {
+         documents.push(...r.details.deliveryInspection.uploadDocuments);
+         documentChecklist[3].status = 'Complete';
+      }
+      if (r.details?.pickupInspection?.odometerPhoto || r.details?.pickupInspection?.fuelGaugePhoto) {
+         if (r.details.pickupInspection?.odometerPhoto) documents.push(r.details.pickupInspection.odometerPhoto);
+         if (r.details.pickupInspection?.fuelGaugePhoto) documents.push(r.details.pickupInspection.fuelGaugePhoto);
+         documentChecklist[4].status = 'Complete';
+      }
+      if (r.details?.pickupInspection?.driverSignature || r.details?.deliveryInspection?.driverSignature) {
+         if (r.details.pickupInspection?.driverSignature) documents.push(r.details.pickupInspection.driverSignature);
+         if (r.details.deliveryInspection?.driverSignature) documents.push(r.details.deliveryInspection.driverSignature);
+         documentChecklist[5].status = 'Complete';
+      }
+
+      if (documents.length > 0) {
+        documentChecklist[0].status = 'Complete'; // If we have docs, consider Vehicle Photos complete for now
+      }
+
+      return {
+        id: r._id,
+        brandModel,
+        type,
+        licensePlate,
+        vin,
+        engine,
+        customer: r.customerId?.name || 'N/A',
+        mission: r.missionId || 'N/A',
+        status,
+        updated: new Date(r.updatedAt).toLocaleDateString(),
+        rawDocsCount: totalDocs,
+        documents,
+        documentChecklist
+      };
+  });
+
+  const totalVehicles = dynamicVehicles.length;
+  const missionDocuments = dynamicVehicles.reduce((sum, v: any) => sum + (v.rawDocsCount || 0), 0);
+  const missingDocuments = dynamicVehicles.filter(v => v.status === 'Missing proof').length;
+  const verifiedDocuments = dynamicVehicles.filter(v => v.status === 'Verified').length;
+  const needsReview = dynamicVehicles.filter(v => v.status === 'Complete' && (v.rawDocsCount || 0) > 0).length;
+  const recentUploads = dynamicVehicles.filter(v => (new Date().getTime() - new Date(v.updated).getTime()) < 7 * 24 * 60 * 60 * 1000).length;
+
+  const metrics = [
+    { title: "Total Vehicles", value: totalVehicles.toString(), subtitle: "Linked to customer requests", color: "text-gray-900" },
+    { title: "Mission Documents", value: missionDocuments.toString(), subtitle: "Uploaded files", color: "text-blue-600" },
+    { title: "Missing Documents", value: missingDocuments.toString(), subtitle: "Need re-upload", color: "text-red-500" },
+    { title: "Verified Documents", value: verifiedDocuments.toString(), subtitle: "Admin checked", color: "text-green-500" },
+    { title: "Needs Review", value: needsReview.toString(), subtitle: "Awaiting verification", color: "text-amber-500" },
+    { title: "Recent Uploads", value: recentUploads.toString(), subtitle: "Last 7 days", color: "text-indigo-500" },
+  ];
 
   const handleOpenModal = (vehicle: VehicleDocument) => {
     setSelectedVehicle(vehicle);
     setIsModalOpen(true);
   };
 
-  const filteredVehicles = mockVehicles.filter(v => 
+  const filteredVehicles = dynamicVehicles.filter(v => 
     v.brandModel.toLowerCase().includes(searchQuery.toLowerCase()) ||
     v.vin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.customer.toLowerCase().includes(searchQuery.toLowerCase())
+    v.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    v.mission.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -144,9 +222,9 @@ const OrderDocumentsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredVehicles.map((v) => (
+              {filteredVehicles.slice((currentPage - 1) * 10, currentPage * 10).map((v) => (
                 <tr key={v.id} className="hover:bg-gray-50/50 transition-colors bg-white">
-                  <td className="px-5 py-6 whitespace-nowrap font-bold text-blue-600">{v.id}</td>
+                  <td className="px-5 py-6 whitespace-nowrap font-bold text-blue-600">{v.id.substring(0, 8)}...</td>
                   <td className="px-5 py-6 whitespace-nowrap">
                     <div className="flex flex-col">
                       <span className="font-bold text-gray-900">{v.brandModel.split(' ')[0]}</span>
@@ -189,7 +267,7 @@ const OrderDocumentsPage = () => {
         <div className="mt-4 border border-gray-100 rounded-xl overflow-hidden">
           <Pagination 
             currentPage={currentPage}
-            totalPages={5}
+            totalPages={Math.ceil(filteredVehicles.length / 10) || 1}
             onPageChange={setCurrentPage}
           />
         </div>

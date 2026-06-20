@@ -6,6 +6,9 @@ import 'package:amraoui_app/utils/gap.dart';
 import 'package:amraoui_app/widgets/texts/app_text.dart';
 import 'package:amraoui_app/routes/app_routes.dart';
 import 'package:amraoui_app/screens/navigation/controllers/navigation_controller.dart';
+import 'package:amraoui_app/screens/notifications/notifications_screen.dart';
+import 'package:amraoui_app/service/repository/notification_repository.dart';
+import 'package:amraoui_app/widgets/cards/location_timeline_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,20 +17,22 @@ import 'package:get/get.dart';
 class HomeController extends GetxController {
   final _authRepo = AuthRepository();
   final _missionRepo = MissionRepository();
+  final _notifRepo = NotificationRepository();
 
   var isLoading = true.obs;
   var profile = Rx<DriverModel?>(null);
   var missions = [].obs;
+  var unreadNotifications = 0.obs;
 
   // Computed counts
   int get availableMissions =>
       missions.where((m) => m['myQuoteStatus'] == null).length;
 
   int get activeMissions => missions.where((m) {
-        final status = (m['status'] ?? '').toString();
-        return m['myQuoteStatus'] == 'ACCEPTED' &&
-            (status == 'ASSIGNED' || status == 'IN_PROGRESS');
-      }).length;
+    final status = (m['status'] ?? '').toString();
+    return m['myQuoteStatus'] == 'ACCEPTED' &&
+        (status == 'ASSIGNED' || status == 'IN_PROGRESS');
+  }).length;
 
   int get pendingQuotes =>
       missions.where((m) => m['myQuoteStatus'] == 'PENDING').length;
@@ -40,10 +45,11 @@ class HomeController extends GetxController {
   Map<String, dynamic>? get activeMission {
     try {
       return missions.firstWhere((m) {
-        final status = (m['status'] ?? '').toString();
-        return m['myQuoteStatus'] == 'ACCEPTED' &&
-            (status == 'ASSIGNED' || status == 'IN_PROGRESS');
-      }) as Map<String, dynamic>?;
+            final status = (m['status'] ?? '').toString();
+            return m['myQuoteStatus'] == 'ACCEPTED' &&
+                (status == 'ASSIGNED' || status == 'IN_PROGRESS');
+          })
+          as Map<String, dynamic>?;
     } catch (_) {
       return null;
     }
@@ -75,11 +81,23 @@ class HomeController extends GetxController {
   Future<void> fetchAll() async {
     isLoading(true);
     try {
-      await Future.wait([_fetchProfile(), _fetchMissions()]);
+      await Future.wait([_fetchProfile(), _fetchMissions(), _fetchNotifications()]);
     } catch (e) {
       print('HomeController fetchAll error: $e');
     } finally {
       isLoading(false);
+    }
+  }
+
+  Future<void> _fetchNotifications() async {
+    try {
+      final res = await _notifRepo.getNotifications();
+      if (res.data != null && res.data['success'] == true) {
+        final List notifs = res.data['data'] ?? [];
+        unreadNotifications.value = notifs.where((n) => !(n['isRead'] ?? false)).length;
+      }
+    } catch (e) {
+      print('HomeController _fetchNotifications error: $e');
     }
   }
 
@@ -214,12 +232,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontSize: 14,
                 color: const Color(0xFF64748B),
               ),
-              Obx(() => AppText(
-                    data: c.profile.value?.name ?? 'Driver',
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF0F172A),
-                  )),
+              Obx(
+                () => AppText(
+                  data: c.profile.value?.name ?? 'Driver',
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
               const Gap(height: 4),
               const AppText(
                 data: "Ready for today's missions?",
@@ -230,35 +250,46 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(width: 12),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.03),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              const Icon(Icons.notifications_outlined, color: Color(0xFF0F172A)),
-              Positioned(
-                right: 2,
-                top: 2,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
+        GestureDetector(
+          onTap: () {
+            Get.to(() => const NotificationsScreen())?.then((_) => c._fetchNotifications());
+          },
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              ),
-            ],
+              ],
+            ),
+            child: Stack(
+              children: [
+                const Icon(
+                  Icons.notifications_outlined,
+                  color: Color(0xFF0F172A),
+                ),
+                Obx(() {
+                  if (c.unreadNotifications.value == 0) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 2,
+                    top: 2,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
           ),
         ),
       ],
@@ -273,9 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: active
-              ? const Color(0xFFF0FDF4)
-              : const Color(0xFFFFF7ED),
+          color: active ? const Color(0xFFF0FDF4) : const Color(0xFFFFF7ED),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
@@ -293,12 +322,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const Gap(width: 8),
             AppText(
-              data: active ? 'Active mission in progress' : 'Available for missions',
+              data: active
+                  ? 'Active mission in progress'
+                  : 'Available for missions',
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: active
-                  ? const Color(0xFF166534)
-                  : const Color(0xFF92400E),
+              color: active ? const Color(0xFF166534) : const Color(0xFF92400E),
             ),
           ],
         ),
@@ -309,52 +338,54 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── Summary grid ────────────────────────────────────────────────────────────
 
   Widget _buildSummaryGrid(HomeController c) {
-    return Obx(() => GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: 1.1,
-          children: [
-            _buildSummaryCard(
-              title: 'Available missions',
-              count: '${c.availableMissions}',
-              subtitle: 'New tasks nearby',
-              icon: Icons.assignment_outlined,
-              iconColor: const Color(0xFF2563EB),
-              bgColor: const Color(0xFFEFF6FF),
-              onTap: () => _switchTab(1),
-            ),
-            _buildSummaryCard(
-              title: 'Assigned missions',
-              count: c.activeMissions.toString().padLeft(2, '0'),
-              subtitle: 'Ready to start',
-              icon: Icons.account_tree_outlined,
-              iconColor: const Color(0xFF10B981),
-              bgColor: const Color(0xFFECFDF5),
-              onTap: () => _switchTab(1),
-            ),
-            _buildSummaryCard(
-              title: 'Pending quotes',
-              count: c.pendingQuotes.toString().padLeft(2, '0'),
-              subtitle: 'Waiting approval',
-              icon: Icons.description_outlined,
-              iconColor: const Color(0xFFF59E0B),
-              bgColor: const Color(0xFFFFFBEB),
-              onTap: () => _switchTab(2),
-            ),
-            _buildSummaryCard(
-              title: 'Completed jobs',
-              count: '${c.completedMissions}',
-              subtitle: 'Total completed',
-              icon: Icons.check_circle_outline,
-              iconColor: const Color(0xFF22C55E),
-              bgColor: const Color(0xFFF0FDF4),
-              onTap: () => _switchTab(1),
-            ),
-          ],
-        ));
+    return Obx(
+      () => GridView.count(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        mainAxisSpacing: 16,
+        crossAxisSpacing: 16,
+        childAspectRatio: 1.1,
+        children: [
+          _buildSummaryCard(
+            title: 'Available missions',
+            count: '${c.availableMissions}',
+            subtitle: 'New tasks nearby',
+            icon: Icons.assignment_outlined,
+            iconColor: const Color(0xFF2563EB),
+            bgColor: const Color(0xFFEFF6FF),
+            onTap: () => _switchTab(1),
+          ),
+          _buildSummaryCard(
+            title: 'Assigned missions',
+            count: c.activeMissions.toString().padLeft(2, '0'),
+            subtitle: 'Ready to start',
+            icon: Icons.account_tree_outlined,
+            iconColor: const Color(0xFF10B981),
+            bgColor: const Color(0xFFECFDF5),
+            onTap: () => _switchTab(1),
+          ),
+          _buildSummaryCard(
+            title: 'Pending quotes',
+            count: c.pendingQuotes.toString().padLeft(2, '0'),
+            subtitle: 'Waiting approval',
+            icon: Icons.description_outlined,
+            iconColor: const Color(0xFFF59E0B),
+            bgColor: const Color(0xFFFFFBEB),
+            onTap: () => _switchTab(2),
+          ),
+          _buildSummaryCard(
+            title: 'Completed jobs',
+            count: '${c.completedMissions}',
+            subtitle: 'Total completed',
+            icon: Icons.check_circle_outline,
+            iconColor: const Color(0xFF22C55E),
+            bgColor: const Color(0xFFF0FDF4),
+            onTap: () => _switchTab(1),
+          ),
+        ],
+      ),
+    );
   }
 
   // ── Active Mission section ───────────────────────────────────────────────────
@@ -412,11 +443,18 @@ class _HomeScreenState extends State<HomeScreen> {
     final type = mission['type'] ?? '';
     final d = mission['details'] ?? {};
     final missionId =
-        mission['missionId'] ?? '#MS-${(mission['_id'] as String).substring((mission['_id'] as String).length - 5).toUpperCase()}';
+        mission['missionId'] ??
+        '#MS-${(mission['_id'] as String).substring((mission['_id'] as String).length - 5).toUpperCase()}';
     final status = (mission['status'] ?? '').toString();
-    final price = mission['adminQuote'] != null
-        ? '€${mission['adminQuote']['amount']}'
-        : 'TBD';
+    String price = 'TBD';
+    if (mission['adminQuote'] != null) {
+      final driverPrice = mission['adminQuote']['driverPrice']?.toString();
+      if (driverPrice != null &&
+          driverPrice.isNotEmpty &&
+          driverPrice != 'null') {
+        price = '€$driverPrice';
+      }
+    }
 
     // Build location label
     String fromLabel = '';
@@ -436,7 +474,8 @@ class _HomeScreenState extends State<HomeScreen> {
       vehicleLabel = [mk, md].where((s) => s.isNotEmpty).join(' ');
       dateLabel = d['pickupDate']?.toString() ?? '';
     } else if (type == 'HIRE_DRIVER') {
-      fromLabel = d['driverCity']?.toString() ?? d['driverLocation']?.toString() ?? '';
+      fromLabel =
+          d['driverCity']?.toString() ?? d['driverLocation']?.toString() ?? '';
       toLabel = '';
       dateLabel = d['driverStartDate']?.toString() ?? '';
     } else if (type == 'INSPECTION') {
@@ -481,7 +520,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: const Color(0xFF0F172A),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: statusBg,
                   borderRadius: BorderRadius.circular(8),
@@ -495,37 +537,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          if (fromLabel.isNotEmpty) ...[
-            const Gap(height: 20),
-            Row(
-              children: [
-                const Icon(Icons.location_on, color: Color(0xFF2563EB), size: 20),
-                const Gap(width: 8),
-                Expanded(
-                  child: AppText(
-                    data: fromLabel,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
-                if (toLabel.isNotEmpty) ...[
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Icon(Icons.arrow_forward, size: 16, color: Color(0xFFCBD5E1)),
-                  ),
-                  const Icon(Icons.location_on, color: Color(0xFF06B6D4), size: 20),
-                  const Gap(width: 8),
-                  Expanded(
-                    child: AppText(
-                      data: toLabel,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
+          const Gap(height: 20),
+          LocationTimelineWidget(mission: mission),
           const Gap(height: 16),
           if (vehicleLabel.isNotEmpty) ...[
             _buildInfoRow('Vehicle', vehicleLabel),
@@ -582,13 +595,17 @@ class _HomeScreenState extends State<HomeScreen> {
         final type = m['type'] ?? '';
         final d = m['details'] ?? {};
         final quoteStatus = (m['myQuoteStatus'] ?? '').toString();
-        final amount = m['myQuoteAmount'] != null ? '€${m['myQuoteAmount']}' : '—';
+        final amount = m['myQuoteAmount'] != null
+            ? '€${m['myQuoteAmount']}'
+            : '—';
 
         String label = 'Mission';
         if (type == 'TRANSPORT') {
           final from = d['pickupCity']?.toString().trim() ?? '';
           final to = d['dropoffCity']?.toString().trim() ?? '';
-          label = (from.isNotEmpty && to.isNotEmpty) ? '$from → $to' : 'Transport';
+          label = (from.isNotEmpty && to.isNotEmpty)
+              ? '$from → $to'
+              : 'Transport';
         } else if (type == 'HIRE_DRIVER') {
           label = d['driverCity']?.toString().trim().isNotEmpty == true
               ? d['driverCity'].toString()
@@ -605,9 +622,10 @@ class _HomeScreenState extends State<HomeScreen> {
           final md = d['model']?.toString() ?? '';
           subLabel = [mk, md].where((s) => s.isNotEmpty).join(' ');
         } else if (type == 'INSPECTION') {
-          subLabel = [d['vehicleBrand'], d['vehicleModel']]
-              .where((s) => s != null && s.toString().isNotEmpty)
-              .join(' ');
+          subLabel = [
+            d['vehicleBrand'],
+            d['vehicleModel'],
+          ].where((s) => s != null && s.toString().isNotEmpty).join(' ');
         } else if (type == 'HIRE_DRIVER') {
           final cnt = d['driverCount']?.toString() ?? '';
           subLabel = cnt.isNotEmpty ? '$cnt Driver(s)' : 'Hire Driver';
@@ -680,7 +698,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: statusBg,
                     borderRadius: BorderRadius.circular(8),
@@ -758,7 +779,11 @@ class _HomeScreenState extends State<HomeScreen> {
               fontWeight: FontWeight.w600,
               color: const Color(0xFF475569),
             ),
-            AppText(data: subtitle, fontSize: 11, color: const Color(0xFF94A3B8)),
+            AppText(
+              data: subtitle,
+              fontSize: 11,
+              color: const Color(0xFF94A3B8),
+            ),
           ],
         ),
       ),

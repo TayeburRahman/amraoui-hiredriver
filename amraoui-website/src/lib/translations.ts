@@ -183,6 +183,7 @@ export const translations = {
       today: "Today",
     },
     createRequest: {
+      successMessage: "Transport request created successfully!",
       title: "Create Request",
       subtitle: "Select the service you need today.",
       transportRequest: {
@@ -545,6 +546,7 @@ export const translations = {
       today: "Aujourd'hui",
     },
     createRequest: {
+      successMessage: "Demande de transport créée avec succès !",
       title: "Créer une demande",
       subtitle: "Sélectionnez le service dont vous avez besoin aujourd'hui.",
       transportRequest: {
@@ -907,6 +909,7 @@ export const translations = {
       today: "Vandaag",
     },
     createRequest: {
+      successMessage: "Transportaanvraag succesvol aangemaakt!",
       title: "Aanvraag maken",
       subtitle: "Selecteer de service die u vandaag nodig heeft.",
       transportRequest: {

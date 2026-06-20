@@ -1,6 +1,7 @@
 import 'package:amraoui_app/utils/app_size.dart';
 import 'package:amraoui_app/utils/gap.dart';
 import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:amraoui_app/widgets/cards/location_timeline_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:amraoui_app/screens/missions/missions_screen.dart';
@@ -12,7 +13,9 @@ class QuotesController extends GetxController {
   List<dynamic> get myQuotes {
     try {
       final missionsCtrl = Get.find<MissionsController>();
-      return missionsCtrl.missions.where((m) => m['myQuoteStatus'] != null).toList();
+      return missionsCtrl.missions
+          .where((m) => m['myQuoteStatus'] != null)
+          .toList();
     } catch (_) {
       return [];
     }
@@ -21,15 +24,36 @@ class QuotesController extends GetxController {
   List<dynamic> get filteredQuotes {
     final list = myQuotes;
     if (activeFilter.value == 'All') return list;
-    if (activeFilter.value == 'Accepted') return list.where((m) => m['myQuoteStatus']?.toString().toUpperCase() == 'ACCEPTED').toList();
-    if (activeFilter.value == 'Rejected') return list.where((m) => m['myQuoteStatus']?.toString().toUpperCase() == 'REJECTED').toList();
-    if (activeFilter.value == 'Pending') return list.where((m) => m['myQuoteStatus']?.toString().toUpperCase() == 'PENDING').toList();
+    if (activeFilter.value == 'Accepted')
+      return list
+          .where(
+            (m) => m['myQuoteStatus']?.toString().toUpperCase() == 'ACCEPTED',
+          )
+          .toList();
+    if (activeFilter.value == 'Rejected')
+      return list
+          .where(
+            (m) => m['myQuoteStatus']?.toString().toUpperCase() == 'REJECTED',
+          )
+          .toList();
+    if (activeFilter.value == 'Pending')
+      return list
+          .where(
+            (m) => m['myQuoteStatus']?.toString().toUpperCase() == 'PENDING',
+          )
+          .toList();
     return list;
   }
 
-  int get pendingCount => myQuotes.where((m) => m['myQuoteStatus']?.toString().toUpperCase() == 'PENDING').length;
-  int get acceptedCount => myQuotes.where((m) => m['myQuoteStatus']?.toString().toUpperCase() == 'ACCEPTED').length;
-  int get rejectedCount => myQuotes.where((m) => m['myQuoteStatus']?.toString().toUpperCase() == 'REJECTED').length;
+  int get pendingCount => myQuotes
+      .where((m) => m['myQuoteStatus']?.toString().toUpperCase() == 'PENDING')
+      .length;
+  int get acceptedCount => myQuotes
+      .where((m) => m['myQuoteStatus']?.toString().toUpperCase() == 'ACCEPTED')
+      .length;
+  int get rejectedCount => myQuotes
+      .where((m) => m['myQuoteStatus']?.toString().toUpperCase() == 'REJECTED')
+      .length;
 }
 
 class QuotesScreen extends StatelessWidget {
@@ -114,15 +138,29 @@ class QuotesScreen extends StatelessWidget {
   }
 
   Widget _buildSummaryTiles(QuotesController controller) {
-    return Obx(() => Row(
-      children: [
-        _buildSummaryTile(controller.pendingCount.toString().padLeft(2, '0'), 'Pending', const Color(0xFFF59E0B)),
-        const Gap(width: 12),
-        _buildSummaryTile(controller.acceptedCount.toString().padLeft(2, '0'), 'Accepted', const Color(0xFF10B981)),
-        const Gap(width: 12),
-        _buildSummaryTile(controller.rejectedCount.toString().padLeft(2, '0'), 'Rejected', const Color(0xFFEF4444)),
-      ],
-    ));
+    return Obx(
+      () => Row(
+        children: [
+          _buildSummaryTile(
+            controller.pendingCount.toString().padLeft(2, '0'),
+            'Pending',
+            const Color(0xFFF59E0B),
+          ),
+          const Gap(width: 12),
+          _buildSummaryTile(
+            controller.acceptedCount.toString().padLeft(2, '0'),
+            'Accepted',
+            const Color(0xFF10B981),
+          ),
+          const Gap(width: 12),
+          _buildSummaryTile(
+            controller.rejectedCount.toString().padLeft(2, '0'),
+            'Rejected',
+            const Color(0xFFEF4444),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSummaryTile(String count, String label, Color color) {
@@ -199,14 +237,18 @@ class QuotesScreen extends StatelessWidget {
   Widget _buildQuotesList(QuotesController controller) {
     return Obx(() {
       final list = controller.filteredQuotes;
-      
+
       if (list.isEmpty) {
         return Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 40),
             child: Column(
               children: [
-                Icon(Icons.inbox_outlined, size: 48, color: Colors.grey.shade300),
+                Icon(
+                  Icons.inbox_outlined,
+                  size: 48,
+                  color: Colors.grey.shade300,
+                ),
                 const Gap(height: 16),
                 AppText(
                   data: 'No quotes found',
@@ -222,21 +264,36 @@ class QuotesScreen extends StatelessWidget {
       return Column(
         children: list.map((m) {
           final id = m['displayId'] ?? 'ID N/A';
-          final price = m['myQuoteAmount'] != null ? '€${m['myQuoteAmount']}' : '€0';
-          
+          final price = m['myQuoteAmount'] != null
+              ? '€${m['myQuoteAmount']}'
+              : '€0';
+
           String dateStr = 'N/A';
           if (m['createdAt'] != null) {
             try {
               final dt = DateTime.parse(m['createdAt']);
-              final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+              final months = [
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dec',
+              ];
               dateStr = '${dt.day} ${months[dt.month - 1]} ${dt.year}';
             } catch (_) {}
           }
-          
+
           final pickup = m['pickupCity'] ?? m['pickupAddress'] ?? 'Pickup';
           final dropoff = m['dropoffCity'] ?? m['dropoffAddress'] ?? 'Dropoff';
           final route = '$pickup → $dropoff';
-          
+
           final msg = m['myQuoteMessage'] ?? '';
           final time = m['myQuoteTime'] ?? '';
           final details = [
@@ -244,11 +301,13 @@ class QuotesScreen extends StatelessWidget {
             if (time.toString().trim().isNotEmpty) 'Est. Time: $time',
           ].join(' • ');
 
-          final status = (m['myQuoteStatus'] ?? 'PENDING').toString().toUpperCase();
+          final status = (m['myQuoteStatus'] ?? 'PENDING')
+              .toString()
+              .toUpperCase();
           Color statusBg = const Color(0xFFFFFBEB);
           Color statusText = const Color(0xFFF59E0B);
           String statusDisplay = 'Pending';
-          
+
           if (status == 'ACCEPTED') {
             statusDisplay = 'Accepted';
             statusBg = const Color(0xFFF0FDF4);
@@ -262,7 +321,7 @@ class QuotesScreen extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: _buildQuoteCard(
-              route: route,
+              mission: m,
               id: id,
               price: price,
               date: 'Created: $dateStr',
@@ -278,7 +337,7 @@ class QuotesScreen extends StatelessWidget {
   }
 
   Widget _buildQuoteCard({
-    required String route,
+    required Map<String, dynamic> mission,
     required String id,
     required String price,
     required String date,
@@ -300,31 +359,7 @@ class QuotesScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppText(data: route, fontSize: 18, fontWeight: FontWeight.w800),
-              Row(
-                children: [
-                  AppText(
-                    data: price,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF0F172A),
-                  ),
-                  const Gap(width: 8),
-                  const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14,
-                    color: Color(0xFF94A3B8),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          AppText(data: id, fontSize: 13, color: const Color(0xFF94A3B8)),
-          const Gap(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              AppText(data: date, fontSize: 13, color: const Color(0xFF64748B)),
+              AppText(data: id, fontSize: 13, color: const Color(0xFF94A3B8)),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -340,6 +375,31 @@ class QuotesScreen extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   color: statusText,
                 ),
+              ),
+            ],
+          ),
+          const Gap(height: 16),
+          LocationTimelineWidget(mission: mission),
+          const Gap(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              AppText(data: date, fontSize: 13, color: const Color(0xFF64748B)),
+              Row(
+                children: [
+                  AppText(
+                    data: price,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF0F172A),
+                  ),
+                  const Gap(width: 8),
+                  const Icon(
+                    Icons.arrow_forward_ios,
+                    size: 14,
+                    color: Color(0xFF94A3B8),
+                  ),
+                ],
               ),
             ],
           ),

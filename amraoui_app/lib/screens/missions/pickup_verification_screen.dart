@@ -251,7 +251,7 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
               const Gap(height: 16),
               
               // Vehicle Registration Card
-              if (type != 'HIRE_DRIVER') ...[
+              ...[
                 _buildCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,7 +318,7 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
               const Gap(height: 16),
               
               // Vehicle Details Confirmation
-              if (type != 'HIRE_DRIVER') ...[
+              ...[
                 _buildCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,11 +352,11 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
           height: 50,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: (arrivalDeclared && (vehicleMatchConfirmed || type == 'HIRE_DRIVER')) ? const Color(0xFF60A5FA) : const Color(0xFF93C5FD),
+              backgroundColor: (arrivalDeclared && vehicleMatchConfirmed) ? const Color(0xFF60A5FA) : const Color(0xFF93C5FD),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               elevation: 0,
             ),
-            onPressed: (arrivalDeclared && (vehicleMatchConfirmed || type == 'HIRE_DRIVER')) ? () async {
+            onPressed: (arrivalDeclared && vehicleMatchConfirmed) ? () async {
               if (driverLocation == null) {
                 Get.snackbar(
                   'Location Required', 

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { X, FileText, CheckCircle2, Download } from 'lucide-react';
+import { getProfileImageUrl } from '@/lib/api';
 
 interface OrderDocumentModalProps {
   vehicle: any | null;
@@ -12,14 +13,28 @@ interface OrderDocumentModalProps {
 export const OrderDocumentModal: React.FC<OrderDocumentModalProps> = ({ vehicle, isOpen, onClose }) => {
   if (!isOpen || !vehicle) return null;
 
-  const documentChecklist = [
-    { name: 'Vehicle Photos', status: 'Complete' },
-    { name: 'Registration Document', status: 'Complete' },
-    { name: 'Pickup Inspection Photos', status: 'Complete' },
-    { name: 'Delivery Inspection Photos', status: 'Complete' },
-    { name: 'Mileage/Fuel Proof', status: 'Complete' },
-    { name: 'Signature Report', status: 'Complete' },
+  const documentChecklist = vehicle.documentChecklist || [
+    { name: 'Vehicle Photos', status: 'Pending' },
+    { name: 'Registration Document', status: 'Pending' },
+    { name: 'Pickup Inspection Photos', status: 'Pending' },
+    { name: 'Delivery Inspection Photos', status: 'Pending' },
+    { name: 'Mileage/Fuel Proof', status: 'Pending' },
+    { name: 'Signature Report', status: 'Pending' },
   ];
+
+  const handleDownloadAll = async () => {
+    if (!vehicle.documents || vehicle.documents.length === 0) {
+      alert("No documents available for download.");
+      return;
+    }
+
+    vehicle.documents.forEach((url: string, index: number) => {
+      const fullUrl = getProfileImageUrl(url);
+      if (fullUrl) {
+        window.open(fullUrl, '_blank');
+      }
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -72,13 +87,16 @@ export const OrderDocumentModal: React.FC<OrderDocumentModalProps> = ({ vehicle,
           <div>
             <h4 className="text-sm font-bold text-gray-900 mb-4">Document Checklist</h4>
             <div className="space-y-2">
-              {documentChecklist.map((doc, index) => (
+              {documentChecklist.filter((d: any) => d.status === 'Complete').length === 0 && (
+                <p className="text-sm text-gray-500 italic">No documents available yet.</p>
+              )}
+              {documentChecklist.filter((d: any) => d.status === 'Complete').map((doc: any, index: number) => (
                 <div key={index} className="flex items-center justify-between p-3 rounded-xl border border-gray-50 bg-white hover:bg-gray-50 transition-colors">
                   <div className="flex items-center gap-3">
                     <FileText className="w-4 h-4 text-blue-500" />
                     <span className="text-xs font-semibold text-gray-700">{doc.name}</span>
                   </div>
-                  <div className="flex items-center gap-2 px-2.5 py-1 bg-green-50 text-green-600 rounded-lg">
+                  <div className={`flex items-center gap-2 px-2.5 py-1 rounded-lg ${doc.status === 'Complete' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-400'}`}>
                     <CheckCircle2 className="w-3 h-3" />
                     <span className="text-[10px] font-bold uppercase">{doc.status}</span>
                   </div>
@@ -89,7 +107,10 @@ export const OrderDocumentModal: React.FC<OrderDocumentModalProps> = ({ vehicle,
 
           {/* Actions - Removed Upload Document as requested */}
           <div className="pt-2">
-            <button className="w-full flex items-center justify-center gap-2 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-xl transition-colors border border-gray-100">
+            <button 
+              onClick={handleDownloadAll}
+              className="w-full flex items-center justify-center gap-2 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold rounded-xl transition-colors border border-gray-100"
+            >
               <Download className="w-4 h-4" />
               Download All
             </button>

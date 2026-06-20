@@ -55,13 +55,11 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
     super.initState();
     localMission = Map.from(widget.mission);
     final type = localMission['type'];
-    if (type == 'HIRE_DRIVER') {
-      totalCount = 2;
-    } else if (type == 'INSPECTION') {
-      totalCount = 6;
-    } else {
-      totalCount = 7;
+    int baseCount = 6;
+    if (localMission['details']?['idCheckRequired'] == true) {
+      baseCount++;
     }
+    totalCount = baseCount;
     
     _calculateProgress();
     
@@ -84,17 +82,15 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
     int count = 0;
     final type = localMission['type'];
     
-    if (type != 'HIRE_DRIVER') {
-      if (inspection['exteriorPhotos'] != null) count++;
-      if (inspection['interiorPhotos'] != null) count++;
-      if (inspection['damageReport'] != null) count++;
-      if (inspection['uploadDocuments'] != null && (inspection['uploadDocuments'] as List).isNotEmpty) count++;
-    }
+    if (inspection['exteriorPhotos'] != null) count++;
+    if (inspection['interiorPhotos'] != null) count++;
+    if (inspection['damageReport'] != null) count++;
+    if (inspection['uploadDocuments'] != null && (inspection['uploadDocuments'] as List).isNotEmpty) count++;
     
     if (inspection['mileageAndFuel'] != null) count++;
     if (inspection['customerSignature'] != null) count++;
     
-    if (type == 'TRANSPORT') {
+    if (details['idCheckRequired'] == true) {
       if (inspection['receiverIdVerification'] != null) count++;
     }
     
@@ -194,7 +190,7 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
               ),
               const Gap(height: 16),
 
-              if (type != 'HIRE_DRIVER') _buildInspectionItem(
+              _buildInspectionItem(
                 Icons.camera_alt_outlined,
                 'Exterior Photos at Delivery',
                 'Take final exterior photos',
@@ -213,7 +209,7 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                   if (result != null) _calculateProgress();
                 },
               ),
-              if (type != 'HIRE_DRIVER') _buildInspectionItem(
+              _buildInspectionItem(
                 Icons.camera_alt_outlined,
                 'Interior Photos at Delivery',
                 'Take final interior photos',
@@ -232,7 +228,7 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                   if (result != null) _calculateProgress();
                 },
               ),
-              if (type != 'HIRE_DRIVER') _buildInspectionItem(
+              _buildInspectionItem(
                 Icons.description_outlined,
                 'Delivery Damage Report',
                 'Report any new damage at delivery',
@@ -266,7 +262,7 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                   if (result != null) _calculateProgress();
                 },
               ),
-              if (type != 'HIRE_DRIVER') _buildInspectionItem(
+              _buildInspectionItem(
                 Icons.description_outlined,
                 'Upload Documents',
                 'Upload PV or other documents here',
@@ -300,7 +296,7 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                   if (result != null) _calculateProgress();
                 },
               ),
-              if (type == 'TRANSPORT') _buildInspectionItem(
+              if (details['idCheckRequired'] == true) _buildInspectionItem(
                  Icons.badge_outlined,
                  'Receiver ID Verification',
                  'Verify Receiver ID',

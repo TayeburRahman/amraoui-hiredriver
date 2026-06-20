@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { TimeInput } from "@/components/ui/time-input";
 import { useTranslation } from '@/hooks/useTranslation';
 import {
   CarFront, Zap, Fuel, Car, Truck, Bike, Activity,
@@ -26,6 +27,61 @@ import {
   ArrowLeft
 } from 'lucide-react';
 
+const timeOptions = Array.from({ length: 48 }).map((_, i) => {
+  const hours = Math.floor(i / 2).toString().padStart(2, '0');
+  const minutes = (i % 2 === 0) ? '00' : '30';
+  return `${hours}:${minutes}`;
+});
+
+const initialFormData = {
+  make: '',
+  model: '',
+  plate: '',
+  color: '',
+  year: '',
+  vin: '',
+  deliveryType: 'drive',
+  engineType: '',
+  vehicleType: '',
+  vehicleWeight: '',
+  firstName: '',
+  lastName: '',
+  email: '',
+  phone: '',
+  company: '',
+  pickupAddress: '',
+  pickupCity: '',
+  pickupZip: '',
+  pickupDate: '',
+  pickupContactName: '',
+  pickupContactPhone: '',
+  pickupLocationType: '',
+  dropoffAddress: '',
+  dropoffCity: '',
+  dropoffZip: '',
+  dropoffDate: '',
+  dropoffContactName: '',
+  dropoffContactPhone: '',
+  dropoffLocationType: '',
+  dropoffInstructions: '',
+  serviceType: '',
+  condition: '',
+  additionalOptions: [] as string[],
+  specialInstructions: '',
+  adminNotes: '',
+  deliveryConditions: [] as string[],
+  idCheckRequired: false,
+  vehiclePhotos: '',
+  registrationDocumentName: '',
+  referenceDocumentName: '',
+  scheduledDate: '',
+  scheduledTime: '',
+  pickupTime: '',
+  dropoffTime: '',
+  confirmSchedulePayment: false,
+  paymentMethod: 'invoice',
+};
+
 export default function TransportRequestPage() {
   const router = useRouter();
   const { t, language } = useTranslation();
@@ -34,53 +90,7 @@ export default function TransportRequestPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [formData, setFormData] = useState({
-    make: '',
-    model: '',
-    plate: '',
-    color: '',
-    year: '',
-    vin: '',
-    deliveryType: 'drive',
-    engineType: '',
-    vehicleType: '',
-    vehicleWeight: '',
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    company: '',
-    pickupAddress: '',
-    pickupCity: '',
-    pickupZip: '',
-    pickupDate: '',
-    pickupContactName: '',
-    pickupContactPhone: '',
-    pickupLocationType: '',
-    dropoffAddress: '',
-    dropoffCity: '',
-    dropoffZip: '',
-    dropoffDate: '',
-    dropoffContactName: '',
-    dropoffContactPhone: '',
-    dropoffLocationType: '',
-    dropoffInstructions: '',
-    serviceType: '',
-    condition: '',
-    additionalOptions: [] as string[],
-    specialInstructions: '',
-    adminNotes: '',
-    deliveryConditions: [] as string[],
-    vehiclePhotos: '',
-    registrationDocumentName: '',
-    referenceDocumentName: '',
-    scheduledDate: '',
-    scheduledTime: '',
-    pickupTime: '',
-    dropoffTime: '',
-    confirmSchedulePayment: false,
-    paymentMethod: 'invoice',
-  });
+  const [formData, setFormData] = useState(initialFormData);
 
   const updateForm = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -109,13 +119,15 @@ export default function TransportRequestPage() {
     setIsLoaded(true);
   }, []);
 
+  const [isSuccess, setIsSuccess] = useState(false);
+
   // Save state when it changes
   useEffect(() => {
-    if (isLoaded) {
+    if (isLoaded && !isSuccess) {
       localStorage.setItem('transport_currentStep', currentStep.toString());
       localStorage.setItem('transport_formData', JSON.stringify(formData));
     }
-  }, [currentStep, formData, isLoaded]);
+  }, [currentStep, formData, isLoaded, isSuccess]);
 
   const toggleDeliveryCondition = (condition: string) => {
     setFormData(prev => {
@@ -215,9 +227,14 @@ export default function TransportRequestPage() {
       
       const res = await api.post('/requests', payload);
       if (res.data?.success) {
+        setIsSuccess(true);
         // Clear saved state on successful submission
         localStorage.removeItem('transport_currentStep');
         localStorage.removeItem('transport_formData');
+        
+        setCurrentStep(1);
+        setFormData(initialFormData);
+
         toast.success(t.createRequest?.successMessage || 'Transport request created successfully!');
         // Handle success - maybe redirect to orders
         router.push('/dashboard/orders');
@@ -748,6 +765,24 @@ export default function TransportRequestPage() {
                         })}
                       </div>
                     </div>
+
+                    <div className="flex items-center justify-between rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+                      <div>
+                        <h3 className="font-extrabold text-slate-900">
+                          {language === 'ar' ? 'هل مطلوب التحقق من الهوية؟' : 'ID Check Required?'}
+                        </h3>
+                        <p className="mt-1 text-sm font-medium text-slate-500">
+                          {language === 'ar' ? 'يجب على السائق مسح هوية الشخص الذي يستلم السيارة.' : 'Driver must scan the ID of the person receiving the car.'}
+                        </p>
+                      </div>
+                      <div 
+                        onClick={() => updateForm('idCheckRequired', !formData.idCheckRequired)}
+                        className={`flex h-7 w-12 cursor-pointer items-center rounded-full p-1 transition-colors duration-300 ${formData.idCheckRequired ? 'bg-blue-600' : 'bg-slate-200'}`}
+                      >
+                        <div className={`h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${formData.idCheckRequired ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               )}
@@ -924,23 +959,12 @@ export default function TransportRequestPage() {
                         </div>
 
                         <div className="relative">
-                          <Clock className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <Input
-                            type="time"
+                          <Clock className={`h-5 w-5 text-slate-500 absolute top-1/2 -translate-y-1/2 pointer-events-none z-10 ${isRTL ? 'right-5' : 'left-5'}`} />
+                          <TimeInput
                             value={formData.pickupTime || ""}
-                            onChange={(e) => updateForm("pickupTime", e.target.value)}
-                            onClick={(e) => {
-                              try {
-                                (e.target as HTMLInputElement).showPicker();
-                              } catch (err) {}
-                            }}
-                            className={`h-14 rounded-2xl ${errors.pickupTime ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white'} pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100`}
+                            onChange={(val) => updateForm("pickupTime", val)}
+                            className={`h-14 w-full rounded-2xl ${errors.pickupTime ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white'} ${isRTL ? 'pr-14 pl-5 text-right' : 'pl-14 pr-5 text-left'} text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 font-medium outline-none transition-all`}
                           />
-                          {!formData.pickupTime && (
-                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
-                              Select pickup time
-                            </span>
-                          )}
                           {errors.pickupTime && <p className="text-sm text-red-500 mt-1 ml-1">{errors.pickupTime}</p>}
                         </div>
                       </div>
@@ -974,23 +998,12 @@ export default function TransportRequestPage() {
                         </div>
 
                         <div className="relative">
-                          <Clock className="h-5 w-5 text-slate-500 absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <Input
-                            type="time"
+                          <Clock className={`h-5 w-5 text-slate-500 absolute top-1/2 -translate-y-1/2 pointer-events-none z-10 ${isRTL ? 'right-5' : 'left-5'}`} />
+                          <TimeInput
                             value={formData.dropoffTime || ""}
-                            onChange={(e) => updateForm("dropoffTime", e.target.value)}
-                            onClick={(e) => {
-                              try {
-                                (e.target as HTMLInputElement).showPicker();
-                              } catch (err) {}
-                            }}
-                            className={`h-14 rounded-2xl ${errors.dropoffTime ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white'} pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100`}
+                            onChange={(val) => updateForm("dropoffTime", val)}
+                            className={`h-14 w-full rounded-2xl ${errors.dropoffTime ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white'} ${isRTL ? 'pr-14 pl-5 text-right' : 'pl-14 pr-5 text-left'} text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 font-medium outline-none transition-all`}
                           />
-                          {!formData.dropoffTime && (
-                            <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 text-slate-400 bg-white px-1">
-                              Select delivery time
-                            </span>
-                          )}
                           {errors.dropoffTime && <p className="text-sm text-red-500 mt-1 ml-1">{errors.dropoffTime}</p>}
                         </div>
                       </div>
@@ -1339,6 +1352,10 @@ export default function TransportRequestPage() {
                       <div className="flex items-center gap-2">
                         {formData.specialInstructions || formData.adminNotes || formData.deliveryConditions.length > 0 ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
                         <span className="text-sm font-medium text-slate-600">Special Instructions</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {formData.idCheckRequired ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
+                        <span className="text-sm font-medium text-slate-600">ID Check Required</span>
                       </div>
                     </div>
                   </div>

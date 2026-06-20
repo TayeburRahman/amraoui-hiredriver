@@ -4,6 +4,7 @@ import { IRequest, RequestType, RequestStatus } from "./requests.interface";
 const AdminQuoteSchema = new Schema(
   {
     amount: { type: Number, required: true },
+    driverPrice: { type: Number },
     message: { type: String },
     createdAt: { type: Date, default: Date.now },
   },

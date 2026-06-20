@@ -267,7 +267,9 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                   'comment': _commentController.text,
                 };
 
-                if (hasDamage && damagePhoto != null && !damagePhoto!.startsWith('http') && !damagePhoto!.startsWith('blob:http')) {
+                bool isNetworkImage = damagePhoto != null && damagePhoto!.startsWith('http') && !damagePhoto!.startsWith('blob:http');
+                
+                if (hasDamage && damagePhoto != null && !isNetworkImage) {
                   final bytes = await XFile(damagePhoto!).readAsBytes();
                   uploadData['image'] = [MultipartFile.fromBytes(bytes, filename: 'damage.jpg')];
                   uploadData['imageLabels'] = ['damagePhoto'];

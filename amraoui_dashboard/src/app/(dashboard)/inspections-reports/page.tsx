@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Pagination } from '../mission-monitoring/components/Pagination';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/api';
 
 
 interface InspectionReport {
@@ -18,61 +19,97 @@ interface InspectionReport {
   damage: string;
   status: string;
 }
-
-const mockReports: InspectionReport[] = [
-  { 
-    id: 'RPT-20458', 
-    mission: '#MS-20458', 
-    vehicle: 'BMW X5', 
-    driver: 'Marc Dubois', 
-    customer: 'Amraoui', 
-    pickup: 'May 1', 
-    delivery: 'May 5', 
-    completeness: 100, 
-    damage: 'No Damage', 
-    status: 'Reviewed' 
-  },
-  { 
-    id: 'RPT-20467', 
-    mission: '#MS-20467', 
-    vehicle: 'Mercedes E-Class', 
-    driver: 'Jean Dupont', 
-    customer: 'Auto Palace SA', 
-    pickup: 'Today', 
-    delivery: 'Pending', 
-    completeness: 60, 
-    damage: 'Pending', 
-    status: 'Needs Review' 
-  },
-  { 
-    id: 'RPT-20412', 
-    mission: '#MS-20412', 
-    vehicle: 'Audi A4', 
-    driver: 'James Davis', 
-    customer: 'Premium Motors SAS', 
-    pickup: 'Apr 18', 
-    delivery: 'Apr 18', 
-    completeness: 100, 
-    damage: 'Damage Found', 
-    status: 'Needs Review' 
-  },
-];
-
-const metrics = [
-  { title: "Total Reports", value: "1,128", color: "text-gray-900" },
-  { title: "Pickup Proof Complete", value: "980", color: "text-emerald-500" },
-  { title: "Delivery Proof Complete", value: "934", color: "text-emerald-500" },
-  { title: "Damage Found", value: "26", color: "text-red-500" },
-  { title: "Missing Proof", value: "41", color: "text-orange-500" },
-  { title: "Verified Reports", value: "876", color: "text-blue-600" },
-];
-
-const tabs = ["All", "Pickup", "Delivery", "Damage", "No Damage", "Missing", "Verified"];
-
 const InspectionsReportsPage = () => {
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      setIsLoading(true);
+      try {
+        const res = await apiFetch<any>('/requests?limit=1000', { auth: true });
+        if (res.ok && res.data?.success) {
+          setRequests(res.data.data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch requests", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchRequests();
+  }, []);
+
+  const dynamicReports: InspectionReport[] = requests.map(r => {
+    let vehicle = 'N/A';
+    if (r.type === 'TRANSPORT') vehicle = `${r.details?.make || ''} ${r.details?.model || ''}`.trim() || 'N/A';
+    else if (r.type === 'INSPECTION') vehicle = `${r.details?.vehicleBrand || ''} ${r.details?.vehicleModel || ''}`.trim() || 'N/A';
+
+    let pickupDate = r.details?.pickupVerification?.verifiedAt ? new Date(r.details.pickupVerification.verifiedAt).toLocaleDateString() : 'Pending';
+    if (r.type === 'INSPECTION') pickupDate = 'N/A'; // Inspections don't have pickup
+
+    const deliveryDate = r.details?.deliveryArrivalTime || r.details?.deliveryInspection?.driverConfirmation?.updatedAt;
+    const deliveryStr = deliveryDate ? new Date(deliveryDate).toLocaleDateString() : 'Pending';
+
+    let completeness = 0;
+    let expectedSteps = 2; // Default for TRANSPORT
+    if (r.type === 'INSPECTION' || r.type === 'HIRE_DRIVER') expectedSteps = 1; // Only delivery/completion proofs
+
+    let completedSteps = 0;
+    if (r.details?.pickupVerification?.verifiedAt) completedSteps++;
+    if (deliveryDate) completedSteps++;
+
+    completeness = Math.round((completedSteps / expectedSteps) * 100);
+    if (completeness > 100) completeness = 100;
+
+    let damage = 'No Damage';
+    const pickupDamage = r.details?.pickupInspection?.damageReport?.status;
+    const deliveryDamage = r.details?.deliveryInspection?.damageReport?.status;
+    
+    if ((pickupDamage && !pickupDamage.toLowerCase().includes('no damage')) || 
+        (deliveryDamage && !deliveryDamage.toLowerCase().includes('no damage'))) {
+      damage = 'Damage Found';
+    } else if (!r.details?.pickupInspection && !r.details?.deliveryInspection) {
+      damage = 'Pending';
+    }
+
+    let status = 'Needs Review';
+    if (r.status === 'COMPLETED') status = 'Reviewed';
+
+    return {
+      id: r._id,
+      mission: r.missionId || 'N/A',
+      vehicle,
+      driver: r.assignedDriverId?.name || "Pending driver",
+      customer: r.customerId?.name || "N/A",
+      pickup: pickupDate,
+      delivery: deliveryStr,
+      completeness,
+      damage,
+      status
+    };
+  });
+
+  const totalReports = dynamicReports.length;
+  const pickupComplete = requests.filter(r => r.details?.pickupVerification?.verifiedAt).length;
+  const deliveryComplete = requests.filter(r => r.details?.deliveryArrivalTime || r.details?.deliveryInspection?.driverConfirmation?.updatedAt).length;
+  const damageFound = dynamicReports.filter(r => r.damage === 'Damage Found').length;
+  const missingProof = dynamicReports.filter(r => r.completeness < 100).length;
+  const verifiedReports = dynamicReports.filter(r => r.status === 'Reviewed').length;
+
+  const metrics = [
+    { title: "Total Reports", value: totalReports.toString(), color: "text-gray-900" },
+    { title: "Pickup Proof Complete", value: pickupComplete.toString(), color: "text-emerald-500" },
+    { title: "Delivery Proof Complete", value: deliveryComplete.toString(), color: "text-emerald-500" },
+    { title: "Damage Found", value: damageFound.toString(), color: "text-red-500" },
+    { title: "Missing Proof", value: missingProof.toString(), color: "text-orange-500" },
+    { title: "Verified Reports", value: verifiedReports.toString(), color: "text-blue-600" },
+  ];
+
+const tabs = ["All", "Pickup", "Delivery", "Damage", "No Damage", "Missing", "Verified"];
 
   return (
     <div className="overflow-auto pb-12 min-h-screen bg-[#F8F9FA] px-2 sm:px-4 lg:px-6">
@@ -151,10 +188,24 @@ const InspectionsReportsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {mockReports.map((report) => (
+              {dynamicReports
+                .filter(r => {
+                  if (activeTab === "Pickup") return r.pickup !== 'Pending' && r.pickup !== 'N/A';
+                  if (activeTab === "Delivery") return r.delivery !== 'Pending' && r.delivery !== 'N/A';
+                  if (activeTab === "Damage") return r.damage === 'Damage Found';
+                  if (activeTab === "No Damage") return r.damage === 'No Damage';
+                  if (activeTab === "Missing") return r.completeness < 100;
+                  if (activeTab === "Verified") return r.status === 'Reviewed';
+                  return true;
+                })
+                .filter(r => r.mission.toLowerCase().includes(searchQuery.toLowerCase()) || r.vehicle.toLowerCase().includes(searchQuery.toLowerCase()) || r.driver.toLowerCase().includes(searchQuery.toLowerCase()) || r.customer.toLowerCase().includes(searchQuery.toLowerCase()))
+                .slice((currentPage - 1) * 10, currentPage * 10)
+                .map((report) => (
                 <tr key={report.id} className="hover:bg-gray-50/50 transition-colors bg-white">
-                  <td className="px-5 py-6 whitespace-nowrap font-bold text-blue-600">{report.id}</td>
-                  <td className="px-5 py-6 whitespace-nowrap font-bold text-blue-600">{report.mission}</td>
+                  <td className="px-5 py-6 whitespace-nowrap font-bold text-blue-600">{report.id.substring(0, 8)}...</td>
+                  <td className="px-5 py-6 whitespace-nowrap font-bold text-blue-600">
+                    <Link href={`/orders/${report.id}/report`} className="hover:underline">{report.mission}</Link>
+                  </td>
                   <td className="px-5 py-6 whitespace-nowrap font-bold text-gray-900">{report.vehicle}</td>
                   <td className="px-5 py-6 whitespace-nowrap">
                     <div className="flex flex-col">
@@ -195,7 +246,7 @@ const InspectionsReportsPage = () => {
                   </td>
                   <td className="px-5 py-6 whitespace-nowrap text-center">
                     <Link 
-                      href={`/inspections-reports/${report.id}`}
+                      href={`/orders/${report.id}/report`}
                       className="text-gray-900 font-bold hover:text-blue-600 transition-colors text-xs"
                     >
                       View
@@ -212,7 +263,15 @@ const InspectionsReportsPage = () => {
         <div className="mt-6 border border-gray-100 rounded-xl overflow-hidden">
           <Pagination 
             currentPage={currentPage}
-            totalPages={5}
+            totalPages={Math.ceil(dynamicReports.filter(r => {
+                  if (activeTab === "Pickup") return r.pickup !== 'Pending' && r.pickup !== 'N/A';
+                  if (activeTab === "Delivery") return r.delivery !== 'Pending' && r.delivery !== 'N/A';
+                  if (activeTab === "Damage") return r.damage === 'Damage Found';
+                  if (activeTab === "No Damage") return r.damage === 'No Damage';
+                  if (activeTab === "Missing") return r.completeness < 100;
+                  if (activeTab === "Verified") return r.status === 'Reviewed';
+                  return true;
+                }).filter(r => r.mission.toLowerCase().includes(searchQuery.toLowerCase()) || r.vehicle.toLowerCase().includes(searchQuery.toLowerCase()) || r.driver.toLowerCase().includes(searchQuery.toLowerCase()) || r.customer.toLowerCase().includes(searchQuery.toLowerCase())).length / 10) || 1}
             onPageChange={setCurrentPage}
           />
         </div>

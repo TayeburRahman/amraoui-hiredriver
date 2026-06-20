@@ -1,5 +1,7 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
+
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Bell, ChevronDown, LogOut, User, Settings } from 'lucide-react';
@@ -15,9 +17,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import api from '@/lib/axios';
+import { formatDistanceToNow } from 'date-fns';
 
 const BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace('/api/v1', '');
 
@@ -26,6 +29,54 @@ export function Navbar() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { user } = useAppSelector((state) => state.auth);
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await api.get('/notifications');
+      if (res.data?.success) {
+        const notifs = res.data.data || [];
+        setNotifications(notifs);
+        setUnreadCount(notifs.filter((n: any) => !n.isRead).length);
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    }
+  };
+
+  const handleNotificationClick = async (notif: any) => {
+    if (!notif.isRead) {
+      try {
+        await api.patch(`/notifications/${notif._id}/read`);
+        setNotifications(prev => prev.map(n => n._id === notif._id ? { ...n, isRead: true } : n));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      } catch (err) {
+        console.error('Failed to mark notification as read:', err);
+      }
+    }
+    if (notif.link) {
+      router.push(notif.link);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    if (unreadCount === 0) return;
+    try {
+      await api.patch('/notifications/mark-all-read');
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Failed to mark all as read:', err);
+    }
+  };
 
   const languages = [
     { code: 'en', name: 'English' },
@@ -57,14 +108,67 @@ export function Navbar() {
 
       <div className="flex items-center gap-3">
         {/* Notifications bell */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative h-10 w-10 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-100 transition-all duration-200"
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-2.5 right-2.5 h-2 w-2 bg-red-500 rounded-full border-2 border-white" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative h-10 w-10 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-100 transition-all duration-200"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-2 right-2 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white" />
+              )}
+            </Button>
+          } />
+          <DropdownMenuContent align="end" className="w-80 rounded-2xl border-slate-100 shadow-xl p-0 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50">
+              <h3 className="font-bold text-slate-800 text-sm">Notifications</h3>
+              {unreadCount > 0 && (
+                <button onClick={markAllAsRead} className="text-xs font-semibold text-brand-blue hover:text-brand-blue-dark">
+                  Mark all as read
+                </button>
+              )}
+            </div>
+            <div className="max-h-[300px] overflow-y-auto">
+              {notifications.length > 0 ? (
+                <div className="flex flex-col">
+                  {notifications.map((notif) => (
+                    <div
+                      key={notif._id}
+                      onClick={() => handleNotificationClick(notif)}
+                      className={`p-4 border-b border-slate-50 cursor-pointer transition-colors ${notif.isRead ? 'bg-white hover:bg-slate-50' : 'bg-blue-50/50 hover:bg-blue-50'}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className={`text-sm ${notif.isRead ? 'text-slate-700 font-medium' : 'text-slate-900 font-bold'}`}>
+                          {notif.title}
+                        </p>
+                        {!notif.isRead && <span className="h-2 w-2 rounded-full bg-brand-blue flex-shrink-0 mt-1.5" />}
+                      </div>
+                      <p className={`text-xs mt-1 ${notif.isRead ? 'text-slate-500' : 'text-slate-600 font-medium'}`}>
+                        {notif.message}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-2 font-medium">
+                        {notif.createdAt ? formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true }) : 'Just now'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center text-slate-500 text-sm font-medium">
+                  No notifications yet.
+                </div>
+              )}
+            </div>
+            {notifications.length > 0 && (
+              <div className="p-2 border-t border-slate-100 bg-slate-50">
+                <button onClick={() => router.push('/dashboard/orders')} className="w-full py-2 text-xs font-bold text-slate-600 hover:text-brand-blue transition-colors">
+                  View All Orders
+                </button>
+              </div>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Language switcher */}
         <DropdownMenu>

@@ -80,6 +80,13 @@ router.patch(
   RequestsController.updateBaseFee
 );
 
+// PATCH /api/v1/requests/:id/driver-price
+router.patch(
+  '/:id/driver-price',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.updateDriverPrice
+);
+
 // PATCH /api/v1/requests/:id/admin-quote
 router.patch(
   '/:id/admin-quote',

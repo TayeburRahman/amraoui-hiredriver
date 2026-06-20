@@ -1,6 +1,9 @@
 "use client";
 
 import PageTitle from "@/components/PageTitle/PageTitle";
+import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
+import Link from "next/link";
 
 import img1 from "../../asstes/Container.png";
 import img2 from "../../asstes/Container (1).png";
@@ -12,184 +15,209 @@ import img6 from "../../asstes/Container (5).png";
 import Image from "next/image";
 
 export default function Overview() {
+  const [requests, setRequests] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState("All Missions");
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      setIsLoading(true);
+      try {
+        const res = await apiFetch<any>('/requests?limit=1000', { auth: true });
+        if (res.ok && res.data?.success) {
+          setRequests(res.data.data || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch requests", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchRequests();
+  }, []);
+
+  const countStatus = (status: string) => requests.filter((r) => r.status === status).length;
+
+  const newCustomerRequests = countStatus("PENDING_ADMIN_QUOTE");
+  const pendingDriverQuotes = countStatus("PENDING_DRIVER_QUOTE");
+  const completedMissions = countStatus("COMPLETED");
+  const cancelledMissions = countStatus("CANCELLED");
+  const inTransitCount = countStatus("IN_TRANSIT");
+
+  const todayStr = new Date().toISOString().split("T")[0];
+  let pickupDueToday = 0;
+  let deliveryDueToday = 0;
+  requests.forEach(r => {
+    if (r.details?.pickupDate && r.details.pickupDate.startsWith(todayStr) && !r.details?.pickupVerification?.verifiedAt) pickupDueToday++;
+    if (r.details?.dropoffDate && r.details.dropoffDate.startsWith(todayStr) && !r.details?.deliveryArrivalTime) deliveryDueToday++;
+  });
   const metrics = [
     {
       title: "New Customer Requests",
-      value: "18",
-      change: "+12%",
-      changeType: "positive",
+      value: newCustomerRequests.toString(),
+      change: "Pending",
+      changeType: "warning",
       icon: img1,
     },
     {
       title: "Pending Driver Quotes",
-      value: "24",
-      change: "+8 new",
-      changeType: "neutral",
+      value: pendingDriverQuotes.toString(),
+      change: "Action Needed",
+      changeType: "warning",
       icon: img2,
     },
     {
       title: "Pickup Due Today",
-      value: "09",
-      change: "~2 urgent",
-      changeType: "warning",
+      value: pickupDueToday.toString(),
+      change: pickupDueToday > 0 ? "~ Urgent" : "On track",
+      changeType: pickupDueToday > 0 ? "warning" : "positive",
       icon: img3,
     },
     {
       title: "Delivery Due Today",
-      value: "07",
-      change: "~1 delayed",
-      changeType: "warning",
+      value: deliveryDueToday.toString(),
+      change: deliveryDueToday > 0 ? "~ Urgent" : "On track",
+      changeType: deliveryDueToday > 0 ? "warning" : "positive",
       icon: img4,
     },
     {
       title: "Completed Missions",
-      value: "128",
-      change: "+18%",
+      value: completedMissions.toString(),
+      change: "Success",
       changeType: "positive",
       icon: img5,
     },
     {
       title: "Cancelled Missions",
-      value: "04",
-      change: "~2%",
+      value: cancelledMissions.toString(),
+      change: "Stopped",
       changeType: "negative",
       icon: img6,
     },
   ];
 
-  const recentActivities = [
-    {
-      iconBg: "bg-orange-100",
-      iconColor: "text-orange-500",
-      iconPath: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      ),
-      title: "New quote submitted",
-      description: "Jean Dupont submitted a €72 quote for #MS-20458.",
-      time: "5 min ago",
-      hasNotification: true,
-      action: "Review",
-    },
-    {
-      iconBg: "bg-green-100",
-      iconColor: "text-green-600",
-      iconPath: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-      title: "Quote accepted",
-      description: "Admin accepted quote #QT-1042 for Paris → Lyon.",
-      time: "18 min ago",
-      hasNotification: false,
-      action: "View mission",
-    },
-    {
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-      iconPath: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-        </svg>
-      ),
-      title: "Driver assigned",
-      description: "Marc Dubois assigned to #MS-20412.",
-      time: "35 min ago",
-      hasNotification: false,
-      action: "Open",
-    },
-    {
-      iconBg: "bg-teal-100",
-      iconColor: "text-teal-600",
-      iconPath: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      ),
-      title: "Pickup completed",
-      description: "Pickup inspection completed for BMW X5.",
-      time: "1h ago",
-      hasNotification: false,
-      action: "View proof",
-    },
-    {
-      iconBg: "bg-cyan-100",
-      iconColor: "text-cyan-600",
-      iconPath: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-        </svg>
-      ),
-      title: "Delivery completed",
-      description: "Delivery report generated for #HF-20412.",
-      time: "2h ago",
-      hasNotification: false,
-      action: "View report",
-    },
-    {
-      iconBg: "bg-purple-100",
-      iconColor: "text-purple-600",
-      iconPath: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-        </svg>
-      ),
-      title: "Report generated",
-      description: "Final PDF report is ready for download.",
-      time: "2h ago",
-      hasNotification: false,
-      action: "Download",
-    },
-  ];
+  const sortedRequests = [...requests].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+  const recentActivities = sortedRequests.slice(0, 5).map(r => {
+    let title = "Status Updated";
+    let desc = `Mission ${r.missionId} was updated.`;
+    let iconColor = "text-blue-600";
+    let iconBg = "bg-blue-100";
 
-  const tableData = [
-    {
-      id: "#MS-20458",
-      route: "Paris -> Lyon",
-      vehicle: "BMW X5",
-      driver: "Marc Dubois",
-      timeWindow: "Pickup @ 10:30 AM",
-      status: "Pickup due",
-      priority: "High",
-      action: "Open",
-    },
-    {
-      id: "#MS-20461",
-      route: "Marseille -> Nice",
-      vehicle: "Audi A4",
-      driver: "Pending driver",
-      timeWindow: "Quote review",
-      status: "Needs quote decision",
-      priority: "Urgent",
-      action: "Review Quote",
-    },
-    {
-      id: "#MS-20388",
-      route: "Lille -> Paris",
-      vehicle: "Tesla Model 3",
-      driver: "James Davis",
-      timeWindow: "Delivery @ 4:00 PM",
-      status: "Delivery due",
-      priority: "Normal",
-      action: "Track",
-    },
-    {
-      id: "#MS-20372",
-      route: "Lyon -> Bordeaux",
-      vehicle: "Renault Clio",
-      driver: "Jean Dupont",
-      timeWindow: "Delayed 32 min",
-      status: "Delayed",
-      priority: "High",
-      action: "Contact Driver",
-    },
-  ];
+    if (r.status === 'COMPLETED') {
+      title = "Delivery Completed";
+      desc = `Mission ${r.missionId} has been successfully delivered.`;
+      iconColor = "text-green-600";
+      iconBg = "bg-green-100";
+    } else if (r.status === 'PENDING_ADMIN_QUOTE') {
+      title = "New Request";
+      desc = `Customer submitted request ${r.missionId}.`;
+      iconColor = "text-orange-500";
+      iconBg = "bg-orange-100";
+    } else if (r.status === 'DRIVER_ASSIGNED') {
+      title = "Driver Assigned";
+      desc = `Driver assigned to ${r.missionId}.`;
+      iconColor = "text-purple-600";
+      iconBg = "bg-purple-100";
+    } else if (r.status === 'VEHICLE_PICKED_UP') {
+      title = "Pickup Completed";
+      desc = `Pickup inspection done for ${r.missionId}.`;
+      iconColor = "text-teal-600";
+      iconBg = "bg-teal-100";
+    }
 
-  const trendHeights = [40, 55, 45, 70, 60, 85, 75];
-  const trendDays = ["Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon"];
+    const timeDiff = Math.floor((new Date().getTime() - new Date(r.updatedAt).getTime()) / 60000);
+    const timeStr = timeDiff < 60 ? `${timeDiff} min ago` : `${Math.floor(timeDiff / 60)}h ago`;
+
+    return {
+      id: r._id,
+      iconBg,
+      iconColor,
+      iconPath: (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      title,
+      description: desc,
+      time: timeStr,
+      hasNotification: false,
+      action: "View",
+    };
+  });
+
+  let filteredTableRequests = sortedRequests;
+  if (activeFilter === "Needs Quote") {
+    filteredTableRequests = sortedRequests.filter(r => r.status === 'PENDING_ADMIN_QUOTE');
+  } else if (activeFilter === "Open for Bidding") {
+    filteredTableRequests = sortedRequests.filter(r => r.status === 'OPEN_FOR_DRIVERS');
+  } else if (activeFilter === "Active") {
+    const activeStatuses = ['ASSIGNED', 'IN_PROGRESS', 'IN_TRANSIT', 'VEHICLE_PICKED_UP', 'DELIVERY_ARRIVAL'];
+    filteredTableRequests = sortedRequests.filter(r => activeStatuses.includes(r.status));
+  }
+
+  const tableData = filteredTableRequests.slice(0, 8).map(r => {
+    let route = 'Single Location';
+    if (r.type === 'TRANSPORT') {
+      const p = (r.details?.pickupAddress || "").split(",")[0];
+      const d = (r.details?.dropoffAddress || "").split(",")[0];
+      route = p && d ? `${p} -> ${d}` : 'N/A';
+    } else if (r.type === 'INSPECTION') {
+      route = (r.details?.inspectionLocation || "").split(",")[0] || 'N/A';
+    } else if (r.type === 'HIRE_DRIVER') {
+      route = (r.details?.driverLocation || "").split(",")[0] || 'N/A';
+    }
+
+    let vehicle = 'N/A';
+    if (r.type === 'TRANSPORT') vehicle = `${r.details?.make || ''} ${r.details?.model || ''}`.trim() || 'N/A';
+    if (r.type === 'INSPECTION') vehicle = `${r.details?.vehicleBrand || ''} ${r.details?.vehicleModel || ''}`.trim() || 'N/A';
+
+    return {
+      id: r.missionId || 'N/A',
+      realId: r._id,
+      route,
+      vehicle,
+      driver: r.assignedDriverId?.name || "Pending driver",
+      timeWindow: r.details?.pickupTime ? `Pickup @ ${r.details.pickupTime}` : 'N/A',
+      status: r.status.replace(/_/g, " "),
+      priority: r.status === 'PENDING_ADMIN_QUOTE' ? 'High' : 'Normal',
+      action: "Open",
+    };
+  });
+
+  // Compute dynamic stats
+  let bestMarginReq: any = null;
+  let maxMargin = -1;
+  requests.forEach(r => {
+    if (r.adminQuote?.amount && r.adminQuote?.driverPrice) {
+       const margin = Number(r.adminQuote.amount) - Number(r.adminQuote.driverPrice);
+       if (margin > maxMargin) {
+          maxMargin = margin;
+          bestMarginReq = r;
+       }
+    }
+  });
+  const bestMarginStr = bestMarginReq ? (bestMarginReq.missionId || "N/A") : "N/A";
+
+  const acceptedQuotes = requests.filter(r => ['ASSIGNED', 'IN_PROGRESS', 'IN_TRANSIT', 'VEHICLE_PICKED_UP', 'DELIVERY_ARRIVAL', 'COMPLETED'].includes(r.status)).length;
+  const rejectedQuotes = requests.filter(r => ['CANCELLED', 'REJECTED_BY_CUSTOMER'].includes(r.status)).length;
+  const pendingQuotesDist = requests.filter(r => ['OPEN_FOR_DRIVERS', 'PENDING_DRIVER_QUOTE', 'ADMIN_REVIEWING_DRIVERS', 'CUSTOMER_REVIEWING_QUOTE', 'PENDING_ADMIN_QUOTE'].includes(r.status)).length;
+  const totalQuotes = (acceptedQuotes + rejectedQuotes + pendingQuotesDist) || 1; // avoid div by 0
+
+  // 7-Day Trend
+  const trendHeights = Array(7).fill(0);
+  const trendDays = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    trendDays.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+    
+    const dStr = d.toISOString().split('T')[0];
+    const dailyTotal = requests.filter(r => r.status === 'COMPLETED' && r.updatedAt.startsWith(dStr)).reduce((sum, r) => sum + Number(r.adminQuote?.amount || 0), 0);
+    trendHeights[6 - i] = dailyTotal;
+  }
+  // Normalize heights to 0-85 for the chart
+  const maxTrend = Math.max(...trendHeights, 1);
+  const normalizedTrendHeights = trendHeights.map(h => (h / maxTrend) * 85);
 
   return (
     <div className="overflow-auto">
@@ -255,12 +283,12 @@ export default function Overview() {
                   <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
                     {activity.description}
                   </p>
-                  <button className="mt-1 text-xs text-blue-500 font-medium flex items-center gap-1 hover:text-blue-700">
+                  <Link href={`/quote-desk/${activity.id}`} className="mt-1 w-fit text-xs text-blue-500 font-medium flex items-center gap-1 hover:text-blue-700">
                     {activity.action}
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
@@ -271,27 +299,26 @@ export default function Overview() {
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quote & Finance Snapshot</h3>
 
-          {/* Top stats */}
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-blue-50 rounded-xl p-4">
-              <div className="text-3xl font-bold text-blue-600">24</div>
+              <div className="text-3xl font-bold text-blue-600">{pendingDriverQuotes}</div>
               <div className="text-xs text-gray-500 mt-1">Pending Quotes</div>
             </div>
             <div className="bg-pink-50 rounded-xl p-4">
-              <div className="text-3xl font-bold text-pink-600">€3,840</div>
-              <div className="text-xs text-gray-500 mt-1">Pending Payouts</div>
+              <div className="text-3xl font-bold text-pink-600">€{requests.reduce((sum, r) => sum + (r.status === 'COMPLETED' ? Number(r.adminQuote?.amount || 0) : 0), 0).toLocaleString()}</div>
+              <div className="text-xs text-gray-500 mt-1">Total Revenue (Completed)</div>
             </div>
           </div>
 
           {/* Avg Response & Best Margin */}
           <div className="border border-gray-100 rounded-xl divide-y divide-gray-100 mb-4">
             <div className="flex items-center justify-between px-4 py-3">
-              <span className="text-sm text-gray-500">Avg Response Time</span>
-              <span className="text-sm font-semibold text-gray-900">18 min</span>
+              <span className="text-sm text-gray-500">Total Missions</span>
+              <span className="text-sm font-semibold text-gray-900">{requests.length}</span>
             </div>
             <div className="flex items-center justify-between px-4 py-3">
               <span className="text-sm text-gray-500">Best Margin</span>
-              <span className="text-sm font-semibold text-green-600">#MS-20461</span>
+              <span className="text-sm font-semibold text-green-600">{bestMarginStr}</span>
             </div>
           </div>
 
@@ -299,14 +326,14 @@ export default function Overview() {
           <div className="mb-4">
             <div className="text-xs font-medium text-gray-500 mb-2">Quote Distribution</div>
             <div className="flex gap-1 h-8 rounded-lg overflow-hidden">
-              <div className="flex-[2] bg-green-500 flex items-center justify-center text-xs text-white font-semibold rounded-l-lg">
-                Accepted
+              <div style={{ flex: Math.max(acceptedQuotes / totalQuotes, 0.1) }} className="bg-green-500 flex items-center justify-center text-xs text-white font-semibold rounded-l-lg overflow-hidden whitespace-nowrap px-1">
+                {acceptedQuotes > 0 ? `Accepted (${acceptedQuotes})` : ''}
               </div>
-              <div className="flex-[1.2] bg-red-500 flex items-center justify-center text-xs text-white font-semibold">
-                Rejected
+              <div style={{ flex: Math.max(rejectedQuotes / totalQuotes, 0.1) }} className="bg-red-500 flex items-center justify-center text-xs text-white font-semibold overflow-hidden whitespace-nowrap px-1">
+                {rejectedQuotes > 0 ? `Rejected (${rejectedQuotes})` : ''}
               </div>
-              <div className="flex-[1.5] bg-amber-400 flex items-center justify-center text-xs text-white font-semibold rounded-r-lg">
-                Pending
+              <div style={{ flex: Math.max(pendingQuotesDist / totalQuotes, 0.1) }} className="bg-amber-400 flex items-center justify-center text-xs text-white font-semibold rounded-r-lg overflow-hidden whitespace-nowrap px-1">
+                {pendingQuotesDist > 0 ? `Pending (${pendingQuotesDist})` : ''}
               </div>
             </div>
           </div>
@@ -323,14 +350,14 @@ export default function Overview() {
                   strokeWidth="2"
                   strokeLinejoin="round"
                   strokeLinecap="round"
-                  points={trendHeights
-                    .map((h, i) => `${(i / (trendHeights.length - 1)) * 240 + 10},${60 - (h / 100) * 50}`)
+                  points={normalizedTrendHeights
+                    .map((h, i) => `${(i / (normalizedTrendHeights.length - 1)) * 240 + 10},${60 - (h / 100) * 50}`)
                     .join(" ")}
                 />
-                {trendHeights.map((h, i) => (
+                {normalizedTrendHeights.map((h, i) => (
                   <circle
                     key={i}
-                    cx={(i / (trendHeights.length - 1)) * 240 + 10}
+                    cx={(i / (normalizedTrendHeights.length - 1)) * 240 + 10}
                     cy={60 - (h / 100) * 50}
                     r="3.5"
                     fill="#3B82F6"
@@ -392,18 +419,17 @@ export default function Overview() {
             </svg>
           </div>
 
-          {/* Stats row */}
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="bg-blue-50 rounded-xl p-3 text-center">
-              <div className="text-2xl font-bold text-blue-600">14</div>
+              <div className="text-2xl font-bold text-blue-600">{inTransitCount}</div>
               <div className="text-xs text-gray-500 mt-0.5">In Transit</div>
             </div>
             <div className="bg-red-50 rounded-xl p-3 text-center">
-              <div className="text-2xl font-bold text-red-500">2</div>
-              <div className="text-xs text-gray-500 mt-0.5">Delayed</div>
+              <div className="text-2xl font-bold text-red-500">{cancelledMissions}</div>
+              <div className="text-xs text-gray-500 mt-0.5">Cancelled</div>
             </div>
             <div className="bg-green-50 rounded-xl p-3 text-center">
-              <div className="text-2xl font-bold text-green-600">7</div>
+              <div className="text-2xl font-bold text-green-600">{pickupDueToday + deliveryDueToday}</div>
               <div className="text-xs text-gray-500 mt-0.5">Due Today</div>
             </div>
           </div>
@@ -461,18 +487,19 @@ export default function Overview() {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">Needs Action</h3>
             <div className="flex gap-2">
-              <button className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg">
-                Needs Action
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">
-                Pickups
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">
-                Deliveries
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">
-                Delayed
-              </button>
+              {['All Missions', 'Needs Quote', 'Open for Bidding', 'Active'].map(filter => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    activeFilter === filter
+                      ? 'text-blue-600 bg-blue-50'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -519,9 +546,9 @@ export default function Overview() {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <button className="text-sm font-medium text-blue-600 hover:text-blue-700">
+                  <Link href={`/quote-desk/${row.realId}`} className="text-sm font-medium text-blue-600 hover:text-blue-700">
                     {row.action}
-                  </button>
+                  </Link>
                 </td>
               </tr>
             ))}

@@ -5,6 +5,7 @@ import { DriverRoutes } from '../modules/drivers/drivers.routes';
 import { CustomerRoutes } from '../modules/customers/customers.routes';
 
 import { RequestsRoutes } from '../modules/requests/requests.routes';
+import { NotificationRoutes } from '../modules/notifications/notifications.routes';
 
 const router = express.Router();
 
@@ -19,6 +20,8 @@ const moduleRoutes = [
   { path: '/customers', route: CustomerRoutes },
   // ─── Requests / Missions ──────────────────────────────────────
   { path: '/requests',  route: RequestsRoutes },
+  // ─── Notifications ────────────────────────────────────────────
+  { path: '/notifications', route: NotificationRoutes },
 ];
 
 moduleRoutes.forEach(route => router.use(route.path, route.route));

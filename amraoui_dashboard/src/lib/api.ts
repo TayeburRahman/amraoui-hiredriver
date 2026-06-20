@@ -1,5 +1,5 @@
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://amraoui-hiredriver-backends.vercel.app";
 
 export const API_BASE = `${BACKEND_URL}/api/v1`;
 

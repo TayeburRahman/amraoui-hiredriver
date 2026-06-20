@@ -54,7 +54,7 @@ export const customerQuoteEmailBody = (data: {
         <p>Please log in to your Customer Portal to review the details and accept or reject this quote, or simply <strong>reply to this email</strong> to discuss further.</p>
         
         <div style="margin-top: 30px;">
-          <a href="http://localhost:3001/dashboard/orders" style="background: #2563EB; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Customer Portal</a>
+          <a href="https://amraoui-hiredriver.vercel.app/dashboard/orders" style="background: #2563EB; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Customer Portal</a>
         </div>
 
         <p style="margin-top: 30px; font-size: 12px; color: #94a3b8;">
@@ -83,7 +83,7 @@ export const customerDriverAssignedEmailBody = (data: {
         </div>
         <p>You can check the progress in your Customer Portal.</p>
         <div style="margin-top: 30px;">
-          <a href="http://localhost:3001/dashboard/orders" style="background: #2563EB; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Customer Portal</a>
+          <a href="https://amraoui-hiredriver.vercel.app/dashboard/orders" style="background: #2563EB; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Customer Portal</a>
         </div>
       </div>
     </body>
@@ -102,7 +102,7 @@ export const customerMissionCompleteEmailBody = (data: {
         <p>Your request (<strong>${data.requestId}</strong>) has been successfully completed by the driver.</p>
         <p>Thank you for using our services. You can view the final details and inspection reports in your Customer Portal.</p>
         <div style="margin-top: 30px;">
-          <a href="http://localhost:3001/dashboard/orders" style="background: #2563EB; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Customer Portal</a>
+          <a href="https://amraoui-hiredriver.vercel.app/dashboard/orders" style="background: #2563EB; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;">Go to Customer Portal</a>
         </div>
       </div>
     </body>

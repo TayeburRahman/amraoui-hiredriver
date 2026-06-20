@@ -1224,18 +1224,16 @@ class _MissionsScreenState extends State<MissionsScreen> {
 
     Get.bottomSheet(
       Builder(
-        builder: (context) => Padding(
+        builder: (context) => Container(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 24,
+            right: 24,
+            top: 24,
+            bottom: 24 +
+                MediaQuery.of(context).padding.bottom +
+                MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Container(
-            padding: EdgeInsets.only(
-              left: 24,
-              right: 24,
-              top: 24,
-              bottom: 24 + MediaQuery.of(context).padding.bottom,
-            ),
-            decoration: const BoxDecoration(
+          decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(24),
@@ -1481,7 +1479,6 @@ class _MissionsScreenState extends State<MissionsScreen> {
             ),
           ),
         ),
-      ),
       isScrollControlled: true,
     );
   }
@@ -1494,30 +1491,15 @@ class _MissionsScreenState extends State<MissionsScreen> {
       final bool isVerified =
           verification != null && verification['arrivalDeclared'] == true;
 
-      if (type == 'INSPECTION') {
-        if (isVerified) {
-          Get.to(
-            () => DeliveryInspectionScreen(mission: mission, reqId: reqId),
-          );
-        } else {
-          Get.to(
-            () => PickupVerificationScreen(mission: mission, reqId: reqId),
-          );
-        }
-        return;
+      // Route to PickupVerification and PickupInspection for ALL mission types
+      if (isVerified) {
+        Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
       } else {
-        // TRANSPORT and HIRE_DRIVER
-        if (isVerified &&
-            (verification['vehicleMatchConfirmed'] == true ||
-                type == 'HIRE_DRIVER')) {
-          Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
-        } else {
-          Get.to(
-            () => PickupVerificationScreen(mission: mission, reqId: reqId),
-          );
-        }
-        return;
+        Get.to(
+          () => PickupVerificationScreen(mission: mission, reqId: reqId),
+        );
       }
+      return;
     }
 
     // For ASSIGNED or other statuses, show the standard details screen

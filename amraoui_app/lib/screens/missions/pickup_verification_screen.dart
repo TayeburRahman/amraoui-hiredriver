@@ -33,11 +33,19 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
   @override
   void initState() {
     super.initState();
+    final type = widget.mission['type'];
     final details = widget.mission['details'] ?? {};
     final verification = details['pickupVerification'];
+    
+    if (type != 'TRANSPORT') {
+      vehicleMatchConfirmed = true;
+    }
+    
     if (verification != null) {
       arrivalDeclared = verification['arrivalDeclared'] == true;
-      vehicleMatchConfirmed = verification['vehicleMatchConfirmed'] == true;
+      if (type == 'TRANSPORT') {
+        vehicleMatchConfirmed = verification['vehicleMatchConfirmed'] == true;
+      }
     }
     _fetchDriverLocation();
   }
@@ -251,7 +259,7 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
               const Gap(height: 16),
               
               // Vehicle Registration Card
-              ...[
+              if (type == 'TRANSPORT') ...[
                 _buildCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,7 +326,7 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
               const Gap(height: 16),
               
               // Vehicle Details Confirmation
-              ...[
+              if (type == 'TRANSPORT') ...[
                 _buildCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

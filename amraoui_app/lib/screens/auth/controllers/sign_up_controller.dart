@@ -88,7 +88,7 @@ class SignUpController extends GetxController {
       hideGlobalLoading();
       if (e.type == DioExceptionType.connectionError) {
         AppSnackBar.error(
-          'Cannot reach the server. On web use localhost API; restart the backend after CORS updates.',
+          'Cannot reach the server. Ensure your internet connection is active.',
         );
       } else {
         AppSnackBar.error(

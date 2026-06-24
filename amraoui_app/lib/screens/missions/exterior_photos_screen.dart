@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
 class ExteriorPhotosScreen extends StatefulWidget {
@@ -184,9 +185,16 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
                       // Already uploaded to server (not a web blob)
                       uploadData[entry.key] = entry.value;
                     } else {
-                      final bytes = await XFile(entry.value!).readAsBytes();
-                      files.add(MultipartFile.fromBytes(bytes, filename: 'photo.jpg'));
-                      labels.add(entry.key);
+                      final bytes = await FlutterImageCompress.compressWithFile(
+                        entry.value!,
+                        minWidth: 800,
+                        minHeight: 800,
+                        quality: 70,
+                      );
+                      if (bytes != null) {
+                        files.add(MultipartFile.fromBytes(bytes, filename: 'photo.jpg'));
+                        labels.add(entry.key);
+                      }
                     }
                   }
                 }

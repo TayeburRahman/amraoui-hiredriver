@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 
 class DamageReportScreen extends StatefulWidget {
@@ -270,9 +271,16 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                 bool isNetworkImage = damagePhoto != null && damagePhoto!.startsWith('http') && !damagePhoto!.startsWith('blob:http');
                 
                 if (hasDamage && damagePhoto != null && !isNetworkImage) {
-                  final bytes = await XFile(damagePhoto!).readAsBytes();
-                  uploadData['image'] = [MultipartFile.fromBytes(bytes, filename: 'damage.jpg')];
-                  uploadData['imageLabels'] = ['damagePhoto'];
+                  final bytes = await FlutterImageCompress.compressWithFile(
+                    damagePhoto!,
+                    minWidth: 800,
+                    minHeight: 800,
+                    quality: 70,
+                  );
+                  if (bytes != null) {
+                    uploadData['image'] = [MultipartFile.fromBytes(bytes, filename: 'damage.jpg')];
+                    uploadData['imageLabels'] = ['damagePhoto'];
+                  }
                 } else if (hasDamage && damagePhoto != null) {
                   uploadData['photo'] = damagePhoto;
                 }

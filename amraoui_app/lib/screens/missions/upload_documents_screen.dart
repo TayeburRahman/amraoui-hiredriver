@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 
 class UploadDocumentsScreen extends StatefulWidget {
@@ -211,9 +212,16 @@ class _UploadDocumentsScreenState extends State<UploadDocumentsScreen> {
                   if (path.startsWith('http') && !path.startsWith('blob:http')) {
                     existingDocs.add(path);
                   } else {
-                    final bytes = await XFile(path).readAsBytes();
-                    files.add(MultipartFile.fromBytes(bytes, filename: 'document_$i.jpg'));
-                    labels.add('document');
+                    final bytes = await FlutterImageCompress.compressWithFile(
+                      path,
+                      minWidth: 800,
+                      minHeight: 800,
+                      quality: 70,
+                    );
+                    if (bytes != null) {
+                      files.add(MultipartFile.fromBytes(bytes, filename: 'document_$i.jpg'));
+                      labels.add('document');
+                    }
                   }
                 }
                 

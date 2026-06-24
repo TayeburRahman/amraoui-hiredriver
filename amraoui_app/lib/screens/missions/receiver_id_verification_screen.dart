@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 
 class ReceiverIdVerificationScreen extends StatefulWidget {
@@ -408,17 +409,31 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                 final List<String> labels = [];
 
                 if (idFrontPath != null) {
-                  final bytes = await XFile(idFrontPath!).readAsBytes();
-                  files.add(MultipartFile.fromBytes(bytes, filename: 'id_front.jpg'));
-                  labels.add('idFront');
+                  final bytes = await FlutterImageCompress.compressWithFile(
+                    idFrontPath!,
+                    minWidth: 800,
+                    minHeight: 800,
+                    quality: 70,
+                  );
+                  if (bytes != null) {
+                    files.add(MultipartFile.fromBytes(bytes, filename: 'id_front.jpg'));
+                    labels.add('idFront');
+                  }
                 } else if (existingIdFrontUrl != null) {
                   uploadData['idFront'] = existingIdFrontUrl;
                 }
 
                 if (idBackPath != null) {
-                  final bytes = await XFile(idBackPath!).readAsBytes();
-                  files.add(MultipartFile.fromBytes(bytes, filename: 'id_back.jpg'));
-                  labels.add('idBack');
+                  final bytes = await FlutterImageCompress.compressWithFile(
+                    idBackPath!,
+                    minWidth: 800,
+                    minHeight: 800,
+                    quality: 70,
+                  );
+                  if (bytes != null) {
+                    files.add(MultipartFile.fromBytes(bytes, filename: 'id_back.jpg'));
+                    labels.add('idBack');
+                  }
                 } else if (existingIdBackUrl != null) {
                   uploadData['idBack'] = existingIdBackUrl;
                 }

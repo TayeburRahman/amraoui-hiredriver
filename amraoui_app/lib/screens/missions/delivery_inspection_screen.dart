@@ -9,6 +9,7 @@ import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:signature/signature.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 import 'package:amraoui_app/screens/missions/exterior_photos_screen.dart';
 import 'package:amraoui_app/screens/missions/interior_photos_screen.dart';
@@ -512,9 +513,16 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                   final List<String> labels = [];
 
                   if (driverSelfiePath != null) {
-                    final bytes = await XFile(driverSelfiePath!).readAsBytes();
-                    files.add(MultipartFile.fromBytes(bytes, filename: 'driver_selfie.jpg'));
-                    labels.add('driverSelfiePhoto');
+                    final bytes = await FlutterImageCompress.compressWithFile(
+                      driverSelfiePath!,
+                      minWidth: 800,
+                      minHeight: 800,
+                      quality: 70,
+                    );
+                    if (bytes != null) {
+                      files.add(MultipartFile.fromBytes(bytes, filename: 'driver_selfie.jpg'));
+                      labels.add('driverSelfiePhoto');
+                    }
                   } else if (existingDriverSelfieUrl != null) {
                     uploadData['driverSelfiePhoto'] = existingDriverSelfieUrl;
                   }

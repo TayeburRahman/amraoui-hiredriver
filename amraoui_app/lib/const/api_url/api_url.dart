@@ -6,13 +6,13 @@ class AppApiUrl {
   static const String soketUrl = domain;
 
   // Auth Endpoints
-  static const String signUpUrl = "/auth/signup";
+  static const String signUpUrl = "/auth/register";
   static const String signInUrl = "/auth/login";
-  static const String activateAccountUrl = "/auth/activate";
-  static const String resendActivationUrl = "/auth/resend-activation";
+  static const String activateAccountUrl = "/auth/activate-user";
+  static const String resendActivationUrl = "/auth/active-resend";
   static const String forgotPasswordUrl = "/auth/forgot-password";
   static const String verifyOtpUrl = "/auth/verify-otp";
-  static const String resendForgotUrl = "/auth/resend-forgot-password";
+  static const String resendForgotUrl = "/auth/resend-forgot";
   static const String resetPasswordUrl = "/auth/reset-password";
   static const String changePasswordUrl = "/auth/change-password";
   static const String refreshTokenUrl = "/auth/refresh-token";

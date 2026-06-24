@@ -10,7 +10,11 @@ void appGlobalLoading() => _globalLoader.showLoader();
 void hideGlobalLoading() => _globalLoader.hideLoader();
 
 class AppGlobalLoading {
+  bool _isLoaderOpen = false;
+
   void showLoader() {
+    if (_isLoaderOpen) return;
+    _isLoaderOpen = true;
     Get.dialog(
       Center(
         child: Container(
@@ -37,19 +41,24 @@ class AppGlobalLoading {
         ),
       ),
       barrierDismissible: false,
-    );
+    ).then((_) {
+      _isLoaderOpen = false;
+    });
   }
 
   void hideLoader() {
-    if (Get.isDialogOpen ?? false) {
-      Get.back();
-    } else {
-      // If called too quickly while dialog is still animating in, wait and try again
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (Get.isDialogOpen ?? false) {
-          Get.back();
-        }
-      });
+    if (_isLoaderOpen) {
+      _isLoaderOpen = false;
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      } else {
+        // If called too quickly while dialog is still animating in, wait and try again
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (Get.isDialogOpen ?? false) {
+            Get.back();
+          }
+        });
+      }
     }
   }
 }

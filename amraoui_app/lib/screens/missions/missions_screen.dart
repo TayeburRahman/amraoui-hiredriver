@@ -1224,16 +1224,20 @@ class _MissionsScreenState extends State<MissionsScreen> {
 
     Get.bottomSheet(
       Builder(
-        builder: (context) => Container(
-          padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: 24 +
-                MediaQuery.of(context).padding.bottom +
-                MediaQuery.of(context).viewInsets.bottom,
-          ),
-          decoration: const BoxDecoration(
+        builder: (context) {
+          // Get the keyboard height
+          final mediaQuery = MediaQuery.of(context);
+          final keyboardHeight = mediaQuery.viewInsets.bottom;
+          final bottomPadding = mediaQuery.padding.bottom;
+
+          return Container(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 24,
+              bottom: 24 + bottomPadding,
+            ),
+            decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(24),
@@ -1241,6 +1245,10 @@ class _MissionsScreenState extends State<MissionsScreen> {
               ),
             ),
             child: SingleChildScrollView(
+              // Add padding for keyboard
+              padding: EdgeInsets.only(
+                bottom: keyboardHeight > 0 ? keyboardHeight : 0,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1422,8 +1430,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
                             isAutoAssigned
                                 ? 'Your quote was accepted immediately. You have been assigned to this mission.'
                                 : (isUpdate
-                                    ? 'Quote updated successfully'
-                                    : 'Quote submitted successfully'),
+                                      ? 'Quote updated successfully'
+                                      : 'Quote submitted successfully'),
                             snackPosition: SnackPosition.bottom,
                             backgroundColor: const Color(0xFF10B981),
                             colorText: Colors.white,
@@ -1474,12 +1482,18 @@ class _MissionsScreenState extends State<MissionsScreen> {
                       ),
                     ),
                   ),
+                  // Add some extra bottom space for the keyboard
+                  const Gap(height: 20),
                 ],
               ),
             ),
-          ),
-        ),
+          );
+        },
+      ),
       isScrollControlled: true,
+      // Add these to improve keyboard handling
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
     );
   }
 
@@ -1495,9 +1509,7 @@ class _MissionsScreenState extends State<MissionsScreen> {
       if (isVerified) {
         Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
       } else {
-        Get.to(
-          () => PickupVerificationScreen(mission: mission, reqId: reqId),
-        );
+        Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
       }
       return;
     }

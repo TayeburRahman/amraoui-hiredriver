@@ -17,10 +17,13 @@ let isConnected = false;
 
 async function main() {
   try {
-    if (!isConnected) {
-      await mongoose.connect(config.database_url as string);
+    if (!isConnected || mongoose.connection.readyState !== 1) {
+      await mongoose.connect(config.database_url as string, {
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+      });
       isConnected = true;
-      logger.info('DB Connected on Successfully');
+      logger.info('DB Connected Successfully');
     }
 
     if (!process.env.VERCEL) {

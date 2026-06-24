@@ -17,15 +17,15 @@ class DriverRepository {
 
       if (licenseDocument != null) {
         final bytes = await licenseDocument.readAsBytes();
-        map['license_document'] = MultipartFile.fromBytes(bytes, filename: licenseDocument.name);
+        map['license_document'] = MultipartFile.fromBytes(bytes, filename: licenseDocument.path.split('/').last);
       }
       if (idDocument != null) {
         final bytes = await idDocument.readAsBytes();
-        map['id_document'] = MultipartFile.fromBytes(bytes, filename: idDocument.name);
+        map['id_document'] = MultipartFile.fromBytes(bytes, filename: idDocument.path.split('/').last);
       }
       if (contractDocument != null) {
         final bytes = await contractDocument.readAsBytes();
-        map['contract_document'] = MultipartFile.fromBytes(bytes, filename: contractDocument.name);
+        map['contract_document'] = MultipartFile.fromBytes(bytes, filename: contractDocument.path.split('/').last);
       }
 
       final formData = FormData.fromMap(map);
@@ -65,7 +65,7 @@ class DriverRepository {
       final formData = FormData.fromMap({
         'profile_image': MultipartFile.fromBytes(
           bytes,
-          filename: image.name,
+          filename: image.path.split('/').last,
         ),
       });
 

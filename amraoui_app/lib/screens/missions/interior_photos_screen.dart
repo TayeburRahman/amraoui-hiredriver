@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 
 class InteriorPhotosScreen extends StatefulWidget {
@@ -169,9 +170,16 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
                     if (entry.value!.startsWith('http') && !entry.value!.startsWith('blob:http')) {
                       uploadData[entry.key] = entry.value;
                     } else {
-                      final bytes = await XFile(entry.value!).readAsBytes();
-                      files.add(MultipartFile.fromBytes(bytes, filename: 'photo.jpg'));
-                      labels.add(entry.key);
+                      final bytes = await FlutterImageCompress.compressWithFile(
+                        entry.value!,
+                        minWidth: 800,
+                        minHeight: 800,
+                        quality: 70,
+                      );
+                      if (bytes != null) {
+                        files.add(MultipartFile.fromBytes(bytes, filename: 'photo.jpg'));
+                        labels.add(entry.key);
+                      }
                     }
                   }
                 }

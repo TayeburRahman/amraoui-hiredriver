@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 
 class MileageFuelScreen extends StatefulWidget {
@@ -213,9 +214,16 @@ class _MileageFuelScreenState extends State<MileageFuelScreen> {
                   if (odometerPhoto != null) {
                     bool isNetOdo = odometerPhoto!.startsWith('http') && !odometerPhoto!.startsWith('blob:http');
                     if (!isNetOdo) {
-                      final bytes = await XFile(odometerPhoto!).readAsBytes();
-                      files.add(MultipartFile.fromBytes(bytes, filename: 'odometer.jpg'));
-                      labels.add('odometerPhoto');
+                      final bytes = await FlutterImageCompress.compressWithFile(
+                        odometerPhoto!,
+                        minWidth: 800,
+                        minHeight: 800,
+                        quality: 70,
+                      );
+                      if (bytes != null) {
+                        files.add(MultipartFile.fromBytes(bytes, filename: 'odometer.jpg'));
+                        labels.add('odometerPhoto');
+                      }
                     } else {
                       uploadData['odometerPhoto'] = odometerPhoto;
                     }
@@ -224,9 +232,16 @@ class _MileageFuelScreenState extends State<MileageFuelScreen> {
                   if (fuelGaugePhoto != null) {
                     bool isNetFuel = fuelGaugePhoto!.startsWith('http') && !fuelGaugePhoto!.startsWith('blob:http');
                     if (!isNetFuel) {
-                      final bytes = await XFile(fuelGaugePhoto!).readAsBytes();
-                      files.add(MultipartFile.fromBytes(bytes, filename: 'fuel.jpg'));
-                      labels.add('fuelGaugePhoto');
+                      final bytes = await FlutterImageCompress.compressWithFile(
+                        fuelGaugePhoto!,
+                        minWidth: 800,
+                        minHeight: 800,
+                        quality: 70,
+                      );
+                      if (bytes != null) {
+                        files.add(MultipartFile.fromBytes(bytes, filename: 'fuel.jpg'));
+                        labels.add('fuelGaugePhoto');
+                      }
                     } else {
                       uploadData['fuelGaugePhoto'] = fuelGaugePhoto;
                     }

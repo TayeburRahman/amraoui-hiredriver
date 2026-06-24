@@ -27,8 +27,6 @@
 **/*.log
 
 # env files
-.env
-.env.*
 !.env.example
 !.env.local.example
 

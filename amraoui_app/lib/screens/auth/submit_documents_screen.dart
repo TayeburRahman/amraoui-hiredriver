@@ -5,6 +5,7 @@ import 'package:amraoui_app/utils/gap.dart';
 import 'package:amraoui_app/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 class SubmitDocumentsScreen extends StatelessWidget {
   const SubmitDocumentsScreen({super.key});
@@ -91,7 +92,7 @@ class SubmitDocumentsScreen extends StatelessWidget {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
-    required Rxn<File> file,
+    required Rxn<XFile> file,
   }) {
     return Obx(() {
       final selected = file.value != null;
@@ -119,7 +120,7 @@ class SubmitDocumentsScreen extends StatelessWidget {
                   children: [
                     AppText(data: title, fontWeight: FontWeight.w700, fontSize: 15),
                     AppText(
-                      data: selected ? file.value!.path.split('/').last : subtitle,
+                      data: selected ? file.value!.name : subtitle,
                       fontSize: 13,
                       color: const Color(0xFF64748B),
                     ),

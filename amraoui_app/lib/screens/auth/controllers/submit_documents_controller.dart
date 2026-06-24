@@ -16,23 +16,23 @@ class SubmitDocumentsController extends GetxController {
   final _authRepo = AuthRepository();
   final _picker = ImagePicker();
 
-  var licenseFile = Rxn<File>();
-  var idFile = Rxn<File>();
-  var contractFile = Rxn<File>();
+  var licenseFile = Rxn<XFile>();
+  var idFile = Rxn<XFile>();
+  var contractFile = Rxn<XFile>();
 
   Future<void> pickLicense() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) licenseFile.value = File(picked.path);
+    if (picked != null) licenseFile.value = picked;
   }
 
   Future<void> pickId() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) idFile.value = File(picked.path);
+    if (picked != null) idFile.value = picked;
   }
 
   Future<void> pickContract() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) contractFile.value = File(picked.path);
+    if (picked != null) contractFile.value = picked;
   }
 
   Future<void> submit() async {

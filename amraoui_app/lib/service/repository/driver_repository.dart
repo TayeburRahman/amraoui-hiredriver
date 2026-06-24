@@ -1,11 +1,35 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:amraoui_app/const/api_url/api_url.dart';
 import 'package:amraoui_app/models/driver_model.dart';
 import 'package:amraoui_app/service/api/api.dart';
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class DriverRepository {
   final Dio _auth = AppApi().sendRequest;
+
+  Future<Uint8List> _compressIfNeeded(Uint8List bytes, String fileName) async {
+    // Only compress if > 1MB and is an image
+    if (bytes.length < 1024 * 1024) return bytes;
+    
+    final ext = fileName.split('.').last.toLowerCase();
+    if (!['jpg', 'jpeg', 'png', 'webp'].contains(ext)) return bytes;
+
+    try {
+      final compressed = await FlutterImageCompress.compressWithList(
+        bytes,
+        minWidth: 1080,
+        minHeight: 1080,
+        quality: 70,
+        format: CompressFormat.jpeg,
+      );
+      return compressed.isNotEmpty ? compressed : bytes;
+    } catch (e) {
+      return bytes;
+    }
+  }
 
   Future<Map<String, dynamic>?> submitDocuments({
     dynamic licenseDocument,
@@ -16,16 +40,22 @@ class DriverRepository {
       final map = <String, dynamic>{};
 
       if (licenseDocument != null) {
-        final bytes = await licenseDocument.readAsBytes();
-        map['license_document'] = MultipartFile.fromBytes(bytes, filename: licenseDocument.path.split('/').last);
+        Uint8List bytes = await licenseDocument.readAsBytes();
+        final fileName = (licenseDocument is XFile) ? licenseDocument.name : licenseDocument.path.split('/').last;
+        bytes = await _compressIfNeeded(bytes, fileName);
+        map['license_document'] = MultipartFile.fromBytes(bytes, filename: fileName);
       }
       if (idDocument != null) {
-        final bytes = await idDocument.readAsBytes();
-        map['id_document'] = MultipartFile.fromBytes(bytes, filename: idDocument.path.split('/').last);
+        Uint8List bytes = await idDocument.readAsBytes();
+        final fileName = (idDocument is XFile) ? idDocument.name : idDocument.path.split('/').last;
+        bytes = await _compressIfNeeded(bytes, fileName);
+        map['id_document'] = MultipartFile.fromBytes(bytes, filename: fileName);
       }
       if (contractDocument != null) {
-        final bytes = await contractDocument.readAsBytes();
-        map['contract_document'] = MultipartFile.fromBytes(bytes, filename: contractDocument.path.split('/').last);
+        Uint8List bytes = await contractDocument.readAsBytes();
+        final fileName = (contractDocument is XFile) ? contractDocument.name : contractDocument.path.split('/').last;
+        bytes = await _compressIfNeeded(bytes, fileName);
+        map['contract_document'] = MultipartFile.fromBytes(bytes, filename: fileName);
       }
 
       final formData = FormData.fromMap(map);
@@ -61,11 +91,13 @@ class DriverRepository {
 
   Future<Map<String, dynamic>?> updateProfileImage(dynamic image) async {
     try {
-      final bytes = await image.readAsBytes();
+      Uint8List bytes = await image.readAsBytes();
+      final fileName = (image is XFile) ? image.name : image.path.split('/').last;
+      bytes = await _compressIfNeeded(bytes, fileName);
       final formData = FormData.fromMap({
         'profile_image': MultipartFile.fromBytes(
           bytes,
-          filename: image.path.split('/').last,
+          filename: fileName,
         ),
       });
 

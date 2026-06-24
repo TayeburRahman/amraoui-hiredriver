@@ -18,16 +18,28 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
 
-      // Allow any localhost port, local LAN IPs, Next.js, and Vercel domains
-      const isAllowed = 
-        /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
-        /^https?:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
-        /^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
-        origin === "https://amraoui-hiredriver-admin.vercel.app" ||
-        origin === "https://amraoui-hiredriver.vercel.app";
+      const allowedProduction = [
+        'http://localhost:3000',
+        'http://10.10.20.50:3000',
+        'http://10.10.20.50:3001',
+        'http://localhost:3001',
+        'http://localhost:5173',
+        'http://192.168.10.16:3000',
+        "https://amraoui-hiredriver-admin.vercel.app",
+        'https://amraoui-hiredriver.vercel.app'
+      ];
 
-      if (isAllowed) {
+      if (allowedProduction.includes(origin)) {
         return callback(null, true);
+      }
+
+      // Dev: allow Flutter web, Next.js, and LAN origins
+      if (isDev) {
+        const devAllowed =
+          /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+          /^https?:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
+          /^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin);
+        if (devAllowed) return callback(null, true);
       }
 
       callback(new Error(`CORS blocked for origin: ${origin}`));
@@ -35,22 +47,6 @@ app.use(
     credentials: true,
   })
 );
-
-// ─── Ensure DB Connection for Serverless ──────────────
-app.use(async (req, res, next) => {
-  if (mongoose.connection.readyState !== 1) {
-    try {
-      await mongoose.connect(config.database_url as string, {
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-      });
-      console.log('DB Reconnected in Serverless Middleware');
-    } catch (error) {
-      console.error('Failed to reconnect to DB:', error);
-    }
-  }
-  next();
-});
 
 // ─── Body Parsers ─────────────────────────────────────
 app.use(express.json());

@@ -55,7 +55,12 @@ class AccountController extends GetxController {
 
   Future<void> pickAndUploadImage() async {
     try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 50,
+        maxWidth: 1080,
+        maxHeight: 1080,
+      );
       if (image != null) {
         isUploading.value = true;
         Get.snackbar('Uploading', 'Uploading profile image...');

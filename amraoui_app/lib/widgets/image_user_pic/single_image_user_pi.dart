@@ -15,11 +15,21 @@ Future<void> userImagePic(ImageSource source, RxString localImagePath) async {
       var cameraStatus = await Permission.camera.status;
 
       if (cameraStatus.isGranted) {
-        pickedField = await ImagePicker().pickImage(source: source);
+        pickedField = await ImagePicker().pickImage(
+          source: source,
+          imageQuality: 50,
+          maxWidth: 1080,
+          maxHeight: 1080,
+        );
       } else if (cameraStatus.isDenied) {
         var cameraStatus2 = await Permission.camera.request();
         if (cameraStatus2.isGranted) {
-          pickedField = await ImagePicker().pickImage(source: source);
+          pickedField = await ImagePicker().pickImage(
+          source: source,
+          imageQuality: 50,
+          maxWidth: 1080,
+          maxHeight: 1080,
+        );
         } else {
           AppSnackBar.error("Camera Permission Needed");
           return;
@@ -33,14 +43,24 @@ Future<void> userImagePic(ImageSource source, RxString localImagePath) async {
       var mediaStorageStatus = await Permission.manageExternalStorage.status;
 
       if (mediaLibraryStatus.isGranted || mediaStorageStatus.isGranted) {
-        pickedField = await ImagePicker().pickImage(source: source);
+        pickedField = await ImagePicker().pickImage(
+          source: source,
+          imageQuality: 50,
+          maxWidth: 1080,
+          maxHeight: 1080,
+        );
       } else {
         var mediaLibraryStatus2 = await Permission.mediaLibrary.request();
         var mediaStorageStatus2 = await Permission.manageExternalStorage
             .request();
 
         if (mediaLibraryStatus2.isGranted || mediaStorageStatus2.isGranted) {
-          pickedField = await ImagePicker().pickImage(source: source);
+          pickedField = await ImagePicker().pickImage(
+          source: source,
+          imageQuality: 50,
+          maxWidth: 1080,
+          maxHeight: 1080,
+        );
         } else {
           AppSnackBar.error("Media Permission Needed");
           return;

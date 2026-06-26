@@ -21,17 +21,32 @@ class SubmitDocumentsController extends GetxController {
   var contractFile = Rxn<XFile>();
 
   Future<void> pickLicense() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 50,
+      maxWidth: 1080,
+      maxHeight: 1080,
+    );
     if (picked != null) licenseFile.value = picked;
   }
 
   Future<void> pickId() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 50,
+      maxWidth: 1080,
+      maxHeight: 1080,
+    );
     if (picked != null) idFile.value = picked;
   }
 
   Future<void> pickContract() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 50,
+      maxWidth: 1080,
+      maxHeight: 1080,
+    );
     if (picked != null) contractFile.value = picked;
   }
 

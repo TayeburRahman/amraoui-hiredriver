@@ -37,7 +37,12 @@ class DocumentsController extends GetxController {
 
   Future<void> pickAndUploadDocument(String docType) async {
     try {
-      final XFile? file = await _picker.pickImage(source: ImageSource.gallery);
+      final XFile? file = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 50,
+        maxWidth: 1080,
+        maxHeight: 1080,
+      );
       if (file == null) return;
 
       isUploading.value = true;

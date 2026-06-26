@@ -17,7 +17,6 @@ class SignUpController extends GetxController {
     text: kDebugMode ? 'John Doe' : '',
   );
 
-<<<<<<< HEAD
   final emailController = TextEditingController(); // keep empty
 
   final phoneController = TextEditingController(
@@ -42,32 +41,6 @@ class SignUpController extends GetxController {
 
   final confirmPasswordController = TextEditingController(
     text: kDebugMode ? 'Test@123' : '',
-=======
-  final emailController = TextEditingController(); // Keep empty
-
-  final phoneController = TextEditingController(
-    text: kDebugMode ? '1234567890' : '',
-  );
-
-  final licenseController = TextEditingController(
-    text: kDebugMode ? 'DL12345678' : '',
-  );
-
-  final vehicleTypeController = TextEditingController(
-    text: kDebugMode ? 'Motorcycle' : '',
-  );
-
-  final vehiclePlateController = TextEditingController(
-    text: kDebugMode ? 'ABC-1234' : '',
-  );
-
-  final passwordController = TextEditingController(
-    text: kDebugMode ? '123456' : '',
-  );
-
-  final confirmPasswordController = TextEditingController(
-    text: kDebugMode ? '123456' : '',
->>>>>>> 083c19516cc977c340074d5b5b5f3cb3fb45fd44
   );
 
   var isPasswordVisible = false.obs;
@@ -124,7 +97,6 @@ class SignUpController extends GetxController {
         vehicleType: vehicleTypeController.text.trim(),
         vehiclePlate: vehiclePlateController.text.trim(),
       );
-
       hideGlobalLoading();
 
       if (res?['success'] == true) {
@@ -135,11 +107,6 @@ class SignUpController extends GetxController {
         AppSnackBar.success(
           res?['message']?.toString() ?? 'Account created. Check your email.',
         );
-<<<<<<< HEAD
-=======
-
-        Get.closeAllDialogs();
->>>>>>> 083c19516cc977c340074d5b5b5f3cb3fb45fd44
         Get.toNamed(AppRoutes.activateAccount);
       } else {
         AppSnackBar.error(res?['message']?.toString() ?? 'Registration failed');

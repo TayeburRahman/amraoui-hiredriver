@@ -7,7 +7,9 @@ import 'package:get/get.dart';
 final _globalLoader = AppGlobalLoading();
 
 void appGlobalLoading() => _globalLoader.showLoader();
-void hideGlobalLoading() => _globalLoader.hideLoader();
+
+void hideGlobalLoading([bool shouldGoBack = true]) =>
+    _globalLoader.hideLoader(shouldGoBack);
 
 class AppGlobalLoading {
   bool _isLoaderOpen = false;
@@ -46,7 +48,15 @@ class AppGlobalLoading {
     });
   }
 
-  void hideLoader() {
+  void hideLoader([bool shouldGoBack = true]) {
+    if (!shouldGoBack) {
+      _isLoaderOpen = false;
+      Get.closeAllDialogs();
+      return;
+    }
+
+    _isLoaderOpen = false;
+
     if (_isLoaderOpen) {
       _isLoaderOpen = false;
       if (Get.isDialogOpen ?? false) {

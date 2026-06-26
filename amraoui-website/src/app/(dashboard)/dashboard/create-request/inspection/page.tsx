@@ -40,6 +40,7 @@ export default function TechnicalInspectionPage() {
     destinationCity: '',
     destinationZip: '',
     destinationDate: '',
+    destinationTime: '',
     destinationContactName: '',
     destinationContactPhone: '',
     destinationInstructions: '',
@@ -87,6 +88,7 @@ export default function TechnicalInspectionPage() {
     if (!formData.destinationAddress) newErrors.destinationAddress = reqMsg;
     if (!formData.destinationZip) newErrors.destinationZip = reqMsg;
     if (!formData.destinationDate) newErrors.destinationDate = reqMsg;
+    if (!formData.destinationTime) newErrors.destinationTime = reqMsg;
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -346,18 +348,18 @@ export default function TechnicalInspectionPage() {
                   {errors.destinationAddress && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationAddress}</p>}
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <input
-                      type="text"
-                      value={formData.destinationZip || ""}
-                      onChange={(e) => updateForm("destinationZip", e.target.value)}
-                      placeholder={t.createRequest.placeholders.zip}
-                      className={`h-14 w-full rounded-2xl border ${errors.destinationZip ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'text-right' : 'text-left'}`}
-                    />
-                    {errors.destinationZip && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationZip}</p>}
-                  </div>
+                <div>
+                  <input
+                    type="text"
+                    value={formData.destinationZip || ""}
+                    onChange={(e) => updateForm("destinationZip", e.target.value)}
+                    placeholder={t.createRequest.placeholders.zip}
+                    className={`h-14 w-full rounded-2xl border ${errors.destinationZip ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'text-right' : 'text-left'}`}
+                  />
+                  {errors.destinationZip && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationZip}</p>}
+                </div>
 
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="relative">
                     <Calendar className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
                     <input
@@ -367,6 +369,16 @@ export default function TechnicalInspectionPage() {
                       className={`h-14 w-full rounded-2xl border ${errors.destinationDate ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
                     />
                     {errors.destinationDate && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationDate}</p>}
+                  </div>
+
+                  <div className="relative">
+                    <Clock className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 z-10 ${isRTL ? 'right-4' : 'left-4'}`} />
+                    <TimeInput
+                      value={formData.destinationTime || ""}
+                      onChange={(val) => updateForm("destinationTime", val)}
+                      className={`h-14 w-full rounded-2xl border ${errors.destinationTime ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    />
+                    {errors.destinationTime && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationTime}</p>}
                   </div>
                 </div>
 

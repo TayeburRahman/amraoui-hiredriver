@@ -5,20 +5,42 @@ import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
 import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class SignUpController extends GetxController {
   final _authRepo = AuthRepository();
 
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final phoneController = TextEditingController();
-  final licenseController = TextEditingController();
-  final vehicleTypeController = TextEditingController();
-  final vehiclePlateController = TextEditingController();
-  final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
+  final nameController = TextEditingController(
+    text: kDebugMode ? 'John Doe' : '',
+  );
+
+  final emailController = TextEditingController(); // Keep empty
+
+  final phoneController = TextEditingController(
+    text: kDebugMode ? '1234567890' : '',
+  );
+
+  final licenseController = TextEditingController(
+    text: kDebugMode ? 'DL12345678' : '',
+  );
+
+  final vehicleTypeController = TextEditingController(
+    text: kDebugMode ? 'Motorcycle' : '',
+  );
+
+  final vehiclePlateController = TextEditingController(
+    text: kDebugMode ? 'ABC-1234' : '',
+  );
+
+  final passwordController = TextEditingController(
+    text: kDebugMode ? '123456' : '',
+  );
+
+  final confirmPasswordController = TextEditingController(
+    text: kDebugMode ? '123456' : '',
+  );
 
   var isPasswordVisible = false.obs;
   var isConfirmPasswordVisible = false.obs;
@@ -38,7 +60,8 @@ class SignUpController extends GetxController {
   ).obs;
 
   void updateCountry(Country country) => selectedCountry.value = country;
-  void togglePasswordVisibility() => isPasswordVisible.value = !isPasswordVisible.value;
+  void togglePasswordVisibility() =>
+      isPasswordVisible.value = !isPasswordVisible.value;
   void toggleConfirmPasswordVisibility() =>
       isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
   void toggleTermsAgreement(bool? value) {
@@ -61,7 +84,8 @@ class SignUpController extends GetxController {
 
     appGlobalLoading();
     try {
-      final phone = '+${selectedCountry.value.phoneCode} ${phoneController.text.trim()}';
+      final phone =
+          '+${selectedCountry.value.phoneCode} ${phoneController.text.trim()}';
       final res = await _authRepo.registerDriver(
         name: nameController.text.trim(),
         email: emailController.text.trim(),
@@ -74,12 +98,17 @@ class SignUpController extends GetxController {
       );
 
       hideGlobalLoading();
+
       if (res?['success'] == true) {
         await AppStorage().setValue(
           StorageKey.pendingEmail,
           emailController.text.trim(),
         );
-        AppSnackBar.success(res?['message']?.toString() ?? 'Account created. Check your email.');
+        AppSnackBar.success(
+          res?['message']?.toString() ?? 'Account created. Check your email.',
+        );
+
+        Get.closeAllDialogs();
         Get.toNamed(AppRoutes.activateAccount);
       } else {
         AppSnackBar.error(res?['message']?.toString() ?? 'Registration failed');
@@ -92,7 +121,9 @@ class SignUpController extends GetxController {
         );
       } else {
         AppSnackBar.error(
-          e.response?.data?['message']?.toString() ?? e.message ?? 'Registration failed',
+          e.response?.data?['message']?.toString() ??
+              e.message ??
+              'Registration failed',
         );
       }
     } catch (e) {

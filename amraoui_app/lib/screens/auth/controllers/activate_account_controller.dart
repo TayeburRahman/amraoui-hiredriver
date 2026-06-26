@@ -9,8 +9,10 @@ import 'package:get/get.dart';
 
 class ActivateAccountController extends GetxController {
   final _authRepo = AuthRepository();
-  final List<TextEditingController> otpControllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
 
   late String email;
@@ -39,15 +41,19 @@ class ActivateAccountController extends GetxController {
       hideGlobalLoading();
 
       if (res?['success'] != true) {
-        AppSnackBar.error(res?['message']?.toString() ?? 'Invalid activation code');
+        AppSnackBar.error(
+          res?['message']?.toString() ?? 'Invalid activation code',
+        );
         return;
       }
 
       AppSnackBar.success('Email verified! Please log in to continue.');
       Get.offAllNamed(AppRoutes.signIn);
     } on DioException catch (e) {
-      hideGlobalLoading();
-      AppSnackBar.error(e.response?.data?['message']?.toString() ?? 'Verification failed');
+      hideGlobalLoading(false);
+      AppSnackBar.error(
+        e.response?.data?['message']?.toString() ?? 'Verification failed',
+      );
     }
   }
 
@@ -56,7 +62,9 @@ class ActivateAccountController extends GetxController {
       final res = await _authRepo.resendActivation(email);
       AppSnackBar.success(res?['message']?.toString() ?? 'Code resent');
     } on DioException catch (e) {
-      AppSnackBar.error(e.response?.data?['message']?.toString() ?? 'Failed to resend');
+      AppSnackBar.error(
+        e.response?.data?['message']?.toString() ?? 'Failed to resend',
+      );
     }
   }
 

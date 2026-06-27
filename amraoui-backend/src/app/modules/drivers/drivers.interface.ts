@@ -28,6 +28,11 @@ export interface IDrivers extends Document {
   documents_submitted_at?: Date | null;
   decline_reason?: string | null;
   skills?: { name: string; stars: number }[];
+  admin_notes?: string;
+  license_status?: 'pending' | 'verified' | 'rejected';
+  id_status?: 'pending' | 'verified' | 'rejected';
+  contract_status?: 'pending' | 'verified' | 'rejected';
+  document_activity?: { message: string; by: string; date: Date }[];
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -109,6 +109,35 @@ const DriversSchema = new Schema<IDrivers>(
       ],
       default: [],
     },
+    admin_notes: {
+      type: String,
+      default: null,
+    },
+    license_status: {
+      type: String,
+      enum: ['pending', 'verified', 'rejected'],
+      default: 'pending',
+    },
+    id_status: {
+      type: String,
+      enum: ['pending', 'verified', 'rejected'],
+      default: 'pending',
+    },
+    contract_status: {
+      type: String,
+      enum: ['pending', 'verified', 'rejected'],
+      default: 'pending',
+    },
+    document_activity: {
+      type: [
+        {
+          message: { type: String, required: true },
+          by: { type: String, required: true },
+          date: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
   },
   {
     timestamps: true,

@@ -75,4 +75,35 @@ router.patch(
   DriverController.updateDriverStatus
 );
 
+router.post(
+  '/',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  DriverController.createDriverByAdmin
+);
+
+router.patch(
+  '/:id/documents',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  uploadDriverDocuments,
+  DriverController.updateDocumentByAdmin
+);
+
+router.patch(
+  '/:id/documents/delete',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  DriverController.deleteDocumentByAdmin
+);
+
+router.patch(
+  '/:id/documents/status',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  DriverController.updateDocumentStatus
+);
+
+router.patch(
+  '/:id/notes',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  DriverController.updateAdminNotes
+);
+
 export const DriverRoutes = router;

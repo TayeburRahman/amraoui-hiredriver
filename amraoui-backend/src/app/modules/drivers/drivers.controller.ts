@@ -129,6 +129,76 @@ const updateMySkills = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const createDriverByAdmin = catchAsync(async (req: Request, res: Response) => {
+  const result = await DriverService.createDriverByAdmin(req.body);
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: 'Driver created successfully',
+    data: result,
+  });
+});
+
+const updateDocumentByAdmin = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const files = (req as any).files as Record<string, Express.Multer.File[]>;
+  const adminName = (req.user as any)?.name || 'Admin';
+  
+  const result = await DriverService.updateDocumentByAdmin(id, files, adminName);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Document uploaded successfully',
+    data: result,
+  });
+});
+
+const deleteDocumentByAdmin = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { documentType } = req.body;
+  const adminName = (req.user as any)?.name || 'Admin';
+
+  if (!documentType) {
+    throw new ApiError(400, 'Document type is required');
+  }
+
+  const result = await DriverService.deleteDocumentByAdmin(id, documentType, adminName);
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Document deleted successfully',
+    data: result,
+  });
+});
+
+const updateDocumentStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { documentType, status, message } = req.body;
+  const adminName = (req.user as any)?.name || 'Admin';
+
+  const result = await DriverService.updateDocumentStatus(id, documentType, status, message, adminName);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: `Document status updated to ${status}`,
+    data: result,
+  });
+});
+
+const updateAdminNotes = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { notes } = req.body;
+  
+  const result = await DriverService.updateAdminNotes(id, notes);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Admin notes updated successfully',
+    data: result,
+  });
+});
+
 export const DriverController = {
   getAllDrivers,
   getDriverById,
@@ -140,4 +210,9 @@ export const DriverController = {
   updateMyProfile,
   updateMySkills,
   deleteMyDocument,
+  createDriverByAdmin,
+  updateDocumentByAdmin,
+  deleteDocumentByAdmin,
+  updateDocumentStatus,
+  updateAdminNotes,
 };

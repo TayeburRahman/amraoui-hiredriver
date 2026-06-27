@@ -58,7 +58,12 @@ const getDriverById = async (driverId: string) => {
     status: RequestStatus.COMPLETED,
   });
 
+  const totalAssigned = await Requests.countDocuments({
+    $or: [{ assignedDriverId: driverId }, { assignedDriverIds: driverId }],
+  });
+
   driver.totalDeliveries = totalDeliveries;
+  (driver as any).successRate = totalAssigned > 0 ? Math.round((totalDeliveries / totalAssigned) * 100) : 0;
 
   return driver;
 };
@@ -77,7 +82,12 @@ const getMyDriverProfile = async (driverId: string) => {
     status: RequestStatus.COMPLETED,
   });
 
+  const totalAssigned = await Requests.countDocuments({
+    $or: [{ assignedDriverId: driverId }, { assignedDriverIds: driverId }],
+  });
+
   driver.totalDeliveries = totalDeliveries;
+  (driver as any).successRate = totalAssigned > 0 ? Math.round((totalDeliveries / totalAssigned) * 100) : 0;
 
   return driver;
 };
@@ -189,11 +199,18 @@ const updateDriverStatus = async (
     throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
   }
 
-  if (!driver.documents_submitted && status === 'approved') {
+  const hasUploadedDocs = driver.license_document || driver.id_document || driver.contract_document;
+  
+  if (!driver.documents_submitted && !hasUploadedDocs && status === 'approved') {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      'Driver has not submitted documents yet'
+      'Driver has not submitted any documents yet'
     );
+  }
+
+  // Auto-mark as submitted if approving and they have docs
+  if (status === 'approved' && !driver.documents_submitted) {
+    driver.documents_submitted = true;
   }
 
   const updatePayload: Record<string, any> = { status };
@@ -294,6 +311,145 @@ const updateMySkills = async (driverId: string, skills: { name: string; stars: n
 
   return driver;
 };
+const createDriverByAdmin = async (payload: any) => {
+  const { name, email, password, phone_number, license_number, vehicle_type, vehicle_plate, address } = payload;
+
+  const existingAuth = await Auth.findOne({ email }).lean();
+  if (existingAuth) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Email already exists");
+  }
+
+  const authData = {
+    role: ENUM_USER_ROLE.DRIVER,
+    name,
+    email,
+    password, 
+    isActive: true, 
+    is_block: false
+  };
+
+  const createAuth = await Auth.create(authData);
+  if (!createAuth) {
+    throw new ApiError(500, "Failed to create auth account");
+  }
+
+  const driverData = {
+    authId: createAuth._id,
+    name,
+    email,
+    phone_number,
+    license_number,
+    vehicle_type,
+    vehicle_plate,
+    address,
+    status: 'approved', 
+  };
+
+  const driver = await Drivers.create(driverData);
+  return driver;
+};
+
+const updateDocumentByAdmin = async (
+  driverId: string,
+  files: Record<string, Express.Multer.File[]>,
+  adminName: string
+) => {
+  const driver = await Drivers.findById(driverId);
+  if (!driver) throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
+
+  const licenseFile = files?.license_document?.[0];
+  const idFile = files?.id_document?.[0];
+  const contractFile = files?.contract_document?.[0];
+
+  const updateData: Record<string, any> = {};
+  const newActivity: any[] = [];
+
+  if (licenseFile) {
+    updateData.license_document = licenseFile.path;
+    updateData.license_status = 'pending';
+    newActivity.push({ message: 'License document uploaded', by: adminName, date: new Date() });
+  }
+  if (idFile) {
+    updateData.id_document = idFile.path;
+    updateData.id_status = 'pending';
+    newActivity.push({ message: 'ID document uploaded', by: adminName, date: new Date() });
+  }
+  if (contractFile) {
+    updateData.contract_document = contractFile.path;
+    updateData.contract_status = 'pending';
+    newActivity.push({ message: 'Contract document uploaded', by: adminName, date: new Date() });
+  }
+
+  if (newActivity.length > 0) {
+    updateData.$push = { document_activity: { $each: newActivity } };
+  }
+
+  const updated = await Drivers.findByIdAndUpdate(driverId, updateData, { new: true });
+  return updated;
+};
+
+const deleteDocumentByAdmin = async (driverId: string, documentType: string, adminName: string) => {
+  const allowedTypes = ['license_document', 'id_document', 'contract_document'];
+  if (!allowedTypes.includes(documentType)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid document type');
+  }
+
+  const statusField = documentType.replace('_document', '_status');
+
+  const updateData: any = {
+    [documentType]: null,
+    [statusField]: 'pending',
+    $push: {
+      document_activity: {
+        message: `${documentType.replace('_', ' ')} deleted`,
+        by: adminName,
+        date: new Date()
+      }
+    }
+  };
+
+  const updated = await Drivers.findByIdAndUpdate(driverId, updateData, { new: true });
+  return updated;
+};
+
+const updateDocumentStatus = async (
+  driverId: string,
+  documentType: string,
+  status: 'pending' | 'verified' | 'rejected',
+  message?: string,
+  adminName?: string
+) => {
+  const allowedTypes = ['license_document', 'id_document', 'contract_document'];
+  if (!allowedTypes.includes(documentType)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid document type');
+  }
+
+  const statusField = documentType.replace('_document', '_status');
+  const activityMessage = message ? `${documentType.replace('_', ' ')} marked as ${status} - ${message}` : `${documentType.replace('_', ' ')} marked as ${status}`;
+
+  const updateData: any = {
+    [statusField]: status,
+    $push: {
+      document_activity: {
+        message: activityMessage,
+        by: adminName || 'Admin',
+        date: new Date()
+      }
+    }
+  };
+
+  const updated = await Drivers.findByIdAndUpdate(driverId, updateData, { new: true });
+  return updated;
+};
+
+const updateAdminNotes = async (driverId: string, notes: string) => {
+  const updated = await Drivers.findByIdAndUpdate(
+    driverId,
+    { admin_notes: notes },
+    { new: true }
+  );
+  return updated;
+};
 
 export const DriverService = {
   getAllDrivers,
@@ -306,4 +462,9 @@ export const DriverService = {
   updateMySkills,
   updateMyProfile,
   deleteMyDocument,
+  createDriverByAdmin,
+  updateDocumentByAdmin,
+  deleteDocumentByAdmin,
+  updateDocumentStatus,
+  updateAdminNotes,
 };

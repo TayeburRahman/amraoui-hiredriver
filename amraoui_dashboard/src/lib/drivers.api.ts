@@ -1,4 +1,4 @@
-import { apiFetch, getProfileImageUrl } from "./api";
+import { apiFetch, getProfileImageUrl, getToken } from "./api";
 
 interface ApiResponse<T = unknown> {
   success: boolean;
@@ -11,6 +11,7 @@ export interface BackendDriver {
   name: string;
   email: string;
   phone_number?: string;
+  address?: string;
   license_number?: string;
   vehicle_type?: string;
   vehicle_plate?: string;
@@ -23,7 +24,13 @@ export interface BackendDriver {
   decline_reason?: string | null;
   totalDeliveries?: number;
   rating?: number | null;
+  successRate?: number;
   createdAt?: string;
+  admin_notes?: string;
+  license_status?: 'pending' | 'verified' | 'rejected';
+  id_status?: 'pending' | 'verified' | 'rejected';
+  contract_status?: 'pending' | 'verified' | 'rejected';
+  document_activity?: { message: string; by: string; date: string }[];
   authId?: {
     email?: string;
     name?: string;
@@ -97,6 +104,85 @@ export function mapDriverStatusLabel(status: string): string {
   if (status === "declined") return "Suspended";
   if (status === "pending") return "Pending Approval";
   return status;
+}
+
+export async function adminCreateDriver(data: any) {
+  const { ok, data: resData } = await apiFetch<ApiResponse<BackendDriver>>(`/drivers`, {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify(data),
+  });
+
+  if (!ok || !resData.success) {
+    throw new Error(resData.message || "Failed to create driver");
+  }
+
+  return resData.data;
+}
+
+export async function adminUploadDocument(driverId: string, documentType: string, file: File) {
+  const formData = new FormData();
+  formData.append(documentType, file);
+
+  const token = getToken();
+  const headers = new Headers();
+  if (token) headers.append("Authorization", `Bearer ${token}`);
+
+  const base = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+  const response = await fetch(`${base}/api/v1/drivers/${driverId}/documents`, {
+    method: "PATCH",
+    headers,
+    body: formData,
+  });
+
+  const resData = await response.json();
+  if (!response.ok || !resData.success) {
+    throw new Error(resData.message || "Failed to upload document");
+  }
+
+  return resData.data;
+}
+
+export async function adminDeleteDocument(driverId: string, documentType: string) {
+  const { ok, data: resData } = await apiFetch<ApiResponse<BackendDriver>>(`/drivers/${driverId}/documents/delete`, {
+    method: "PATCH",
+    auth: true,
+    body: JSON.stringify({ documentType }),
+  });
+
+  if (!ok || !resData.success) {
+    throw new Error(resData.message || "Failed to delete document");
+  }
+
+  return resData.data;
+}
+
+export async function adminUpdateDocumentStatus(driverId: string, documentType: string, status: string, message?: string) {
+  const { ok, data: resData } = await apiFetch<ApiResponse<BackendDriver>>(`/drivers/${driverId}/documents/status`, {
+    method: "PATCH",
+    auth: true,
+    body: JSON.stringify({ documentType, status, message }),
+  });
+
+  if (!ok || !resData.success) {
+    throw new Error(resData.message || "Failed to update document status");
+  }
+
+  return resData.data;
+}
+
+export async function adminUpdateNotes(driverId: string, notes: string) {
+  const { ok, data: resData } = await apiFetch<ApiResponse<BackendDriver>>(`/drivers/${driverId}/notes`, {
+    method: "PATCH",
+    auth: true,
+    body: JSON.stringify({ notes }),
+  });
+
+  if (!ok || !resData.success) {
+    throw new Error(resData.message || "Failed to update admin notes");
+  }
+
+  return resData.data;
 }
 
 export { getProfileImageUrl };

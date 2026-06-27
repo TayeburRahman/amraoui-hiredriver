@@ -5,6 +5,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { Pagination } from '../mission-monitoring/components/Pagination';
 import { DriverDetailsModal } from './components/DriverDetailsModal';
+import { DriverCreateModal } from './components/DriverCreateModal';
 import {
   BackendDriver,
   getDriverById,
@@ -29,6 +30,7 @@ const DriversPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedDriver, setSelectedDriver] = useState<BackendDriver | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [drivers, setDrivers] = useState<BackendDriver[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -97,11 +99,19 @@ const DriversPage = () => {
 
   return (
     <div className="overflow-auto pb-12 min-h-screen bg-[#F8F9FA] px-2 sm:px-4 lg:px-6">
-      <div className="mb-6 pt-6">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Drivers</h1>
-        <p className="text-sm text-gray-500 max-w-2xl">
-          Manage drivers, review documents, and approve or decline applications.
-        </p>
+      <div className="mb-6 pt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Drivers</h1>
+          <p className="text-sm text-gray-500 max-w-2xl">
+            Manage drivers, review documents, and approve or decline applications.
+          </p>
+        </div>
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-sm hover:bg-blue-700 transition-colors whitespace-nowrap text-sm"
+        >
+          + Add Driver
+        </button>
       </div>
 
       <div className="mb-8 w-full max-w-md relative">
@@ -159,7 +169,7 @@ const DriversPage = () => {
                       <StatusBadge status={mapDriverStatusLabel(driver.status)} />
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap">
-                      {driver.documents_submitted ? (
+                      {driver.documents_submitted || driver.license_document || driver.id_document || driver.contract_document ? (
                         <span className="text-green-600 font-semibold text-xs">Submitted</span>
                       ) : (
                         <span className="text-amber-600 font-semibold text-xs">Not submitted</span>
@@ -211,6 +221,12 @@ const DriversPage = () => {
         onApprove={handleApprove}
         onDecline={handleDecline}
         loading={actionLoading}
+        refreshDrivers={loadDrivers}
+      />
+      <DriverCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={loadDrivers}
       />
     </div>
   );

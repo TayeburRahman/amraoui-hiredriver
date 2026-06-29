@@ -44,7 +44,11 @@ export function Hero() {
                 {t.landing.hero.customerBtn}
               </Button>
             </Link>
-            <Link href="/register">
+            <Link 
+              href="https://play.google.com/store" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
               <Button size="lg" variant="ghost" className="h-12 md:h-14 px-6 md:px-10 rounded-xl md:rounded-2xl border-gradient bg-transparent text-brand-text font-bold hover:shadow-lg transition-all duration-300 text-sm md:text-base">
                 {t.landing.hero.driverBtn}
               </Button>

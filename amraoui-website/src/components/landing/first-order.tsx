@@ -10,16 +10,6 @@ export function FirstOrder({ id }: { id?: string }) {
   return (
     <section id={id} className="relative py-16 md:py-32 overflow-hidden bg-white">
       {/* Background Vector Line */}
-      <div className="absolute top-[15%] left-0 w-full pointer-events-none z-0">
-        <div className="relative w-full h-20 ">
-          <Image
-            src="/assets/landing/order-vector.svg"
-            alt="Decoration"
-            fill
-            className="object-contain object-left"
-          />
-        </div>
-      </div>
 
       <div className="section-container relative z-10">
         <div className="bg-gradient rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-16 flex flex-col lg:flex-row items-center gap-12 shadow-2xl shadow-blue-900/20 overflow-hidden relative">

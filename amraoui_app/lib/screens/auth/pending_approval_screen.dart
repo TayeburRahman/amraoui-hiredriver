@@ -1,3 +1,4 @@
+import 'package:amraoui_app/const/images/app_asset_images.dart';
 import 'package:amraoui_app/screens/auth/controllers/pending_approval_controller.dart';
 import 'package:amraoui_app/utils/app_size.dart';
 import 'package:amraoui_app/utils/gap.dart';
@@ -21,6 +22,14 @@ class PendingApprovalScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset(
+                AssetsImagesPath.logo,
+                width: 150,
+                errorBuilder: (context, error, stackTrace) {
+                  return const SizedBox();
+                },
+              ),
+              const Gap(height: 40),
               Container(
                 width: 100,
                 height: 100,
@@ -58,12 +67,23 @@ class PendingApprovalScreen extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Center(
-                    child: AppText(
-                      data: 'Check Status',
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                  child: Center(
+                    child: Obx(
+                      () => controller.isLoading.value
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : const AppText(
+                              data: 'Check Status',
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
                     ),
                   ),
                 ),

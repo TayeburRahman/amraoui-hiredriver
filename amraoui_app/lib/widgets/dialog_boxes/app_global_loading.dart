@@ -60,11 +60,20 @@ class AppGlobalLoading {
       return;
     }
 
-    if (_isLoaderOpen) {
-      _isLoaderOpen = false;
+    _isLoaderOpen = false;
+
+    // Check immediately
+    if (Get.isDialogOpen ?? false) {
+      Get.back();
+      return;
+    }
+
+    // In case the dialog is still in the middle of opening/registering asynchronously,
+    // schedule a close check shortly after.
+    Future.delayed(const Duration(milliseconds: 100), () {
       if (Get.isDialogOpen ?? false) {
         Get.back();
       }
-    }
+    });
   }
 }

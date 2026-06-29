@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 class PendingApprovalController extends GetxController {
   final _authRepo = AuthRepository();
   var message = 'Your documents are under admin review.'.obs;
+  var isLoading = false.obs;
 
   @override
   void onInit() {
@@ -21,10 +22,10 @@ class PendingApprovalController extends GetxController {
   }
 
   Future<void> checkStatus() async {
-    appGlobalLoading();
+    if (isLoading.value) return;
+    isLoading.value = true;
     try {
       final driver = await _authRepo.getProfile();
-      hideGlobalLoading();
       if (driver == null) return;
 
       final access = AppStorage().getToken();
@@ -42,13 +43,14 @@ class PendingApprovalController extends GetxController {
         AppSnackBar.error('Your application was declined');
         message.value = driver.declineReason ?? 'Application declined';
       } else {
-        AppSnackBar.message(
-          'Still pending for approval. You will be notified through email.',
-        );
+        final pendingMsg = 'Admin approval has not been completed yet. You will be notified via email once the admin reviews your application.';
+        message.value = pendingMsg;
+        AppSnackBar.message(pendingMsg);
       }
     } catch (e) {
-      hideGlobalLoading();
       AppSnackBar.error('Could not refresh status');
+    } finally {
+      isLoading.value = false;
     }
   }
 

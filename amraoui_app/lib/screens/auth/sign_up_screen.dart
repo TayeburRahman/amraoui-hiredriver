@@ -176,10 +176,14 @@ class SignUpScreen extends StatelessWidget {
                     onChanged: (val) => controller.isVehicleCarrier.value = val,
                   ),
                 ),
-                Obx(() => controller.isVehicleCarrier.value ? const Column(
+                Obx(() => controller.isVehicleCarrier.value ? Column(
                   children: [
-                    Gap(height: 12),
-                    _ImageUploadPlaceholder(hint: 'Add a picture of the vehicle carrier'),
+                    const Gap(height: 12),
+                    _ImageUploadPlaceholder(
+                      hint: 'Add a picture of the vehicle carrier',
+                      hasImage: controller.vehicleCarrierImagePath.value.isNotEmpty,
+                      onTap: controller.pickVehicleCarrierImage,
+                    ),
                   ],
                 ) : const SizedBox()),
 
@@ -192,10 +196,14 @@ class SignUpScreen extends StatelessWidget {
                     onChanged: (val) => controller.isDealerPlate.value = val,
                   ),
                 ),
-                Obx(() => controller.isDealerPlate.value ? const Column(
+                Obx(() => controller.isDealerPlate.value ? Column(
                   children: [
-                    Gap(height: 12),
-                    _ImageUploadPlaceholder(hint: 'Add a picture of the registration document'),
+                    const Gap(height: 12),
+                    _ImageUploadPlaceholder(
+                      hint: 'Add a picture of the registration document',
+                      hasImage: controller.dealerPlateImagePath.value.isNotEmpty,
+                      onTap: controller.pickDealerPlateImage,
+                    ),
                   ],
                 ) : const SizedBox()),
 
@@ -521,49 +529,65 @@ class _YesNoToggle extends StatelessWidget {
 
 class _ImageUploadPlaceholder extends StatelessWidget {
   final String hint;
+  final bool hasImage;
+  final VoidCallback onTap;
 
-  const _ImageUploadPlaceholder({required this.hint});
+  const _ImageUploadPlaceholder({
+    required this.hint,
+    this.hasImage = false,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF), // Soft blue background
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFBFDBFE), // Light blue border
-          width: 1.5,
-          style: BorderStyle.solid,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        decoration: BoxDecoration(
+          color: hasImage ? const Color(0xFFDCFCE7) : const Color(0xFFEFF6FF),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: hasImage ? const Color(0xFF86EFAC) : const Color(0xFFBFDBFE),
+            width: 1.5,
+            style: BorderStyle.solid,
+          ),
         ),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasImage ? Icons.check_circle_outline : Icons.add_a_photo_outlined,
+                color: hasImage ? const Color(0xFF22C55E) : const Color(0xFF3B82F6),
+                size: 24,
+              ),
             ),
-            child: const Icon(Icons.add_a_photo_outlined, color: Color(0xFF3B82F6), size: 24),
-          ),
-          const Gap(height: 12),
-          AppText(
-            data: hint,
-            color: const Color(0xFF1E3A8A), // Dark blue text
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-            textAlign: TextAlign.center,
-          ),
-          const Gap(height: 4),
-          const AppText(
-            data: 'Tap to upload a clear photo',
-            color: Color(0xFF60A5FA),
-            fontSize: 12,
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const Gap(height: 12),
+            AppText(
+              data: hasImage ? 'Image Selected' : hint,
+              color: hasImage ? const Color(0xFF14532D) : const Color(0xFF1E3A8A),
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              textAlign: TextAlign.center,
+            ),
+            if (!hasImage) ...[
+              const Gap(height: 4),
+              const AppText(
+                data: 'Tap to upload a clear photo',
+                color: Color(0xFF60A5FA),
+                fontSize: 12,
+                textAlign: TextAlign.center,
+              ),
+            ]
+          ],
+        ),
       ),
     );
   }

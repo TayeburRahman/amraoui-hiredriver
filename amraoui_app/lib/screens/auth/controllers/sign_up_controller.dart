@@ -10,8 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
+import 'package:image_picker/image_picker.dart';
+
 class SignUpController extends GetxController {
   final _authRepo = AuthRepository();
+  final _picker = ImagePicker();
 
   final nameController = TextEditingController(
     text: kDebugMode ? 'John Doe' : '',
@@ -68,6 +71,20 @@ class SignUpController extends GetxController {
     e164Key: '',
   ).obs;
 
+  Future<void> pickVehicleCarrierImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      vehicleCarrierImagePath.value = pickedFile.path;
+    }
+  }
+
+  Future<void> pickDealerPlateImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      dealerPlateImagePath.value = pickedFile.path;
+    }
+  }
+
   void updateCountry(Country country) => selectedCountry.value = country;
   void togglePasswordVisibility() =>
       isPasswordVisible.value = !isPasswordVisible.value;
@@ -106,6 +123,8 @@ class SignUpController extends GetxController {
         vehiclePlate: isDealerPlate.value ? 'Dealer Plate' : 'Standard Plate',
         companyName: companyNameController.text.trim(),
         taxNumber: taxNumberController.text.trim(),
+        vehicleCarrierImagePath: isVehicleCarrier.value ? vehicleCarrierImagePath.value : null,
+        dealerPlateImagePath: isDealerPlate.value ? dealerPlateImagePath.value : null,
       );
       hideGlobalLoading();
 

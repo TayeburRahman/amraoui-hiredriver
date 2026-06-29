@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
-  Box,
+  Car,
   LogOut,
   PlusCircle,
 } from 'lucide-react';
@@ -34,7 +34,7 @@ export function AppSidebar({ role }: { role?: string }) {
   const userMenuItems = [
     { title: t.common.dashboard, icon: LayoutDashboard, href: '/dashboard' },
     { title: t.common.createRequest, icon: PlusCircle, href: '/dashboard/create-request' },
-    { title: t.common.orders, icon: Box, href: '/dashboard/orders' },
+    { title: t.common.orders, icon: Car, href: '/dashboard/orders' },
   ];
 
   return (

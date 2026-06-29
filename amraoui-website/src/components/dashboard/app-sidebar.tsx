@@ -18,6 +18,7 @@ import {
   PlusCircle,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { logout } from '@/store/slices/authSlice';
@@ -39,11 +40,8 @@ export function AppSidebar({ role }: { role?: string }) {
   return (
     <Sidebar className="border-r border-slate-100 bg-white">
       <SidebarHeader className="p-6">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-brand-blue flex items-center justify-center">
-            <div className="w-4 h-4 bg-white rounded-sm" />
-          </div>
-          <span className="text-xl font-bold text-brand-text">Hiflow</span>
+        <Link href="/" className="flex items-center justify-start py-2">
+          <Image src="/assets/logo.png" alt="Logo" width={140} height={40} style={{ height: 'auto' }} priority />
         </Link>
       </SidebarHeader>
       <SidebarContent>

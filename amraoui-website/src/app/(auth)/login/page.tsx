@@ -71,7 +71,7 @@ export default function LoginPage() {
           <Link href="/" className="mb-6">
             <NextImage src="/assets/logo.png" alt="Logo" width={160} height={45} style={{ height: 'auto' }} priority />
           </Link>
-          <h1 className="text-3xl font-black text-brand-text">Welcome back</h1>
+          {/* <h1 className="text-3xl font-black text-brand-text">Welcome back</h1> */}
           <p className="text-slate-400 font-medium mt-2">Sign in to your customer account</p>
         </div>
 

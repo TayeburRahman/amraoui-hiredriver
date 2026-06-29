@@ -17,34 +17,39 @@ class AppGlobalLoading {
   void showLoader() {
     if (_isLoaderOpen) return;
     _isLoaderOpen = true;
-    Get.dialog(
-      Center(
-        child: Container(
-          width: AppSize.size.width * 0.5,
-          height: AppSize.size.width * 0.4,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(AppSize.width(value: 10)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              SizedBox(
-                height: AppSize.size.width * 0.15,
-                width: AppSize.size.width * 0.15,
-                child: const CircularProgressIndicator(
-                  color: AppColors.primary,
+    
+    Future.microtask(() {
+      if (!_isLoaderOpen) return; // Loading was hidden before dialog could open
+      
+      Get.dialog(
+        Center(
+          child: Container(
+            width: AppSize.size.width * 0.5,
+            height: AppSize.size.width * 0.4,
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(AppSize.width(value: 10)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                SizedBox(
+                  height: AppSize.size.width * 0.15,
+                  width: AppSize.size.width * 0.15,
+                  child: const CircularProgressIndicator(
+                    color: AppColors.primary,
+                  ),
                 ),
-              ),
-              AppText(data: "Loading....", fontSize: AppSize.width(value: 20)),
-            ],
+                AppText(data: "Loading....", fontSize: AppSize.width(value: 20)),
+              ],
+            ),
           ),
         ),
-      ),
-      barrierDismissible: false,
-    ).then((_) {
-      _isLoaderOpen = false;
+        barrierDismissible: false,
+      ).then((_) {
+        _isLoaderOpen = false;
+      });
     });
   }
 
@@ -55,19 +60,10 @@ class AppGlobalLoading {
       return;
     }
 
-    _isLoaderOpen = false;
-
     if (_isLoaderOpen) {
       _isLoaderOpen = false;
       if (Get.isDialogOpen ?? false) {
         Get.back();
-      } else {
-        // If called too quickly while dialog is still animating in, wait and try again
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (Get.isDialogOpen ?? false) {
-            Get.back();
-          }
-        });
       }
     }
   }

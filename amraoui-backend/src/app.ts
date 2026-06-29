@@ -19,7 +19,7 @@ app.use(
       if (!origin) return callback(null, true);
 
       // Allow any localhost port, local LAN IPs, Next.js, and Vercel domains
-      const isAllowed = 
+      const isAllowed =
         /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
         /^https?:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
         /^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
@@ -68,7 +68,7 @@ app.use('/api/v1', routes);
 // ─── Health Check ─────────────────────────────────────
 app.get('/', (_req: Request, res: Response) => {
   res.json({
-    message: 'Amraoui HireDriver API is running ✅',
+    message: 'Vehiqqo API is running ✅',
     version: 'v1',
     endpoints: {
       auth: '/api/v1/auth',

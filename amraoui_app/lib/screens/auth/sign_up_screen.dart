@@ -72,19 +72,22 @@ class SignUpScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: const Color(0xFFEFF6FF),
                           shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFFBFDBFE), width: 2),
-                          image: imagePath.isNotEmpty 
+                          border: Border.all(
+                            color: const Color(0xFFBFDBFE),
+                            width: 2,
+                          ),
+                          image: imagePath.isNotEmpty
                               ? DecorationImage(
                                   image: FileImage(File(imagePath)),
                                   fit: BoxFit.cover,
                                 )
                               : null,
                         ),
-                        child: imagePath.isEmpty 
+                        child: imagePath.isEmpty
                             ? const Center(
                                 child: Icon(
-                                  Icons.add_a_photo_outlined, 
-                                  color: Color(0xFF3B82F6), 
+                                  Icons.add_a_photo_outlined,
+                                  color: Color(0xFF3B82F6),
                                   size: 32,
                                 ),
                               )
@@ -198,14 +201,18 @@ class SignUpScreen extends StatelessWidget {
                 AppInputWidget(
                   controller: controller.licenseController,
                   hintText: 'AB-123456',
-                  prefix: const Icon(Icons.badge_outlined, color: Color(0xFF64748B), size: 20),
+                  prefix: const Icon(
+                    Icons.badge_outlined,
+                    color: Color(0xFF64748B),
+                    size: 20,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.white),
                   ),
                 ),
                 const Gap(height: 20),
-                
+
                 _buildFieldLabel('Vehicle carrier?'),
                 Obx(
                   () => _YesNoToggle(
@@ -213,19 +220,26 @@ class SignUpScreen extends StatelessWidget {
                     onChanged: (val) => controller.isVehicleCarrier.value = val,
                   ),
                 ),
-                Obx(() => controller.isVehicleCarrier.value ? Column(
-                  children: [
-                    const Gap(height: 12),
-                    _ImageUploadPlaceholder(
-                      hint: 'Add a picture of the vehicle carrier',
-                      hasImage: controller.vehicleCarrierImagePath.value.isNotEmpty,
-                      onTap: controller.pickVehicleCarrierImage,
-                    ),
-                  ],
-                ) : const SizedBox()),
+                Obx(
+                  () => controller.isVehicleCarrier.value
+                      ? Column(
+                          children: [
+                            const Gap(height: 12),
+                            _ImageUploadPlaceholder(
+                              hint: 'Add a picture of the vehicle carrier',
+                              hasImage: controller
+                                  .vehicleCarrierImagePath
+                                  .value
+                                  .isNotEmpty,
+                              onTap: controller.pickVehicleCarrierImage,
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
+                ),
 
                 const Gap(height: 20),
-                
+
                 _buildFieldLabel('Dealer plate?'),
                 Obx(
                   () => _YesNoToggle(
@@ -233,16 +247,24 @@ class SignUpScreen extends StatelessWidget {
                     onChanged: (val) => controller.isDealerPlate.value = val,
                   ),
                 ),
-                Obx(() => controller.isDealerPlate.value ? Column(
-                  children: [
-                    const Gap(height: 12),
-                    _ImageUploadPlaceholder(
-                      hint: 'Add a picture of the registration document',
-                      hasImage: controller.dealerPlateImagePath.value.isNotEmpty,
-                      onTap: controller.pickDealerPlateImage,
-                    ),
-                  ],
-                ) : const SizedBox()),
+                Obx(
+                  () => controller.isDealerPlate.value
+                      ? Column(
+                          children: [
+                            const Gap(height: 12),
+                            _ImageUploadPlaceholder(
+                              hint:
+                                  'Add a picture of the registration document',
+                              hasImage: controller
+                                  .dealerPlateImagePath
+                                  .value
+                                  .isNotEmpty,
+                              onTap: controller.pickDealerPlateImage,
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
+                ),
 
                 const Gap(height: 20),
 
@@ -250,20 +272,28 @@ class SignUpScreen extends StatelessWidget {
                 AppInputWidget(
                   controller: controller.companyNameController,
                   hintText: 'Enter company name',
-                  prefix: const Icon(Icons.business_outlined, color: Color(0xFF64748B), size: 20),
+                  prefix: const Icon(
+                    Icons.business_outlined,
+                    color: Color(0xFF64748B),
+                    size: 20,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.white),
                   ),
                 ),
-                
+
                 const Gap(height: 20),
 
                 _buildFieldLabel('Tax number company'),
                 AppInputWidget(
                   controller: controller.taxNumberController,
                   hintText: 'Enter tax number',
-                  prefix: const Icon(Icons.receipt_long_outlined, color: Color(0xFF64748B), size: 20),
+                  prefix: const Icon(
+                    Icons.receipt_long_outlined,
+                    color: Color(0xFF64748B),
+                    size: 20,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.white),
@@ -401,12 +431,12 @@ class SignUpScreen extends StatelessWidget {
                         AppText(
                           data: "Already have an account? ",
                           color: Color(0xFF64748B),
-                          fontSize: 16,
+                          fontSize: 19,
                         ),
                         AppText(
                           data: 'Log In',
                           color: Color(0xFF2563EB),
-                          fontSize: 16,
+                          fontSize: 19,
                           fontWeight: FontWeight.w700,
                         ),
                       ],
@@ -515,14 +545,16 @@ class _YesNoToggle extends StatelessWidget {
                             color: Colors.black.withOpacity(0.05),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
-                          )
+                          ),
                         ]
                       : [],
                 ),
                 child: Center(
                   child: AppText(
                     data: 'Yes',
-                    color: value ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                    color: value
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFF64748B),
                     fontWeight: value ? FontWeight.w700 : FontWeight.w500,
                     fontSize: 14,
                   ),
@@ -547,14 +579,16 @@ class _YesNoToggle extends StatelessWidget {
                             color: Colors.black.withOpacity(0.05),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
-                          )
+                          ),
                         ]
                       : [],
                 ),
                 child: Center(
                   child: AppText(
                     data: 'No',
-                    color: !value ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+                    color: !value
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFF64748B),
                     fontWeight: !value ? FontWeight.w700 : FontWeight.w500,
                     fontSize: 14,
                   ),
@@ -605,15 +639,21 @@ class _ImageUploadPlaceholder extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                hasImage ? Icons.check_circle_outline : Icons.add_a_photo_outlined,
-                color: hasImage ? const Color(0xFF22C55E) : const Color(0xFF3B82F6),
+                hasImage
+                    ? Icons.check_circle_outline
+                    : Icons.add_a_photo_outlined,
+                color: hasImage
+                    ? const Color(0xFF22C55E)
+                    : const Color(0xFF3B82F6),
                 size: 24,
               ),
             ),
             const Gap(height: 12),
             AppText(
               data: hasImage ? 'Image Selected' : hint,
-              color: hasImage ? const Color(0xFF14532D) : const Color(0xFF1E3A8A),
+              color: hasImage
+                  ? const Color(0xFF14532D)
+                  : const Color(0xFF1E3A8A),
               fontWeight: FontWeight.w600,
               fontSize: 14,
               textAlign: TextAlign.center,
@@ -626,7 +666,7 @@ class _ImageUploadPlaceholder extends StatelessWidget {
                 fontSize: 12,
                 textAlign: TextAlign.center,
               ),
-            ]
+            ],
           ],
         ),
       ),

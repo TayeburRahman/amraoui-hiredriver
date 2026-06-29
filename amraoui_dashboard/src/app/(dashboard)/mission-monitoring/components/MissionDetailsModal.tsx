@@ -17,7 +17,7 @@ interface MissionDetailsModalProps {
 export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen, onClose, mission }) => {
   const [isProofModalOpen, setIsProofModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
-  
+
   const [quoteMessage, setQuoteMessage] = useState('Here is your final quote.');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditingBaseFee, setIsEditingBaseFee] = useState(false);
@@ -221,12 +221,12 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
       // Use html-to-image to bypass the html2canvas lab/oklch parser bugs
       const { toPng } = await import('html-to-image');
       const { jsPDF } = await import('jspdf');
-      
+
       const element = document.getElementById('admin-invoice-pdf-content');
       if (!element) return;
-      
-      const dataUrl = await toPng(element, { 
-        quality: 1, 
+
+      const dataUrl = await toPng(element, {
+        quality: 1,
         pixelRatio: 2,
         backgroundColor: '#ffffff',
         filter: (node) => {
@@ -236,17 +236,17 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
           return true;
         }
       });
-      
+
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
-      
+
       const imgProps = pdf.getImageProperties(dataUrl);
       const pdfWidth = pdf.internal.pageSize.getWidth() - 20; // 10mm margins
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
+
       pdf.addImage(dataUrl, 'PNG', 10, 10, pdfWidth, pdfHeight);
       pdf.save(`Amraoui_Invoice_${mission.id || 'Details'}.pdf`);
     } catch (e) {
@@ -262,7 +262,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 max-h-[90vh]">
         {/* Header */}
         <div className="p-6 border-b border-gray-100 relative">
-          <button 
+          <button
             onClick={onClose}
             className="absolute right-6 top-6 p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
           >
@@ -285,12 +285,12 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
-          
+
           {/* Extra Expenses & Final Invoice */}
           <div>
             <h3 className="text-sm font-bold text-gray-900 mb-1">Extra Expenses & Final Invoice</h3>
             <p className="text-xs text-gray-400 mb-3">Review driver-submitted receipts, approve extra charges, and update the customer's final invoice.</p>
-            
+
             {/* Expenses Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-gray-600">
@@ -332,7 +332,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               </table>
             </div>
 
-            <button 
+            <button
               onClick={() => setIsExpenseModalOpen(true)}
               className="w-full mt-3 py-2 border border-blue-200 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
             >
@@ -396,22 +396,22 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                 <span className="text-gray-500">Base transport fee</span>
                 {isEditingBaseFee ? (
                   <div className="flex items-center gap-2">
-                    <input 
-                      type="number" 
-                      className="w-20 px-2 py-1 text-xs border border-gray-200 rounded text-right focus:outline-none focus:border-blue-500" 
-                      value={baseFeeInput} 
-                      onChange={e => setBaseFeeInput(e.target.value)} 
+                    <input
+                      type="number"
+                      className="w-20 px-2 py-1 text-xs border border-gray-200 rounded text-right focus:outline-none focus:border-blue-500"
+                      value={baseFeeInput}
+                      onChange={e => setBaseFeeInput(e.target.value)}
                       placeholder="0"
                     />
-                    <button 
-                      onClick={handleUpdateBaseFee} 
+                    <button
+                      onClick={handleUpdateBaseFee}
                       disabled={isSubmitting || !baseFeeInput}
                       className="text-blue-600 font-bold hover:underline disabled:opacity-50"
                     >
                       Save
                     </button>
-                    <button 
-                      onClick={() => setIsEditingBaseFee(false)} 
+                    <button
+                      onClick={() => setIsEditingBaseFee(false)}
                       className="text-gray-400 hover:text-gray-600"
                     >
                       <X className="w-4 h-4" />
@@ -421,11 +421,11 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-gray-900">€{mission.raw?.adminQuote?.amount || 0}</span>
                     {['PENDING_ADMIN_QUOTE', 'CUSTOMER_REVIEWING_QUOTE'].includes(mission.raw?.status) && (
-                      <button 
-                        onClick={() => { 
-                          setIsEditingBaseFee(true); 
-                          setBaseFeeInput(String(mission.raw?.adminQuote?.amount || 0)); 
-                        }} 
+                      <button
+                        onClick={() => {
+                          setIsEditingBaseFee(true);
+                          setBaseFeeInput(String(mission.raw?.adminQuote?.amount || 0));
+                        }}
                         className="text-blue-600 text-xs underline hover:text-blue-800"
                       >
                         Edit
@@ -441,18 +441,18 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               <div className="flex justify-between items-center pt-2 border-t border-green-200 mt-2">
                 <span className="font-bold text-gray-900 text-sm">Final Total</span>
                 <span className="text-xl font-bold text-blue-600">
-                  €{ (mission.raw?.adminQuote?.amount || 0) + (mission.raw?.expenses?.reduce((acc: number, cur: any) => acc + (cur.amount || 0), 0) || 0) }
+                  €{(mission.raw?.adminQuote?.amount || 0) + (mission.raw?.expenses?.reduce((acc: number, cur: any) => acc + (cur.amount || 0), 0) || 0)}
                 </span>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 mt-4">
-              <button 
+              <button
                 onClick={() => setIsPreviewOpen(true)}
                 className="py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-1"
               >
                 <Eye className="w-3.5 h-3.5" /> Preview Invoice
               </button>
-              <button 
+              <button
                 onClick={handleSendCustomerQuote}
                 disabled={isSubmitting}
                 className="py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1 disabled:opacity-50"
@@ -464,7 +464,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
           {mission.raw?.status === 'CUSTOMER_REVIEWING_QUOTE' && (
             <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-center justify-between">
               <span className="text-amber-800 text-sm font-medium">Waiting for customer to accept/reject the quote (€{mission.raw?.adminQuote?.amount}).</span>
-              <button 
+              <button
                 onClick={handlePublish}
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-white border border-amber-200 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-100 flex items-center gap-2"
@@ -478,8 +478,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
             <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-purple-900 text-sm">Driver Quotes ({mission.raw?.driverQuotes?.length || 0})</h3>
-                <Link 
-                  href={`/quote-desk/${mission.realId}/compare?reqId=${mission.realId}`} 
+                <Link
+                  href={`/quote-desk/${mission.realId}/compare?reqId=${mission.realId}`}
                   className="px-3 py-1.5 bg-white border border-purple-200 text-purple-700 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors"
                 >
                   Compare Quotes
@@ -493,7 +493,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                         <p className="text-sm font-bold text-purple-900">{q.driverId?.name || "Unknown Driver"}</p>
                         <p className="text-xs text-purple-700">Amount: €{q.amount} | Est: {q.estimatedTime || 'N/A'}</p>
                       </div>
-                      <button 
+                      <button
                         onClick={() => handleAssignDriver(q._id)}
                         disabled={isSubmitting}
                         className="px-3 py-1.5 bg-purple-600 text-white rounded-md text-xs font-medium hover:bg-purple-700"
@@ -581,13 +581,13 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                   {Object.entries(mission.raw.details).map(([key, value]) => {
                     // Skip already displayed contact fields
                     if (['firstName', 'lastName', 'email', 'phone', 'company'].includes(key)) return null;
-                    
+
                     let displayValue = value;
                     if (typeof displayValue === 'boolean') displayValue = displayValue ? 'Yes' : 'No';
                     if (Array.isArray(displayValue)) displayValue = displayValue.join(', ');
                     if (typeof displayValue === 'object' && displayValue !== null) displayValue = JSON.stringify(displayValue);
                     if (!displayValue || displayValue === '') return null;
-                    
+
                     const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
 
                     return (
@@ -671,22 +671,22 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
 
         {/* Footer */}
         <div className="p-6 border-t border-gray-100 flex gap-3 text-sm">
-          <button 
+          <button
             onClick={() => setIsProofModalOpen(true)}
             className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors flex items-center justify-center gap-1"
           >
             <Download className="w-4 h-4" /> View Proof
           </button>
 
-          <button 
+          <button
             onClick={handleDeleteMission}
             disabled={isSubmitting}
             className="flex-1 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
           >
             Delete Mission
           </button>
-          
-          <button 
+
+          <button
             onClick={handleOpenForDrivers}
             disabled={isSubmitting}
             className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
@@ -696,12 +696,12 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
         </div>
       </div>
 
-      <ProofViewerModal 
+      <ProofViewerModal
         isOpen={isProofModalOpen}
         onClose={() => setIsProofModalOpen(false)}
       />
 
-      <AddExpenseModal 
+      <AddExpenseModal
         isOpen={isExpenseModalOpen}
         onClose={() => setIsExpenseModalOpen(false)}
         mission={mission}
@@ -717,11 +717,11 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                 <X className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            
+
             <div id="admin-invoice-pdf-content" className="p-6 space-y-4 text-sm text-gray-700 bg-white">
               <div className="flex justify-between border-b pb-4">
                 <div>
-                  <p className="font-bold text-gray-900">Amraoui HireDriver</p>
+                  <p className="font-bold text-gray-900">Vehiqqo</p>
                   <p className="text-xs text-gray-500">Invoice #{mission.id || 'N/A'}</p>
                 </div>
                 <div className="text-right">
@@ -745,7 +745,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
 
               <div className="flex justify-between items-center pt-4 border-t font-bold text-lg text-gray-900">
                 <span>Final Total</span>
-                <span>€{ (mission.raw?.adminQuote?.amount || 0) + (mission.raw?.expenses?.reduce((acc: number, cur: any) => acc + (cur.amount || 0), 0) || 0) }</span>
+                <span>€{(mission.raw?.adminQuote?.amount || 0) + (mission.raw?.expenses?.reduce((acc: number, cur: any) => acc + (cur.amount || 0), 0) || 0)}</span>
               </div>
 
               {/* Signature Section - Only visible during PDF generation */}
@@ -766,10 +766,10 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                 </div>
               )}
             </div>
-            
+
             <div className="p-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
               <button onClick={() => setIsPreviewOpen(false)} className="px-4 py-2 border border-gray-200 rounded-lg font-medium text-gray-700 hover:bg-gray-100">Close</button>
-              <button 
+              <button
                 onClick={handleDownloadPDF}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
               >

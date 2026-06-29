@@ -71,7 +71,7 @@ export default function LoginPage() {
             <div className="h-12 w-12 rounded-2xl bg-brand-blue flex items-center justify-center shadow-lg shadow-blue-200">
               <Car className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-brand-text">Amraoui HireDriver</span>
+            <span className="text-2xl font-bold text-brand-text">Vehiqqo</span>
           </Link>
           <h1 className="text-3xl font-black text-brand-text">Welcome back</h1>
           <p className="text-slate-400 font-medium mt-2">Sign in to your customer account</p>

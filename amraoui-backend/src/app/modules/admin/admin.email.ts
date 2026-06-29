@@ -50,9 +50,9 @@ export const registrationSuccess = (userData: any) => `
     </head>
     <body>
       <div class="container">
-        <h1>Welcome to Amraoui HireDriver</h1>
+        <h1>Welcome to Vehiqqo</h1>
         <p>Hello ${userData?.user?.name || userData?.name || 'Admin'},</p>
-        <p>Thank you for registering with Amraoui HireDriver.</p>
+        <p>Thank you for registering with Vehiqqo.</p>
         <p>Here are your login credentials:</p>
         <p><strong>Email:</strong> ${userData?.email || userData?.user?.email}</p>
         <p><strong>Password:</strong> ${userData?.password}</p>

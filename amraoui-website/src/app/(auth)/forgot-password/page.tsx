@@ -19,7 +19,7 @@ type Step = 'email' | 'otp' | 'reset' | 'success';
 // ─── OTP Input ─────────────────────────────────────────────────────
 function OtpInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const digits = value.padEnd(6, ' ').split('');
-  
+
   const handleChange = (i: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const d = e.target.value.replace(/\D/g, '').slice(-1);
     const next = digits.map((c, idx) => {
@@ -169,7 +169,7 @@ export default function ForgotPasswordPage() {
       <div className="h-12 w-12 rounded-2xl bg-brand-blue flex items-center justify-center shadow-lg shadow-blue-200">
         <Car className="h-6 w-6 text-white" />
       </div>
-      <span className="text-2xl font-bold text-brand-text">Amraoui HireDriver</span>
+      <span className="text-2xl font-bold text-brand-text">Vehiqqo</span>
     </Link>
   );
 

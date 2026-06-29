@@ -50,10 +50,10 @@ class AppApi {
             } else {
               // Token refresh failed, clear storage and redirect to login
               AppSnackBar.error("Sign in again!");
-              AppStorage().removeValue(StorageKey.token);
-              // AppStorage().removeValue(StorageKey.loginValue);
-              // AppAuthStorage().storageAllClear();
-              Get.offAllNamed(AppRoutes.signIn);
+              await AppStorage().removeValue(StorageKey.token);
+              if (Get.currentRoute != AppRoutes.initial && Get.currentRoute != AppRoutes.signIn) {
+                Get.offAllNamed(AppRoutes.signIn);
+              }
               return handler.next(error);
             }
           }
@@ -94,21 +94,12 @@ Future<String?> reFreshNewAccessToken() async {
         if (newAccessToken != null) {
           // Store new token
           await AppStorage().setToken(newAccessToken);
-
           return newAccessToken;
         }
-      } else {
-        return null;
       }
     }
-  } on DioException catch (e) {
-    appLog("Token refresh failed: $e");
-    AppStorage().removeValue(StorageKey.token);
-    Get.offAllNamed(AppRoutes.signIn);
   } catch (e) {
     appLog("Token refresh failed: $e");
-    AppStorage().removeValue(StorageKey.token);
-    Get.offAllNamed(AppRoutes.signIn);
   }
 
   return null;

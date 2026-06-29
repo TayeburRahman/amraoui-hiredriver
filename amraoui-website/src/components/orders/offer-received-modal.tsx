@@ -38,7 +38,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
     try {
       setIsGeneratingPDF(true);
       // Wait for React to render the hidden elements
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       const { toPng } = await import('html-to-image');
       const { jsPDF } = await import('jspdf');
@@ -46,10 +46,20 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
       const element = document.getElementById('invoice-pdf-content');
       if (!element) return;
 
+      // Capture the full scrollable height to avoid clipping
+      const originalStyle = element.style.height;
+      element.style.height = 'auto';
+
       const dataUrl = await toPng(element, {
         quality: 1,
         pixelRatio: 2,
         backgroundColor: '#ffffff',
+        width: element.offsetWidth,
+        height: element.scrollHeight,
+        style: {
+          height: element.scrollHeight + 'px',
+          overflow: 'visible',
+        },
         filter: (node) => {
           if (node instanceof HTMLElement && node.dataset.html2canvasIgnore === 'true') {
             return false;
@@ -57,6 +67,9 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
           return true;
         }
       });
+
+      // Restore height
+      element.style.height = originalStyle;
 
       const pdf = new jsPDF({
         orientation: 'portrait',
@@ -67,8 +80,20 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
       const imgProps = pdf.getImageProperties(dataUrl);
       const pdfWidth = pdf.internal.pageSize.getWidth() - 20; // 10mm margins
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const maxHeight = pdf.internal.pageSize.getHeight() - 20; // 10mm margins
 
-      pdf.addImage(dataUrl, 'PNG', 10, 10, pdfWidth, pdfHeight);
+      let finalWidth = pdfWidth;
+      let finalHeight = pdfHeight;
+      let xOffset = 10;
+      let yOffset = 10;
+
+      if (finalHeight > maxHeight) {
+        finalHeight = maxHeight;
+        finalWidth = (imgProps.width * finalHeight) / imgProps.height;
+        xOffset = 10 + (pdfWidth - finalWidth) / 2;
+      }
+
+      pdf.addImage(dataUrl, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
       pdf.save(`Amraoui_Invoice_${order?._id?.substring(0, 8) || 'Details'}.pdf`);
     } catch (e) {
       console.error("Failed to generate PDF", e);

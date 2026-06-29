@@ -3,6 +3,11 @@ import api from '@/lib/axios';
 // ─── Registration ──────────────────────────────
 export const registerCustomer = async (data: {
   name: string;
+  family_name?: string;
+  company?: string;
+  tax_number?: string;
+  phone_number?: string;
+  message?: string;
   email: string;
   password: string;
   confirmPassword: string;

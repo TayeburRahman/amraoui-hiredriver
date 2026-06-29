@@ -6,6 +6,7 @@ import { DriverController } from './drivers.controller';
 import { DriverValidation } from './drivers.validation';
 import { uploadDriverDocuments } from '../../middlewares/driverDocumentUploader';
 import { uploadProfileImage } from '../../middlewares/profileImageUploader';
+import { uploadFile } from '../../middlewares/fileUploader';
 
 const router = express.Router();
 
@@ -78,6 +79,31 @@ router.patch(
 router.post(
   '/',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  uploadFile(),
+  (req, res, next) => {
+    console.log('--- POST /drivers ---');
+    console.log('Headers:', req.headers);
+    console.log('Raw body:', req.body);
+    console.log('Raw files:', req.files);
+    if (req.body.data) {
+      try {
+        req.body = JSON.parse(req.body.data);
+        console.log('Parsed body from data:', req.body);
+      } catch (e) {
+        console.error('Failed to parse req.body.data:', e);
+      }
+    }
+    if (req.files) {
+      const files = req.files as any;
+      if (files.vehicle_carrier_image && files.vehicle_carrier_image[0]) {
+        req.body.vehicle_carrier_image = files.vehicle_carrier_image[0].path;
+      }
+      if (files.dealer_plate_image && files.dealer_plate_image[0]) {
+        req.body.dealer_plate_image = files.dealer_plate_image[0].path;
+      }
+    }
+    next();
+  },
   DriverController.createDriverByAdmin
 );
 

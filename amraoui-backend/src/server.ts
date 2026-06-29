@@ -19,7 +19,7 @@ async function main() {
   try {
     if (!isConnected || mongoose.connection.readyState !== 1) {
       await mongoose.connect(config.database_url as string, {
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 30000,
         socketTimeoutMS: 45000,
       });
       isConnected = true;

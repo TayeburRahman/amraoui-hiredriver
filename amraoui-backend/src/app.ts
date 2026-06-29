@@ -41,7 +41,7 @@ app.use(async (req, res, next) => {
   if (mongoose.connection.readyState !== 1) {
     try {
       await mongoose.connect(config.database_url as string, {
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 30000,
         socketTimeoutMS: 45000,
       });
       console.log('DB Reconnected in Serverless Middleware');
@@ -68,7 +68,7 @@ app.use('/api/v1', routes);
 // ─── Health Check ─────────────────────────────────────
 app.get('/', (_req: Request, res: Response) => {
   res.json({
-    message: 'Vehiqqo API is running ✅',
+    message: 'Amraoui HireDriver API is running ✅',
     version: 'v1',
     endpoints: {
       auth: '/api/v1/auth',

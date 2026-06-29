@@ -312,7 +312,20 @@ const updateMySkills = async (driverId: string, skills: { name: string; stars: n
   return driver;
 };
 const createDriverByAdmin = async (payload: any) => {
-  const { name, email, password, phone_number, license_number, vehicle_type, vehicle_plate, address } = payload;
+  const {
+    name,
+    email,
+    password,
+    phone_number,
+    license_number,
+    vehicle_type,
+    vehicle_plate,
+    address,
+    company_name,
+    tax_number,
+    vehicle_carrier_image,
+    dealer_plate_image
+  } = payload;
 
   const existingAuth = await Auth.findOne({ email }).lean();
   if (existingAuth) {
@@ -342,6 +355,10 @@ const createDriverByAdmin = async (payload: any) => {
     vehicle_type,
     vehicle_plate,
     address,
+    company_name,
+    tax_number,
+    vehicle_carrier_image,
+    dealer_plate_image,
     status: 'approved', 
   };
 
@@ -419,13 +436,25 @@ const updateDocumentStatus = async (
   message?: string,
   adminName?: string
 ) => {
-  const allowedTypes = ['license_document', 'id_document', 'contract_document'];
+  const allowedTypes = ['license_document', 'id_document', 'contract_document', 'vehicle_carrier_image', 'dealer_plate_image'];
   if (!allowedTypes.includes(documentType)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid document type');
   }
 
-  const statusField = documentType.replace('_document', '_status');
-  const activityMessage = message ? `${documentType.replace('_', ' ')} marked as ${status} - ${message}` : `${documentType.replace('_', ' ')} marked as ${status}`;
+  // Map document type to its status field
+  const statusFieldMap: Record<string, string> = {
+    license_document: 'license_status',
+    id_document: 'id_status',
+    contract_document: 'contract_status',
+    vehicle_carrier_image: 'vehicle_carrier_status',
+    dealer_plate_image: 'dealer_plate_status',
+  };
+
+  const statusField = statusFieldMap[documentType];
+  const readableName = documentType.replace(/_/g, ' ');
+  const activityMessage = message
+    ? `${readableName} marked as ${status} - ${message}`
+    : `${readableName} marked as ${status}`;
 
   const updateData: any = {
     [statusField]: status,
@@ -441,6 +470,7 @@ const updateDocumentStatus = async (
   const updated = await Drivers.findByIdAndUpdate(driverId, updateData, { new: true });
   return updated;
 };
+
 
 const updateAdminNotes = async (driverId: string, notes: string) => {
   const updated = await Drivers.findByIdAndUpdate(

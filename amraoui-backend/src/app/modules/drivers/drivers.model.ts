@@ -71,9 +71,19 @@ const DriversSchema = new Schema<IDrivers>(
       type: String,
       default: null,
     },
+    vehicle_carrier_status: {
+      type: String,
+      enum: ['pending', 'verified', 'rejected'],
+      default: 'pending',
+    },
     dealer_plate_image: {
       type: String,
       default: null,
+    },
+    dealer_plate_status: {
+      type: String,
+      enum: ['pending', 'verified', 'rejected'],
+      default: 'pending',
     },
     location: {
       type: locationSchema,

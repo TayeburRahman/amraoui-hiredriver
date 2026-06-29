@@ -36,6 +36,8 @@ export interface IDrivers extends Document {
   license_status?: 'pending' | 'verified' | 'rejected';
   id_status?: 'pending' | 'verified' | 'rejected';
   contract_status?: 'pending' | 'verified' | 'rejected';
+  vehicle_carrier_status?: 'pending' | 'verified' | 'rejected';
+  dealer_plate_status?: 'pending' | 'verified' | 'rejected';
   document_activity?: { message: string; by: string; date: Date }[];
   createdAt?: Date;
   updatedAt?: Date;

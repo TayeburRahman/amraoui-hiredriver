@@ -565,7 +565,7 @@ export default function ProfilePage() {
 
       {/* Footer Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-4">
-        <Card 
+        <Card
           onClick={() => setShowSupportModal(true)}
           className="p-5 sm:p-6 rounded-[2rem] border border-slate-100 shadow-sm bg-white hover:border-brand-blue/30 cursor-pointer transition-colors group"
         >
@@ -573,7 +573,7 @@ export default function ProfilePage() {
           <h4 className="font-bold text-brand-text mb-1">{t.settings?.helpSupport || 'Help & Support'}</h4>
           <p className="text-xs font-medium text-slate-500">{t.settings?.helpSupportDesc || 'Get help with your account'}</p>
         </Card>
-        <Card 
+        <Card
           onClick={() => setShowTermsModal(true)}
           className="p-5 sm:p-6 rounded-[2rem] border border-slate-100 shadow-sm bg-white hover:border-brand-blue/30 cursor-pointer transition-colors group"
         >
@@ -614,7 +614,7 @@ export default function ProfilePage() {
               <div className="w-full h-px bg-slate-100" />
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operating Hours</span>
-                <span className="text-sm font-bold text-slate-700">Mon - Fri, 9:00 - 18:00 CET</span>
+                <span className="text-sm font-bold text-slate-700">Mon - Fri, 9:00 - 18:00 CET.</span>
               </div>
               <div className="w-full h-px bg-slate-100" />
               <div className="flex justify-between items-center">

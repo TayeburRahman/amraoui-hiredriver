@@ -42,7 +42,9 @@ class PendingApprovalController extends GetxController {
         AppSnackBar.error('Your application was declined');
         message.value = driver.declineReason ?? 'Application declined';
       } else {
-        AppSnackBar.message('Still pending admin approval');
+        AppSnackBar.message(
+          'Still pending for approval. You will be notified through email.',
+        );
       }
     } catch (e) {
       hideGlobalLoading();

@@ -13,7 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Loader2, Car } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import NextImage from 'next/image';
 import { loginCustomer } from '@/lib/auth.api';
 
 const loginSchema = z.object({
@@ -67,11 +68,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md z-10">
         {/* Logo & Header */}
         <div className="flex flex-col items-center mb-8">
-          <Link href="/" className="flex items-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-2xl bg-brand-blue flex items-center justify-center shadow-lg shadow-blue-200">
-              <Car className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-brand-text">Vehiqqo</span>
+          <Link href="/" className="mb-6">
+            <NextImage src="/assets/logo.png" alt="Logo" width={160} height={45} style={{ height: 'auto' }} priority />
           </Link>
           <h1 className="text-3xl font-black text-brand-text">Welcome back</h1>
           <p className="text-slate-400 font-medium mt-2">Sign in to your customer account</p>

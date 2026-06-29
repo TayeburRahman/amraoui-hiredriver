@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Loader2, Car, Mail, ArrowLeft, ShieldCheck, KeyRound } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Mail, ArrowLeft, ShieldCheck, KeyRound } from 'lucide-react';
+import NextImage from 'next/image';
 import { useRouter } from 'next/navigation';
 import { forgotPassword, verifyResetOtp, resetPassword, resendForgotOtp } from '@/lib/auth.api';
 
@@ -165,11 +166,8 @@ export default function ForgotPasswordPage() {
   };
 
   const Logo = () => (
-    <Link href="/" className="flex items-center gap-3 mb-6">
-      <div className="h-12 w-12 rounded-2xl bg-brand-blue flex items-center justify-center shadow-lg shadow-blue-200">
-        <Car className="h-6 w-6 text-white" />
-      </div>
-      <span className="text-2xl font-bold text-brand-text">Vehiqqo</span>
+    <Link href="/" className="mb-6">
+      <NextImage src="/assets/logo.png" alt="Logo" width={160} height={45} style={{ height: 'auto' }} priority />
     </Link>
   );
 

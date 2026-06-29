@@ -9,10 +9,12 @@ import { useAppDispatch } from '@/hooks/redux';
 import { setCredentials } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Loader2, Car, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Mail, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import NextImage from 'next/image';
 import { useRouter } from 'next/navigation';
 import { registerCustomer, activateAccount, resendActivationCode } from '@/lib/auth.api';
 
@@ -84,7 +86,7 @@ function OtpInput({ value, onChange }: { value: string; onChange: (v: string) =>
           onChange={(e) => handleKey(i, e)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={handlePaste}
-          className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-black rounded-2xl border-2 border-slate-200 bg-slate-50 focus:border-brand-blue focus:bg-white focus:ring-4 focus:ring-brand-blue/20 outline-none transition-all duration-200 text-brand-text shadow-sm"
+          className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-black rounded-2 border-2 border-slate-200 bg-slate-50 focus:border-brand-blue focus:bg-white focus:ring-4 focus:ring-brand-blue/20 outline-none transition-all duration-200 text-brand-text shadow-sm"
         />
       ))}
     </div>
@@ -134,7 +136,7 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       const res = await activateAccount({ userEmail: registeredEmail, activation_code: otpValue });
-      
+
       if (res.data?.pending) {
         toast.success(res.data.message || 'Email verified successfully.');
         setStep('success');
@@ -179,7 +181,7 @@ export default function RegisterPage() {
           <p className="text-slate-500 font-medium leading-relaxed text-lg mb-8">
             Thanks for your message, we will contact you soon.
           </p>
-          <Button onClick={() => router.push('/')} className="w-full h-14 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2xl text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200">
+          <Button onClick={() => router.push('/')} className="w-full h-14 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2 text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200">
             Return to Home
           </Button>
         </Card>
@@ -195,11 +197,8 @@ export default function RegisterPage() {
 
         <div className="w-full max-w-md z-10">
           <div className="flex flex-col items-center mb-8">
-            <Link href="/" className="flex items-center gap-3 mb-6">
-              <div className="h-12 w-12 rounded-2xl bg-brand-blue flex items-center justify-center shadow-lg shadow-blue-200">
-                <Car className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold text-brand-text">Vehiqqo</span>
+            <Link href="/" className="mb-6">
+              <NextImage src="/assets/logo.png" alt="Logo" width={160} height={45} style={{ height: 'auto' }} priority />
             </Link>
             <div className="h-20 w-20 rounded-full bg-brand-blue/10 flex items-center justify-center mb-6 shadow-inner">
               <Mail className="h-10 w-10 text-brand-blue" />
@@ -219,7 +218,7 @@ export default function RegisterPage() {
               )}
               <Button
                 onClick={onVerifyOtp}
-                className="w-full h-14 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2xl text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200 hover:-translate-y-0.5"
+                className="w-full h-14 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2 text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200 hover:-translate-y-0.5"
                 disabled={isLoading || otpValue.length !== 6}
               >
                 {isLoading ? (
@@ -261,13 +260,10 @@ export default function RegisterPage() {
 
       <div className="w-full max-w-md z-10">
         <div className="flex flex-col items-center mb-8">
-          <Link href="/" className="flex items-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-2xl bg-brand-blue flex items-center justify-center shadow-lg shadow-blue-200">
-              <Car className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-brand-text">Vehiqqo</span>
+          <Link href="/" className="mb-6">
+            <NextImage src="/assets/logo.png" alt="Logo" width={160} height={45} style={{ height: 'auto' }} priority />
           </Link>
-          <h1 className="text-3xl font-black text-brand-text">Create account</h1>
+          {/* <h1 className="text-3xl font-black text-brand-text">Create account</h1> */}
           <p className="text-slate-400 font-medium mt-2">Join Amraoui for smarter transport solutions</p>
         </div>
 
@@ -285,14 +281,14 @@ export default function RegisterPage() {
                         <Input
                           placeholder="John Doe"
                           {...field}
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          className="h-12 rounded-2 border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="family_name"
@@ -303,7 +299,7 @@ export default function RegisterPage() {
                         <Input
                           placeholder="Doe"
                           {...field}
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          className="h-12 rounded-2 border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
                         />
                       </FormControl>
                       <FormMessage />
@@ -322,7 +318,7 @@ export default function RegisterPage() {
                           <Input
                             placeholder="Company LLC"
                             {...field}
-                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                            className="h-12 rounded-2 border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
                           />
                         </FormControl>
                         <FormMessage />
@@ -339,7 +335,7 @@ export default function RegisterPage() {
                           <Input
                             placeholder="TAX-123456"
                             {...field}
-                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                            className="h-12 rounded-2 border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
                           />
                         </FormControl>
                         <FormMessage />
@@ -360,7 +356,7 @@ export default function RegisterPage() {
                             placeholder="john@example.com"
                             type="email"
                             {...field}
-                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                            className="h-12 rounded-2 border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
                           />
                         </FormControl>
                         <FormMessage />
@@ -377,7 +373,7 @@ export default function RegisterPage() {
                           <Input
                             placeholder="+1234567890"
                             {...field}
-                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                            className="h-12 rounded-2 border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
                           />
                         </FormControl>
                         <FormMessage />
@@ -393,10 +389,11 @@ export default function RegisterPage() {
                     <FormItem>
                       <FormLabel className="text-brand-text font-bold ml-1">Message (Optional)</FormLabel>
                       <FormControl>
-                        <Input
+                        <Textarea
                           placeholder="Tell us about your needs..."
                           {...field}
-                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          rows={8}
+                          className="rounded-2 border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 resize-none"
                         />
                       </FormControl>
                       <FormMessage />
@@ -415,7 +412,7 @@ export default function RegisterPage() {
                             type={showPassword ? 'text' : 'password'}
                             placeholder="••••••••"
                             {...field}
-                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 pr-12"
+                            className="h-12 rounded-2 border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 pr-12"
                           />
                           <button
                             type="button"
@@ -442,7 +439,7 @@ export default function RegisterPage() {
                             type={showConfirm ? 'text' : 'password'}
                             placeholder="••••••••"
                             {...field}
-                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 pr-12"
+                            className="h-12 rounded-2 border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200 pr-12"
                           />
                           <button
                             type="button"
@@ -459,7 +456,7 @@ export default function RegisterPage() {
                 />
                 <Button
                   type="submit"
-                  className="w-full h-14 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2xl text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200 mt-2"
+                  className="w-full h-14 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2 text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200 mt-2"
                   disabled={isLoading}
                 >
                   {isLoading ? (

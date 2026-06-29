@@ -91,7 +91,7 @@ class AppSnackBar {
       timeInSecForIosWeb: 1,
       backgroundColor: Colors.grey,
       textColor: Colors.white,
-      fontSize: 16.0,
+      fontSize: 13.0,
     );
 
     // Get.showSnackbar(

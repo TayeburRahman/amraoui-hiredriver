@@ -156,7 +156,7 @@ const ResetPasswordPage = () => {
         </div>
 
         <p className="text-center text-xs text-slate-600 mt-6">
-          Amraoui HireDriver © {new Date().getFullYear()}
+          Vehiqqo © {new Date().getFullYear()}
         </p>
       </div>
     </div>

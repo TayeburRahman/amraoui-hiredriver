@@ -4,6 +4,7 @@ import 'package:amraoui_app/routes/app_routes.dart';
 import 'package:amraoui_app/utils/auth_navigation.dart';
 import 'package:amraoui_app/service/repository/auth_repository.dart';
 import 'package:amraoui_app/widgets/log_print/error_log.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 class SplashScreenController extends GetxController {
@@ -59,6 +60,12 @@ class SplashScreenController extends GetxController {
               driver: profile,
             );
             AuthNavigation.routeDriver(profile);
+            return;
+          }
+        } on DioException catch (e) {
+          if (e.response?.statusCode == 401) {
+            await AppStorage().removeValue(StorageKey.token);
+            Get.offAllNamed(AppRoutes.signIn);
             return;
           }
         } catch (_) {}

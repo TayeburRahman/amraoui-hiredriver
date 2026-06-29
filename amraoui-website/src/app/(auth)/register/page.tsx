@@ -37,7 +37,7 @@ type OtpFormValues = z.infer<typeof otpSchema>;
 // ─── OTP input component ────────────────────────────────────────────
 function OtpInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const digits = value.padEnd(6, ' ').split('');
-  
+
   const handleKey = (i: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const d = e.target.value.replace(/\D/g, '').slice(-1);
     const next = digits.map((c, idx) => {
@@ -131,7 +131,7 @@ export default function RegisterPage() {
       const res = await activateAccount({ userEmail: registeredEmail, activation_code: otpValue });
       const { accessToken, user } = res.data;
       dispatch(setCredentials({ user, token: accessToken }));
-      toast.success('Account activated! Welcome to Amraoui HireDriver.');
+      toast.success('Account activated! Welcome to Vehiqqo.');
       router.push('/dashboard');
     } catch (err: any) {
       const msg = err?.response?.data?.message || 'Invalid or expired code. Please try again.';
@@ -167,7 +167,7 @@ export default function RegisterPage() {
               <div className="h-12 w-12 rounded-2xl bg-brand-blue flex items-center justify-center shadow-lg shadow-blue-200">
                 <Car className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-brand-text">Amraoui HireDriver</span>
+              <span className="text-2xl font-bold text-brand-text">Vehiqqo</span>
             </Link>
             <div className="h-20 w-20 rounded-full bg-brand-blue/10 flex items-center justify-center mb-6 shadow-inner">
               <Mail className="h-10 w-10 text-brand-blue" />
@@ -233,7 +233,7 @@ export default function RegisterPage() {
             <div className="h-12 w-12 rounded-2xl bg-brand-blue flex items-center justify-center shadow-lg shadow-blue-200">
               <Car className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-brand-text">Amraoui HireDriver</span>
+            <span className="text-2xl font-bold text-brand-text">Vehiqqo</span>
           </Link>
           <h1 className="text-3xl font-black text-brand-text">Create account</h1>
           <p className="text-slate-400 font-medium mt-2">Join Amraoui for smarter transport solutions</p>

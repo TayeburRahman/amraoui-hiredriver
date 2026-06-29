@@ -10,7 +10,34 @@ import { AdminController } from '../admin/admin.controller';
 const router = express.Router();
 
 // ─── Public Auth Routes ────────────────────────────────
-router.post('/register', validateRequest(AuthValidation.create), AuthController.registrationAccount);
+router.post(
+  '/register',
+  uploadFile(),
+  (req, res, next) => {
+    if (req.body.data) {
+      try {
+        req.body = JSON.parse(req.body.data);
+      } catch (e) {
+        // ignore
+      }
+    }
+    if (req.files) {
+      const files = req.files as any;
+      if (files.profile_image && files.profile_image[0]) {
+        req.body.profile_image = files.profile_image[0].path;
+      }
+      if (files.vehicle_carrier_image && files.vehicle_carrier_image[0]) {
+        req.body.vehicle_carrier_image = files.vehicle_carrier_image[0].path;
+      }
+      if (files.dealer_plate_image && files.dealer_plate_image[0]) {
+        req.body.dealer_plate_image = files.dealer_plate_image[0].path;
+      }
+    }
+    next();
+  },
+  validateRequest(AuthValidation.create),
+  AuthController.registrationAccount
+);
 router.post('/login', validateRequest(AuthValidation.loginZodSchema), AuthController.loginAccount);
 router.post('/activate-user', AuthController.activateAccount);
 router.post('/active-resend', AuthController.resendCodeActivationAccount);

@@ -13,11 +13,23 @@ class HelpSupportScreen extends StatelessWidget {
       subtitle: 'Contact our support team for assistance.',
       child: Column(
         children: [
-          _supportTile(Icons.email_outlined, 'Email Support', 'support@amraoui.com'),
+          _supportTile(
+            Icons.email_outlined,
+            'Email Support',
+            'driver@vehiqqo.com',
+          ),
           const Gap(height: 12),
-          _supportTile(Icons.phone_outlined, 'Phone Support', '+33 1 23 45 67 89'),
+          _supportTile(
+            Icons.phone_outlined,
+            'Phone Support',
+            '+33 1 23 45 67 89',
+          ),
           const Gap(height: 12),
-          _supportTile(Icons.chat_outlined, 'Live Chat', 'Available 9 AM – 6 PM'),
+          _supportTile(
+            Icons.chat_outlined,
+            'Live Chat',
+            'Available 9 AM – 6 PM',
+          ),
           const Gap(height: 24),
           Container(
             width: double.infinity,
@@ -27,7 +39,8 @@ class HelpSupportScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: const AppText(
-              data: 'For urgent mission issues, please call the support line directly.',
+              data:
+                  'For urgent mission issues, please call the support line directly.',
               fontSize: 14,
               color: Color(0xFF2563EB),
               height: 1.5,
@@ -68,7 +81,11 @@ class HelpSupportScreen extends StatelessWidget {
                   color: const Color(0xFF0F172A),
                 ),
                 const Gap(height: 2),
-                AppText(data: subtitle, fontSize: 13, color: const Color(0xFF64748B)),
+                AppText(
+                  data: subtitle,
+                  fontSize: 13,
+                  color: const Color(0xFF64748B),
+                ),
               ],
             ),
           ),

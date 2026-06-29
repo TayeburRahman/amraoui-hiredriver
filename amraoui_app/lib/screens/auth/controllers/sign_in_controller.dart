@@ -3,7 +3,6 @@ import 'package:amraoui_app/routes/app_routes.dart';
 import 'package:amraoui_app/service/repository/auth_repository.dart';
 import 'package:amraoui_app/utils/auth_navigation.dart';
 import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

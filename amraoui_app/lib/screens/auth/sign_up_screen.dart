@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:amraoui_app/const/images/app_asset_images.dart';
 import 'package:amraoui_app/screens/auth/controllers/sign_up_controller.dart';
 import 'package:amraoui_app/utils/app_size.dart';
@@ -57,7 +58,46 @@ class SignUpScreen extends StatelessWidget {
                   fontSize: 16,
                   color: Color(0xFF64748B),
                 ),
-                const Gap(height: 40),
+                const Gap(height: 32),
+
+                // Profile Picture Uploader
+                Center(
+                  child: GestureDetector(
+                    onTap: controller.pickProfileImage,
+                    child: Obx(() {
+                      final imagePath = controller.profileImagePath.value;
+                      return Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFF6FF),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: const Color(0xFFBFDBFE),
+                            width: 2,
+                          ),
+                          image: imagePath.isNotEmpty
+                              ? DecorationImage(
+                                  image: FileImage(File(imagePath)),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: imagePath.isEmpty
+                            ? const Center(
+                                child: Icon(
+                                  Icons.add_a_photo_outlined,
+                                  color: Color(0xFF3B82F6),
+                                  size: 32,
+                                ),
+                              )
+                            : null,
+                      );
+                    }),
+                  ),
+                ),
+
+                const Gap(height: 32),
 
                 // Full Name
                 _buildFieldLabel('Full name'),
@@ -157,33 +197,103 @@ class SignUpScreen extends StatelessWidget {
 
                 const Gap(height: 20),
 
-                _buildFieldLabel('License number'),
+                _buildFieldLabel('Driver license number'),
                 AppInputWidget(
                   controller: controller.licenseController,
                   hintText: 'AB-123456',
-                  prefix: const Icon(Icons.badge_outlined, color: Color(0xFF64748B), size: 20),
+                  prefix: const Icon(
+                    Icons.badge_outlined,
+                    color: Color(0xFF64748B),
+                    size: 20,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.white),
                   ),
                 ),
                 const Gap(height: 20),
-                _buildFieldLabel('Vehicle type'),
+
+                _buildFieldLabel('Vehicle carrier?'),
+                Obx(
+                  () => _YesNoToggle(
+                    value: controller.isVehicleCarrier.value,
+                    onChanged: (val) => controller.isVehicleCarrier.value = val,
+                  ),
+                ),
+                Obx(
+                  () => controller.isVehicleCarrier.value
+                      ? Column(
+                          children: [
+                            const Gap(height: 12),
+                            _ImageUploadPlaceholder(
+                              hint: 'Add a picture of the vehicle carrier',
+                              hasImage: controller
+                                  .vehicleCarrierImagePath
+                                  .value
+                                  .isNotEmpty,
+                              onTap: controller.pickVehicleCarrierImage,
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
+                ),
+
+                const Gap(height: 20),
+
+                _buildFieldLabel('Dealer plate?'),
+                Obx(
+                  () => _YesNoToggle(
+                    value: controller.isDealerPlate.value,
+                    onChanged: (val) => controller.isDealerPlate.value = val,
+                  ),
+                ),
+                Obx(
+                  () => controller.isDealerPlate.value
+                      ? Column(
+                          children: [
+                            const Gap(height: 12),
+                            _ImageUploadPlaceholder(
+                              hint:
+                                  'Add a picture of the registration document',
+                              hasImage: controller
+                                  .dealerPlateImagePath
+                                  .value
+                                  .isNotEmpty,
+                              onTap: controller.pickDealerPlateImage,
+                            ),
+                          ],
+                        )
+                      : const SizedBox(),
+                ),
+
+                const Gap(height: 20),
+
+                _buildFieldLabel('Company name'),
                 AppInputWidget(
-                  controller: controller.vehicleTypeController,
-                  hintText: 'Sedan, SUV, Van...',
-                  prefix: const Icon(Icons.directions_car_outlined, color: Color(0xFF64748B), size: 20),
+                  controller: controller.companyNameController,
+                  hintText: 'Enter company name',
+                  prefix: const Icon(
+                    Icons.business_outlined,
+                    color: Color(0xFF64748B),
+                    size: 20,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.white),
                   ),
                 ),
+
                 const Gap(height: 20),
-                _buildFieldLabel('Vehicle plate'),
+
+                _buildFieldLabel('Tax number company'),
                 AppInputWidget(
-                  controller: controller.vehiclePlateController,
-                  hintText: 'AB-123-CD',
-                  prefix: const Icon(Icons.pin_outlined, color: Color(0xFF64748B), size: 20),
+                  controller: controller.taxNumberController,
+                  hintText: 'Enter tax number',
+                  prefix: const Icon(
+                    Icons.receipt_long_outlined,
+                    color: Color(0xFF64748B),
+                    size: 20,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Colors.white),
@@ -310,24 +420,28 @@ class SignUpScreen extends StatelessWidget {
                 const Gap(height: 32),
 
                 // Login Link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const AppText(
-                      data: "Already have an account? ",
-                      color: Color(0xFF64748B),
-                      fontSize: 14,
+                GestureDetector(
+                  onTap: controller.navigateToLogin,
+                  behavior: HitTestBehavior.opaque,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AppText(
+                          data: "Already have an account? ",
+                          color: Color(0xFF64748B),
+                          fontSize: 19,
+                        ),
+                        AppText(
+                          data: 'Log In',
+                          color: Color(0xFF2563EB),
+                          fontSize: 19,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: controller.navigateToLogin,
-                      child: const AppText(
-                        data: 'Log In',
-                        color: Color(0xFF2563EB),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
 
                 const Gap(height: 40),
@@ -392,6 +506,168 @@ class SignUpScreen extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5),
+        ),
+      ),
+    );
+  }
+}
+
+class _YesNoToggle extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _YesNoToggle({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9), // Very light gray-blue background
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(true),
+              behavior: HitTestBehavior.opaque,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: value ? Colors.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: value
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : [],
+                ),
+                child: Center(
+                  child: AppText(
+                    data: 'Yes',
+                    color: value
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFF64748B),
+                    fontWeight: value ? FontWeight.w700 : FontWeight.w500,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(false),
+              behavior: HitTestBehavior.opaque,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: !value ? Colors.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: !value
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : [],
+                ),
+                child: Center(
+                  child: AppText(
+                    data: 'No',
+                    color: !value
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFF64748B),
+                    fontWeight: !value ? FontWeight.w700 : FontWeight.w500,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ImageUploadPlaceholder extends StatelessWidget {
+  final String hint;
+  final bool hasImage;
+  final VoidCallback onTap;
+
+  const _ImageUploadPlaceholder({
+    required this.hint,
+    this.hasImage = false,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        decoration: BoxDecoration(
+          color: hasImage ? const Color(0xFFDCFCE7) : const Color(0xFFEFF6FF),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: hasImage ? const Color(0xFF86EFAC) : const Color(0xFFBFDBFE),
+            width: 1.5,
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                hasImage
+                    ? Icons.check_circle_outline
+                    : Icons.add_a_photo_outlined,
+                color: hasImage
+                    ? const Color(0xFF22C55E)
+                    : const Color(0xFF3B82F6),
+                size: 24,
+              ),
+            ),
+            const Gap(height: 12),
+            AppText(
+              data: hasImage ? 'Image Selected' : hint,
+              color: hasImage
+                  ? const Color(0xFF14532D)
+                  : const Color(0xFF1E3A8A),
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              textAlign: TextAlign.center,
+            ),
+            if (!hasImage) ...[
+              const Gap(height: 4),
+              const AppText(
+                data: 'Tap to upload a clear photo',
+                color: Color(0xFF60A5FA),
+                fontSize: 12,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ],
         ),
       ),
     );

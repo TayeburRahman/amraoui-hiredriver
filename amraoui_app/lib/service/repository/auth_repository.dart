@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:amraoui_app/const/api_url/api_url.dart';
 import 'package:amraoui_app/models/driver_model.dart';
 import 'package:amraoui_app/service/api/non_auth_api.dart';
@@ -18,24 +19,66 @@ class AuthRepository {
     String? licenseNumber,
     String? vehicleType,
     String? vehiclePlate,
+    String? companyName,
+    String? taxNumber,
+    String? profileImagePath,
+    String? vehicleCarrierImagePath,
+    String? dealerPlateImagePath,
   }) async {
     try {
+      final Map<String, dynamic> jsonData = {
+        'name': name,
+        'email': email,
+        'password': password,
+        'confirmPassword': confirmPassword,
+        'phone_number': phoneNumber,
+        'role': 'DRIVER',
+        if (licenseNumber != null && licenseNumber.isNotEmpty)
+          'license_number': licenseNumber,
+        if (vehicleType != null && vehicleType.isNotEmpty)
+          'vehicle_type': vehicleType,
+        if (vehiclePlate != null && vehiclePlate.isNotEmpty)
+          'vehicle_plate': vehiclePlate,
+        if (companyName != null && companyName.isNotEmpty)
+          'company_name': companyName,
+        if (taxNumber != null && taxNumber.isNotEmpty)
+          'tax_number': taxNumber,
+      };
+
+      final formData = FormData.fromMap({
+        'data': jsonEncode(jsonData),
+      });
+
+      if (profileImagePath != null && profileImagePath.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'profile_image',
+            await MultipartFile.fromFile(profileImagePath),
+          ),
+        );
+      }
+
+      if (vehicleCarrierImagePath != null && vehicleCarrierImagePath.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'vehicle_carrier_image',
+            await MultipartFile.fromFile(vehicleCarrierImagePath),
+          ),
+        );
+      }
+
+      if (dealerPlateImagePath != null && dealerPlateImagePath.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'dealer_plate_image',
+            await MultipartFile.fromFile(dealerPlateImagePath),
+          ),
+        );
+      }
+
       final res = await _public.post(
         AppApiUrl.signUpUrl,
-        data: {
-          'name': name,
-          'email': email,
-          'password': password,
-          'confirmPassword': confirmPassword,
-          'phone_number': phoneNumber,
-          'role': 'DRIVER',
-          if (licenseNumber != null && licenseNumber.isNotEmpty)
-            'license_number': licenseNumber,
-          if (vehicleType != null && vehicleType.isNotEmpty)
-            'vehicle_type': vehicleType,
-          if (vehiclePlate != null && vehiclePlate.isNotEmpty)
-            'vehicle_plate': vehiclePlate,
-        },
+        data: formData,
       );
       return res.data as Map<String, dynamic>?;
     } on DioException catch (e) {

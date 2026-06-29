@@ -37,11 +37,15 @@ class VerifyCodeScreen extends StatelessWidget {
                 color: const Color(0xFFF0F7FF),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.verified_user_outlined, size: 48, color: Color(0xFF2563EB)),
+              child: const Icon(
+                Icons.verified_user_outlined,
+                size: 48,
+                color: Color(0xFF2563EB),
+              ),
             ),
-            
+
             const Gap(height: 40),
-            
+
             const AppText(
               data: 'Verify Code',
               fontSize: 28,
@@ -56,9 +60,9 @@ class VerifyCodeScreen extends StatelessWidget {
               color: Color(0xFF64748B),
               height: 1.5,
             ),
-            
+
             const Gap(height: 40),
-            
+
             // OTP Fields
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -72,39 +76,39 @@ class VerifyCodeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const Gap(height: 24),
-            
+
             const AppText(
               data: 'Code expires in 02:00',
               color: Color(0xFF64748B),
               fontSize: 14,
             ),
-            
+
             const Gap(height: 16),
-            
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const AppText(
                   data: "Didn't receive the code? ",
                   color: Color(0xFF64748B),
-                  fontSize: 14,
+                  fontSize: 18,
                 ),
                 GestureDetector(
                   onTap: controller.resendCode,
                   child: const AppText(
                     data: 'Resend',
                     color: Color(0xFF2563EB),
-                    fontSize: 14,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
-            
+
             const Spacer(),
-            
+
             // Verify Button
             GestureDetector(
               onTap: controller.verify,
@@ -129,13 +133,11 @@ class VerifyCodeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const Gap(height: 40),
           ],
         ),
       ),
     );
   }
-
-
 }

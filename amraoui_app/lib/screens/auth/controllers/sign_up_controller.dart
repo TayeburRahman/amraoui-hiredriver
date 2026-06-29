@@ -7,11 +7,13 @@ import 'package:country_picker/country_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+
+import 'package:image_picker/image_picker.dart';
 
 class SignUpController extends GetxController {
   final _authRepo = AuthRepository();
+  final _picker = ImagePicker();
 
   final nameController = TextEditingController(
     text: kDebugMode ? 'John Doe' : '',
@@ -27,13 +29,22 @@ class SignUpController extends GetxController {
     text: kDebugMode ? 'DL123456789' : '',
   );
 
-  final vehicleTypeController = TextEditingController(
-    text: kDebugMode ? 'Sedan' : '',
+  final vehicleTypeController = TextEditingController(); // Or remove, but keeping for compatibility if needed.
+  final vehiclePlateController = TextEditingController();
+
+  final companyNameController = TextEditingController(
+    text: kDebugMode ? 'Test Company' : '',
   );
 
-  final vehiclePlateController = TextEditingController(
-    text: kDebugMode ? 'DHAKA-METRO-1234' : '',
+  final taxNumberController = TextEditingController(
+    text: kDebugMode ? 'TAX123456' : '',
   );
+
+  var isVehicleCarrier = false.obs;
+  var isDealerPlate = false.obs;
+  var profileImagePath = ''.obs;
+  var vehicleCarrierImagePath = ''.obs;
+  var dealerPlateImagePath = ''.obs;
 
   final passwordController = TextEditingController(
     text: kDebugMode ? 'Test@123' : '',
@@ -59,6 +70,27 @@ class SignUpController extends GetxController {
     displayNameNoCountryCode: 'France',
     e164Key: '',
   ).obs;
+
+  Future<void> pickVehicleCarrierImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      vehicleCarrierImagePath.value = pickedFile.path;
+    }
+  }
+
+  Future<void> pickProfileImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      profileImagePath.value = pickedFile.path;
+    }
+  }
+
+  Future<void> pickDealerPlateImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      dealerPlateImagePath.value = pickedFile.path;
+    }
+  }
 
   void updateCountry(Country country) => selectedCountry.value = country;
   void togglePasswordVisibility() =>
@@ -94,8 +126,13 @@ class SignUpController extends GetxController {
         confirmPassword: confirmPasswordController.text,
         phoneNumber: phone,
         licenseNumber: licenseController.text.trim(),
-        vehicleType: vehicleTypeController.text.trim(),
-        vehiclePlate: vehiclePlateController.text.trim(),
+        vehicleType: isVehicleCarrier.value ? 'Vehicle Carrier' : 'Standard',
+        vehiclePlate: isDealerPlate.value ? 'Dealer Plate' : 'Standard Plate',
+        companyName: companyNameController.text.trim(),
+        taxNumber: taxNumberController.text.trim(),
+        profileImagePath: profileImagePath.value.isNotEmpty ? profileImagePath.value : null,
+        vehicleCarrierImagePath: isVehicleCarrier.value ? vehicleCarrierImagePath.value : null,
+        dealerPlateImagePath: isDealerPlate.value ? dealerPlateImagePath.value : null,
       );
       hideGlobalLoading();
 
@@ -140,6 +177,8 @@ class SignUpController extends GetxController {
     licenseController.dispose();
     vehicleTypeController.dispose();
     vehiclePlateController.dispose();
+    companyNameController.dispose();
+    taxNumberController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.onClose();

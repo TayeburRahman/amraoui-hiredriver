@@ -38,6 +38,8 @@ export const uploadFile = () => {
       'profile_image',
       'cover_image',
       'product_img',
+      'vehicle_carrier_image',
+      'dealer_plate_image',
     ];
 
     if (file.fieldname === undefined) {
@@ -67,6 +69,8 @@ export const uploadFile = () => {
     { name: 'product_img', maxCount: 10 },
     { name: 'cover_image', maxCount: 1 },
     { name: 'profile_image', maxCount: 1 },
+    { name: 'vehicle_carrier_image', maxCount: 1 },
+    { name: 'dealer_plate_image', maxCount: 1 },
   ]);
 
   return upload;

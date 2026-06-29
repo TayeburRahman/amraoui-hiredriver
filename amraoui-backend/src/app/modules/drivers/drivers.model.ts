@@ -59,6 +59,22 @@ const DriversSchema = new Schema<IDrivers>(
       type: String,
       default: null,
     },
+    company_name: {
+      type: String,
+      default: null,
+    },
+    tax_number: {
+      type: String,
+      default: null,
+    },
+    vehicle_carrier_image: {
+      type: String,
+      default: null,
+    },
+    dealer_plate_image: {
+      type: String,
+      default: null,
+    },
     location: {
       type: locationSchema,
       default: null,

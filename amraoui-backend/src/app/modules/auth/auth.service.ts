@@ -64,12 +64,12 @@ const registrationAccount = async (payload: IAuth) => {
   if (existingAuth && !existingAuth.isActive) {
     await Promise.all([
       existingAuth.role === ENUM_USER_ROLE.CUSTOMERS &&
-        Customers.deleteOne({ authId: existingAuth._id }),
+      Customers.deleteOne({ authId: existingAuth._id }),
       existingAuth.role === ENUM_USER_ROLE.DRIVER &&
-        Drivers.deleteOne({ authId: existingAuth._id }),
+      Drivers.deleteOne({ authId: existingAuth._id }),
       (existingAuth.role === ENUM_USER_ROLE.ADMIN ||
         existingAuth.role === ENUM_USER_ROLE.SUPER_ADMIN) &&
-        Admin.deleteOne({ authId: existingAuth._id }),
+      Admin.deleteOne({ authId: existingAuth._id }),
       Auth.deleteOne({ email }),
     ]);
   }
@@ -83,6 +83,7 @@ const registrationAccount = async (payload: IAuth) => {
     password,
     expirationTime: Date.now() + 3 * 60 * 1000,
     isActive: (role === ENUM_USER_ROLE.ADMIN || role === ENUM_USER_ROLE.SUPER_ADMIN),
+    profile_image: other.profile_image,
   };
 
   if (role === ENUM_USER_ROLE.CUSTOMERS) {
@@ -137,8 +138,8 @@ const registrationAccount = async (payload: IAuth) => {
     role === ENUM_USER_ROLE.CUSTOMERS
       ? "Please check your email for the activation OTP code."
       : role === ENUM_USER_ROLE.DRIVER
-      ? "Please check your email for the verification OTP code."
-      : "Your admin account is awaiting super admin approval.";
+        ? "Please check your email for the verification OTP code."
+        : "Your admin account is awaiting super admin approval.";
 
   return { result, role, message };
 };
@@ -440,7 +441,7 @@ const resendCodeActivationAccount = async (payload: { email: string }) => {
             <p>Your activation code is: <strong style="font-size: 24px; color: #007bff;">${activationCode}</strong></p>
             <p>Please use this code to activate your account. If you did not request this, please ignore this email.</p>
             <p>Thank you!</p>
-            <div class="footer"><p>&copy; ${new Date().getFullYear()} Amraoui HireDriver</p></div>
+            <div class="footer"><p>&copy; ${new Date().getFullYear()} Vehiqqo</p></div>
         </div>
     </body>
     </html>`
@@ -488,7 +489,7 @@ const resendCodeForgotAccount = async (payload: ForgotPasswordPayload) => {
             <p>Your password reset code is: <strong style="font-size: 24px; color: #007bff;">${verifyCode}</strong></p>
             <p>This code expires in 3 minutes. If you did not request this, please ignore this email.</p>
             <p>Thank you!</p>
-            <div class="footer"><p>&copy; ${new Date().getFullYear()} Amraoui HireDriver</p></div>
+            <div class="footer"><p>&copy; ${new Date().getFullYear()} Vehiqqo</p></div>
         </div>
     </body>
     </html>`

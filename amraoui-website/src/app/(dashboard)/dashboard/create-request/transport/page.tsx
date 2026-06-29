@@ -107,7 +107,7 @@ export default function TransportRequestPage() {
   useEffect(() => {
     const savedStep = localStorage.getItem('transport_currentStep');
     const savedForm = localStorage.getItem('transport_formData');
-    
+
     if (savedStep) {
       setCurrentStep(parseInt(savedStep, 10));
     }
@@ -177,7 +177,7 @@ export default function TransportRequestPage() {
       if (!formData.phone) newErrors.phone = reqMsg;
       if (!formData.company) newErrors.company = reqMsg;
     }
-    
+
     if (currentStep === 2) {
       if (!formData.pickupAddress) newErrors.pickupAddress = reqMsg;
       if (!formData.pickupZip) newErrors.pickupZip = reqMsg;
@@ -197,14 +197,14 @@ export default function TransportRequestPage() {
       if (!formData.plate) newErrors.plate = reqMsg;
       if (!formData.deliveryType) newErrors.deliveryType = reqMsg;
       if (formData.deliveryType === 'tow' && !formData.vehicleWeight) {
-         newErrors.vehicleWeight = language === 'ar' ? 'الرجاء إدخال وزن المركبة للنقل' : 'Please enter vehicle weight for tow delivery.';
+        newErrors.vehicleWeight = language === 'ar' ? 'الرجاء إدخال وزن المركبة للنقل' : 'Please enter vehicle weight for tow delivery.';
       }
     }
 
     if (currentStep === 7) {
-       if (!formData.pickupTime) newErrors.pickupTime = reqMsg;
-       if (!formData.dropoffTime) newErrors.dropoffTime = reqMsg;
-       if (!formData.confirmSchedulePayment) newErrors.confirmSchedulePayment = language === 'ar' ? 'الرجاء تأكيد الجدول الزمني وتفاصيل الدفع' : 'Please confirm the schedule and payment details.';
+      if (!formData.pickupTime) newErrors.pickupTime = reqMsg;
+      if (!formData.dropoffTime) newErrors.dropoffTime = reqMsg;
+      if (!formData.confirmSchedulePayment) newErrors.confirmSchedulePayment = language === 'ar' ? 'الرجاء تأكيد الجدول الزمني وتفاصيل الدفع' : 'Please confirm the schedule and payment details.';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -227,14 +227,14 @@ export default function TransportRequestPage() {
         type: 'TRANSPORT',
         details: formData,
       };
-      
+
       const res = await api.post('/requests', payload);
       if (res.data?.success) {
         setIsSuccess(true);
         // Clear saved state on successful submission
         localStorage.removeItem('transport_currentStep');
         localStorage.removeItem('transport_formData');
-        
+
         setCurrentStep(1);
         setFormData(initialFormData);
 
@@ -280,9 +280,9 @@ export default function TransportRequestPage() {
             <div className="relative overflow-x-auto pb-4 scrollbar-hide">
               <div className="min-w-[800px] relative">
                 <div className="absolute top-[24px] left-8 right-8 h-1 bg-slate-100 rounded-full" />
-                <div 
-                  className="absolute top-[24px] left-8 h-1 bg-brand-blue transition-all duration-700 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.4)]" 
-                  style={{ width: `calc(${((currentStep - 1) / (steps.length - 1)) * 100}% - 16px)` }} 
+                <div
+                  className="absolute top-[24px] left-8 h-1 bg-brand-blue transition-all duration-700 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.4)]"
+                  style={{ width: `calc(${((currentStep - 1) / (steps.length - 1)) * 100}% - 16px)` }}
                 />
 
                 <div className="relative flex justify-between items-start px-4">
@@ -310,7 +310,7 @@ export default function TransportRequestPage() {
                 </div>
               </div>
             </div>
-            
+
             {/* Mobile Step Indicator */}
             <div className="mt-4 md:hidden flex items-center justify-between px-2">
               <div className="flex items-center gap-2">
@@ -319,8 +319,8 @@ export default function TransportRequestPage() {
                 <span className="text-slate-400 font-bold">{steps.length}</span>
               </div>
               <div className="h-2 w-32 bg-slate-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-brand-blue transition-all duration-500" 
+                <div
+                  className="h-full bg-brand-blue transition-all duration-500"
                   style={{ width: `${(currentStep / steps.length) * 100}%` }}
                 />
               </div>
@@ -382,16 +382,16 @@ export default function TransportRequestPage() {
                     <div className="space-y-6">
                       <div className="space-y-2">
                         <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.address}</Label>
-                        <AddressAutocomplete 
-                          value={formData.pickupAddress} 
-                          onChange={(val) => updateForm('pickupAddress', val)} 
+                        <AddressAutocomplete
+                          value={formData.pickupAddress}
+                          onChange={(val) => updateForm('pickupAddress', val)}
                           onSelect={(address, zip, city) => {
                             if (zip) updateForm('pickupZip', zip);
                             if (city) updateForm('pickupCity', city);
                             if (errors.pickupAddress) setErrors(prev => ({ ...prev, pickupAddress: '' }));
                           }}
-                          placeholder={t.createRequest.placeholders.address} 
-                          className={`h-12 rounded-2xl ${errors.pickupAddress ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200 ${isRTL ? 'pr-10' : 'pl-10'}`} 
+                          placeholder={t.createRequest.placeholders.address}
+                          className={`h-12 rounded-2xl ${errors.pickupAddress ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200 ${isRTL ? 'pr-10' : 'pl-10'}`}
                           iconClassName={isRTL ? 'right-3 left-auto' : 'left-3'}
                         />
                         {errors.pickupAddress && <p className="text-sm text-red-500 mt-1 ml-1">{errors.pickupAddress}</p>}
@@ -550,7 +550,7 @@ export default function TransportRequestPage() {
                           onChange={(e) =>
                             updateForm("dropoffInstructions", e.target.value)
                           }
-                          placeholder={t.createRequest.placeholders.vin} 
+                          placeholder={t.createRequest.placeholders.vin}
                           className={`w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 min-h-[130px] resize-none text-sm outline-none focus:bg-white focus:ring-2 focus:ring-brand-blue/20 transition-all duration-200 ${isRTL ? 'text-right' : ''}`}
                         />
                       </div>
@@ -690,8 +690,9 @@ export default function TransportRequestPage() {
                     <div className="space-y-3">
                       {[
                         { id: "drive", label: "Drive with car" },
-                        { id: "license", label: "Use of driver license plate (Z)" },
+                        { id: "license", label: "Use of dealer plates (Z or V green plates )" },
                         { id: "tow", label: "Transport with vehicle carrier (tow truck)" },
+
                       ].map((option) => (
                         <button
                           key={option.id}
@@ -799,7 +800,7 @@ export default function TransportRequestPage() {
                           {language === 'ar' ? 'يجب على السائق مسح هوية الشخص الذي يستلم السيارة.' : 'Driver must scan the ID of the person receiving the car.'}
                         </p>
                       </div>
-                      <div 
+                      <div
                         onClick={() => updateForm('idCheckRequired', !formData.idCheckRequired)}
                         className={`flex h-7 w-12 cursor-pointer items-center rounded-full p-1 transition-colors duration-300 ${formData.idCheckRequired ? 'bg-blue-600' : 'bg-slate-200'}`}
                       >
@@ -971,7 +972,7 @@ export default function TransportRequestPage() {
                             onClick={(e) => {
                               try {
                                 (e.target as HTMLInputElement).showPicker();
-                              } catch (err) {}
+                              } catch (err) { }
                             }}
                             className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
                           />
@@ -1010,7 +1011,7 @@ export default function TransportRequestPage() {
                             onClick={(e) => {
                               try {
                                 (e.target as HTMLInputElement).showPicker();
-                              } catch (err) {}
+                              } catch (err) { }
                             }}
                             className="h-14 rounded-2xl border-slate-200 bg-white pl-14 pr-5 text-slate-700 placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
                           />
@@ -1356,9 +1357,17 @@ export default function TransportRequestPage() {
                           {formData.plate || '-'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-medium text-slate-400">VIN: <span className="text-slate-600 font-bold truncate max-w-[100px] inline-block align-bottom">{formData.vin || '-'}</span></span>
-                        <span className="font-medium text-slate-400">Type: <span className="text-slate-600 font-bold capitalize">{formData.vehicleType || '-'}</span></span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-500">VIN</span>
+                        <span className="text-sm font-bold text-brand-text truncate max-w-[150px]">
+                          {formData.vin || '-'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-slate-500">Type</span>
+                        <span className="text-sm font-bold text-brand-text capitalize">
+                          {formData.vehicleType || '-'}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center border-t border-slate-100/50 pt-2">
                         <span className="text-xs font-bold text-brand-blue capitalize">{formData.deliveryType.replace('_', ' ')}</span>
@@ -1377,10 +1386,12 @@ export default function TransportRequestPage() {
                         {formData.specialInstructions || formData.adminNotes || formData.deliveryConditions.length > 0 ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
                         <span className="text-sm font-medium text-slate-600">Special Instructions</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        {formData.idCheckRequired ? <Check className="h-4 w-4 text-emerald-500" /> : <div className="h-2 w-2 rounded-full bg-slate-300" />}
-                        <span className="text-sm font-medium text-slate-600">ID Check Required</span>
-                      </div>
+                      {formData.idCheckRequired && (
+                        <div className="flex items-center gap-2">
+                          <Check className="h-4 w-4 text-emerald-500" />
+                          <span className="text-sm font-medium text-slate-600">ID Check Required</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1434,18 +1445,10 @@ export default function TransportRequestPage() {
                 )}
 
                 {/* Price Estimate */}
-                <div className="pt-4 border-t border-slate-100 space-y-4">
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <p className="text-sm font-bold text-slate-400">Estimated Total</p>
-                      <p className="text-xs text-slate-400 mt-1">Calculated after route selection</p>
-                    </div>
-                    <span className="text-3xl font-black text-brand-text">€ --</span>
-                  </div>
-                  
-                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50/50 border border-blue-100 text-brand-blue">
-                    <Info className="h-4 w-4 shrink-0 mt-0.5" />
-                    <p className="text-xs font-bold leading-tight">
+                <div className="pt-4 border-t border-slate-100">
+                  <div className="flex items-center gap-3 p-4 rounded-2xl bg-blue-50/50 border border-blue-100 text-brand-blue">
+                    <Info className="h-5 w-5 shrink-0" />
+                    <p className="text-sm font-extrabold leading-tight">
                       Quote will be sent after submitting request
                     </p>
                   </div>

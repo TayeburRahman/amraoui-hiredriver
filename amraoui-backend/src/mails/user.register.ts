@@ -4,7 +4,7 @@ export const registrationSuccessEmailBody = (userData: any) => `
       <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <!-- Logo -->
         <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
-          <img src="https://i.ibb.co.com/60MBG4Xp/logo.png" alt="Vehiqqo Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
+          <img src="https://i.ibb.co/60MBG4Xp/logo.png" alt="Vehiqqo Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
           <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo</div>
         </div>
 

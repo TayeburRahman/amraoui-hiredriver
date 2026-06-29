@@ -109,6 +109,8 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
     { label: 'Driver license verified', done: driver.license_status === 'verified' },
     { label: 'ID document verified', done: driver.id_status === 'verified' },
     { label: 'Contract document verified', done: driver.contract_status === 'verified' },
+    ...(driver.vehicle_carrier_image ? [{ label: 'Vehicle carrier image verified', done: driver.vehicle_carrier_status === 'verified' }] : []),
+    ...(driver.dealer_plate_image ? [{ label: 'Dealer plate image verified', done: driver.dealer_plate_status === 'verified' }] : []),
   ];
   const completedChecks = checks.filter(c => c.done).length;
   const progressPercent = Math.round((completedChecks / checks.length) * 100);
@@ -218,6 +220,14 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
               <span className="text-xs text-gray-500 mb-1">Created</span>
               <span className="text-sm font-semibold text-gray-900">{dayjs(driver.createdAt).format('MMM D, YYYY')}</span>
             </div>
+            <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex flex-col">
+              <span className="text-xs text-gray-500 mb-1">Company Name</span>
+              <span className="text-sm font-semibold text-gray-900">{driver.company_name || 'Not provided'}</span>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex flex-col">
+              <span className="text-xs text-gray-500 mb-1">Tax Number Company</span>
+              <span className="text-sm font-semibold text-gray-900">{driver.tax_number || 'Not provided'}</span>
+            </div>
           </div>
 
           {/* Document Completeness */}
@@ -255,9 +265,11 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
             <div className="space-y-4">
               {/* Document Card Template */}
               {[
-                { type: 'license_document', title: 'Driver License', val: driver.license_document, status: driver.license_status, icon: FileText, num: driver.license_number, date: driver.createdAt },
-                { type: 'id_document', title: 'ID Document', val: driver.id_document, status: driver.id_status, icon: FileText, date: driver.createdAt },
-                { type: 'contract_document', title: 'Contract Document', val: driver.contract_document, status: driver.contract_status, icon: FileText, date: driver.createdAt },
+                { type: 'license_document', title: 'Driver License', val: driver.license_document, status: driver.license_status, icon: FileText, num: driver.license_number, date: driver.createdAt, isImage: false },
+                { type: 'id_document', title: 'ID Document', val: driver.id_document, status: driver.id_status, icon: FileText, date: driver.createdAt, isImage: false },
+                { type: 'contract_document', title: 'Contract Document', val: driver.contract_document, status: driver.contract_status, icon: FileText, date: driver.createdAt, isImage: false },
+                { type: 'vehicle_carrier_image', title: 'Vehicle Carrier Image', val: driver.vehicle_carrier_image, status: driver.vehicle_carrier_status, icon: FileText, date: driver.createdAt, isImage: true },
+                { type: 'dealer_plate_image', title: 'Dealer Plate Image', val: driver.dealer_plate_image, status: driver.dealer_plate_status, icon: FileText, date: driver.createdAt, isImage: true },
               ].map(doc => (
                 <div key={doc.type} className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col shadow-sm">
                   <div className="flex justify-between items-start mb-6">
@@ -278,10 +290,10 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-6">
-                    {doc.num && (
+                    {(doc as any).num && (
                       <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
                         <p className="text-xs text-gray-500 mb-1">License Number</p>
-                        <p className="text-sm font-semibold text-gray-900">{doc.num}</p>
+                        <p className="text-sm font-semibold text-gray-900">{(doc as any).num}</p>
                       </div>
                     )}
                     <div className="bg-gray-50 rounded-xl p-3 border border-gray-100">
@@ -290,9 +302,22 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                     </div>
                   </div>
 
+                  {/* Inline image preview for image-type docs */}
+                  {doc.isImage && doc.val && (
+                    <div className="mb-4 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 max-h-48 flex items-center justify-center">
+                      <img
+                        src={getDocumentUrl(doc.val) || ''}
+                        alt={doc.title}
+                        className="max-h-48 w-auto object-contain"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap items-center gap-3">
                     {doc.val ? (
                       <>
+                        {/* Preview — open image in new tab */}
                         <a href={getDocumentUrl(doc.val) || '#'} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold transition-colors">
                           <Eye className="w-4 h-4" /> Preview
                         </a>
@@ -300,24 +325,39 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                           <Download className="w-4 h-4" /> Download
                         </a>
 
+                        {/* Verify button — shown for all doc types when not already verified */}
                         {doc.status !== 'verified' && (
-                          <button onClick={() => handleStatusChange(doc.type, 'verified')} disabled={actionLoading === doc.type} className="flex items-center gap-2 px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-semibold transition-colors ml-auto disabled:opacity-50">
+                          <button
+                            onClick={() => handleStatusChange(doc.type, 'verified')}
+                            disabled={actionLoading === doc.type}
+                            className="flex items-center gap-2 px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-semibold transition-colors ml-auto disabled:opacity-50"
+                          >
                             {actionLoading === doc.type ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />} Verify
                           </button>
                         )}
+                        {/* Reject button — shown for all doc types when not already rejected */}
                         {doc.status !== 'rejected' && (
-                          <button onClick={() => handleStatusChange(doc.type, 'rejected')} disabled={actionLoading === doc.type} className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50">
+                          <button
+                            onClick={() => handleStatusChange(doc.type, 'rejected')}
+                            disabled={actionLoading === doc.type}
+                            className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+                          >
                             {actionLoading === doc.type ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />} Reject
                           </button>
                         )}
                       </>
                     ) : (
-                      <div className="flex items-center gap-2 ml-auto">
-                        <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50">
-                          {actionLoading === doc.type ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Upload</span>}
-                          <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, doc.type)} disabled={actionLoading === doc.type} />
-                        </label>
-                      </div>
+                      /* Only allow upload for document types, not image-only fields */
+                      !doc.isImage ? (
+                        <div className="flex items-center gap-2 ml-auto">
+                          <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50">
+                            {actionLoading === doc.type ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Upload</span>}
+                            <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, doc.type)} disabled={actionLoading === doc.type} />
+                          </label>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">Not provided by driver</span>
+                      )
                     )}
                   </div>
                 </div>

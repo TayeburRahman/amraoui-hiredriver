@@ -21,6 +21,10 @@ export interface BackendDriver {
   license_document?: string | null;
   id_document?: string | null;
   contract_document?: string | null;
+  vehicle_carrier_image?: string | null;
+  dealer_plate_image?: string | null;
+  company_name?: string | null;
+  tax_number?: string | null;
   decline_reason?: string | null;
   totalDeliveries?: number;
   rating?: number | null;
@@ -30,6 +34,8 @@ export interface BackendDriver {
   license_status?: 'pending' | 'verified' | 'rejected';
   id_status?: 'pending' | 'verified' | 'rejected';
   contract_status?: 'pending' | 'verified' | 'rejected';
+  vehicle_carrier_status?: 'pending' | 'verified' | 'rejected';
+  dealer_plate_status?: 'pending' | 'verified' | 'rejected';
   document_activity?: { message: string; by: string; date: string }[];
   authId?: {
     email?: string;
@@ -38,6 +44,7 @@ export interface BackendDriver {
     is_block?: boolean;
   };
 }
+
 
 export function getDocumentUrl(path: string | null | undefined): string | null {
   if (!path) return null;
@@ -110,7 +117,7 @@ export async function adminCreateDriver(data: any) {
   const { ok, data: resData } = await apiFetch<ApiResponse<BackendDriver>>(`/drivers`, {
     method: "POST",
     auth: true,
-    body: JSON.stringify(data),
+    body: data instanceof FormData ? data : JSON.stringify(data),
   });
 
   if (!ok || !resData.success) {

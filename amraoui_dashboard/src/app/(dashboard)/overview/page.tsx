@@ -189,11 +189,11 @@ export default function Overview() {
   let maxMargin = -1;
   requests.forEach(r => {
     if (r.adminQuote?.amount && r.adminQuote?.driverPrice) {
-       const margin = Number(r.adminQuote.amount) - Number(r.adminQuote.driverPrice);
-       if (margin > maxMargin) {
-          maxMargin = margin;
-          bestMarginReq = r;
-       }
+      const margin = Number(r.adminQuote.amount) - Number(r.adminQuote.driverPrice);
+      if (margin > maxMargin) {
+        maxMargin = margin;
+        bestMarginReq = r;
+      }
     }
   });
   const bestMarginStr = bestMarginReq ? (bestMarginReq.missionId || "N/A") : "N/A";
@@ -210,7 +210,7 @@ export default function Overview() {
     const d = new Date();
     d.setDate(d.getDate() - i);
     trendDays.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
-    
+
     const dStr = d.toISOString().split('T')[0];
     const dailyTotal = requests.filter(r => r.status === 'COMPLETED' && r.updatedAt.startsWith(dStr)).reduce((sum, r) => sum + Number(r.adminQuote?.amount || 0), 0);
     trendHeights[6 - i] = dailyTotal;
@@ -236,13 +236,12 @@ export default function Overview() {
             <div className="flex items-start justify-between mb-3">
               <Image src={metric.icon} alt="metric icon" height={50} width={50} />
               <span
-                className={`text-xs font-medium ${
-                  metric.changeType === "positive"
-                    ? "text-green-600"
-                    : metric.changeType === "negative"
-                      ? "text-red-600"
-                      : "text-gray-600"
-                }`}
+                className={`text-xs font-medium ${metric.changeType === "positive"
+                  ? "text-green-600"
+                  : metric.changeType === "negative"
+                    ? "text-red-600"
+                    : "text-gray-600"
+                  }`}
               >
                 {metric.change}
               </span>
@@ -301,12 +300,12 @@ export default function Overview() {
 
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-blue-50 rounded-xl p-4">
-              <div className="text-3xl font-bold text-blue-600">{pendingDriverQuotes}</div>
-              <div className="text-xs text-gray-500 mt-1">Pending Quotes</div>
+              <div className="text-1x5 lg:text-1x5 tracking-tight font-bold text-blue-600">{pendingDriverQuotes}</div>
+              <div className="text-[11px] lg:text-xs text-gray-500 mt-1">Pending Quotes</div>
             </div>
             <div className="bg-pink-50 rounded-xl p-4">
-              <div className="text-3xl font-bold text-pink-600">€{requests.reduce((sum, r) => sum + (r.status === 'COMPLETED' ? Number(r.adminQuote?.amount || 0) : 0), 0).toLocaleString()}</div>
-              <div className="text-xs text-gray-500 mt-1">Total Revenue (Completed)</div>
+              <div className="text-1x10 lg:text-1x10 tracking-tight font-bold text-pink-600">€{requests.reduce((sum, r) => sum + (r.status === 'COMPLETED' ? Number(r.adminQuote?.amount || 0) : 0), 0).toLocaleString()}</div>
+              <div className="text-[11px] lg:text-xs text-gray-500 mt-1 leading-tight">Total Revenue <br className="hidden xl:block" />(Completed)</div>
             </div>
           </div>
 
@@ -491,11 +490,10 @@ export default function Overview() {
                 <button
                   key={filter}
                   onClick={() => setActiveFilter(filter)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                    activeFilter === filter
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${activeFilter === filter
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                 >
                   {filter}
                 </button>
@@ -523,24 +521,22 @@ export default function Overview() {
                 <td className="px-6 py-4 text-sm text-gray-600">{row.timeWindow}</td>
                 <td className="px-6 py-4">
                   <span
-                    className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      row.status === "Delayed"
-                        ? "bg-red-100 text-red-700"
-                        : row.priority === "Urgent"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-blue-100 text-blue-700"
-                    }`}
+                    className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${row.status === "Delayed"
+                      ? "bg-red-100 text-red-700"
+                      : row.priority === "Urgent"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-blue-100 text-blue-700"
+                      }`}
                   >
                     {row.status}
                   </span>
                 </td>
                 <td className="px-6 py-4">
                   <span
-                    className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      row.priority === "Urgent" || row.priority === "High"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-gray-100 text-gray-700"
-                    }`}
+                    className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${row.priority === "Urgent" || row.priority === "High"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-gray-100 text-gray-700"
+                      }`}
                   >
                     {row.priority}
                   </span>

@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import Link from 'next/link';
 import { apiFetch, getProfileImageUrl } from '@/lib/api';
 
-const tabs = ["All", "Waiting for Quotes", "Quotes Received", "Pending Assignment", "Assigned", "Urgent"];
+const tabs = ["All", "Pending Quote", "Waiting for Quotes", "Quotes Received", "Pending Assignment", "Assigned", "Urgent"];
 
 const QuoteDeskPage = () => {
   const [activeTab, setActiveTab] = useState("All");
@@ -26,13 +26,9 @@ const QuoteDeskPage = () => {
       try {
         const res = await apiFetch<any>('/requests', { auth: true });
         if (res.data?.success) {
-          // Filter out requests that are still pending admin quote etc.
-          // Quote desk is for OPEN_FOR_DRIVERS, ADMIN_REVIEWING_DRIVERS, ASSIGNED
-          const relevantStatuses = ['OPEN_FOR_DRIVERS', 'ADMIN_REVIEWING_DRIVERS', 'ASSIGNED'];
+          const relevantStatuses = ['PENDING_ADMIN_QUOTE', 'CUSTOMER_REVIEWING_QUOTE', 'OPEN_FOR_DRIVERS', 'ADMIN_REVIEWING_DRIVERS', 'ASSIGNED'];
           const relevantRequests = res.data.data.filter((req: any) =>
-            relevantStatuses.includes(req.status) &&
-            req.driverQuotes &&
-            req.driverQuotes.length > 0
+            relevantStatuses.includes(req.status)
           );
 
           const mapped: any[] = [];
@@ -71,6 +67,25 @@ const QuoteDeskPage = () => {
                   estimatedTime: quote.estimatedTime,
                   status: status,
                 });
+              });
+            } else {
+              let status = 'Waiting for Quotes';
+              if (req.status === 'PENDING_ADMIN_QUOTE') status = 'Pending Quote';
+              else if (req.status === 'CUSTOMER_REVIEWING_QUOTE') status = 'Customer Reviewing';
+
+              mapped.push({
+                id: req._id,
+                reqId: req._id,
+                missionId: finalMissionId,
+                title: req.customerId?.name || req.details?.customerName || req.details?.firstName || req.details?.name || 'Anonymous Customer',
+                type: req.type,
+                driver: null,
+                route: route,
+                car: req.type === 'TRANSPORT' ? `${req.details?.make} ${req.details?.model}` : req.type,
+                pickup: pickupStr,
+                quoteAmount: 0,
+                estimatedTime: 'N/A',
+                status: status,
               });
             }
           });

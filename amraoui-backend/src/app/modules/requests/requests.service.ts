@@ -52,7 +52,7 @@ const createRequest = async (payload: any) => {
   let nextIdNumber = 1;
 
   if (lastRequest && lastRequest.missionId) {
-    const lastId = lastRequest.missionId.replace('MS-', '');
+    const lastId = lastRequest.missionId.replace('VQ-', '');
     const parsedId = parseInt(lastId, 10);
     if (!isNaN(parsedId)) {
       nextIdNumber = parsedId + 1;
@@ -63,7 +63,7 @@ const createRequest = async (payload: any) => {
   let isUnique = false;
   let proposedId = '';
   while (!isUnique) {
-    proposedId = `MS-${nextIdNumber.toString().padStart(5, '0')}`;
+    proposedId = `VQ-${nextIdNumber.toString().padStart(5, '0')}`;
     const exists = await Requests.findOne({ missionId: proposedId }, { _id: 1 });
     if (exists) {
       nextIdNumber++;
@@ -223,7 +223,10 @@ const sendAdminQuote = async (id: string, quoteData: any) => {
     customerEmail = result.details.email || result.details.customerEmail;
   }
 
-  const vehicle = result.details?.vehicleBrand ? `${result.details.vehicleBrand} ${result.details.vehicleModel || ''}`.trim() : (result.type || 'Vehicle');
+  const vehicle = result.details?.vehicleType || result.details?.vehicleBrand
+    ? `${result.details.vehicleType || result.details.vehicleBrand || ''} ${result.details.vehicleModel || ''}`.trim()
+    : (result.type || 'Vehicle');
+  const licensePlate = result.details?.licensePlate || result.details?.vehiclePlate || result.details?.license_plate || '';
 
   // Calculate final total amount including expenses
   const baseAmount = Number(quoteData.amount) || Number(result.adminQuote?.amount) || 0;
@@ -236,11 +239,13 @@ const sendAdminQuote = async (id: string, quoteData: any) => {
       name: customerName,
       requestId: result.missionId || result._id.toString(),
       vehicle,
+      licensePlate: licensePlate || undefined,
       baseAmount,
       totalAmount: finalTotalAmount,
       message: quoteData.message,
       expenses: result.expenses || [],
     });
+
 
     // Fire and forget
     sendEmail({

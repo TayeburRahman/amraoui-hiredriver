@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, UploadCloud, Trash2 } from 'lucide-react';
 import { adminCreateDriver } from '@/lib/drivers.api';
 
 interface DriverCreateModalProps {
@@ -26,7 +26,16 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
     vehicle_type: '',
     vehicle_plate: '',
     address: '',
+    company_name: '',
+    tax_number: '',
   });
+
+  const [isVehicleCarrier, setIsVehicleCarrier] = useState(false);
+  const [isDealerPlate, setIsDealerPlate] = useState(false);
+  const [vehicleCarrierImage, setVehicleCarrierImage] = useState<File | null>(null);
+  const [dealerPlateImage, setDealerPlateImage] = useState<File | null>(null);
+  const [carrierPreview, setCarrierPreview] = useState<string | null>(null);
+  const [platePreview, setPlatePreview] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -35,12 +44,39 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'carrier' | 'plate') => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      if (type === 'carrier') {
+        setVehicleCarrierImage(file);
+        const reader = new FileReader();
+        reader.onloadend = () => setCarrierPreview(reader.result as string);
+        reader.readAsDataURL(file);
+      } else {
+        setDealerPlateImage(file);
+        const reader = new FileReader();
+        reader.onloadend = () => setPlatePreview(reader.result as string);
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      await adminCreateDriver(formData);
+      const uploadData = new FormData();
+      uploadData.append('data', JSON.stringify(formData));
+
+      if (isVehicleCarrier && vehicleCarrierImage) {
+        uploadData.append('vehicle_carrier_image', vehicleCarrierImage);
+      }
+      if (isDealerPlate && dealerPlateImage) {
+        uploadData.append('dealer_plate_image', dealerPlateImage);
+      }
+
+      await adminCreateDriver(uploadData);
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -101,6 +137,151 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
               <input type="text" name="vehicle_plate" value={formData.vehicle_plate} onChange={handleChange} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
+
+          <h3 className="pt-2 font-bold text-gray-900 border-t border-gray-100">Company & Special Credentials</h3>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-700">Company Name (Optional)</label>
+              <input type="text" name="company_name" value={formData.company_name} onChange={handleChange} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-700">Tax Number Company (Optional)</label>
+              <input type="text" name="tax_number" value={formData.tax_number} onChange={handleChange} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700">Vehicle Carrier?</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsVehicleCarrier(true)}
+                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${
+                    isVehicleCarrier
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsVehicleCarrier(false);
+                    setVehicleCarrierImage(null);
+                    setCarrierPreview(null);
+                  }}
+                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${
+                    !isVehicleCarrier
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700">Dealer Plates?</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsDealerPlate(true)}
+                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${
+                    isDealerPlate
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  Yes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsDealerPlate(false);
+                    setDealerPlateImage(null);
+                    setPlatePreview(null);
+                  }}
+                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${
+                    !isDealerPlate
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Vehicle Carrier Image Upload */}
+          {isVehicleCarrier && (
+            <div className="space-y-1 pt-1 animate-in fade-in slide-in-from-top-2 duration-200">
+              <label className="text-xs font-bold text-gray-700">Vehicle Carrier Image</label>
+              {carrierPreview ? (
+                <div className="relative border border-gray-200 rounded-xl overflow-hidden bg-gray-50 p-2">
+                  <img src={carrierPreview} alt="Vehicle Carrier Preview" className="w-full h-32 object-contain rounded-lg" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVehicleCarrierImage(null);
+                      setCarrierPreview(null);
+                    }}
+                    className="absolute top-4 right-4 bg-red-600 text-white p-1.5 rounded-full shadow hover:bg-red-700 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                  <UploadCloud className="w-8 h-8 text-gray-400 mb-1" />
+                  <span className="text-xs text-gray-500 font-semibold">Click to upload image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 'carrier')}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          )}
+
+          {/* Dealer Plate Image Upload */}
+          {isDealerPlate && (
+            <div className="space-y-1 pt-1 animate-in fade-in slide-in-from-top-2 duration-200">
+              <label className="text-xs font-bold text-gray-700">Dealer Plate Image</label>
+              {platePreview ? (
+                <div className="relative border border-gray-200 rounded-xl overflow-hidden bg-gray-50 p-2">
+                  <img src={platePreview} alt="Dealer Plate Preview" className="w-full h-32 object-contain rounded-lg" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDealerPlateImage(null);
+                      setPlatePreview(null);
+                    }}
+                    className="absolute top-4 right-4 bg-red-600 text-white p-1.5 rounded-full shadow hover:bg-red-700 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                  <UploadCloud className="w-8 h-8 text-gray-400 mb-1" />
+                  <span className="text-xs text-gray-500 font-semibold">Click to upload image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 'plate')}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          )}
 
           <div className="pt-4 flex justify-end gap-3">
             <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 font-medium">Cancel</button>

@@ -27,6 +27,7 @@ export const MissionTable: React.FC<MissionTableProps> = ({ missions, onViewMiss
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'Pending Quote': return 'bg-orange-500 text-white';
       case 'In Transit': return 'bg-blue-800 text-white';
       case 'Pickup Started': return 'bg-cyan-400 text-white';
       case 'Completed': return 'bg-green-500 text-white';

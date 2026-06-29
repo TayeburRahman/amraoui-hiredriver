@@ -26,6 +26,7 @@ const create = z.object({
     tax_number: z.string().optional(),
     vehicle_carrier_image: z.string().optional(),
     dealer_plate_image: z.string().optional(),
+    profile_image: z.string().optional(),
   }),
 });
 

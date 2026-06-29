@@ -43,6 +43,7 @@ class SignUpController extends GetxController {
 
   var isVehicleCarrier = false.obs;
   var isDealerPlate = false.obs;
+  var profileImagePath = ''.obs;
   var vehicleCarrierImagePath = ''.obs;
   var dealerPlateImagePath = ''.obs;
 
@@ -75,6 +76,13 @@ class SignUpController extends GetxController {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       vehicleCarrierImagePath.value = pickedFile.path;
+    }
+  }
+
+  Future<void> pickProfileImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      profileImagePath.value = pickedFile.path;
     }
   }
 
@@ -123,6 +131,7 @@ class SignUpController extends GetxController {
         vehiclePlate: isDealerPlate.value ? 'Dealer Plate' : 'Standard Plate',
         companyName: companyNameController.text.trim(),
         taxNumber: taxNumberController.text.trim(),
+        profileImagePath: profileImagePath.value.isNotEmpty ? profileImagePath.value : null,
         vehicleCarrierImagePath: isVehicleCarrier.value ? vehicleCarrierImagePath.value : null,
         dealerPlateImagePath: isDealerPlate.value ? dealerPlateImagePath.value : null,
       );

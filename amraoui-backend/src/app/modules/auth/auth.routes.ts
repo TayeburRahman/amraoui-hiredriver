@@ -23,6 +23,9 @@ router.post(
     }
     if (req.files) {
       const files = req.files as any;
+      if (files.profile_image && files.profile_image[0]) {
+        req.body.profile_image = files.profile_image[0].path;
+      }
       if (files.vehicle_carrier_image && files.vehicle_carrier_image[0]) {
         req.body.vehicle_carrier_image = files.vehicle_carrier_image[0].path;
       }

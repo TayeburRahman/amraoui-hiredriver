@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:amraoui_app/const/images/app_asset_images.dart';
 import 'package:amraoui_app/screens/auth/controllers/sign_up_controller.dart';
 import 'package:amraoui_app/utils/app_size.dart';
@@ -57,7 +58,43 @@ class SignUpScreen extends StatelessWidget {
                   fontSize: 16,
                   color: Color(0xFF64748B),
                 ),
-                const Gap(height: 40),
+                const Gap(height: 32),
+
+                // Profile Picture Uploader
+                Center(
+                  child: GestureDetector(
+                    onTap: controller.pickProfileImage,
+                    child: Obx(() {
+                      final imagePath = controller.profileImagePath.value;
+                      return Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFF6FF),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: const Color(0xFFBFDBFE), width: 2),
+                          image: imagePath.isNotEmpty 
+                              ? DecorationImage(
+                                  image: FileImage(File(imagePath)),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: imagePath.isEmpty 
+                            ? const Center(
+                                child: Icon(
+                                  Icons.add_a_photo_outlined, 
+                                  color: Color(0xFF3B82F6), 
+                                  size: 32,
+                                ),
+                              )
+                            : null,
+                      );
+                    }),
+                  ),
+                ),
+
+                const Gap(height: 32),
 
                 // Full Name
                 _buildFieldLabel('Full name'),
@@ -353,24 +390,28 @@ class SignUpScreen extends StatelessWidget {
                 const Gap(height: 32),
 
                 // Login Link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const AppText(
-                      data: "Already have an account? ",
-                      color: Color(0xFF64748B),
-                      fontSize: 14,
+                GestureDetector(
+                  onTap: controller.navigateToLogin,
+                  behavior: HitTestBehavior.opaque,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AppText(
+                          data: "Already have an account? ",
+                          color: Color(0xFF64748B),
+                          fontSize: 16,
+                        ),
+                        AppText(
+                          data: 'Log In',
+                          color: Color(0xFF2563EB),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: controller.navigateToLogin,
-                      child: const AppText(
-                        data: 'Log In',
-                        color: Color(0xFF2563EB),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
 
                 const Gap(height: 40),

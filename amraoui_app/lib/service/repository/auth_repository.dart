@@ -21,6 +21,7 @@ class AuthRepository {
     String? vehiclePlate,
     String? companyName,
     String? taxNumber,
+    String? profileImagePath,
     String? vehicleCarrierImagePath,
     String? dealerPlateImagePath,
   }) async {
@@ -47,6 +48,15 @@ class AuthRepository {
       final formData = FormData.fromMap({
         'data': jsonEncode(jsonData),
       });
+
+      if (profileImagePath != null && profileImagePath.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'profile_image',
+            await MultipartFile.fromFile(profileImagePath),
+          ),
+        );
+      }
 
       if (vehicleCarrierImagePath != null && vehicleCarrierImagePath.isNotEmpty) {
         formData.files.add(

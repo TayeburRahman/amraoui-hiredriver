@@ -8,9 +8,9 @@ class NonAuthApi {
   final Dio _dio = Dio();
   NonAuthApi() {
     _dio.options.baseUrl = AppApiUrl.baseUrl;
-    _dio.options.sendTimeout = const Duration(seconds: 10);
-    _dio.options.connectTimeout = const Duration(seconds: 10);
-    _dio.options.receiveTimeout = const Duration(seconds: 10);
+    _dio.options.sendTimeout = const Duration(seconds: 60);
+    _dio.options.connectTimeout = const Duration(seconds: 60);
+    _dio.options.receiveTimeout = const Duration(seconds: 60);
     _dio.options.followRedirects = false;
 
     _dio.interceptors.addAll({

@@ -17,6 +17,10 @@ export interface IDrivers extends Document {
   license_number?: string | null;
   vehicle_type?: string | null;
   vehicle_plate?: string | null;
+  company_name?: string | null;
+  tax_number?: string | null;
+  vehicle_carrier_image?: string | null;
+  dealer_plate_image?: string | null;
   location?: ILocation;
   totalDeliveries: number;
   rating?: number;

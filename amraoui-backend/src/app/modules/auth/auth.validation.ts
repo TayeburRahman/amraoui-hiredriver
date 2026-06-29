@@ -22,6 +22,10 @@ const create = z.object({
     license_number: z.string().optional(),
     vehicle_type: z.string().optional(),
     vehicle_plate: z.string().optional(),
+    company_name: z.string().optional(),
+    tax_number: z.string().optional(),
+    vehicle_carrier_image: z.string().optional(),
+    dealer_plate_image: z.string().optional(),
   }),
 });
 
@@ -43,6 +47,10 @@ const updateUserZodSchema = z.object({
     license_number: z.string().optional(),
     vehicle_type: z.string().optional(),
     vehicle_plate: z.string().optional(),
+    company_name: z.string().optional(),
+    tax_number: z.string().optional(),
+    vehicle_carrier_image: z.string().optional(),
+    dealer_plate_image: z.string().optional(),
   }),
 });
 

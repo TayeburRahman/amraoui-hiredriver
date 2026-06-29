@@ -50,6 +50,18 @@ class SignInScreen extends StatelessWidget {
                     ),
                   ),
                   Positioned(
+                    top: MediaQuery.of(context).padding.top + 20,
+                    left: 24,
+                    child: Image.asset(
+                      AssetsImagesPath.logo,
+                      width: 120, // Adjust width based on logo proportions
+                      errorBuilder: (context, error, stackTrace) {
+                        // Fallback if the logo isn't saved in assets yet
+                        return const SizedBox(width: 120, height: 40);
+                      },
+                    ),
+                  ),
+                  Positioned(
                     top: MediaQuery.of(context).padding.top + 16,
                     right: 20,
                     child: Obx(
@@ -256,21 +268,23 @@ class SignInScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Center(
-                          child: Obx(() => controller.isLoading.value
-                              ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
+                          child: Obx(
+                            () => controller.isLoading.value
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.5,
+                                    ),
+                                  )
+                                : const AppText(
+                                    data: 'Log In',
                                     color: Colors.white,
-                                    strokeWidth: 2.5,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                )
-                              : const AppText(
-                                  data: 'Log In',
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                )),
+                          ),
                         ),
                       ),
                     ),
@@ -278,24 +292,28 @@ class SignInScreen extends StatelessWidget {
                     const Gap(height: 40),
 
                     // Sign Up Link
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const AppText(
-                          data: "Don't have an account? ",
-                          color: Color(0xFF64748B),
-                          fontSize: 14,
+                    GestureDetector(
+                      onTap: controller.navigateToSignUp,
+                      behavior: HitTestBehavior.opaque,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const AppText(
+                              data: "Don't have an account? ",
+                              color: Color(0xFF64748B),
+                              fontSize: 19,
+                            ),
+                            const AppText(
+                              data: 'Sign Up',
+                              color: Color(0xFF2563EB),
+                              fontSize: 19,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ],
                         ),
-                        GestureDetector(
-                          onTap: controller.navigateToSignUp,
-                          child: const AppText(
-                            data: 'Sign Up',
-                            color: Color(0xFF2563EB),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
 
                     const Gap(height: 20),

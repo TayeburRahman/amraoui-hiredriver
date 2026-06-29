@@ -18,6 +18,8 @@ class AuthRepository {
     String? licenseNumber,
     String? vehicleType,
     String? vehiclePlate,
+    String? companyName,
+    String? taxNumber,
   }) async {
     try {
       final res = await _public.post(
@@ -35,6 +37,10 @@ class AuthRepository {
             'vehicle_type': vehicleType,
           if (vehiclePlate != null && vehiclePlate.isNotEmpty)
             'vehicle_plate': vehiclePlate,
+          if (companyName != null && companyName.isNotEmpty)
+            'company_name': companyName,
+          if (taxNumber != null && taxNumber.isNotEmpty)
+            'tax_number': taxNumber,
         },
       );
       return res.data as Map<String, dynamic>?;

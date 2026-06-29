@@ -36,6 +36,7 @@ const Toggle = ({ checked, onChange }: { checked: boolean; onChange: () => void 
 // ─── Base URL for static images (backend serves from root)
 const getImageUrl = (path: string | null | undefined): string | null => {
   if (!path) return null;
+  if (path.startsWith('http')) return path;
   const base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace('/api/v1', '');
   return `${base}${path}`;
 };

@@ -87,7 +87,7 @@ export function Navbar() {
   const displayName = user?.authId?.name || user?.name || 'Customer';
   const displayEmail = user?.authId?.email || user?.email || '';
   const profileImage = user?.profile_image || user?.authId?.profile_image;
-  const imageUrl = profileImage ? `${BASE}${profileImage}` : null;
+  const imageUrl = profileImage ? (profileImage.startsWith('http') ? profileImage : `${BASE}${profileImage}`) : null;
   const initials = displayName.substring(0, 2).toUpperCase();
 
   const handleLogout = () => {

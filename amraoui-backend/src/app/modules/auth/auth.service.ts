@@ -621,18 +621,34 @@ const updateMyProfile = async (req: RequestData) => {
     case ENUM_USER_ROLE.CUSTOMERS: {
       const customer = await Customers.findById(userId);
       if (!customer) throw new ApiError(httpStatus.NOT_FOUND, "Customer not found!");
+      
+      const authUpdate: Record<string, any> = {};
+      if (data.name) authUpdate.name = data.name;
+      if (profile_image) authUpdate.profile_image = profile_image;
+
+      const customerUpdate: Record<string, any> = { ...data };
+      if (profile_image) customerUpdate.profile_image = profile_image;
+
       await Promise.all([
-        Auth.findByIdAndUpdate(authId, { name: data.name, profile_image }, { new: true }),
-        Customers.findByIdAndUpdate(userId, { profile_image, ...data }, { new: true }).populate("authId"),
+        Auth.findByIdAndUpdate(authId, authUpdate, { new: true }),
+        Customers.findByIdAndUpdate(userId, customerUpdate, { new: true }).populate("authId"),
       ]);
       return Customers.findById(userId).populate("authId") as unknown as ICustomers;
     }
     case ENUM_USER_ROLE.DRIVER: {
       const driver = await Drivers.findById(userId);
       if (!driver) throw new ApiError(httpStatus.NOT_FOUND, "Driver not found!");
+
+      const authUpdate: Record<string, any> = {};
+      if (data.name) authUpdate.name = data.name;
+      if (profile_image) authUpdate.profile_image = profile_image;
+
+      const driverUpdate: Record<string, any> = { ...data };
+      if (profile_image) driverUpdate.profile_image = profile_image;
+
       await Promise.all([
-        Auth.findByIdAndUpdate(authId, { name: data.name, profile_image }, { new: true }),
-        Drivers.findByIdAndUpdate(userId, { profile_image, ...data }, { new: true }).populate("authId"),
+        Auth.findByIdAndUpdate(authId, authUpdate, { new: true }),
+        Drivers.findByIdAndUpdate(userId, driverUpdate, { new: true }).populate("authId"),
       ]);
       return Drivers.findById(userId).populate("authId") as unknown as IDrivers;
     }
@@ -640,9 +656,17 @@ const updateMyProfile = async (req: RequestData) => {
     case ENUM_USER_ROLE.SUPER_ADMIN: {
       const admin = await Admin.findById(userId);
       if (!admin) throw new ApiError(httpStatus.NOT_FOUND, "Admin not found!");
+
+      const authUpdate: Record<string, any> = {};
+      if (data.name) authUpdate.name = data.name;
+      if (profile_image) authUpdate.profile_image = profile_image;
+
+      const adminUpdate: Record<string, any> = { ...data };
+      if (profile_image) adminUpdate.profile_image = profile_image;
+
       await Promise.all([
-        Auth.findByIdAndUpdate(authId, { name: data.name, profile_image }, { new: true }),
-        Admin.findByIdAndUpdate(userId, { profile_image, ...data }, { new: true }).populate("authId"),
+        Auth.findByIdAndUpdate(authId, authUpdate, { new: true }),
+        Admin.findByIdAndUpdate(userId, adminUpdate, { new: true }).populate("authId"),
       ]);
       return Admin.findById(userId).populate("authId") as unknown as IAdmin;
     }

@@ -20,7 +20,7 @@ import { TimeInput } from "@/components/ui/time-input";
 import { useTranslation } from '@/hooks/useTranslation';
 import {
   CarFront, Zap, Fuel, Car, Truck, Bike, Activity,
-  Check, MapPin, Calendar, FileCheck, Map, Settings, Search, Info, User, Phone,
+  Check, MapPin, Calendar, FileCheck, Map, Settings, Search, Info, User, Phone, Mail,
   FileText, Upload, ShieldCheck, Shield, Image as ImageIcon, CreditCard, Clock,
   ArrowRight, ClipboardCheck, UserCog, ChevronRight, ShieldCheck as ShieldCheckIcon,
   Shield as ShieldIcon, Upload as UploadIcon,
@@ -63,6 +63,7 @@ const initialFormData = {
   dropoffDate: '',
   dropoffContactName: '',
   dropoffContactPhone: '',
+  dropoffContactEmail: '',
   dropoffLocationType: '',
   dropoffInstructions: '',
   serviceType: '',
@@ -519,6 +520,22 @@ export default function TransportRequestPage() {
                                 updateForm("dropoffContactPhone", e.target.value)
                               }
                               placeholder="Delivery contact phone"
+                              className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                          <Label className="text-brand-text font-bold ml-1">Contact Email</Label>
+                          <div className="relative">
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                            <Input
+                              value={formData.dropoffContactEmail}
+                              type="email"
+                              onChange={(e) =>
+                                updateForm("dropoffContactEmail", e.target.value)
+                              }
+                              placeholder="Receiver contact email"
                               className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
                             />
                           </div>

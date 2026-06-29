@@ -62,12 +62,8 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
       >
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-6 py-4  border-b">
-            <Link href="/" className="flex items-center space-x-2 ">
-              <Image src={logo} alt="logo" width={50} height={50} preload/>
-              <div>
-                <h1 className="text-xl font-semibold">Amraoui Admin</h1>
-                <p className="text-gray-500">Operations Portal</p>
-              </div>
+            <Link href="/" className="flex items-center justify-center w-full py-2">
+              <Image src={logo} alt="Amraoui Logo" width={160} height={45} className="object-contain" style={{ height: 'auto' }} priority/>
             </Link>
             <Button
               variant="ghost"

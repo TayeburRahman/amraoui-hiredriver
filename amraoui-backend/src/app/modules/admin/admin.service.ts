@@ -6,6 +6,8 @@ import Admin from './admin.model';
 import { ENUM_USER_ROLE } from '../../../enums/user';
 import Customers from '../customers/customers.model';
 import Drivers from '../drivers/drivers.model';
+import { AuthService } from '../auth/auth.service';
+import sendEmail from '../../../utils/sendEmail';
 
 // ─── Block / Unblock any user ────────────────────────
 const blockUnblockAuthUser = async (payload: BlockUnblockPayload) => {
@@ -144,10 +146,53 @@ const getDashboardStats = async () => {
   };
 };
 
+// ─── Approve customer ────────────────────────
+const approveCustomer = async (customerId: string) => {
+  const customer = await Customers.findByIdAndUpdate(
+    customerId,
+    { status: 'active' },
+    { new: true, runValidators: true }
+  ).populate('authId');
+
+  if (!customer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Customer not found');
+  }
+
+  // Send an approval email
+  if (customer.email) {
+    sendEmail({
+      email: customer.email,
+      subject: "Account Approved",
+      html: `<h2>Welcome to Vehiqqo!</h2><p>Your account has been approved by the admin. You can now log in to the portal.</p>`,
+    }).catch(console.error);
+  }
+
+  return customer;
+};
+
+// ─── Create Customer manually ────────────────
+const createCustomer = async (payload: any) => {
+   const authResponse = await AuthService.registrationAccount({
+      ...payload,
+      role: ENUM_USER_ROLE.CUSTOMERS,
+   });
+
+   if (authResponse?.result?._id) {
+       await Customers.findByIdAndUpdate(authResponse.result._id, { status: 'active' });
+       if (authResponse.result.authId) {
+         await Auth.findByIdAndUpdate(authResponse.result.authId, { isActive: true });
+       }
+   }
+
+   return authResponse.result;
+};
+
 export const AdminService = {
   blockUnblockAuthUser,
   getAllCustomers,
   getCustomerById,
   getAllAdmins,
   getDashboardStats,
+  approveCustomer,
+  createCustomer,
 };

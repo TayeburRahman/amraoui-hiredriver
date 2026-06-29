@@ -58,10 +58,34 @@ const getDashboardStats = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ─── Approve customer ────────────────────────────────
+const approveCustomer = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.approveCustomer(req.params.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Customer approved successfully',
+    data: result,
+  });
+});
+
+// ─── Create Customer manually ────────────────────────
+const createCustomer = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.createCustomer(req.body);
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: 'Customer created successfully',
+    data: result,
+  });
+});
+
 export const AdminController = {
   blockUnblockAuthUser,
   getAllCustomers,
   getCustomerById,
   getAllAdmins,
   getDashboardStats,
+  approveCustomer,
+  createCustomer,
 };

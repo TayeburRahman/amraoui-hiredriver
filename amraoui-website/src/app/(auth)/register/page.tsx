@@ -19,6 +19,11 @@ import { registerCustomer, activateAccount, resendActivationCode } from '@/lib/a
 // ─── Step 1: Register form ──────────────────────────────────────────
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
+  family_name: z.string().min(2, 'Family Name is required'),
+  company: z.string().min(2, 'Company is required'),
+  tax_number: z.string().min(2, 'Tax Number is required'),
+  phone_number: z.string().min(5, 'Phone Number is required'),
+  message: z.string().optional(),
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string().min(6, 'Please confirm your password'),
@@ -89,7 +94,7 @@ function OtpInput({ value, onChange }: { value: string; onChange: (v: string) =>
 export default function RegisterPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const [step, setStep] = useState<'register' | 'otp'>('register');
+  const [step, setStep] = useState<'register' | 'otp' | 'success'>('register');
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -100,7 +105,7 @@ export default function RegisterPage() {
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { name: '', email: '', password: '', confirmPassword: '' },
+    defaultValues: { name: '', family_name: '', company: '', tax_number: '', phone_number: '', message: '', email: '', password: '', confirmPassword: '' },
   });
 
   // ─── Step 1: Register ───────────────────────────────────────────────
@@ -129,6 +134,13 @@ export default function RegisterPage() {
     setIsLoading(true);
     try {
       const res = await activateAccount({ userEmail: registeredEmail, activation_code: otpValue });
+      
+      if (res.data?.pending) {
+        toast.success(res.data.message || 'Email verified successfully.');
+        setStep('success');
+        return;
+      }
+
       const { accessToken, user } = res.data;
       dispatch(setCredentials({ user, token: accessToken }));
       toast.success('Account activated! Welcome to Vehiqqo.');
@@ -155,6 +167,26 @@ export default function RegisterPage() {
   };
 
   // ─── OTP Step UI ───────────────────────────────────────────────────
+  if (step === 'success') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-bg px-4 py-12 relative overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-brand-blue/5 blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-blue/5 blur-[120px]" />
+
+        <Card className="w-full max-w-md shadow-2xl shadow-blue-100/50 border-none rounded-[2.5rem] bg-white text-center p-12 z-10">
+          <CheckCircle2 className="mx-auto h-20 w-20 text-green-500 mb-6" />
+          <h2 className="text-3xl font-black text-brand-text mb-4">Email Verified</h2>
+          <p className="text-slate-500 font-medium leading-relaxed text-lg mb-8">
+            Thanks for your message, we will contact you soon.
+          </p>
+          <Button onClick={() => router.push('/')} className="w-full h-14 bg-brand-blue hover:bg-brand-blue-hover text-white rounded-2xl text-md font-bold shadow-lg shadow-blue-100 transition-all duration-200">
+            Return to Home
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
   if (step === 'otp') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-brand-bg px-4 py-12 relative overflow-hidden">
@@ -260,16 +292,109 @@ export default function RegisterPage() {
                     </FormItem>
                   )}
                 />
+                
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="family_name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-brand-text font-bold ml-1">Email Address</FormLabel>
+                      <FormLabel className="text-brand-text font-bold ml-1">Family Name</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="john@example.com"
-                          type="email"
+                          placeholder="Doe"
+                          {...field}
+                          className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="company"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-brand-text font-bold ml-1">Company</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Company LLC"
+                            {...field}
+                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="tax_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-brand-text font-bold ml-1">Tax Number</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="TAX-123456"
+                            {...field}
+                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-brand-text font-bold ml-1">Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="john@example.com"
+                            type="email"
+                            {...field}
+                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="phone_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-brand-text font-bold ml-1">Phone Number</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="+1234567890"
+                            {...field}
+                            className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="message"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-brand-text font-bold ml-1">Message (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Tell us about your needs..."
                           {...field}
                           className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
                         />

@@ -22,6 +22,18 @@ router.get(
   AdminController.getAllCustomers
 );
 
+router.post(
+  '/customers',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  AdminController.createCustomer
+);
+
+router.patch(
+  '/customers/:id/approve',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  AdminController.approveCustomer
+);
+
 router.get(
   '/customers/:id',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),

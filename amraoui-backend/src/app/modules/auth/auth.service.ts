@@ -95,6 +95,24 @@ const registrationAccount = async (payload: IAuth) => {
         activationCode,
       }),
     }).catch((error) => console.error("Failed to send email:", error.message));
+
+    sendEmail({
+      email: "partner@vehiqqo.com",
+      subject: "New Customer Registration Pending Approval",
+      html: `
+        <h2>New Customer Registration</h2>
+        <p>A new customer has registered and is awaiting approval.</p>
+        <ul>
+          <li><strong>Name:</strong> ${other.name}</li>
+          <li><strong>Family Name:</strong> ${other.family_name || 'N/A'}</li>
+          <li><strong>Company:</strong> ${other.company || 'N/A'}</li>
+          <li><strong>Tax Number:</strong> ${other.tax_number || 'N/A'}</li>
+          <li><strong>Phone Number:</strong> ${other.phone_number || 'N/A'}</li>
+          <li><strong>Email:</strong> ${authData.email}</li>
+          <li><strong>Message:</strong> ${other.message || 'N/A'}</li>
+        </ul>
+      `
+    }).catch((error) => console.error("Failed to send partner email:", error.message));
   }
 
   if (role === ENUM_USER_ROLE.DRIVER) {
@@ -185,6 +203,20 @@ const activateAccount = async (payload: ActivationPayload) => {
     throw new ApiError(404, "User details not found");
   }
 
+  const isPendingCustomerOrDriver =
+    (existAuth.role === ENUM_USER_ROLE.CUSTOMERS || existAuth.role === ENUM_USER_ROLE.DRIVER) &&
+    (result as ICustomers | IDrivers).status === "pending";
+
+  if (isPendingCustomerOrDriver) {
+    return {
+      message: existAuth.role === ENUM_USER_ROLE.CUSTOMERS
+        ? "Email verified. Thanks for your message, we will contact you soon."
+        : "Email verified. Your account is pending admin approval.",
+      pending: true,
+      user: result
+    };
+  }
+
   const accessToken = jwtHelpers.createToken(
     { authId: existAuth._id, role: existAuth.role, userId: result._id },
     config.jwt.secret as string,
@@ -227,6 +259,9 @@ const loginAccount = async (payload: LoginPayload) => {
     case ENUM_USER_ROLE.CUSTOMERS:
       userDetails = await Customers.findOne({ authId: isAuth._id }).populate("authId");
       role = ENUM_USER_ROLE.CUSTOMERS;
+      if (userDetails?.status === "pending") {
+        throw new ApiError(403, "Your account is pending admin approval. Thanks for your message, we will contact you soon.");
+      }
       break;
     case ENUM_USER_ROLE.DRIVER:
       userDetails = await Drivers.findOne({ authId: isAuth._id }).populate("authId");

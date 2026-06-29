@@ -14,6 +14,22 @@ const CustomersSchema = new Schema<ICustomers>(
       type: String,
       required: true,
     },
+    family_name: {
+      type: String,
+      default: null,
+    },
+    company: {
+      type: String,
+      default: null,
+    },
+    tax_number: {
+      type: String,
+      default: null,
+    },
+    message: {
+      type: String,
+      default: null,
+    },
     email: {
       type: String,
       required: true,
@@ -35,8 +51,8 @@ const CustomersSchema = new Schema<ICustomers>(
     },
     status: {
       type: String,
-      enum: ["active", "deactivate"],
-      default: "active",
+      enum: ["pending", "active", "deactivate"],
+      default: "pending",
     },
     notificationPrefs: {
       orderUpdates: { type: Boolean, default: true },

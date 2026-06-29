@@ -15,8 +15,7 @@ export const customerQuoteEmailBody = (data: {
       <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <!-- Logo -->
         <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
-          <img src="https://i.ibb.co/60MBG4Xp/logo.png" alt="Vehiqqo Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
-          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo</div>
+          <img src="https://amraoui-hiredriver.vercel.app/assets/logo.png" alt="Amraoui Logo" style="height: 50px; width: auto; display: block; margin: 0 auto;" />
         </div>
 
         <h3 style="color: #2563EB; font-size: 20px; margin-top: 0; margin-bottom: 16px;">Your Quote is Ready</h3>
@@ -26,8 +25,8 @@ export const customerQuoteEmailBody = (data: {
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin: 20px 0;">
           <h4 style="margin-top: 0; color: #1e293b; font-size: 16px;">Request Summary</h4>
           <p style="margin: 4px 0;"><strong>Request ID:</strong> ${data.requestId}</p>
-          <p style="margin: 4px 0;"><strong>Vehicle Type:</strong> ${data.vehicle}</p>
-          ${data.licensePlate ? `<p style="margin: 4px 0;"><strong>License Plate:</strong> ${data.licensePlate}</p>` : ''}
+          <p style="margin: 4px 0;"><strong>Type:</strong> ${data.vehicle}</p>
+          <p style="margin: 4px 0;"><strong>License Plate:</strong> ${data.licensePlate || '-'}</p>
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0;">
             <p style="margin: 4px 0; font-size: 14px; color: #64748b;">Base transport fee: <strong>€${data.baseAmount}</strong></p>
             ${data.expenses && data.expenses.length > 0 ? `
@@ -55,7 +54,7 @@ export const customerQuoteEmailBody = (data: {
                 </table>
               </div>
             ` : ''}
-            <p style="margin: 12px 0 0 0; font-size: 16px;"><strong>Final Quoted Amount excl. Tax:</strong> <span style="color: #2563EB; font-size: 20px; font-weight: bold;">€${data.totalAmount}</span></p>
+            <p style="margin: 12px 0 0 0; font-size: 16px;"><strong>Final quoted amount excl. Tax:</strong> <span style="color: #2563EB; font-size: 20px; font-weight: bold;">€${data.totalAmount}</span></p>
           </div>
         </div>
 
@@ -67,7 +66,7 @@ export const customerQuoteEmailBody = (data: {
 
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@vehiqqo.com</a> if you have questions.
+          Please contact support at <a href="mailto:support@amraoui.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">support@amraoui.com</a> if you have questions.
         </p>
       </div>
     </body>

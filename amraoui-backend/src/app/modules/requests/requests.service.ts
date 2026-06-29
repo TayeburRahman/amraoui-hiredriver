@@ -223,10 +223,10 @@ const sendAdminQuote = async (id: string, quoteData: any) => {
     customerEmail = result.details.email || result.details.customerEmail;
   }
 
-  const vehicle = result.details?.vehicleType || result.details?.vehicleBrand
-    ? `${result.details.vehicleType || result.details.vehicleBrand || ''} ${result.details.vehicleModel || ''}`.trim()
+  const vehicle = result.details?.vehicleType || result.details?.vehicleBrand || result.details?.make
+    ? `${result.details.vehicleType || result.details.vehicleBrand || result.details.make || ''} ${result.details.vehicleModel || result.details.model || ''}`.trim()
     : (result.type || 'Vehicle');
-  const licensePlate = result.details?.licensePlate || result.details?.vehiclePlate || result.details?.license_plate || '';
+  const licensePlate = result.details?.licensePlate || result.details?.vehiclePlate || result.details?.license_plate || result.details?.plate || '';
 
   // Calculate final total amount including expenses
   const baseAmount = Number(quoteData.amount) || Number(result.adminQuote?.amount) || 0;

@@ -55,6 +55,7 @@ const initialFormData = {
   pickupDate: '',
   pickupContactName: '',
   pickupContactPhone: '',
+  pickupContactEmail: '',
   pickupLocationType: '',
   dropoffAddress: '',
   dropoffCity: '',
@@ -423,6 +424,10 @@ export default function TransportRequestPage() {
                           <div className="space-y-2">
                             <Label className="text-brand-text font-bold ml-1">Contact Phone</Label>
                             <Input value={formData.pickupContactPhone} type="tel" onChange={(e) => updateForm('pickupContactPhone', e.target.value)} placeholder="+1 234 567 890" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                          </div>
+                          <div className="space-y-2 md:col-span-2">
+                            <Label className="text-brand-text font-bold ml-1">Contact Email</Label>
+                            <Input value={formData.pickupContactEmail} type="email" onChange={(e) => updateForm('pickupContactEmail', e.target.value)} placeholder="email@example.com" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
                           </div>
                         </div>
                       </div>

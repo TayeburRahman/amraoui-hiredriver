@@ -99,7 +99,7 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 text-sm">
           {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>}
-          
+
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-700">Full Name</label>
             <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -122,7 +122,7 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
           </div>
 
           <h3 className="pt-2 font-bold text-gray-900 border-t border-gray-100">Vehicle & License Details</h3>
-          
+
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-700">License Number (Optional)</label>
             <input type="text" name="license_number" value={formData.license_number} onChange={handleChange} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -142,7 +142,7 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-gray-700">Company Name (Optional)</label>
+              <label className="text-xs font-bold text-gray-700">Company Name</label>
               <input type="text" name="company_name" value={formData.company_name} onChange={handleChange} className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div className="space-y-1">
@@ -158,11 +158,10 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsVehicleCarrier(true)}
-                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${
-                    isVehicleCarrier
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
-                  }`}
+                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${isVehicleCarrier
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    }`}
                 >
                   Yes
                 </button>
@@ -173,11 +172,10 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
                     setVehicleCarrierImage(null);
                     setCarrierPreview(null);
                   }}
-                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${
-                    !isVehicleCarrier
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
-                  }`}
+                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${!isVehicleCarrier
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    }`}
                 >
                   No
                 </button>
@@ -190,11 +188,10 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsDealerPlate(true)}
-                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${
-                    isDealerPlate
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
-                  }`}
+                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${isDealerPlate
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    }`}
                 >
                   Yes
                 </button>
@@ -205,11 +202,10 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
                     setDealerPlateImage(null);
                     setPlatePreview(null);
                   }}
-                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${
-                    !isDealerPlate
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
-                  }`}
+                  className={`flex-1 py-1.5 px-3 rounded-lg font-semibold text-center transition-all ${!isDealerPlate
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                    }`}
                 >
                   No
                 </button>

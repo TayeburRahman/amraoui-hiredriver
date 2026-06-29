@@ -64,7 +64,7 @@ export function Solutions({ id }: { id?: string }) {
             <div className="order-1 lg:order-2 relative group">
               <div className="relative h-[250px] md:h-[320px] w-full rounded-[2rem] overflow-hidden shadow-xl">
                 <Image
-                  src="/assets/landing/solution.jpg" 
+                  src="/assets/landing/solution.png" 
                   alt="Professional driver"
                   fill
                   className="object-cover"

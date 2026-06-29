@@ -4,8 +4,9 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Car, Globe, ChevronDown, Menu, X, LogOut, User, LayoutDashboard } from 'lucide-react';
+import { Globe, ChevronDown, Menu, X, LogOut, User, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { logout } from '@/store/slices/authSlice';
@@ -56,10 +57,7 @@ export function Navbar() {
         <div className="flex h-20 items-center justify-center">
           <div className="flex w-full items-center justify-between rounded-full bg-white px-6 py-2 shadow-xl border border-white/10">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex size-10 items-center justify-center rounded-full button-gradient">
-                <Car className="size-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-brand-text">Hiflow</span>
+              <Image src="/assets/logo.png" alt="Amraoui Logo" width={130} height={45} className="object-contain h-11 w-auto" />
             </Link>
 
             <div className="hidden items-center gap-1 lg:flex">

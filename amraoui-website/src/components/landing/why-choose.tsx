@@ -2,7 +2,6 @@
 
 import { Key, Truck, Laptop, Headset, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export function WhyChoose({ id }: { id?: string }) {
@@ -49,17 +48,15 @@ export function WhyChoose({ id }: { id?: string }) {
         }}
       />
 
-      {/* Dashed Vector Line */}
-      <div className="absolute inset-x-0 top-[60%] -translate-y-1/2 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
-        <div className="relative w-full h-100">
-          <Image
-            src="/assets/landing/Vector.svg"
-            alt="Dashed line decoration"
-            fill
-            className="object-cover w-full"
-          />
-        </div>
-      </div>
+      {/* Subtle modern dot grid background */}
+      <div className="absolute inset-0 pointer-events-none z-0 opacity-[0.07]" style={{
+        backgroundImage: `radial-gradient(circle, var(--brand-blue) 1.5px, transparent 1.5px)`,
+        backgroundSize: '32px 32px'
+      }} />
+
+      {/* Soft glowing ambient backgrounds */}
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 size-96 bg-brand-blue/10 rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 size-96 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none z-0" />
 
       <div className="section-container relative z-10">
         <h2 className="text-3xl md:text-5xl font-extrabold text-brand-text text-center mb-12 md:mb-32 tracking-tight">

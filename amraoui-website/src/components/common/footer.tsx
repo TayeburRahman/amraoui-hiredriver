@@ -53,7 +53,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Info */}
           <div className="space-y-6">
-            <h2 className="text-3xl font-extrabold tracking-tight">Hiflow</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight">Amraoui</h2>
             <p className="text-blue-50/70 leading-relaxed max-w-xs">
               {t.landing.footer.tagline}
             </p>
@@ -61,7 +61,9 @@ export function Footer() {
             {/* Store Badges */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Link 
-                href="#" 
+                href="https://apps.apple.com" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center sm:justify-start gap-3 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-xl px-4 py-2.5 w-full sm:w-fit group"
               >
                 <svg viewBox="0 0 384 512" fill="currentColor" className="size-7 group-hover:scale-110 transition-transform">
@@ -74,7 +76,9 @@ export function Footer() {
               </Link>
 
               <Link 
-                href="#" 
+                href="https://play.google.com/store" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center sm:justify-start gap-3 bg-white/5 hover:bg-white/10 border border-white/10 transition-all rounded-xl px-4 py-2.5 w-full sm:w-fit group"
               >
                 <svg viewBox="0 0 512 512" fill="currentColor" className="size-7 group-hover:scale-110 transition-transform">
@@ -114,7 +118,7 @@ export function Footer() {
           <div className="space-y-6">
             <h3 className="text-lg font-bold">{t.landing.footer.resources}</h3>
             <ul className="space-y-4 text-blue-50/70">
-              <li><Link href="#" className="hover:text-white transition-colors">Careers at Hiflow</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Careers at Amraoui</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">{t.common.whoAreWe}</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">{t.landing.contact.title}</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
@@ -125,7 +129,7 @@ export function Footer() {
         {/* Divider */}
         <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-8 text-sm text-blue-50/60">
-            <span>© {currentYear} Hiflow. {t.landing.footer.rights}</span>
+            <span>© {currentYear} Amraoui. {t.landing.footer.rights}</span>
             <div className="flex items-center gap-4">
               <Link href="#" className="hover:text-white transition-colors font-medium">UGC</Link>
               <Link href="#" className="hover:text-white transition-colors font-medium">GVC</Link>

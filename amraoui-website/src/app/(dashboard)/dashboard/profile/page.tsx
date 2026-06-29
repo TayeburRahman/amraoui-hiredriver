@@ -10,6 +10,12 @@ import {
   HelpCircle, FileText, LogOut, Eye, EyeOff, Loader2,
   CheckCircle2, AlertCircle,
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAppSelector, useAppDispatch } from '@/hooks/redux';
 import { logout, updateUser } from '@/store/slices/authSlice';
@@ -279,7 +285,6 @@ const NotificationsTab = ({ t, prefs, setPrefs, onSave }: { t: any; prefs: any; 
   const items = [
     { id: 'orderUpdates' as const, label: 'Order updates', desc: 'Notifications about order status changes' },
     { id: 'emailNotifs' as const, label: 'Email notifications', desc: 'Receive updates via email' },
-    { id: 'smsNotifs' as const, label: 'SMS notifications', desc: 'Receive updates via SMS' },
     { id: 'deliveryReminders' as const, label: 'Delivery reminders', desc: 'Get reminded about upcoming deliveries' },
     { id: 'promoOffers' as const, label: 'Promotional offers', desc: 'Receive special offers and discounts' },
   ];
@@ -311,16 +316,16 @@ const NotificationsTab = ({ t, prefs, setPrefs, onSave }: { t: any; prefs: any; 
 };
 
 // ─── Preferences Tab ───────────────────────────────────────────────
-const PreferencesTab = ({ 
-  t, 
-  language, 
+const PreferencesTab = ({
+  t,
+  language,
   onLanguageChange,
   currency,
   onCurrencyChange,
   onSave
-}: { 
-  t: any; 
-  language: string; 
+}: {
+  t: any;
+  language: string;
   onLanguageChange: (l: string) => void;
   currency: string;
   onCurrencyChange: (c: string) => void;
@@ -332,7 +337,7 @@ const PreferencesTab = ({
       <div className="space-y-6 max-w-lg">
         <div className="space-y-2">
           <label className="text-xs font-bold text-brand-text">{t.settings?.language || 'Language'}</label>
-          <select 
+          <select
             value={language}
             onChange={(e) => onLanguageChange(e.target.value)}
             className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 px-4 focus:outline-none focus:ring-2 focus:ring-brand-blue font-medium text-brand-text appearance-none cursor-pointer"
@@ -344,7 +349,7 @@ const PreferencesTab = ({
         </div>
         <div className="space-y-2">
           <label className="text-xs font-bold text-brand-text">{t.settings?.currency || 'Currency'}</label>
-          <select 
+          <select
             value={currency}
             onChange={(e) => onCurrencyChange(e.target.value)}
             className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 px-4 focus:outline-none focus:ring-2 focus:ring-brand-blue font-medium text-brand-text appearance-none cursor-pointer"
@@ -376,6 +381,8 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('profile');
   const [profile, setProfile] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(true);
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   // Lifted state to persist across tab changes
   const [notificationPrefs, setNotificationPrefs] = useState({
@@ -419,7 +426,7 @@ export default function ProfilePage() {
         formData.append('currency', currency);
         formData.append('language', language);
       }
-      
+
       const res = await updateMyProfile(formData);
       handleProfileSaved(res.data);
       toast.success(type === 'notifications' ? 'Notification preferences updated!' : 'Preferences updated successfully!');
@@ -535,18 +542,18 @@ export default function ProfilePage() {
             )}
             {activeTab === 'security' && <SecurityTab t={t} />}
             {activeTab === 'notifications' && (
-              <NotificationsTab 
-                t={t} 
-                prefs={notificationPrefs} 
-                setPrefs={setNotificationPrefs} 
-                onSave={() => handleSaveSettings('notifications')} 
+              <NotificationsTab
+                t={t}
+                prefs={notificationPrefs}
+                setPrefs={setNotificationPrefs}
+                onSave={() => handleSaveSettings('notifications')}
               />
             )}
             {activeTab === 'preferences' && (
-              <PreferencesTab 
-                t={t} 
-                language={language} 
-                onLanguageChange={(l) => dispatch(setLanguage(l as any))} 
+              <PreferencesTab
+                t={t}
+                language={language}
+                onLanguageChange={(l) => dispatch(setLanguage(l as any))}
                 currency={currency}
                 onCurrencyChange={setCurrency}
                 onSave={() => handleSaveSettings('preferences')}
@@ -558,12 +565,18 @@ export default function ProfilePage() {
 
       {/* Footer Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-4">
-        <Card className="p-5 sm:p-6 rounded-[2rem] border border-slate-100 shadow-sm bg-white hover:border-brand-blue/30 cursor-pointer transition-colors group">
+        <Card 
+          onClick={() => setShowSupportModal(true)}
+          className="p-5 sm:p-6 rounded-[2rem] border border-slate-100 shadow-sm bg-white hover:border-brand-blue/30 cursor-pointer transition-colors group"
+        >
           <HelpCircle className="h-6 w-6 text-brand-blue mb-4 group-hover:scale-110 transition-transform" />
           <h4 className="font-bold text-brand-text mb-1">{t.settings?.helpSupport || 'Help & Support'}</h4>
           <p className="text-xs font-medium text-slate-500">{t.settings?.helpSupportDesc || 'Get help with your account'}</p>
         </Card>
-        <Card className="p-5 sm:p-6 rounded-[2rem] border border-slate-100 shadow-sm bg-white hover:border-brand-blue/30 cursor-pointer transition-colors group">
+        <Card 
+          onClick={() => setShowTermsModal(true)}
+          className="p-5 sm:p-6 rounded-[2rem] border border-slate-100 shadow-sm bg-white hover:border-brand-blue/30 cursor-pointer transition-colors group"
+        >
           <FileText className="h-6 w-6 text-brand-blue mb-4 group-hover:scale-110 transition-transform" />
           <h4 className="font-bold text-brand-text mb-1">{t.settings?.privacyTerms || 'Privacy & Terms'}</h4>
           <p className="text-xs font-medium text-slate-500">{t.settings?.privacyTermsDesc || 'Review our policies'}</p>
@@ -577,6 +590,111 @@ export default function ProfilePage() {
           <p className="text-xs font-medium text-slate-500">{t.settings?.logoutDesc || 'Sign out of your account'}</p>
         </Card>
       </div>
+
+      {/* Help & Support Modal */}
+      <Dialog open={showSupportModal} onOpenChange={setShowSupportModal}>
+        <DialogContent className="max-w-[500px] rounded-[24px] bg-white p-6 shadow-xl gap-4">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-brand-text flex items-center gap-2">
+              <HelpCircle className="h-6 w-6 text-brand-blue" />
+              Help & Support
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <p className="text-sm font-medium text-slate-600 leading-relaxed">
+              Need assistance with your bookings, account settings, or have other questions? Get in touch with our team.
+            </p>
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Email Address</span>
+                <a href="mailto:support@amraoui.com" className="text-sm font-bold text-brand-blue hover:underline">
+                  support@amraoui.com
+                </a>
+              </div>
+              <div className="w-full h-px bg-slate-100" />
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operating Hours</span>
+                <span className="text-sm font-bold text-slate-700">Mon - Fri, 9:00 - 18:00 CET</span>
+              </div>
+              <div className="w-full h-px bg-slate-100" />
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Response Time</span>
+                <span className="text-sm font-bold text-emerald-600">Usually under 2 hours</span>
+              </div>
+            </div>
+            <div className="pt-2 flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 rounded-xl h-11 font-bold border-slate-200 text-slate-600 hover:bg-slate-50"
+                onClick={() => setShowSupportModal(false)}
+              >
+                Close
+              </Button>
+              <Button
+                className="flex-1 rounded-xl h-11 font-bold bg-brand-blue hover:bg-brand-blue-hover text-white"
+                onClick={() => {
+                  window.open('mailto:support@amraoui.com');
+                  setShowSupportModal(false);
+                }}
+              >
+                Send Email
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Privacy & Terms Modal */}
+      <Dialog open={showTermsModal} onOpenChange={setShowTermsModal}>
+        <DialogContent className="max-w-[650px] max-h-[80vh] overflow-y-auto rounded-[24px] bg-white p-6 shadow-xl gap-4 hide-scrollbar">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-brand-text flex items-center gap-2">
+              <FileText className="h-6 w-6 text-brand-blue" />
+              Privacy & Terms
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-5 pt-2 text-sm text-slate-600 leading-relaxed">
+            <div>
+              <h3 className="font-bold text-brand-text text-base mb-1.5">1. Terms of Service</h3>
+              <p>
+                Welcome to Amraoui. By accessing or using our platform, services, or website, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, you should not access or use the platform.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold text-brand-text text-base mb-1.5">2. Service Description</h3>
+              <p>
+                Amraoui operates an on-demand driver and transport request system, connecting individual and corporate customers with professional, vetted drivers for vehicle collection, delivery, and inspection missions.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold text-brand-text text-base mb-1.5">3. Privacy Policy</h3>
+              <p>
+                We value your privacy. We collect personal identifiers (such as name, email, and phone number) and booking information solely for the purpose of executing the requested transport missions, sending notifications, and managing billing. We do not sell or share your personal data with third-party advertisers.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold text-brand-text text-base mb-1.5">4. Cancellation & Refund Policy</h3>
+              <p>
+                Missions canceled within 24 hours of the scheduled start time may be subject to a cancellation fee. Refunds, if applicable, are processed through our payment gateway to the original billing method.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-bold text-brand-text text-base mb-1.5">5. Contact Us</h3>
+              <p>
+                If you have any questions or feedback regarding these terms or our privacy policy, please contact us at <a href="mailto:support@amraoui.com" className="text-brand-blue font-bold hover:underline">support@amraoui.com</a>.
+              </p>
+            </div>
+            <div className="pt-4 border-t border-slate-100 flex justify-end">
+              <Button
+                className="rounded-xl h-11 px-6 font-bold bg-brand-blue hover:bg-brand-blue-hover text-white"
+                onClick={() => setShowTermsModal(false)}
+              >
+                I Understand
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

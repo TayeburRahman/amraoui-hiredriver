@@ -173,6 +173,7 @@ export default function TransportRequestPage() {
       if (!formData.lastName) newErrors.lastName = reqMsg;
       if (!formData.email) newErrors.email = reqMsg;
       if (!formData.phone) newErrors.phone = reqMsg;
+      if (!formData.company) newErrors.company = reqMsg;
     }
     
     if (currentStep === 2) {
@@ -359,7 +360,8 @@ export default function TransportRequestPage() {
                       </div>
                       <div className="space-y-2 md:col-span-2">
                         <Label className="text-brand-text font-bold ml-1">{t.createRequest.form.company}</Label>
-                        <Input value={formData.company} onChange={(e) => updateForm('company', e.target.value)} placeholder={t.createRequest.placeholders.company} className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                        <Input value={formData.company} onChange={(e) => updateForm('company', e.target.value)} placeholder={t.createRequest.placeholders.company} className={`h-12 rounded-2xl ${errors.company ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
+                        {errors.company && <p className="text-sm text-red-500 mt-1 ml-1">{errors.company}</p>}
                       </div>
                     </div>
                   </div>

@@ -83,6 +83,7 @@ const registrationAccount = async (payload: IAuth) => {
     password,
     expirationTime: Date.now() + 3 * 60 * 1000,
     isActive: (role === ENUM_USER_ROLE.ADMIN || role === ENUM_USER_ROLE.SUPER_ADMIN),
+    profile_image: other.profile_image,
   };
 
   if (role === ENUM_USER_ROLE.CUSTOMERS) {

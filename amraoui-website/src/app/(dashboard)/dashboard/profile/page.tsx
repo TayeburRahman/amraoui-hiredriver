@@ -611,11 +611,13 @@ export default function ProfilePage() {
                   support@amraoui.com
                 </a>
               </div>
+
               <div className="w-full h-px bg-slate-100" />
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Operating Hours</span>
                 <span className="text-sm font-bold text-slate-700">Mon - Fri, 9:00 - 18:00 CET.</span>
               </div>
+
               <div className="w-full h-px bg-slate-100" />
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Response Time</span>

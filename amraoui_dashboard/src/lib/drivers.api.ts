@@ -49,7 +49,7 @@ export interface BackendDriver {
 export function getDocumentUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   if (path.startsWith("http")) return path;
-  const base = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+  const base = process.env.NEXT_PUBLIC_BACKEND_URL || "https://amraoui-hiredriver-backends.vercel.app";
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
@@ -135,7 +135,7 @@ export async function adminUploadDocument(driverId: string, documentType: string
   const headers = new Headers();
   if (token) headers.append("Authorization", `Bearer ${token}`);
 
-  const base = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+  const base = process.env.NEXT_PUBLIC_BACKEND_URL || "https://amraoui-hiredriver-backends.vercel.app";
   const response = await fetch(`${base}/api/v1/drivers/${driverId}/documents`, {
     method: "PATCH",
     headers,

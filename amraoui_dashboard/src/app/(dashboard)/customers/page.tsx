@@ -47,7 +47,7 @@ interface Meta {
   limit: number;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
 const LIMIT = 10;
 
 const tabs = ['All Customers', 'Pending', 'Active', 'Deactivated'];
@@ -77,11 +77,21 @@ const CreateCustomerModal = ({
     name: '', family_name: '', company: '', tax_number: '',
     phone_number: '', email: '', password: '', message: '',
   });
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setProfileImage(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -90,19 +100,26 @@ const CreateCustomerModal = ({
     setError('');
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+      const formData = new FormData();
+      formData.append('data', JSON.stringify({ ...form, confirmPassword: form.password }));
+      if (imageFile) {
+        formData.append('profile_image', imageFile);
+      }
+
       const res = await fetch(`${BACKEND_URL}/api/v1/admin/customers`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ ...form, confirmPassword: form.password }),
+        body: formData,
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || 'Failed to create customer');
       onSuccess();
       onClose();
       setForm({ name: '', family_name: '', company: '', tax_number: '', phone_number: '', email: '', password: '', message: '' });
+      setProfileImage(null);
+      setImageFile(null);
     } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {
@@ -126,6 +143,21 @@ const CreateCustomerModal = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Profile Image Uploader */}
+          <div className="flex flex-col items-center justify-center gap-2 pb-2">
+            <div className="relative w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center overflow-hidden border-2 border-gray-200 shadow-sm">
+              {profileImage ? (
+                <img src={profileImage} alt="Profile Preview" className="w-full h-full object-cover" />
+              ) : (
+                <Users className="w-8 h-8 text-blue-400" />
+              )}
+            </div>
+            <label className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-lg transition-colors shadow-sm cursor-pointer">
+              Upload Photo
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+            </label>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-bold text-gray-600 mb-1 block">First Name *</label>

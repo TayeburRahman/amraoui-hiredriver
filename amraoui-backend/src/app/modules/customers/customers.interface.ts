@@ -3,6 +3,7 @@ import mongoose, { Document } from "mongoose";
 export type ICustomers = Document & {
   _id: mongoose.Schema.Types.ObjectId;
   authId: mongoose.Schema.Types.ObjectId;
+  linkedAuthIds?: mongoose.Schema.Types.ObjectId[];
   name: string;
   family_name?: string;
   company?: string;

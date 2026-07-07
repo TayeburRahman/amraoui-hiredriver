@@ -6,6 +6,7 @@ import { CustomerRoutes } from '../modules/customers/customers.routes';
 
 import { RequestsRoutes } from '../modules/requests/requests.routes';
 import { NotificationRoutes } from '../modules/notifications/notifications.routes';
+import { SettingsRoutes } from '../modules/settings/settings.route';
 
 const router = express.Router();
 
@@ -22,6 +23,7 @@ const moduleRoutes = [
   { path: '/requests',  route: RequestsRoutes },
   // ─── Notifications ────────────────────────────────────────────
   { path: '/notifications', route: NotificationRoutes },
+  { path: '/settings', route: SettingsRoutes },
 ];
 
 moduleRoutes.forEach(route => router.use(route.path, route.route));

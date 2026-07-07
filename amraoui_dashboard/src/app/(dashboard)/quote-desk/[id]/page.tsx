@@ -369,7 +369,9 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                     </div>
                                     <div className="flex justify-between border-t border-gray-100 pt-2 mt-2">
                                         <span className="text-gray-400">Delivery Type</span>
-                                        <span className="font-bold text-blue-600 capitalize">{request.details?.deliveryType || 'N/A'}</span>
+                                        <span className="font-bold text-blue-600 capitalize">
+                                            {request.details?.deliveryType === 'tow' ? 'Vehicle Carrier' : (request.details?.deliveryType || 'N/A')}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-gray-400">Engine Type</span>

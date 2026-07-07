@@ -199,6 +199,28 @@ const updateAdminNotes = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateDriverByAdmin = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await DriverService.updateDriverByAdmin(id, req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Driver updated successfully',
+    data: result,
+  });
+});
+
+const deleteDriverByAdmin = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  await DriverService.deleteDriverByAdmin(id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Driver deleted successfully',
+    data: null,
+  });
+});
+
 export const DriverController = {
   getAllDrivers,
   getDriverById,
@@ -215,4 +237,6 @@ export const DriverController = {
   deleteDocumentByAdmin,
   updateDocumentStatus,
   updateAdminNotes,
+  updateDriverByAdmin,
+  deleteDriverByAdmin,
 };

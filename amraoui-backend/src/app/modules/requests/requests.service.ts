@@ -7,6 +7,8 @@ import { NotificationService } from '../notifications/notifications.service';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
 import sendEmail from '../../../utils/sendEmail';
+import Auth from '../auth/auth.model';
+import { ENUM_USER_ROLE } from '../../../enums/user';
 
 // ─── Get All Requests (Admin) ───────────────────────────────────────────────
 const getAllRequests = async (filters: {
@@ -79,6 +81,42 @@ const createRequest = async (payload: any) => {
   }
 
   const result = await Requests.create(payload);
+
+  // Notify Admins
+  try {
+    const admins = await Auth.find({ role: { $in: [ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN] } });
+    
+    for (const admin of admins) {
+      // 1. Create DB Notification
+      await NotificationService.createNotification({
+        recipientId: admin._id,
+        title: 'New Customer Request',
+        message: `Customer submitted request ${proposedId}.`,
+        type: 'SYSTEM',
+        link: '/quote-desk'
+      } as any);
+
+      // 2. Send Email
+      await sendEmail(
+        admin.email,
+        'New Transport Request Created',
+        `A new transport request (${proposedId}) has been created and is waiting for your attention.`
+      );
+
+      // 3. Emit Real-Time Socket Event
+      if ((global as any).io) {
+        // Emit specifically to the admin's room if connected
+        (global as any).io.to(admin._id.toString()).emit('notification', {
+          title: 'New Customer Request',
+          message: `Customer submitted request ${proposedId}.`,
+          type: 'SYSTEM'
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Failed to notify admins of new request:', error);
+  }
+
   return result;
 };
 
@@ -697,6 +735,17 @@ const updateDeliveryInspection = async (missionId: string, driverId: string, sec
   return mission;
 };
 
+// ─── Upload Invoice ───────────────────────────────────────────────────────────
+const uploadInvoice = async (id: string, fileUrl: string) => {
+  const result = await Requests.findByIdAndUpdate(
+    id,
+    { invoiceUrl: fileUrl },
+    { new: true }
+  );
+  if (!result) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
+  return result;
+};
+
 export const RequestsService = {
   createRequest,
   getAllRequests,
@@ -719,4 +768,5 @@ export const RequestsService = {
   deleteExpense,
   sendAdminQuote,
   customerReply,
+  uploadInvoice,
 };

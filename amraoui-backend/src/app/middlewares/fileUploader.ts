@@ -25,7 +25,7 @@ export const uploadFile = () => {
 
       return {
         folder: folderName,
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'mp4'],
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'pdf'],
         resource_type: 'auto',
         public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}`,
       };
@@ -40,6 +40,7 @@ export const uploadFile = () => {
       'product_img',
       'vehicle_carrier_image',
       'dealer_plate_image',
+      'invoice',
     ];
 
     if (file.fieldname === undefined) {
@@ -50,7 +51,8 @@ export const uploadFile = () => {
         file.mimetype === 'image/png' ||
         file.mimetype === 'image/jpg' ||
         file.mimetype === 'image/webp' ||
-        file.mimetype === 'video/mp4'
+        file.mimetype === 'video/mp4' ||
+        file.mimetype === 'application/pdf'
       ) {
         cb(null, true);
       } else {
@@ -71,6 +73,7 @@ export const uploadFile = () => {
     { name: 'profile_image', maxCount: 1 },
     { name: 'vehicle_carrier_image', maxCount: 1 },
     { name: 'dealer_plate_image', maxCount: 1 },
+    { name: 'invoice', maxCount: 1 },
   ]);
 
   return upload;

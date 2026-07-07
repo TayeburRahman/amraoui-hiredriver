@@ -34,8 +34,10 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
   const [isDealerPlate, setIsDealerPlate] = useState(false);
   const [vehicleCarrierImage, setVehicleCarrierImage] = useState<File | null>(null);
   const [dealerPlateImage, setDealerPlateImage] = useState<File | null>(null);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
   const [carrierPreview, setCarrierPreview] = useState<string | null>(null);
   const [platePreview, setPlatePreview] = useState<string | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -44,7 +46,7 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'carrier' | 'plate') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'carrier' | 'plate' | 'profile') => {
     const file = e.target.files?.[0] || null;
     if (file) {
       if (type === 'carrier') {
@@ -52,10 +54,15 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
         const reader = new FileReader();
         reader.onloadend = () => setCarrierPreview(reader.result as string);
         reader.readAsDataURL(file);
-      } else {
+      } else if (type === 'plate') {
         setDealerPlateImage(file);
         const reader = new FileReader();
         reader.onloadend = () => setPlatePreview(reader.result as string);
+        reader.readAsDataURL(file);
+      } else if (type === 'profile') {
+        setProfileImage(file);
+        const reader = new FileReader();
+        reader.onloadend = () => setProfilePreview(reader.result as string);
         reader.readAsDataURL(file);
       }
     }
@@ -74,6 +81,9 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
       }
       if (isDealerPlate && dealerPlateImage) {
         uploadData.append('dealer_plate_image', dealerPlateImage);
+      }
+      if (profileImage) {
+        uploadData.append('profile_image', profileImage);
       }
 
       await adminCreateDriver(uploadData);
@@ -99,6 +109,24 @@ export const DriverCreateModal: React.FC<DriverCreateModalProps> = ({
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4 text-sm">
           {error && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>}
+
+          {/* Profile Image Upload */}
+          <div className="flex flex-col items-center justify-center py-2">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden">
+                {profilePreview ? (
+                  <img src={profilePreview} alt="Profile Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <UploadCloud className="w-8 h-8 text-gray-400" />
+                )}
+              </div>
+              <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full cursor-pointer shadow-sm hover:bg-blue-700 transition-colors">
+                <UploadCloud className="w-4 h-4" />
+                <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'profile')} className="hidden" />
+              </label>
+            </div>
+            <span className="text-xs text-gray-500 mt-2 font-medium">Upload Profile Picture (Optional)</span>
+          </div>
 
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-700">Full Name</label>

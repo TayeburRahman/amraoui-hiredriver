@@ -265,11 +265,12 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
             <div className="space-y-4">
               {/* Document Card Template */}
               {[
-                { type: 'license_document', title: 'Driver License', val: driver.license_document, status: driver.license_status, icon: FileText, num: driver.license_number, date: driver.createdAt, isImage: false },
-                { type: 'id_document', title: 'ID Document', val: driver.id_document, status: driver.id_status, icon: FileText, date: driver.createdAt, isImage: false },
-                { type: 'contract_document', title: 'Contract Document', val: driver.contract_document, status: driver.contract_status, icon: FileText, date: driver.createdAt, isImage: false },
-                { type: 'vehicle_carrier_image', title: 'Vehicle Carrier Image', val: driver.vehicle_carrier_image, status: driver.vehicle_carrier_status, icon: FileText, date: driver.createdAt, isImage: true },
-                { type: 'dealer_plate_image', title: 'Dealer Plate Image', val: driver.dealer_plate_image, status: driver.dealer_plate_status, icon: FileText, date: driver.createdAt, isImage: true },
+                { type: 'profile_image', title: 'Profile Image', val: driver.profile_image, status: null, icon: FileText, date: driver.createdAt, isImage: true, hasStatus: false },
+                { type: 'license_document', title: 'Driver License', val: driver.license_document, status: driver.license_status, icon: FileText, num: driver.license_number, date: driver.createdAt, isImage: false, hasStatus: true },
+                { type: 'id_document', title: 'ID Document', val: driver.id_document, status: driver.id_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
+                { type: 'contract_document', title: 'Contract Document', val: driver.contract_document, status: driver.contract_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
+                { type: 'vehicle_carrier_image', title: 'Vehicle Carrier Image', val: driver.vehicle_carrier_image, status: driver.vehicle_carrier_status, icon: FileText, date: driver.createdAt, isImage: true, hasStatus: true },
+                { type: 'dealer_plate_image', title: 'Dealer Plate Image', val: driver.dealer_plate_image, status: driver.dealer_plate_status, icon: FileText, date: driver.createdAt, isImage: true, hasStatus: true },
               ].map(doc => (
                 <div key={doc.type} className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col shadow-sm">
                   <div className="flex justify-between items-start mb-6">
@@ -283,9 +284,9 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                       </div>
                     </div>
                     <div>
-                      {doc.status === 'verified' && <span className="bg-green-50 text-green-700 border border-green-200/50 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Verified</span>}
-                      {doc.status === 'rejected' && <span className="bg-red-50 text-red-700 border border-red-200/50 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5"><Ban className="w-3.5 h-3.5" /> Rejected</span>}
-                      {(!doc.status || doc.status === 'pending') && doc.val && <span className="bg-amber-50 text-amber-700 border border-amber-200/50 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Pending</span>}
+                      {doc.hasStatus && doc.status === 'verified' && <span className="bg-green-50 text-green-700 border border-green-200/50 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5"><CheckCircle2 className="w-3.5 h-3.5" /> Verified</span>}
+                      {doc.hasStatus && doc.status === 'rejected' && <span className="bg-red-50 text-red-700 border border-red-200/50 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5"><Ban className="w-3.5 h-3.5" /> Rejected</span>}
+                      {doc.hasStatus && (!doc.status || doc.status === 'pending') && doc.val && <span className="bg-amber-50 text-amber-700 border border-amber-200/50 px-3 py-1 text-xs font-bold rounded-full flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Pending</span>}
                     </div>
                   </div>
 
@@ -326,7 +327,7 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                         </a>
 
                         {/* Verify button — shown for all doc types when not already verified */}
-                        {doc.status !== 'verified' && (
+                        {doc.hasStatus && doc.status !== 'verified' && (
                           <button
                             onClick={() => handleStatusChange(doc.type, 'verified')}
                             disabled={actionLoading === doc.type}
@@ -336,7 +337,7 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                           </button>
                         )}
                         {/* Reject button — shown for all doc types when not already rejected */}
-                        {doc.status !== 'rejected' && (
+                        {doc.hasStatus && doc.status !== 'rejected' && (
                           <button
                             onClick={() => handleStatusChange(doc.type, 'rejected')}
                             disabled={actionLoading === doc.type}
@@ -347,16 +348,13 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                         )}
                       </>
                     ) : (
-                      /* Only allow upload for document types, not image-only fields */
-                      !doc.isImage ? (
+                      (
                         <div className="flex items-center gap-2 ml-auto">
                           <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50">
                             {actionLoading === doc.type ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Upload</span>}
                             <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, doc.type)} disabled={actionLoading === doc.type} />
                           </label>
                         </div>
-                      ) : (
-                        <span className="text-xs text-gray-400 italic">Not provided by driver</span>
                       )
                     )}
                   </div>

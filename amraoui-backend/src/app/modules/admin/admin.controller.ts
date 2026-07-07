@@ -80,6 +80,39 @@ const createCustomer = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ─── Add Customer Login ────────────────────────
+const addCustomerLogin = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.addCustomerLogin(req.params.id, req.body);
+  sendResponse(res, {
+    statusCode: 201,
+    success: true,
+    message: 'Customer sub-login added successfully',
+    data: result,
+  });
+});
+
+// ─── Update Customer Login ─────────────────────
+const updateCustomerLogin = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.updateCustomerLogin(req.params.id, req.params.authId, req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Customer sub-login updated successfully',
+    data: result,
+  });
+});
+
+// ─── Delete Customer Login ─────────────────────
+const deleteCustomerLogin = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.deleteCustomerLogin(req.params.id, req.params.authId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Customer sub-login deleted successfully',
+    data: result,
+  });
+});
+
 export const AdminController = {
   blockUnblockAuthUser,
   getAllCustomers,
@@ -88,4 +121,7 @@ export const AdminController = {
   getDashboardStats,
   approveCustomer,
   createCustomer,
+  addCustomerLogin,
+  updateCustomerLogin,
+  deleteCustomerLogin,
 };

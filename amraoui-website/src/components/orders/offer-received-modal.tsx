@@ -28,78 +28,34 @@ interface OfferReceivedModalProps {
 export function OfferReceivedModal({ children, order }: OfferReceivedModalProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const baseAmount = order?.adminQuote?.amount || 0;
   const extraExpensesSum = order?.expenses?.reduce((sum: number, exp: any) => sum + (exp.amount || 0), 0) || 0;
   const finalTotal = baseAmount + extraExpensesSum;
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadInvoice = async () => {
+    if (!order?.invoiceUrl) {
+      alert("Invoice not available yet.");
+      return;
+    }
     try {
-      setIsGeneratingPDF(true);
-      // Wait for React to render the hidden elements
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const { toPng } = await import('html-to-image');
-      const { jsPDF } = await import('jspdf');
-
-      const element = document.getElementById('invoice-pdf-content');
-      if (!element) return;
-
-      // Capture the full scrollable height to avoid clipping
-      const originalStyle = element.style.height;
-      element.style.height = 'auto';
-
-      const dataUrl = await toPng(element, {
-        quality: 1,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-        width: element.offsetWidth,
-        height: element.scrollHeight,
-        style: {
-          height: element.scrollHeight + 'px',
-          overflow: 'visible',
-        },
-        filter: (node) => {
-          if (node instanceof HTMLElement && node.dataset.html2canvasIgnore === 'true') {
-            return false;
-          }
-          return true;
-        }
-      });
-
-      // Restore height
-      element.style.height = originalStyle;
-
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const imgProps = pdf.getImageProperties(dataUrl);
-      const pdfWidth = pdf.internal.pageSize.getWidth() - 20; // 10mm margins
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      const maxHeight = pdf.internal.pageSize.getHeight() - 20; // 10mm margins
-
-      let finalWidth = pdfWidth;
-      let finalHeight = pdfHeight;
-      let xOffset = 10;
-      let yOffset = 10;
-
-      if (finalHeight > maxHeight) {
-        finalHeight = maxHeight;
-        finalWidth = (imgProps.width * finalHeight) / imgProps.height;
-        xOffset = 10 + (pdfWidth - finalWidth) / 2;
-      }
-
-      pdf.addImage(dataUrl, 'PNG', xOffset, yOffset, finalWidth, finalHeight);
-      pdf.save(`Amraoui_Invoice_${order?._id?.substring(0, 8) || 'Details'}.pdf`);
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+      const fileUrl = order.invoiceUrl.startsWith('http') ? order.invoiceUrl : `${baseUrl}/${order.invoiceUrl.replace(/\\/g, '/')}`;
+      
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Amraoui_Invoice_${order.missionId || order._id.substring(0, 8)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (e) {
-      console.error("Failed to generate PDF", e);
-      alert("Failed to generate PDF");
-    } finally {
-      setIsGeneratingPDF(false);
+      console.error("Failed to download invoice", e);
+      alert("Failed to download invoice");
     }
   };
 
@@ -253,15 +209,17 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
               <Card className="rounded-[20px] border border-slate-100 shadow-sm p-4 sm:p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-slate-900 text-base">Payment Method</h3>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    data-html2canvas-ignore="true"
-                    className="h-8 text-xs font-semibold text-slate-600 rounded-lg gap-1.5 border-slate-200 hover:bg-slate-50"
-                    onClick={handleDownloadPDF}
-                  >
-                    <Download className="h-3.5 w-3.5" /> Download PDF
-                  </Button>
+                  {order?.invoiceUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      data-html2canvas-ignore="true"
+                      className="h-8 text-xs font-semibold text-slate-600 rounded-lg gap-1.5 border-slate-200 hover:bg-slate-50"
+                      onClick={handleDownloadInvoice}
+                    >
+                      <Download className="h-3.5 w-3.5" /> Download Invoice
+                    </Button>
+                  )}
                 </div>
 
                 <div className="border border-blue-200 bg-blue-50/30 rounded-xl p-4 flex gap-4">
@@ -319,23 +277,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
             </div>
           </Card>
 
-          {/* Signature Section - Only visible during PDF generation */}
-          {isGeneratingPDF && (
-            <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-slate-100 flex justify-between items-end px-4 sm:px-6 lg:px-8 pb-4">
-              <div>
-                <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Company Signature</p>
-                <div className="h-12 w-40 sm:w-48 border-b-2 border-slate-200 mb-2 flex items-end pb-1">
-                  <span className="font-bold text-slate-800 italic text-xl sm:text-2xl opacity-80">Amraoui</span>
-                </div>
-                <p className="text-[10px] sm:text-xs font-semibold text-slate-400">Authorized Representative</p>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Customer Signature</p>
-                <div className="h-12 w-40 sm:w-48 border-b-2 border-slate-200 mb-2"></div>
-                <p className="text-[10px] sm:text-xs font-semibold text-slate-400">Date: ____/____/20__</p>
-              </div>
-            </div>
-          )}
+
 
         </div>
 

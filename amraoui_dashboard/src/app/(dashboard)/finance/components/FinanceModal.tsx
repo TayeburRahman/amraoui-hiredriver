@@ -12,7 +12,26 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
 
   // The user requested different designs for "Pending" and "Paid". 
   // We'll use the status to render the appropriate design.
-  const isPending = invoice.status === 'Pending';
+  // We'll use the status to render the appropriate design.
+  const isPending = invoice.status === 'Pending' || invoice.status === 'Failed';
+  const req = invoice.rawRequest || {};
+  
+  const adminQuoteAmount = req.adminQuote?.amount || invoice.amount || 0;
+  
+  const acceptedDriverQuote = req.driverQuotes?.find((q: any) => q.status === 'ACCEPTED');
+  const servicePrice = acceptedDriverQuote?.amount || 0;
+  const fuelCost = acceptedDriverQuote?.fuelCost || 0;
+  const tollCost = acceptedDriverQuote?.tollCharges || 0;
+  const totalExpenses = fuelCost + tollCost;
+  const totalPayableToDriver = servicePrice + totalExpenses;
+
+  const downloadInvoice = () => {
+    if (req.invoiceUrl) {
+      window.open(req.invoiceUrl, '_blank');
+    } else {
+      alert('No invoice document available for download.');
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -29,7 +48,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
               </span>
             </div>
             <p className="text-xs text-gray-500 font-medium">
-              {invoice.mission} • {isPending ? 'Jean Dupont' : invoice.customer} • {isPending ? 'Pending' : invoice.date}
+              {invoice.mission} • {isPending ? 'Driver Payout' : invoice.customer} • {invoice.date}
             </p>
           </div>
           <button 
@@ -50,9 +69,9 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
             <p className="text-sm font-medium mb-1 opacity-90">
               {isPending ? 'Total Payable to Driver' : 'Total Amount'}
             </p>
-            <h3 className="text-4xl font-bold mb-2">€{isPending ? '63.90' : invoice.amount}</h3>
+            <h3 className="text-4xl font-bold mb-2">€{isPending ? totalPayableToDriver.toFixed(2) : adminQuoteAmount.toFixed(2)}</h3>
             <p className="text-xs opacity-80">
-              {isPending ? 'Service: €54 • Expenses: €18' : `${invoice.method} • TXN-8472`}
+              {isPending ? `Service: €${servicePrice.toFixed(2)} • Expenses: €${totalExpenses.toFixed(2)}` : `${invoice.method} • TXN-${req._id?.substring(0, 4) || '8472'}`}
             </p>
           </div>
 
@@ -68,7 +87,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500">Driver</span>
-                  <span className="font-bold text-gray-900">Jean Dupont</span>
+                  <span className="font-bold text-gray-900">{req.assignedDriverId ? 'Assigned' : 'Unassigned'}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500">Mission ID</span>
@@ -82,34 +101,29 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
                 <div className="space-y-3">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-500">Service price</span>
-                    <span className="font-bold text-gray-900">€54</span>
+                    <span className="font-bold text-gray-900">€{servicePrice.toFixed(2)}</span>
                   </div>
                   
                   <div className="pt-2">
                     <span className="text-gray-500 text-xs font-medium">Expenses</span>
                     <div className="flex justify-between items-center text-xs mt-2 pl-4">
                       <span className="text-gray-400">Fuel</span>
-                      <span className="font-bold text-gray-900">€5.00</span>
+                      <span className="font-bold text-gray-900">€{fuelCost.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between items-center text-xs mt-2 pl-4">
                       <span className="text-gray-400">Toll</span>
-                      <span className="font-bold text-gray-900">€5.00</span>
+                      <span className="font-bold text-gray-900">€{tollCost.toFixed(2)}</span>
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center text-sm pt-2 border-t border-gray-50">
                     <span className="text-gray-500">Total expenses</span>
-                    <span className="font-bold text-gray-900">€10</span>
-                  </div>
-
-                  <div className="flex justify-between items-center text-sm pt-2">
-                    <span className="text-gray-500">Platform commission (15%)</span>
-                    <span className="font-bold text-red-500">-€8.10</span>
+                    <span className="font-bold text-gray-900">€{totalExpenses.toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                     <span className="text-sm font-bold text-gray-900">Total Payable</span>
-                    <span className="font-bold text-green-500 text-lg">€63.90</span>
+                    <span className="font-bold text-green-500 text-lg">€{totalPayableToDriver.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -125,7 +139,10 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
 
               {/* Actions */}
               <div className="flex gap-2 pt-2">
-                <button className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <button 
+                  onClick={downloadInvoice}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                   Download Invoice
                 </button>
@@ -170,24 +187,12 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
               <div className="border border-gray-100 rounded-xl p-4 space-y-3">
                 <h4 className="text-xs font-bold text-gray-900 mb-2">Price Breakdown</h4>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-500">Base transport fee</span>
-                  <span className="font-bold text-gray-900">€380.00</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-500">Insurance coverage</span>
-                  <span className="font-bold text-gray-900">€35.00</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-500">Service fee</span>
-                  <span className="font-bold text-gray-900">€20.00</span>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-500">VAT (20%)</span>
-                  <span className="font-bold text-gray-900">€15.00</span>
+                  <span className="font-bold text-gray-900">€{adminQuoteAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                   <span className="text-sm font-bold text-gray-900">Total</span>
-                  <span className="font-bold text-green-500 text-lg">€{invoice.amount}</span>
+                  <span className="font-bold text-green-500 text-lg">€{adminQuoteAmount.toFixed(2)}</span>
                 </div>
               </div>
 

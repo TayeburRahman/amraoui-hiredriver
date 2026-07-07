@@ -167,4 +167,12 @@ router.patch(
   RequestsController.updateDeliveryInspection
 );
 
+// PATCH /api/v1/requests/:id/invoice (Admin upload invoice)
+router.patch(
+  '/:id/invoice',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  uploadFile(),
+  RequestsController.uploadInvoice
+);
+
 export const RequestsRoutes = router;

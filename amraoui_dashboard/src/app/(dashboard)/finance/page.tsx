@@ -108,7 +108,8 @@ const FinancePage = () => {
       amount: r.adminQuote?.amount || 0,
       status: r.status === 'COMPLETED' ? 'Paid' : (r.status === 'CANCELLED' ? 'Failed' : 'Pending'),
       method: r.details?.paymentMethod || 'Invoice',
-      date: new Date(r.updatedAt).toLocaleDateString()
+      date: new Date(r.updatedAt).toLocaleDateString(),
+      rawRequest: r
     };
   });
 

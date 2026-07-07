@@ -79,6 +79,7 @@ export default function HireDriverPage() {
     driverEndDate: '',
     driverEndTime: '',
     driverLocation: '',
+    driverHouseNumber: '',
     driverCity: '',
     driverPostalCode: '',
     driverLocationNote: '',
@@ -414,7 +415,20 @@ export default function HireDriverPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className={isRTL ? 'text-right' : 'text-left'}>
+                  <label className="mb-3 block font-extrabold text-slate-500">
+                    {language === 'ar' ? 'رقم المبنى' : 'House/Bldg No.'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.driverHouseNumber || ""}
+                    onChange={(e) => updateForm("driverHouseNumber", e.target.value)}
+                    placeholder="e.g. 10A"
+                    className={`h-14 w-full rounded-2xl border border-slate-200 bg-white px-4 font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100 ${isRTL ? 'text-right' : ''}`}
+                  />
+                </div>
+
                 <div className={isRTL ? 'text-right' : 'text-left'}>
                   <label className="mb-3 block font-extrabold text-slate-500">
                     {t.createRequest.form.city}
@@ -480,25 +494,7 @@ export default function HireDriverPage() {
           </div>
         </section>
 
-        {/* Security Options */}
-        <section className="mb-8">
-          <div className="flex items-center justify-between rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
-            <div>
-              <h3 className="font-extrabold text-slate-900">
-                {language === 'ar' ? 'هل مطلوب التحقق من الهوية؟' : 'ID Check Required?'}
-              </h3>
-              <p className="mt-1 text-sm font-medium text-slate-500">
-                {language === 'ar' ? 'يجب على السائق مسح هوية الشخص الذي يستلم السيارة.' : 'Driver must scan the ID of the person receiving the car.'}
-              </p>
-            </div>
-            <div 
-              onClick={() => updateForm('idCheckRequired', !formData.idCheckRequired)}
-              className={`flex h-7 w-12 cursor-pointer items-center rounded-full p-1 transition-colors duration-300 ${formData.idCheckRequired ? 'bg-blue-600' : 'bg-slate-200'}`}
-            >
-              <div className={`h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${formData.idCheckRequired ? 'translate-x-5' : 'translate-x-0'}`}></div>
-            </div>
-          </div>
-        </section>
+
 
         {/* Actions */}
         <div className="sticky bottom-0 z-10 -mx-4 border-t border-slate-200 bg-slate-50/90 px-4 py-4 backdrop-blur sm:static sm:mx-0 sm:border-t-0 sm:bg-transparent sm:p-0">

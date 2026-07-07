@@ -14,6 +14,7 @@ export interface Invoice {
   status: string;
   method: string;
   date: string;
+  rawRequest?: any;
 }
 
 interface FinanceTableProps {

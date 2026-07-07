@@ -19,12 +19,15 @@ import {
 
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logo from "../../app/asstes/logo.png"
+import { apiFetch } from "@/lib/api";
+import { getSession } from "@/lib/auth";
+import { connectSocket } from "@/lib/socket";
 
  const menuItems = [
     { icon: LayoutDashboard, label: "Overview", href: "overview" },
-    // { icon: Users, label: "Customer Request", href: "/customer-request" },
+    { icon: Users, label: "Create Request", href: "/create-request" },
     { icon: FileText, label: "Quote Desk", href: "/quote-desk" },
     { icon: MapPin, label: "Mission Monitoring", href: "/mission-monitoring" },
     { icon: Car, label: "Drivers", href: "/drivers" },
@@ -47,6 +50,35 @@ interface SidebarProps {
 const Sidebar = ({ open, setOpen }: SidebarProps) => {
   const pathname = usePathname();
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+  const [pendingAdminQuotes, setPendingAdminQuotes] = useState(0);
+
+  const fetchStats = async () => {
+    try {
+      const res = await apiFetch<any>('/admin/dashboard-stats', { auth: true });
+      if (res.data?.success) {
+        setPendingAdminQuotes(res.data.data.pendingAdminQuotes || 0);
+      }
+    } catch (err) {
+      console.error('Failed to fetch stats:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+    
+    const session = getSession();
+    if (session) {
+      const socket = connectSocket(session.id, session.role || 'ADMIN');
+      socket.on('notification', () => {
+        // Refetch stats on new notification
+        fetchStats();
+      });
+
+      return () => {
+        socket.off('notification');
+      };
+    }
+  }, []);
 
   const toggleSubmenu = (title: string) => {
     setExpandedMenu(expandedMenu === title ? null : title);
@@ -117,7 +149,12 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                       )}
                     >
                       <Icon className="h-5 w-5" />
-                      <span>{item.label}</span>
+                      <span className="flex-1">{item.label}</span>
+                      {item.label === "Quote Desk" && pendingAdminQuotes > 0 && (
+                        <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                          {pendingAdminQuotes}
+                        </span>
+                      )}
                     </Link>
                   )}
 

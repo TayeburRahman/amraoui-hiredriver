@@ -58,6 +58,24 @@ router.get(
   AdminController.getCustomerById
 );
 
+router.post(
+  '/customers/:id/add-login',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  AdminController.addCustomerLogin
+);
+
+router.patch(
+  '/customers/:id/sub-login/:authId',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  AdminController.updateCustomerLogin
+);
+
+router.delete(
+  '/customers/:id/sub-login/:authId',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  AdminController.deleteCustomerLogin
+);
+
 // ─── Admin Management (SUPER_ADMIN only) ────────────
 router.get(
   '/admins',

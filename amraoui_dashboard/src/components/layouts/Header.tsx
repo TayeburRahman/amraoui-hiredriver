@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { clearSession, getProfileImageUrl, apiFetch } from "@/lib/api";
 import { getSession } from "@/lib/auth";
+import { connectSocket, disconnectSocket } from "@/lib/socket";
 
 type TProps = {
   onMenuClick: () => void;
@@ -37,6 +38,16 @@ const Header = ({ onMenuClick }: TProps) => {
       setAdminName(session.name || "Admin User");
       setAdminEmail(session.email || "admin@amraoui.com");
       setProfileImage(getProfileImageUrl(session.profile_image));
+      
+      const socket = connectSocket(session.id, session.role || 'ADMIN');
+      socket.on('notification', () => {
+        // Refetch notifications on new event
+        fetchNotifications();
+      });
+
+      return () => {
+        socket.off('notification');
+      };
     }
   }, []);
 
@@ -98,6 +109,7 @@ const Header = ({ onMenuClick }: TProps) => {
   };
 
   const handleLogout = () => {
+    disconnectSocket();
     clearSession();
     router.push("/login");
   };

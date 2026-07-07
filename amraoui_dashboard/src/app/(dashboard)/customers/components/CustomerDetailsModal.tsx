@@ -21,6 +21,8 @@ interface CustomerDetailsModalProps {
   onClose: () => void;
   customer: ICustomerRecord | null;
   onBlockToggle?: (id: string, email: string, currentlyBlocked: boolean) => void;
+  onBlockToggle?: (id: string, email: string, currentlyBlocked: boolean) => void;
+  onRefresh?: () => void;
 }
 
 const InfoRow = ({
@@ -46,10 +48,108 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
   onClose,
   customer,
   onBlockToggle,
+  onRefresh,
 }) => {
   const [confirming, setConfirming] = useState(false);
+  const [showAddLogin, setShowAddLogin] = useState(false);
+  const [subLoginName, setSubLoginName] = useState('');
+  const [subLoginEmail, setSubLoginEmail] = useState('');
+  const [subLoginPassword, setSubLoginPassword] = useState('');
+  const [addingLogin, setAddingLogin] = useState(false);
+  const [editingLoginId, setEditingLoginId] = useState<string | null>(null);
+  const [editLoginName, setEditLoginName] = useState('');
+  const [editLoginEmail, setEditLoginEmail] = useState('');
+  const [editLoginPassword, setEditLoginPassword] = useState('');
 
   if (!isOpen || !customer) return null;
+
+  const handleAddLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subLoginName || !subLoginEmail || !subLoginPassword) return;
+
+    setAddingLogin(true);
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/admin/customers/${customer._id}/add-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          name: subLoginName,
+          email: subLoginEmail,
+          password: subLoginPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to add login');
+
+      setSubLoginName('');
+      setSubLoginEmail('');
+      setSubLoginPassword('');
+      setShowAddLogin(false);
+      onRefresh?.();
+    } catch (err: any) {
+      alert(err.message || 'Error adding login');
+    } finally {
+      setAddingLogin(false);
+    }
+  };
+
+  const handleUpdateLogin = async (e: React.FormEvent, authId: string) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+      const payload: any = {};
+      if (editLoginName) payload.name = editLoginName;
+      if (editLoginEmail) payload.email = editLoginEmail;
+      if (editLoginPassword) payload.password = editLoginPassword;
+
+      if (Object.keys(payload).length === 0) {
+        setEditingLoginId(null);
+        return;
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/admin/customers/${customer._id}/sub-login/${authId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to update login');
+
+      setEditingLoginId(null);
+      setEditLoginName('');
+      setEditLoginEmail('');
+      setEditLoginPassword('');
+      onRefresh?.();
+    } catch (err: any) {
+      alert(err.message || 'Error updating login');
+    }
+  };
+
+  const handleDeleteLogin = async (authId: string) => {
+    if (!confirm('Are you sure you want to delete this sub-login?')) return;
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/admin/customers/${customer._id}/sub-login/${authId}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to delete login');
+
+      onRefresh?.();
+    } catch (err: any) {
+      alert(err.message || 'Error deleting login');
+    }
+  };
 
   const isBlocked = customer.authId?.is_block ?? customer.status === 'deactivate';
   const email = customer.authId?.email || customer.email;
@@ -150,6 +250,138 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
               label="Currency"
               value={customer.currency?.toUpperCase()}
             />
+          </div>
+
+          {/* Logins / Access */}
+          <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Logins / Access</p>
+              <button 
+                onClick={() => setShowAddLogin(!showAddLogin)}
+                className="text-xs font-semibold text-blue-600 hover:text-blue-700"
+              >
+                {showAddLogin ? 'Cancel' : '+ Add Login'}
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100">
+                <div>
+                  <p className="text-xs font-semibold text-gray-800">{customer.authId?.name || customer.name} <span className="ml-1 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase">Primary</span></p>
+                  <p className="text-[11px] text-gray-500">{email}</p>
+                </div>
+                <div className="text-[10px] text-gray-400">Created: {formatDate(customer.authId?.createdAt)}</div>
+              </div>
+
+              {(customer as any).linkedAuthIds?.map((auth: any) => (
+                <div key={auth._id} className="bg-white p-3 rounded-lg border border-gray-100 space-y-2">
+                  {editingLoginId === auth._id ? (
+                    <form onSubmit={(e) => handleUpdateLogin(e, auth._id)} className="space-y-2">
+                      <input
+                        type="text"
+                        value={editLoginName}
+                        onChange={(e) => setEditLoginName(e.target.value)}
+                        className="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        placeholder="New Name (Optional)"
+                      />
+                      <input
+                        type="email"
+                        value={editLoginEmail}
+                        onChange={(e) => setEditLoginEmail(e.target.value)}
+                        className="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        placeholder="New Email (Optional)"
+                      />
+                      <input
+                        type="password"
+                        value={editLoginPassword}
+                        onChange={(e) => setEditLoginPassword(e.target.value)}
+                        className="w-full px-2 py-1 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        placeholder="New Password (Optional)"
+                      />
+                      <div className="flex gap-2">
+                        <button type="submit" className="text-xs font-bold text-white bg-blue-600 px-2 py-1 rounded hover:bg-blue-700">Save</button>
+                        <button type="button" onClick={() => setEditingLoginId(null)} className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded hover:bg-gray-200">Cancel</button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-semibold text-gray-800">{auth.name}</p>
+                        <p className="text-[11px] text-gray-500">{auth.email}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="text-[10px] text-gray-400">Created: {formatDate(auth.createdAt)}</div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingLoginId(auth._id);
+                              setEditLoginName(auth.name);
+                              setEditLoginEmail(auth.email);
+                              setEditLoginPassword('');
+                            }}
+                            className="text-[10px] font-bold text-blue-600 hover:text-blue-800"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteLogin(auth._id)}
+                            className="text-[10px] font-bold text-red-600 hover:text-red-800"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {showAddLogin && (
+              <form onSubmit={handleAddLogin} className="bg-white p-4 rounded-xl border border-blue-100 shadow-sm space-y-3 mt-4">
+                <p className="text-xs font-semibold text-gray-700 mb-2">Create New Sub-Login</p>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={subLoginName}
+                    onChange={(e) => setSubLoginName(e.target.value)}
+                    className="w-full mt-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Sub-user name"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Email</label>
+                  <input
+                    type="email"
+                    required
+                    value={subLoginEmail}
+                    onChange={(e) => setSubLoginEmail(e.target.value)}
+                    className="w-full mt-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="login@company.com"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={subLoginPassword}
+                    onChange={(e) => setSubLoginPassword(e.target.value)}
+                    className="w-full mt-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={addingLogin}
+                  className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {addingLogin ? 'Adding...' : 'Add Sub-Login'}
+                </button>
+              </form>
+            )}
           </div>
 
           {/* Notification Prefs (read-only) */}

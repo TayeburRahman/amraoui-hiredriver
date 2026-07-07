@@ -24,8 +24,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
   const [baseFeeInput, setBaseFeeInput] = useState('');
   const [driverPriceInput, setDriverPriceInput] = useState('');
   const [isEditingDriverPrice, setIsEditingDriverPrice] = useState(false);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isUploadingInvoice, setIsUploadingInvoice] = useState(false);
+  const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (isOpen && mission) {
@@ -213,47 +213,32 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
     }
   };
 
-  const handleDownloadPDF = async () => {
+  const handleUploadInvoice = async () => {
+    if (!invoiceFile) return;
     try {
-      setIsGeneratingPDF(true);
-      await new Promise(resolve => setTimeout(resolve, 100));
+      setIsUploadingInvoice(true);
+      const formData = new FormData();
+      formData.append('invoice', invoiceFile);
 
-      // Use html-to-image to bypass the html2canvas lab/oklch parser bugs
-      const { toPng } = await import('html-to-image');
-      const { jsPDF } = await import('jspdf');
-
-      const element = document.getElementById('admin-invoice-pdf-content');
-      if (!element) return;
-
-      const dataUrl = await toPng(element, {
-        quality: 1,
-        pixelRatio: 2,
-        backgroundColor: '#ffffff',
-        filter: (node) => {
-          if (node instanceof HTMLElement && node.dataset.html2canvasIgnore === 'true') {
-            return false;
-          }
-          return true;
-        }
+      const res = await apiFetch<any>(`/requests/${mission.realId}/invoice`, {
+        method: 'PATCH',
+        body: formData,
+        auth: true,
       });
 
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const imgProps = pdf.getImageProperties(dataUrl);
-      const pdfWidth = pdf.internal.pageSize.getWidth() - 20; // 10mm margins
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      pdf.addImage(dataUrl, 'PNG', 10, 10, pdfWidth, pdfHeight);
-      pdf.save(`Amraoui_Invoice_${mission.id || 'Details'}.pdf`);
+      if (res.ok) {
+        if (!mission.raw) mission.raw = {};
+        mission.raw.invoiceUrl = res.data?.data?.invoiceUrl || res.data?.invoiceUrl;
+        setInvoiceFile(null);
+        alert('Invoice uploaded successfully!');
+      } else {
+        alert('Failed to upload invoice');
+      }
     } catch (e) {
-      console.error("Failed to generate PDF", e);
-      alert("Failed to generate PDF");
+      console.error(e);
+      alert('Error uploading invoice');
     } finally {
-      setIsGeneratingPDF(false);
+      setIsUploadingInvoice(false);
     }
   };
 
@@ -445,17 +430,43 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 mt-4">
-              <button
-                onClick={() => setIsPreviewOpen(true)}
-                className="py-2 bg-white border border-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-1"
-              >
-                <Eye className="w-3.5 h-3.5" /> Preview Invoice
-              </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 items-end">
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-gray-700">Official Invoice (PDF)</label>
+                {mission.raw?.invoiceUrl ? (
+                  <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-2">
+                    <span className="text-xs text-gray-500 truncate flex-1">Invoice Uploaded</span>
+                    <a
+                      href={mission.raw.invoiceUrl.startsWith('http') ? mission.raw.invoiceUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}${mission.raw.invoiceUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 text-xs font-medium hover:underline flex items-center gap-1"
+                    >
+                      <Download className="w-3.5 h-3.5" /> View
+                    </a>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => setInvoiceFile(e.target.files ? e.target.files[0] : null)}
+                      className="block w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-200 rounded-lg p-1 bg-white cursor-pointer"
+                    />
+                    <button
+                      onClick={handleUploadInvoice}
+                      disabled={isUploadingInvoice || !invoiceFile}
+                      className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 shrink-0"
+                    >
+                      {isUploadingInvoice ? 'Uploading...' : 'Upload'}
+                    </button>
+                  </div>
+                )}
+              </div>
               <button
                 onClick={handleSendCustomerQuote}
                 disabled={isSubmitting}
-                className="py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1 disabled:opacity-50"
+                className="py-2.5 h-[38px] bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-1 disabled:opacity-50"
               >
                 Send Customer Quote
               </button>
@@ -707,78 +718,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
         mission={mission}
       />
 
-      {/* Preview Invoice Modal */}
-      {isPreviewOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col">
-            <div className="flex justify-between items-center p-4 border-b border-gray-100 bg-gray-50">
-              <h2 className="font-bold text-gray-900">Invoice Preview</h2>
-              <button onClick={() => setIsPreviewOpen(false)} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
 
-            <div id="admin-invoice-pdf-content" className="p-6 space-y-4 text-sm text-gray-700 bg-white">
-              <div className="flex justify-between border-b pb-4">
-                <div>
-                  <p className="font-bold text-gray-900">Vehiqqo</p>
-                  <p className="text-xs text-gray-500">Invoice #{mission.id || 'N/A'}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-gray-900">Customer</p>
-                  <p className="text-xs text-gray-500">{mission.raw?.customerId?.firstName} {mission.raw?.customerId?.lastName}</p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between py-2">
-                  <span>Base transport fee</span>
-                  <span>€{mission.raw?.adminQuote?.amount || 0}</span>
-                </div>
-                {mission.raw?.expenses?.map((exp: any, i: number) => (
-                  <div key={i} className="flex justify-between py-1 text-xs text-gray-500">
-                    <span>+ {exp.type}</span>
-                    <span>€{exp.amount}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex justify-between items-center pt-4 border-t font-bold text-lg text-gray-900">
-                <span>Final Total</span>
-                <span>€{(mission.raw?.adminQuote?.amount || 0) + (mission.raw?.expenses?.reduce((acc: number, cur: any) => acc + (cur.amount || 0), 0) || 0)}</span>
-              </div>
-
-              {/* Signature Section - Only visible during PDF generation */}
-              {isGeneratingPDF && (
-                <div className="mt-12 pt-8 border-t border-gray-100 flex justify-between items-end">
-                  <div>
-                    <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Company Signature</p>
-                    <div className="h-12 w-48 border-b-2 border-gray-200 mb-2 flex items-end pb-1">
-                      <span className="font-bold text-gray-800 italic text-2xl opacity-80">Amraoui</span>
-                    </div>
-                    <p className="text-[10px] font-semibold text-gray-400">Authorized Representative</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Customer Signature</p>
-                    <div className="h-12 w-48 border-b-2 border-gray-200 mb-2"></div>
-                    <p className="text-[10px] font-semibold text-gray-400">Date: ____/____/20__</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50">
-              <button onClick={() => setIsPreviewOpen(false)} className="px-4 py-2 border border-gray-200 rounded-lg font-medium text-gray-700 hover:bg-gray-100">Close</button>
-              <button
-                onClick={handleDownloadPDF}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" /> Download PDF
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

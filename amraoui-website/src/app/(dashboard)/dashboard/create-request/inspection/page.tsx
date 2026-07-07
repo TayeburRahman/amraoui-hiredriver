@@ -33,10 +33,12 @@ export default function TechnicalInspectionPage() {
     vinNumber: '',
     inspectionType: '',
     inspectionLocation: '',
+    inspectionHouseNumber: '',
     inspectionDate: '',
     inspectionTime: '',
     inspectionNotes: '',
     destinationAddress: '',
+    destinationHouseNumber: '',
     destinationCity: '',
     destinationZip: '',
     destinationDate: '',
@@ -281,18 +283,29 @@ export default function TechnicalInspectionPage() {
               </div>
 
               <div className="space-y-4">
-                <div className="relative">
-                  <AddressAutocomplete
-                    value={formData.inspectionLocation || ""}
-                    onChange={(val) => updateForm("inspectionLocation", val)}
-                    onSelect={(address) => {
-                      if (errors.inspectionLocation) setErrors(prev => ({ ...prev, inspectionLocation: '' }));
-                    }}
-                    placeholder={t.createRequest.form.address}
-                    className={`h-14 w-full rounded-2xl border ${errors.inspectionLocation ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
-                    iconClassName={isRTL ? 'right-4 left-auto' : 'left-4'}
-                  />
-                  {errors.inspectionLocation && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.inspectionLocation}</p>}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="relative md:col-span-2">
+                    <AddressAutocomplete
+                      value={formData.inspectionLocation || ""}
+                      onChange={(val) => updateForm("inspectionLocation", val)}
+                      onSelect={(address) => {
+                        if (errors.inspectionLocation) setErrors(prev => ({ ...prev, inspectionLocation: '' }));
+                      }}
+                      placeholder={t.createRequest.form.address}
+                      className={`h-14 w-full rounded-2xl border ${errors.inspectionLocation ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                      iconClassName={isRTL ? 'right-4 left-auto' : 'left-4'}
+                    />
+                    {errors.inspectionLocation && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.inspectionLocation}</p>}
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={formData.inspectionHouseNumber || ""}
+                      onChange={(e) => updateForm("inspectionHouseNumber", e.target.value)}
+                      placeholder={language === 'ar' ? 'رقم المبنى' : 'House/Bldg No.'}
+                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'text-right' : 'text-left'}`}
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -348,15 +361,26 @@ export default function TechnicalInspectionPage() {
                   {errors.destinationAddress && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationAddress}</p>}
                 </div>
 
-                <div>
-                  <input
-                    type="text"
-                    value={formData.destinationZip || ""}
-                    onChange={(e) => updateForm("destinationZip", e.target.value)}
-                    placeholder={t.createRequest.placeholders.zip}
-                    className={`h-14 w-full rounded-2xl border ${errors.destinationZip ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'text-right' : 'text-left'}`}
-                  />
-                  {errors.destinationZip && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationZip}</p>}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <input
+                      type="text"
+                      value={formData.destinationHouseNumber || ""}
+                      onChange={(e) => updateForm("destinationHouseNumber", e.target.value)}
+                      placeholder={language === 'ar' ? 'رقم المبنى' : 'House/Bldg No.'}
+                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'text-right' : 'text-left'}`}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      value={formData.destinationZip || ""}
+                      onChange={(e) => updateForm("destinationZip", e.target.value)}
+                      placeholder={t.createRequest.placeholders.zip}
+                      className={`h-14 w-full rounded-2xl border ${errors.destinationZip ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'text-right' : 'text-left'}`}
+                    />
+                    {errors.destinationZip && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.destinationZip}</p>}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

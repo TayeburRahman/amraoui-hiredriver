@@ -186,7 +186,9 @@ const activateAccount = async (payload: ActivationPayload) => {
 
   switch (existAuth.role) {
     case ENUM_USER_ROLE.CUSTOMERS:
-      result = await Customers.findOne({ authId: existAuth._id });
+      result = await Customers.findOne({
+        $or: [{ authId: existAuth._id }, { linkedAuthIds: existAuth._id }]
+      });
       break;
     case ENUM_USER_ROLE.ADMIN:
     case ENUM_USER_ROLE.SUPER_ADMIN:
@@ -257,7 +259,9 @@ const loginAccount = async (payload: LoginPayload) => {
 
   switch (isAuth.role) {
     case ENUM_USER_ROLE.CUSTOMERS:
-      userDetails = await Customers.findOne({ authId: isAuth._id }).populate("authId");
+      userDetails = await Customers.findOne({
+        $or: [{ authId: isAuth._id }, { linkedAuthIds: isAuth._id }]
+      }).populate("authId");
       role = ENUM_USER_ROLE.CUSTOMERS;
       if (userDetails?.status === "pending") {
         throw new ApiError(403, "Your account is pending admin approval. Thanks for your message, we will contact you soon.");
@@ -567,7 +571,19 @@ const deleteMyAccount = async (payload: { authId: string }) => {
   let deletedUser = null;
   switch (isUserExist.role) {
     case ENUM_USER_ROLE.CUSTOMERS:
-      deletedUser = await Customers.findOneAndDelete({ authId: isUserExist._id });
+      // Only delete customer if it's the main authId, otherwise just pull the linkedAuthId
+      const customer = await Customers.findOne({
+        $or: [{ authId: isUserExist._id }, { linkedAuthIds: isUserExist._id }]
+      });
+      if (customer) {
+        if (customer.authId.toString() === isUserExist._id.toString()) {
+          deletedUser = await Customers.findOneAndDelete({ authId: isUserExist._id });
+        } else {
+          deletedUser = await Customers.findByIdAndUpdate(customer._id, {
+            $pull: { linkedAuthIds: isUserExist._id }
+          });
+        }
+      }
       break;
     case ENUM_USER_ROLE.DRIVER:
       deletedUser = await Drivers.findOneAndDelete({ authId: isUserExist._id });

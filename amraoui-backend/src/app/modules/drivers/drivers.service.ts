@@ -324,7 +324,8 @@ const createDriverByAdmin = async (payload: any) => {
     company_name,
     tax_number,
     vehicle_carrier_image,
-    dealer_plate_image
+    dealer_plate_image,
+    profile_image
   } = payload;
 
   const existingAuth = await Auth.findOne({ email }).lean();
@@ -359,6 +360,7 @@ const createDriverByAdmin = async (payload: any) => {
     tax_number,
     vehicle_carrier_image,
     dealer_plate_image,
+    profile_image,
     status: 'approved', 
   };
 
@@ -377,6 +379,9 @@ const updateDocumentByAdmin = async (
   const licenseFile = files?.license_document?.[0];
   const idFile = files?.id_document?.[0];
   const contractFile = files?.contract_document?.[0];
+  const profileImageFile = files?.profile_image?.[0];
+  const vehicleCarrierFile = files?.vehicle_carrier_image?.[0];
+  const dealerPlateFile = files?.dealer_plate_image?.[0];
 
   const updateData: Record<string, any> = {};
   const newActivity: any[] = [];
@@ -396,6 +401,21 @@ const updateDocumentByAdmin = async (
     updateData.contract_status = 'pending';
     newActivity.push({ message: 'Contract document uploaded', by: adminName, date: new Date() });
   }
+  if (profileImageFile) {
+    updateData.profile_image = profileImageFile.path;
+    // Profile image doesn't typically have a verified status, but we can track the activity
+    newActivity.push({ message: 'Profile image uploaded', by: adminName, date: new Date() });
+  }
+  if (vehicleCarrierFile) {
+    updateData.vehicle_carrier_image = vehicleCarrierFile.path;
+    updateData.vehicle_carrier_status = 'pending';
+    newActivity.push({ message: 'Vehicle carrier image uploaded', by: adminName, date: new Date() });
+  }
+  if (dealerPlateFile) {
+    updateData.dealer_plate_image = dealerPlateFile.path;
+    updateData.dealer_plate_status = 'pending';
+    newActivity.push({ message: 'Dealer plate image uploaded', by: adminName, date: new Date() });
+  }
 
   if (newActivity.length > 0) {
     updateData.$push = { document_activity: { $each: newActivity } };
@@ -406,24 +426,27 @@ const updateDocumentByAdmin = async (
 };
 
 const deleteDocumentByAdmin = async (driverId: string, documentType: string, adminName: string) => {
-  const allowedTypes = ['license_document', 'id_document', 'contract_document'];
+  const allowedTypes = ['license_document', 'id_document', 'contract_document', 'profile_image', 'vehicle_carrier_image', 'dealer_plate_image'];
   if (!allowedTypes.includes(documentType)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid document type');
   }
 
-  const statusField = documentType.replace('_document', '_status');
+  const statusField = documentType === 'profile_image' ? null : documentType.replace('_document', '_status').replace('_image', '_status');
 
   const updateData: any = {
     [documentType]: null,
-    [statusField]: 'pending',
     $push: {
       document_activity: {
-        message: `${documentType.replace('_', ' ')} deleted`,
+        message: `${documentType.replace(/_/g, ' ')} deleted`,
         by: adminName,
         date: new Date()
       }
     }
   };
+
+  if (statusField) {
+    updateData[statusField] = 'pending';
+  }
 
   const updated = await Drivers.findByIdAndUpdate(driverId, updateData, { new: true });
   return updated;
@@ -481,6 +504,51 @@ const updateAdminNotes = async (driverId: string, notes: string) => {
   return updated;
 };
 
+const updateDriverByAdmin = async (driverId: string, payload: any) => {
+  const driver = await Drivers.findById(driverId);
+  if (!driver) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
+  }
+
+  const authUpdatePayload: any = {};
+  if (payload.email) authUpdatePayload.email = payload.email;
+  if (payload.name) authUpdatePayload.name = payload.name;
+  if (payload.password) authUpdatePayload.password = payload.password;
+
+  if (Object.keys(authUpdatePayload).length > 0) {
+    const auth = await Auth.findById(driver.authId);
+    if (auth) {
+      if (payload.email) auth.email = payload.email;
+      if (payload.name) auth.name = payload.name;
+      if (payload.password) auth.password = payload.password;
+      await auth.save();
+    }
+  }
+
+  // Remove auth fields from payload to not save in drivers collection
+  const driverPayload = { ...payload };
+  delete driverPayload.password;
+
+  const updatedDriver = await Drivers.findByIdAndUpdate(driverId, driverPayload, {
+    new: true,
+    runValidators: true,
+  }).populate('authId', 'email name');
+
+  return updatedDriver;
+};
+
+const deleteDriverByAdmin = async (driverId: string) => {
+  const driver = await Drivers.findById(driverId);
+  if (!driver) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
+  }
+  
+  await Auth.findByIdAndDelete(driver.authId);
+  await Drivers.findByIdAndDelete(driverId);
+
+  return null;
+};
+
 export const DriverService = {
   getAllDrivers,
   getDriverById,
@@ -497,4 +565,6 @@ export const DriverService = {
   deleteDocumentByAdmin,
   updateDocumentStatus,
   updateAdminNotes,
+  updateDriverByAdmin,
+  deleteDriverByAdmin,
 };

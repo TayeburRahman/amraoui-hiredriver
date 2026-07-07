@@ -102,7 +102,6 @@ export async function updateDriverStatus(
   if (!ok || !data.success) {
     throw new Error(data.message || "Failed to update driver status");
   }
-
   return data.data;
 }
 
@@ -190,6 +189,33 @@ export async function adminUpdateNotes(driverId: string, notes: string) {
   }
 
   return resData.data;
+}
+
+export async function adminUpdateDriver(id: string, data: any) {
+  const { ok, data: resData } = await apiFetch<ApiResponse<BackendDriver>>(`/drivers/${id}`, {
+    method: "PATCH",
+    auth: true,
+    body: data instanceof FormData ? data : JSON.stringify(data),
+  });
+
+  if (!ok || !resData.success) {
+    throw new Error(resData.message || "Failed to update driver");
+  }
+
+  return resData.data;
+}
+
+export async function adminDeleteDriver(id: string) {
+  const { ok, data: resData } = await apiFetch<ApiResponse<null>>(`/drivers/${id}`, {
+    method: "DELETE",
+    auth: true,
+  });
+
+  if (!ok || !resData.success) {
+    throw new Error(resData.message || "Failed to delete driver");
+  }
+
+  return resData;
 }
 
 export { getProfileImageUrl };

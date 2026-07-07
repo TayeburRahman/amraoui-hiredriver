@@ -17,8 +17,10 @@ import {
   Search,
   Filter,
   RotateCcw,
-  Users
+  Users,
+  Plus
 } from 'lucide-react';
+import Link from 'next/link';
 import { MetricCard } from './components/MetricCard';
 import { FilterTabs, TabOption } from './components/FilterTabs';
 import { MissionTable, Mission } from './components/MissionTable';
@@ -255,14 +257,17 @@ const MissionMonitoringPage = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-lg transition-colors text-sm">
-            <Download className="w-4 h-4" />
-            Export
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors text-sm">
+
+          <button className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors text-sm" onClick={() => window.location.reload()}>
             <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
+          <Link href="/create-request">
+            <button className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-lg transition-colors text-sm">
+              <Plus className="w-4 h-4" />
+              New Request
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -287,19 +292,6 @@ const MissionMonitoringPage = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
             />
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-colors text-sm">
-              <Filter className="w-4 h-4" />
-              More Filters
-            </button>
-            <button
-              onClick={() => { setSearchQuery(""); setActiveTab("All"); }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-colors text-sm"
-            >
-              <RotateCcw className="w-4 h-4 text-gray-500" />
-              Reset
-            </button>
           </div>
         </div>
 

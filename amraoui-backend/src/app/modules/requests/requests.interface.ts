@@ -61,6 +61,7 @@ export type IRequest = Document & {
   expenses: IExpense[];
   assignedDriverId?: mongoose.Schema.Types.ObjectId;
   assignedDriverIds?: mongoose.Schema.Types.ObjectId[];
+  invoiceUrl?: string;
   createdAt?: Date;
   updatedAt?: Date;
 };

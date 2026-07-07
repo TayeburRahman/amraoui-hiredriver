@@ -295,6 +295,16 @@ const CustomersPage = () => {
     fetchCustomers();
   }, [fetchCustomers]);
 
+  // Update selectedCustomer if it gets updated in the fetched list (e.g., after adding a sub-login)
+  useEffect(() => {
+    if (selectedCustomer) {
+      const updated = customers.find(c => c._id === selectedCustomer._id);
+      if (updated) {
+        setSelectedCustomer(updated);
+      }
+    }
+  }, [customers]);
+
   const totalPages = Math.max(1, Math.ceil(meta.total / LIMIT));
 
   const handleTabChange = (tab: string) => {
@@ -532,6 +542,7 @@ const CustomersPage = () => {
         onClose={() => setIsModalOpen(false)}
         customer={selectedCustomer}
         onBlockToggle={handleBlockToggle}
+        onRefresh={() => fetchCustomers(currentPage)}
       />
 
       {/* Create Customer Modal */}

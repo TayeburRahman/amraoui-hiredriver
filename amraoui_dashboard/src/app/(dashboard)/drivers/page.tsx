@@ -6,14 +6,16 @@ import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { Pagination } from '../mission-monitoring/components/Pagination';
 import { DriverDetailsModal } from './components/DriverDetailsModal';
 import { DriverCreateModal } from './components/DriverCreateModal';
+import { DriverEditModal } from './components/DriverEditModal';
 import {
   BackendDriver,
   getDriverById,
   getDrivers,
   mapDriverStatusLabel,
   updateDriverStatus,
+  adminDeleteDriver,
 } from '@/lib/drivers.api';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Edit, Trash2, Eye } from 'lucide-react';
 
 const tabs = ["All Drivers", "Pending Approval", "Verified", "Suspended"];
 
@@ -31,6 +33,9 @@ const DriversPage = () => {
   const [selectedDriver, setSelectedDriver] = useState<BackendDriver | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [driverToEdit, setDriverToEdit] = useState<BackendDriver | null>(null);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [drivers, setDrivers] = useState<BackendDriver[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -94,6 +99,30 @@ const DriversPage = () => {
       setError(err instanceof Error ? err.message : "Failed to decline driver");
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleEdit = async (driver: BackendDriver) => {
+    try {
+      const full = await getDriverById(driver._id);
+      setDriverToEdit(full);
+      setIsEditModalOpen(true);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to load driver details for editing");
+    }
+  };
+
+  const handleDelete = async (driverId: string) => {
+    if (!window.confirm("Are you sure you want to delete this driver? This action cannot be undone.")) return;
+    
+    setIsDeleting(driverId);
+    try {
+      await adminDeleteDriver(driverId);
+      await loadDrivers();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to delete driver");
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -182,12 +211,30 @@ const DriversPage = () => {
                       {driver.totalDeliveries ?? 0}
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap text-center">
-                      <button
-                        onClick={() => openDriver(driver)}
-                        className="text-gray-900 font-bold hover:text-blue-600 transition-colors"
-                      >
-                        View
-                      </button>
+                      <div className="flex items-center justify-center gap-3">
+                        <button
+                          onClick={() => openDriver(driver)}
+                          className="text-gray-500 hover:text-blue-600 transition-colors"
+                          title="View Details"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(driver)}
+                          className="text-gray-500 hover:text-blue-600 transition-colors"
+                          title="Edit Driver"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(driver._id)}
+                          disabled={isDeleting === driver._id}
+                          className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+                          title="Delete Driver"
+                        >
+                          {isDeleting === driver._id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -227,6 +274,12 @@ const DriversPage = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={loadDrivers}
+      />
+      <DriverEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={loadDrivers}
+        driver={driverToEdit}
       />
     </div>
   );

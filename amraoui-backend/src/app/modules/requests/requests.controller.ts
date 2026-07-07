@@ -7,6 +7,7 @@ import { RequestStatus } from './requests.interface';
 import { jwtHelpers } from '../../../helpers/jwtHelpers';
 import config from '../../../config';
 import { Secret } from 'jsonwebtoken';
+import ApiError from '../../../errors/ApiError';
 
 // ─── POST /api/v1/requests ────────────────────────────────────────────────────
 const createRequest = catchAsync(async (req: Request, res: Response) => {
@@ -44,7 +45,7 @@ const createRequest = catchAsync(async (req: Request, res: Response) => {
 const getAllRequests = catchAsync(async (req: Request, res: Response) => {
   const { status, type, search, page, limit } = req.query as Record<string, string>;
   const user = (req as any).user;
-  
+
   let customerId;
   if (user && user.role === 'CUSTOMERS') {
     customerId = user.userId;
@@ -194,7 +195,7 @@ const customerReply = catchAsync(async (req: Request, res: Response) => {
 const addExpense = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const expenseData = { ...req.body };
-  
+
   // If proof file uploaded via backend Multer
   if (req.files) {
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -428,43 +429,43 @@ const updatePickupInspection = catchAsync(async (req: Request, res: Response) =>
   console.log('Update Pickup Inspection REQ BODY:', req.body);
   const imageLabels = req.body.imageLabels || req.body['imageLabels[]'];
   console.log('Parsed imageLabels:', imageLabels);
-  
+
   // If the request has files, map them into the data object
   const data: any = { ...req.body };
   delete data.section; // remove section from data payload
   delete data.imageLabels; // remove labels from payload
   delete data['imageLabels[]'];
-  
+
   if (req.files) {
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     if (files['image']) {
       const images = files['image'];
       let labelsArray: string[] = [];
       if (Array.isArray(imageLabels)) {
-         labelsArray = imageLabels;
+        labelsArray = imageLabels;
       } else if (typeof imageLabels === 'string') {
-         if (imageLabels.startsWith('[') && imageLabels.endsWith(']')) {
-            try {
-               labelsArray = JSON.parse(imageLabels);
-            } catch (e) {
-               // If JSON parse fails, it might be literally "[Front, Front Right]" from Dart toString()
-               labelsArray = imageLabels.substring(1, imageLabels.length - 1).split(',').map(s => s.trim());
-            }
-         } else {
-            labelsArray = imageLabels.split(',').map(s => s.trim());
-         }
+        if (imageLabels.startsWith('[') && imageLabels.endsWith(']')) {
+          try {
+            labelsArray = JSON.parse(imageLabels);
+          } catch (e) {
+            // If JSON parse fails, it might be literally "[Front, Front Right]" from Dart toString()
+            labelsArray = imageLabels.substring(1, imageLabels.length - 1).split(',').map(s => s.trim());
+          }
+        } else {
+          labelsArray = imageLabels.split(',').map(s => s.trim());
+        }
       }
-      
+
       images.forEach((file, index) => {
-         const label = labelsArray[index];
-         if (label) {
-            if (label === 'document') {
-               if (!data.documents) data.documents = [];
-               data.documents.push(file.path);
-            } else {
-               data[label] = file.path;
-            }
-         }
+        const label = labelsArray[index];
+        if (label) {
+          if (label === 'document') {
+            if (!data.documents) data.documents = [];
+            data.documents.push(file.path);
+          } else {
+            data[label] = file.path;
+          }
+        }
       });
     }
   }
@@ -486,43 +487,43 @@ const updateDeliveryInspection = catchAsync(async (req: Request, res: Response) 
   console.log('Update Delivery Inspection REQ BODY:', req.body);
   const imageLabels = req.body.imageLabels || req.body['imageLabels[]'];
   console.log('Parsed imageLabels for delivery:', imageLabels);
-  
+
   // If the request has files, map them into the data object
   const data: any = { ...req.body };
   delete data.section; // remove section from data payload
   delete data.imageLabels; // remove labels from payload
   delete data['imageLabels[]'];
-  
+
   if (req.files) {
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     if (files['image']) {
       const images = files['image'];
       let labelsArray: string[] = [];
       if (Array.isArray(imageLabels)) {
-         labelsArray = imageLabels;
+        labelsArray = imageLabels;
       } else if (typeof imageLabels === 'string') {
-         if (imageLabels.startsWith('[') && imageLabels.endsWith(']')) {
-            try {
-               labelsArray = JSON.parse(imageLabels);
-            } catch (e) {
-               // If JSON parse fails, it might be literally "[Front, Front Right]" from Dart toString()
-               labelsArray = imageLabels.substring(1, imageLabels.length - 1).split(',').map(s => s.trim());
-            }
-         } else {
-            labelsArray = imageLabels.split(',').map(s => s.trim());
-         }
+        if (imageLabels.startsWith('[') && imageLabels.endsWith(']')) {
+          try {
+            labelsArray = JSON.parse(imageLabels);
+          } catch (e) {
+            // If JSON parse fails, it might be literally "[Front, Front Right]" from Dart toString()
+            labelsArray = imageLabels.substring(1, imageLabels.length - 1).split(',').map(s => s.trim());
+          }
+        } else {
+          labelsArray = imageLabels.split(',').map(s => s.trim());
+        }
       }
-      
+
       images.forEach((file, index) => {
-         const label = labelsArray[index];
-         if (label) {
-            if (label === 'document') {
-               if (!data.documents) data.documents = [];
-               data.documents.push(file.path);
-            } else {
-               data[label] = file.path;
-            }
-         }
+        const label = labelsArray[index];
+        if (label) {
+          if (label === 'document') {
+            if (!data.documents) data.documents = [];
+            data.documents.push(file.path);
+          } else {
+            data[label] = file.path;
+          }
+        }
       });
     }
   }
@@ -534,6 +535,25 @@ const updateDeliveryInspection = catchAsync(async (req: Request, res: Response) 
     success: true,
     message: 'Delivery inspection updated successfully',
     data: updated,
+  });
+});
+
+// ─── Upload Invoice ───────────────────────────────────────────────────────────
+const uploadInvoice = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  if (!req.file) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invoice PDF file is required');
+  }
+
+  const fileUrl = req.file.path;
+  const result = await RequestsService.uploadInvoice(id, fileUrl);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Invoice uploaded successfully',
+    data: result,
   });
 });
 
@@ -559,4 +579,5 @@ export const RequestsController = {
   deleteExpense,
   sendAdminQuote,
   customerReply,
+  uploadInvoice,
 };

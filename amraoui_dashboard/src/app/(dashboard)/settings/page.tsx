@@ -17,7 +17,7 @@ import {
   updateMyProfile,
   updateStoredSession,
 } from '@/lib/auth.api';
-import { getProfileImageUrl } from '@/lib/api';
+import { getProfileImageUrl, apiFetch } from '@/lib/api';
 import { extractRoleFromUser, getSession } from '@/lib/auth';
 
 const SettingsPage = () => {
@@ -59,9 +59,14 @@ const SettingsPage = () => {
   const [faqQuestion, setFaqQuestion] = useState("");
   const [faqAnswer, setFaqAnswer] = useState("");
 
-  // Privacy Policy and Terms Cond state
   const [privacyContent, setPrivacyContent] = useState("");
   const [termsContent, setTermsContent] = useState("");
+  
+  // Support state
+  const [supportText, setSupportText] = useState("");
+  const [supportEmail, setSupportEmail] = useState("");
+  const [supportHours, setSupportHours] = useState("");
+  const [supportResponseTime, setSupportResponseTime] = useState("");
 
   // Admin Management States
   const [admins, setAdmins] = useState<any[]>([]);
@@ -112,8 +117,25 @@ const SettingsPage = () => {
       localStorage.setItem("amraoui_faqs", JSON.stringify(initialFaqs));
     }
 
-    setPrivacyContent(localStorage.getItem("amraoui_privacy") || "Enter Privacy Policy content here...");
-    setTermsContent(localStorage.getItem("amraoui_terms") || "Enter Terms & Conditions content here...");
+    const fetchSettings = async () => {
+      try {
+        const res = await apiFetch<any>('/settings');
+        if (res.ok && res.data?.success) {
+          const s = res.data.data;
+          if (s) {
+            setPrivacyContent(s.privacyPolicy || "");
+            setTermsContent(s.termsCondition || "");
+            setSupportText(s.supportText || "Need assistance with your bookings, account settings, or have other questions? Get in touch with our team.");
+            setSupportEmail(s.supportEmail || "support@amraoui.com");
+            setSupportHours(s.supportHours || "Mon - Fri, 9:00 - 18:00 CET.");
+            setSupportResponseTime(s.supportResponseTime || "Usually under 2 hours");
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchSettings();
   }, [router]);
 
   const showAlert = (type: 'success' | 'error', text: string) => {
@@ -252,14 +274,33 @@ const SettingsPage = () => {
     showAlert('success', "FAQ deleted successfully!");
   };
 
-  // Save Terms and Privacy
-  const handleSaveTextContent = (type: 'Privacy' | 'Terms') => {
-    if (type === 'Privacy') {
-      localStorage.setItem("amraoui_privacy", privacyContent);
-    } else {
-      localStorage.setItem("amraoui_terms", termsContent);
+  // Save Settings
+  const handleSaveSettings = async () => {
+    setSaveLoading(true);
+    try {
+      const payload = {
+        privacyPolicy: privacyContent,
+        termsCondition: termsContent,
+        supportText,
+        supportEmail,
+        supportHours,
+        supportResponseTime
+      };
+      const res = await apiFetch<any>('/settings', {
+        method: 'PUT',
+        auth: true,
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showAlert('success', `Settings updated successfully!`);
+      } else {
+        showAlert('error', "Failed to update settings");
+      }
+    } catch (e) {
+      showAlert('error', "Network error updating settings");
+    } finally {
+      setSaveLoading(false);
     }
-    showAlert('success', `${type} Policy updated successfully!`);
   };
 
   // Admin Management handlers
@@ -338,6 +379,7 @@ const SettingsPage = () => {
     { name: 'FAQ', icon: HelpCircle },
     { name: 'Privacy Policy', icon: FileLock },
     { name: 'Terms Condition', icon: FileText },
+    { name: 'Help & Support', icon: HelpCircle },
     { name: 'Admin Management', icon: Users },
   ];
 
@@ -404,20 +446,13 @@ const SettingsPage = () => {
                   Save Changes
                 </button>
               )}
-              {activeTab === 'Privacy Policy' && (
+              {['Privacy Policy', 'Terms Condition', 'Help & Support'].includes(activeTab) && (
                 <button 
-                  onClick={() => handleSaveTextContent('Privacy')}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm text-sm"
+                  onClick={handleSaveSettings}
+                  disabled={saveLoading}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm text-sm disabled:opacity-75"
                 >
-                  <Save className="w-4 h-4" /> Save Content
-                </button>
-              )}
-              {activeTab === 'Terms Condition' && (
-                <button 
-                  onClick={() => handleSaveTextContent('Terms')}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm text-sm"
-                >
-                  <Save className="w-4 h-4" /> Save Content
+                  {saveLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Settings
                 </button>
               )}
             </div>
@@ -603,6 +638,54 @@ const SettingsPage = () => {
                         className="w-full p-4 focus:outline-none text-sm text-gray-700 font-mono"
                         placeholder={`Enter ${activeTab} content here...`}
                       ></textarea>
+                    </div>
+                  </div>
+                )}
+                {/* ─── Help & Support Settings ─── */}
+                {activeTab === 'Help & Support' && (
+                  <div className="space-y-6 max-w-2xl">
+                    <p className="text-sm text-gray-500">Edit the Help & Support information displayed to customers.</p>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-900">Support Message</label>
+                        <textarea 
+                          rows={3}
+                          value={supportText}
+                          onChange={(e) => setSupportText(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          placeholder="Need assistance with your bookings..."
+                        ></textarea>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-900">Support Email Address</label>
+                        <input 
+                          type="email" 
+                          value={supportEmail}
+                          onChange={(e) => setSupportEmail(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          placeholder="support@amraoui.com"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-900">Operating Hours</label>
+                        <input 
+                          type="text" 
+                          value={supportHours}
+                          onChange={(e) => setSupportHours(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          placeholder="Mon - Fri, 9:00 - 18:00 CET."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-900">Response Time</label>
+                        <input 
+                          type="text" 
+                          value={supportResponseTime}
+                          onChange={(e) => setSupportResponseTime(e.target.value)}
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          placeholder="Usually under 2 hours"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}

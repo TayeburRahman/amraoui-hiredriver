@@ -16,6 +16,7 @@ import {
   Car,
   LogOut,
   PlusCircle,
+  FileText,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,6 +36,7 @@ export function AppSidebar({ role }: { role?: string }) {
     { title: t.common.dashboard, icon: LayoutDashboard, href: '/dashboard' },
     { title: t.common.createRequest, icon: PlusCircle, href: '/dashboard/create-request' },
     { title: t.common.orders, icon: Car, href: '/dashboard/orders' },
+    { title: 'Invoices', icon: FileText, href: '/dashboard/invoices' },
   ];
 
   return (

@@ -88,6 +88,10 @@ const RequestsSchema = new Schema<IRequest>(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Drivers" }],
       default: [],
     },
+    invoiceUrl: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

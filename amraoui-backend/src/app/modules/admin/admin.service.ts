@@ -1,3 +1,6 @@
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+import config from '../../../config';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
 import Auth from '../auth/auth.model';
@@ -66,6 +69,7 @@ const getAllCustomers = async (query: PaginationQuery) => {
   const [customers, total] = await Promise.all([
     Customers.find(filter)
       .populate('authId', 'email name isActive is_block createdAt')
+      .populate('linkedAuthIds', 'email name isActive is_block createdAt')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit)),
@@ -82,6 +86,9 @@ const getAllCustomers = async (query: PaginationQuery) => {
 const getCustomerById = async (customerId: string) => {
   const customer = await Customers.findById(customerId).populate(
     'authId',
+    'email name isActive is_block createdAt'
+  ).populate(
+    'linkedAuthIds',
     'email name isActive is_block createdAt'
   );
   if (!customer) {
@@ -127,6 +134,7 @@ const getDashboardStats = async () => {
     approvedDrivers,
     declinedDrivers,
     totalAdmins,
+    pendingAdminQuotes,
   ] = await Promise.all([
     Customers.countDocuments(),
     Drivers.countDocuments(),
@@ -134,6 +142,7 @@ const getDashboardStats = async () => {
     Drivers.countDocuments({ status: 'approved' }),
     Drivers.countDocuments({ status: 'declined' }),
     Admin.countDocuments(),
+    mongoose.model('Requests').countDocuments({ status: 'PENDING_ADMIN_QUOTE' }),
   ]);
 
   return {
@@ -143,6 +152,7 @@ const getDashboardStats = async () => {
     approvedDrivers,
     declinedDrivers,
     totalAdmins,
+    pendingAdminQuotes,
   };
 };
 
@@ -187,6 +197,77 @@ const createCustomer = async (payload: any) => {
    return authResponse.result;
 };
 
+// ─── Add Customer Login ────────────────────────
+const addCustomerLogin = async (customerId: string, payload: any) => {
+  const customer = await Customers.findById(customerId);
+  if (!customer) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Customer not found');
+  }
+  console.log("Add Customer Login Payload:", payload);
+
+  // Use AuthService to create the auth record
+  const authResponse = await AuthService.registrationAccount({
+    ...payload,
+    role: ENUM_USER_ROLE.CUSTOMERS,
+    // Provide dummy values for the customer creation part since it will be deleted/ignored
+    name: payload.name,
+    email: payload.email,
+    password: payload.password,
+    confirmPassword: payload.password,
+  });
+
+  if (authResponse?.result?._id) {
+    // Delete the inadvertently created Customer record from registrationAccount
+    await Customers.findByIdAndDelete(authResponse.result._id);
+    
+    // Activate the auth record immediately
+    if (authResponse.result.authId) {
+      await Auth.findByIdAndUpdate(authResponse.result.authId, { isActive: true });
+      
+      // Link the new auth record to the existing customer
+      await Customers.findByIdAndUpdate(customerId, {
+        $push: { linkedAuthIds: authResponse.result.authId }
+      });
+    }
+  }
+
+  return getCustomerById(customerId);
+};
+
+// ─── Update Customer Login ─────────────────────
+const updateCustomerLogin = async (customerId: string, authId: string, payload: any) => {
+  const customer = await Customers.findById(customerId);
+  if (!customer) throw new ApiError(httpStatus.NOT_FOUND, 'Customer not found');
+  if (!customer.linkedAuthIds?.includes(authId as any) && customer.authId.toString() !== authId) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Auth record not linked to this customer');
+  }
+
+  const updateData: any = {};
+  if (payload.name) updateData.name = payload.name;
+  if (payload.email) updateData.email = payload.email;
+  if (payload.password) {
+    updateData.password = await bcrypt.hash(payload.password, Number(config.bcrypt_salt_rounds));
+  }
+  
+  await Auth.findByIdAndUpdate(authId, updateData);
+  return getCustomerById(customerId);
+};
+
+// ─── Delete Customer Login ─────────────────────
+const deleteCustomerLogin = async (customerId: string, authId: string) => {
+  const customer = await Customers.findById(customerId);
+  if (!customer) throw new ApiError(httpStatus.NOT_FOUND, 'Customer not found');
+  if (customer.authId.toString() === authId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Cannot delete the primary auth record this way');
+  }
+
+  await Customers.findByIdAndUpdate(customerId, {
+    $pull: { linkedAuthIds: authId }
+  });
+  await Auth.findByIdAndDelete(authId);
+  return getCustomerById(customerId);
+};
+
 export const AdminService = {
   blockUnblockAuthUser,
   getAllCustomers,
@@ -195,4 +276,7 @@ export const AdminService = {
   getDashboardStats,
   approveCustomer,
   createCustomer,
+  addCustomerLogin,
+  updateCustomerLogin,
+  deleteCustomerLogin,
 };

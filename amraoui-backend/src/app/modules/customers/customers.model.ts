@@ -10,6 +10,12 @@ const CustomersSchema = new Schema<ICustomers>(
       required: true,
       ref: "Auth",
     },
+    linkedAuthIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Auth",
+      }
+    ],
     name: {
       type: String,
       required: true,

@@ -49,6 +49,7 @@ const initialFormData = {
   email: '',
   phone: '',
   company: '',
+  pickupHouseNumber: '',
   pickupAddress: '',
   pickupCity: '',
   pickupZip: '',
@@ -57,6 +58,7 @@ const initialFormData = {
   pickupContactPhone: '',
   pickupContactEmail: '',
   pickupLocationType: '',
+  dropoffHouseNumber: '',
   dropoffAddress: '',
   dropoffCity: '',
   dropoffZip: '',
@@ -397,7 +399,11 @@ export default function TransportRequestPage() {
                         {errors.pickupAddress && <p className="text-sm text-red-500 mt-1 ml-1">{errors.pickupAddress}</p>}
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-brand-text font-bold ml-1">{language === 'ar' ? 'رقم المبنى' : 'House/Bldg No.'}</Label>
+                          <Input value={formData.pickupHouseNumber} onChange={(e) => updateForm('pickupHouseNumber', e.target.value)} placeholder="e.g. 10A" className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200`} />
+                        </div>
                         <div className="space-y-2">
                           <Label className="text-brand-text font-bold ml-1">Zip Code</Label>
                           <Input value={formData.pickupZip} onChange={(e) => updateForm('pickupZip', e.target.value)} placeholder="10115" className={`h-12 rounded-2xl ${errors.pickupZip ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
@@ -475,7 +481,11 @@ export default function TransportRequestPage() {
                         {errors.dropoffAddress && <p className="text-sm text-red-500 mt-1 ml-1">{errors.dropoffAddress}</p>}
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="space-y-2">
+                          <Label className="text-brand-text font-bold ml-1">{language === 'ar' ? 'رقم المبنى' : 'House/Bldg No.'}</Label>
+                          <Input value={formData.dropoffHouseNumber} onChange={(e) => updateForm('dropoffHouseNumber', e.target.value)} placeholder="e.g. 10A" className={`h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200`} />
+                        </div>
                         <div className="space-y-2">
                           <Label className="text-brand-text font-bold ml-1">Zip Code</Label>
                           <Input value={formData.dropoffZip} onChange={(e) => updateForm('dropoffZip', e.target.value)} placeholder="10115" className={`h-12 rounded-2xl ${errors.dropoffZip ? 'border-red-500 bg-red-50' : 'border-slate-100 bg-slate-50 focus:bg-white'} transition-all duration-200`} />
@@ -1345,33 +1355,33 @@ export default function TransportRequestPage() {
                   <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
                     <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">4. Vehicle Details</h4>
                     <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Make & Model</span>
-                        <span className="text-sm font-bold text-brand-text truncate max-w-[180px]">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-sm font-medium text-slate-500 shrink-0">Make & Model</span>
+                        <span className="text-sm font-bold text-brand-text truncate text-right flex-1">
                           {formData.make || formData.model ? `${formData.make} ${formData.model}` : '-'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Plate Number</span>
-                        <span className="text-sm font-bold text-brand-text">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-sm font-medium text-slate-500 shrink-0">Plate Number</span>
+                        <span className="text-sm font-bold text-brand-text truncate text-right flex-1">
                           {formData.plate || '-'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">VIN</span>
-                        <span className="text-sm font-bold text-brand-text truncate max-w-[150px]">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-sm font-medium text-slate-500 shrink-0">VIN</span>
+                        <span className="text-sm font-bold text-brand-text truncate text-right flex-1">
                           {formData.vin || '-'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Type</span>
-                        <span className="text-sm font-bold text-brand-text capitalize">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-sm font-medium text-slate-500 shrink-0">Type</span>
+                        <span className="text-sm font-bold text-brand-text capitalize truncate text-right flex-1">
                           {formData.vehicleType || '-'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center border-t border-slate-100/50 pt-2">
-                        <span className="text-xs font-bold text-brand-blue capitalize">{formData.deliveryType.replace('_', ' ')}</span>
-                        <span className="text-xs font-bold text-slate-500 capitalize">{formData.engineType || '-'}</span>
+                      <div className="flex justify-between items-start border-t border-slate-100/50 pt-2 gap-4">
+                        <span className="text-xs font-bold text-brand-blue capitalize break-words flex-1">{formData.deliveryType.replace('_', ' ')}</span>
+                        <span className="text-xs font-bold text-slate-500 capitalize text-right shrink-0">{formData.engineType || '-'}</span>
                       </div>
                     </div>
                   </div>

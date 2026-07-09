@@ -589,7 +589,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Column(
-      children: quotes.asMap().entries.map((entry) {
+      children: quotes.asMap().entries.map<Widget>((entry) {
         final i = entry.key;
         final m = entry.value;
         final type = m['type'] ?? '';

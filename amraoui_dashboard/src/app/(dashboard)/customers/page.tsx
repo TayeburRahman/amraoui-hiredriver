@@ -462,56 +462,56 @@ const CustomersPage = () => {
               {loading
                 ? Array.from({ length: 6 }).map((_, i) => <SkeletonRow key={i} />)
                 : customers.map((customer) => (
-                    <tr
-                      key={customer._id}
-                      className={`hover:bg-gray-50/50 transition-colors ${customer.status === 'pending' ? 'bg-orange-50/30' : 'bg-white'}`}
-                    >
-                      {/* Avatar + Name */}
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs shrink-0 overflow-hidden">
-                            {customer.profile_image ? (
-                              <img src={customer.profile_image} alt={customer.name} className="w-full h-full object-cover" />
-                            ) : (
-                              customer.name.charAt(0).toUpperCase()
-                            )}
-                          </div>
-                          <div>
-                            <span className="font-bold text-gray-900">{customer.name} {customer.family_name || ''}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4 whitespace-nowrap text-gray-500">{customer.email}</td>
-                      <td className="px-5 py-4 whitespace-nowrap text-gray-500">{customer.company || '—'}</td>
-                      <td className="px-5 py-4 whitespace-nowrap text-gray-500">{customer.phone_number || '—'}</td>
-                      <td className="px-5 py-4 whitespace-nowrap">{getStatusBadge(customer.status)}</td>
-                      <td className="px-5 py-4 whitespace-nowrap text-gray-400 text-xs">
-                        {formatDate(customer.createdAt || customer.authId?.createdAt)}
-                      </td>
-                      <td className="px-5 py-4 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          {customer.status === 'pending' && (
-                            <button
-                              onClick={() => handleApprove(customer._id)}
-                              disabled={approvingId === customer._id}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-60"
-                            >
-                              {approvingId === customer._id
-                                ? <Loader2 className="w-3 h-3 animate-spin" />
-                                : <CheckCircle className="w-3 h-3" />}
-                              Approve
-                            </button>
+                  <tr
+                    key={customer._id}
+                    className={`hover:bg-gray-50/50 transition-colors ${customer.status === 'pending' ? 'bg-orange-50/30' : 'bg-white'}`}
+                  >
+                    {/* Avatar + Name */}
+                    <td className="px-5 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs shrink-0 overflow-hidden">
+                          {customer.profile_image ? (
+                            <img src={customer.profile_image} alt={customer.name} className="w-full h-full object-cover" />
+                          ) : (
+                            customer.name.charAt(0).toUpperCase()
                           )}
-                          <button
-                            onClick={() => handleViewCustomer(customer)}
-                            className="text-gray-900 font-bold hover:text-blue-600 transition-colors text-sm"
-                          >
-                            View
-                          </button>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
+                        <div>
+                          <span className="font-bold text-gray-900">{customer.name} {customer.family_name || ''}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 whitespace-nowrap text-gray-500">{customer.email}</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-gray-500">{customer.company || '—'}</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-gray-500">{customer.phone_number || '—'}</td>
+                    <td className="px-5 py-4 whitespace-nowrap">{getStatusBadge(customer.status)}</td>
+                    <td className="px-5 py-4 whitespace-nowrap text-gray-400 text-xs">
+                      {formatDate(customer.createdAt || customer.authId?.createdAt)}
+                    </td>
+                    <td className="px-5 py-4 whitespace-nowrap text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        {customer.status === 'pending' && (
+                          <button
+                            onClick={() => handleApprove(customer._id)}
+                            disabled={approvingId === customer._id}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-60"
+                          >
+                            {approvingId === customer._id
+                              ? <Loader2 className="w-3 h-3 animate-spin" />
+                              : <CheckCircle className="w-3 h-3" />}
+                            Approve
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleViewCustomer(customer)}
+                          className="text-gray-900 font-bold hover:text-blue-600 transition-colors text-sm"
+                        >
+                          View
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
 
               {!loading && customers.length === 0 && (
                 <tr>
@@ -546,6 +546,7 @@ const CustomersPage = () => {
       />
 
       {/* Create Customer Modal */}
+      {/* // */}
       <CreateCustomerModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}

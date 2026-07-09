@@ -113,7 +113,7 @@ export default function Overview() {
       desc = `Customer submitted request ${r.missionId}.`;
       iconColor = "text-orange-500";
       iconBg = "bg-orange-100";
-    } else if (r.status === 'DRIVER_ASSIGNED') {
+    } else if (r.status === 'ASSIGNED' || r.status === 'DRIVER_ASSIGNED') {
       title = "Driver Assigned";
       desc = `Driver assigned to ${r.missionId}.`;
       iconColor = "text-purple-600";
@@ -123,6 +123,41 @@ export default function Overview() {
       desc = `Pickup inspection done for ${r.missionId}.`;
       iconColor = "text-teal-600";
       iconBg = "bg-teal-100";
+    } else if (r.status === 'OPEN_FOR_DRIVERS') {
+      title = "Quote Accepted";
+      desc = `Customer accepted the quote for ${r.missionId}.`;
+      iconColor = "text-emerald-600";
+      iconBg = "bg-emerald-100";
+    } else if (r.status === 'CUSTOMER_REVIEWING_QUOTE') {
+      title = "Quote Sent";
+      desc = `Admin sent a quote for ${r.missionId} to customer.`;
+      iconColor = "text-sky-600";
+      iconBg = "bg-sky-100";
+    } else if (r.status === 'REJECTED_BY_CUSTOMER') {
+      title = "Quote Rejected";
+      desc = `Customer rejected the quote for ${r.missionId}.`;
+      iconColor = "text-red-600";
+      iconBg = "bg-red-100";
+    } else if (r.status === 'PENDING_DRIVER_QUOTE' || r.status === 'ADMIN_REVIEWING_DRIVERS') {
+      title = "Driver Quoted";
+      desc = `A driver submitted a quote for ${r.missionId}.`;
+      iconColor = "text-indigo-600";
+      iconBg = "bg-indigo-100";
+    } else if (r.status === 'IN_PROGRESS' || r.status === 'IN_TRANSIT') {
+      title = "Mission Started";
+      desc = `Driver started mission ${r.missionId}.`;
+      iconColor = "text-amber-600";
+      iconBg = "bg-amber-100";
+    } else if (r.status === 'DELIVERY_ARRIVAL') {
+      title = "Arrived at Delivery";
+      desc = `Driver arrived at delivery for ${r.missionId}.`;
+      iconColor = "text-cyan-600";
+      iconBg = "bg-cyan-100";
+    } else if (r.status === 'CANCELLED') {
+      title = "Mission Cancelled";
+      desc = `Mission ${r.missionId} was cancelled.`;
+      iconColor = "text-red-600";
+      iconBg = "bg-red-100";
     }
 
     const timeDiff = Math.floor((new Date().getTime() - new Date(r.updatedAt).getTime()) / 60000);

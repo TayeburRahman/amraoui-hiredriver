@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, use } from 'react';
-import { MapPin, Car, FileText, CheckCircle2, User, Mail, Phone, Building, ArrowLeft, Loader2 } from 'lucide-react';
+import { MapPin, Car, FileText, CheckCircle2, User, Mail, Phone, Building, ArrowLeft, Loader2, Paperclip, Trash2, Upload } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ViewDetailsModal } from '@/app/(dashboard)/customer-request/components/ViewDetailsModal';
@@ -16,6 +16,14 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [isAssigning, setIsAssigning] = useState(false);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showManualAssignModal, setShowManualAssignModal] = useState(false);
+    const [drivers, setDrivers] = useState<any[]>([]);
+    const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
+    const [isFetchingDrivers, setIsFetchingDrivers] = useState(false);
+    
+    // Document Upload State
+    const [isUploadingDoc, setIsUploadingDoc] = useState(false);
+    const [isDeletingDoc, setIsDeletingDoc] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRequest = async () => {
@@ -32,6 +40,53 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         };
         fetchRequest();
     }, [id, reqId]);
+
+    const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        
+        const file = e.target.files[0];
+        const formData = new FormData();
+        formData.append('document', file);
+
+        setIsUploadingDoc(true);
+        try {
+            const res = await apiFetch<any>(`/requests/${reqId}/documents`, {
+                method: 'PATCH',
+                auth: true,
+                body: formData,
+            });
+            if (res.data?.success) {
+                setRequest(res.data.data);
+            }
+        } catch (error) {
+            console.error("Error uploading document:", error);
+            alert("Failed to upload document");
+        } finally {
+            setIsUploadingDoc(false);
+            e.target.value = ''; // Reset input
+        }
+    };
+
+    const handleDeleteDocument = async (fileUrl: string) => {
+        if (!confirm("Are you sure you want to delete this document?")) return;
+        
+        setIsDeletingDoc(fileUrl);
+        try {
+            const res = await apiFetch<any>(`/requests/${reqId}/documents`, {
+                method: 'DELETE',
+                auth: true,
+                body: JSON.stringify({ fileUrl })
+            });
+            if (res.data?.success) {
+                setRequest(res.data.data);
+            }
+        } catch (error) {
+            console.error("Error deleting document:", error);
+            alert("Failed to delete document");
+        } finally {
+            setIsDeletingDoc(null);
+        }
+    };
 
     const handleApprove = async () => {
         setShowConfirmModal(false); // Close the modal
@@ -51,6 +106,43 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
             }
         } catch (error) {
             console.error("Error approving quote:", error);
+            alert("Failed to assign driver. Please try again.");
+        } finally {
+            setIsAssigning(false);
+        }
+    };
+
+    const handleOpenManualAssign = async () => {
+        setShowManualAssignModal(true);
+        setIsFetchingDrivers(true);
+        try {
+            const res = await apiFetch<any>('/drivers?limit=100', { auth: true });
+            if (res.data?.success) {
+                setDrivers(res.data.data?.data || []);
+            }
+        } catch (error) {
+            console.error("Error fetching drivers:", error);
+        } finally {
+            setIsFetchingDrivers(false);
+        }
+    };
+
+    const handleManualAssign = async () => {
+        if (!selectedDriverId) return;
+        try {
+            setIsAssigning(true);
+            const res = await apiFetch<any>(`/requests/${reqId}/assign-driver`, { 
+                method: 'PATCH', 
+                auth: true, 
+                body: JSON.stringify({ driverId: selectedDriverId }) 
+            });
+            if (res.data?.success) {
+                setRequest(res.data.data);
+                setShowManualAssignModal(false);
+                setSelectedDriverId(null);
+            }
+        } catch (error) {
+            console.error("Error assigning driver:", error);
             alert("Failed to assign driver. Please try again.");
         } finally {
             setIsAssigning(false);
@@ -370,7 +462,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                     <div className="flex justify-between border-t border-gray-100 pt-2 mt-2">
                                         <span className="text-gray-400">Delivery Type</span>
                                         <span className="font-bold text-blue-600 capitalize">
-                                            {request.details?.deliveryType === 'tow' ? 'Vehicle Carrier' : (request.details?.deliveryType || 'N/A')}
+                                            {request.details?.deliveryType?.toLowerCase() === 'tow' ? 'Vehicle Carrier' : (request.details?.deliveryType || 'N/A')}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
@@ -419,6 +511,50 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                         </div>
                     </div>
 
+                    {/* Documents & Photos */}
+                    <div className="bg-white rounded-xl border border-gray-200 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                                <Paperclip className="w-4 h-4 text-gray-400" />
+                                <h2 className="text-sm font-bold text-gray-900">Documents & Photos</h2>
+                            </div>
+                            <label className={`cursor-pointer flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg border transition-colors ${isUploadingDoc ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100'}`}>
+                                {isUploadingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                                Upload File
+                                <input type="file" className="hidden" onChange={handleUploadDocument} disabled={isUploadingDoc} />
+                            </label>
+                        </div>
+                        <div className="space-y-3">
+                            {(!request.details?.documents || request.details.documents.length === 0) ? (
+                                <p className="text-sm text-gray-500 text-center py-4">No documents attached.</p>
+                            ) : (
+                                request.details.documents.map((doc: string, idx: number) => {
+                                    const filename = doc.split('/').pop() || `Document ${idx + 1}`;
+                                    const isDeleting = isDeletingDoc === doc;
+                                    return (
+                                        <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                            <a href={doc.startsWith('http') ? doc : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}${doc.startsWith('/') ? '' : '/'}${doc}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 overflow-hidden group">
+                                                <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center shrink-0">
+                                                    <FileText className="w-4 h-4 text-blue-600" />
+                                                </div>
+                                                <span className="text-sm font-medium text-gray-700 truncate group-hover:text-blue-600 transition-colors">
+                                                    {filename}
+                                                </span>
+                                            </a>
+                                            <button 
+                                                onClick={() => handleDeleteDocument(doc)}
+                                                disabled={isDeleting || isUploadingDoc}
+                                                className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
+                                            >
+                                                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                            </button>
+                                        </div>
+                                    );
+                                })
+                            )}
+                        </div>
+                    </div>
+
                     {/* Quote Summary */}
                     <div className="bg-blue-50/30 rounded-xl border border-blue-100 p-6">
                         <h2 className="text-sm font-bold text-gray-900 mb-4">Quote Summary</h2>
@@ -461,10 +597,22 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
 
 
             {/* Action Buttons */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Link href={`/quote-desk/${id}/compare?reqId=${reqId}`} className="py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
                     Compare Drivers
                 </Link>
+
+                <button
+                    onClick={handleOpenManualAssign}
+                    disabled={isAssigning || request?.status === 'ASSIGNED'}
+                    className={`py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm flex items-center justify-center gap-2 ${
+                        request?.status === 'ASSIGNED'
+                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                            : 'bg-white border border-gray-200 text-blue-600 hover:bg-gray-50'
+                    }`}
+                >
+                    Manual Assign
+                </button>
 
                 <button
                     onClick={() => setShowConfirmModal(true)}
@@ -507,6 +655,45 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                     Confirm Assignment
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Manual Assign Modal */}
+            {showManualAssignModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b border-gray-100">
+                            <h3 className="text-xl font-bold text-gray-900">Manual Driver Assignment</h3>
+                            <p className="text-gray-500 text-sm mt-1">Select a driver from the list below.</p>
+                        </div>
+                        <div className="p-6 overflow-y-auto flex-1">
+                            {isFetchingDrivers ? (
+                                <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-600" /></div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {drivers.map(driver => (
+                                        <label key={driver._id} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${selectedDriverId === driver._id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>
+                                            <input type="radio" name="driver" value={driver._id} checked={selectedDriverId === driver._id} onChange={() => setSelectedDriverId(driver._id)} className="w-4 h-4 text-blue-600" />
+                                            <div>
+                                                <p className="font-semibold text-gray-900 text-sm">{driver.name || driver.firstName + ' ' + driver.lastName}</p>
+                                                <p className="text-xs text-gray-500">{driver.phone_number || driver.phone || driver.email}</p>
+                                            </div>
+                                        </label>
+                                    ))}
+                                    {drivers.length === 0 && <p className="text-center text-gray-500 py-4">No drivers found.</p>}
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-6 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50">
+                            <button onClick={() => {setShowManualAssignModal(false); setSelectedDriverId(null);}} className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                                Cancel
+                            </button>
+                            <button onClick={handleManualAssign} disabled={!selectedDriverId || isAssigning} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors">
+                                {isAssigning && <Loader2 className="w-4 h-4 animate-spin" />}
+                                Assign Driver
+                            </button>
                         </div>
                     </div>
                 </div>

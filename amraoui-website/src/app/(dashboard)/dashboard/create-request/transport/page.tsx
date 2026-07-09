@@ -1149,8 +1149,8 @@ export default function TransportRequestPage() {
                           <p className="text-sm text-slate-600"><span className="font-bold">Vehicle:</span> {formData.make} {formData.model}</p>
                           <p className="text-sm text-slate-600"><span className="font-bold">Plate:</span> {formData.plate}</p>
                           <p className="text-sm text-slate-600"><span className="font-bold">VIN:</span> {formData.vin || '-'}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Delivery:</span> <span className="capitalize">{formData.deliveryType.replace('_', ' ')}</span></p>
-                          {formData.deliveryType === 'tow' && (
+                          <p className="text-sm text-slate-600"><span className="font-bold">Delivery:</span> <span className="capitalize">{formData.deliveryType?.toLowerCase() === 'tow' ? 'Vehicle Carrier' : formData.deliveryType.replace('_', ' ')}</span></p>
+                          {formData.deliveryType?.toLowerCase() === 'tow' && (
                             <p className="text-sm text-slate-600"><span className="font-bold">Weight:</span> {formData.vehicleWeight || '-'} kg</p>
                           )}
                         </div>
@@ -1380,7 +1380,7 @@ export default function TransportRequestPage() {
                         </span>
                       </div>
                       <div className="flex justify-between items-start border-t border-slate-100/50 pt-2 gap-4">
-                        <span className="text-xs font-bold text-brand-blue capitalize break-words flex-1">{formData.deliveryType.replace('_', ' ')}</span>
+                        <span className="text-xs font-bold text-brand-blue capitalize break-words flex-1">{formData.deliveryType?.toLowerCase() === 'tow' ? 'Vehicle Carrier' : formData.deliveryType.replace('_', ' ')}</span>
                         <span className="text-xs font-bold text-slate-500 capitalize text-right shrink-0">{formData.engineType || '-'}</span>
                       </div>
                     </div>

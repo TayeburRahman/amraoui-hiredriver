@@ -21,31 +21,38 @@ class MissionRepository {
 
   Future<Response> submitQuote(
     String missionId,
-    double amount,
-    String message,
-    String estimatedTime, {
+    double amount, {
+    double servicePrice = 0,
     double fuelCost = 0,
     double tollCharges = 0,
     double travelCost = 0,
     double taxiCost = 0,
-    double exceptionalCosts = 0,
+    String? message,
+    String? pickupDate,
+    String? pickupTime,
+    String? dropoffDate,
+    String? dropoffTime,
   }) async {
     return await _auth.post('/requests/missions/$missionId/quote', data: {
       'amount': amount,
+      'servicePrice': servicePrice,
       'fuelCost': fuelCost,
       'tollCharges': tollCharges,
       'travelCost': travelCost,
       'taxiCost': taxiCost,
-      'exceptionalCosts': exceptionalCosts,
-      'message': message,
-      'estimatedTime': estimatedTime,
+      if (message != null) 'message': message,
+      if (pickupDate != null) 'pickupDate': pickupDate,
+      if (pickupTime != null) 'pickupTime': pickupTime,
+      if (dropoffDate != null) 'dropoffDate': dropoffDate,
+      if (dropoffTime != null) 'dropoffTime': dropoffTime,
     });
   }
 
-  Future<Response> verifyPickup(String id, double lat, double lng) async {
+  Future<Response> verifyPickup(String id, double lat, double lng, {String? date}) async {
     return await _auth.patch('/requests/missions/$id/pickup-verification', data: {
       'lat': lat,
       'lng': lng,
+      if (date != null) 'date': date,
     });
   }
 

@@ -54,7 +54,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
   const fetchStats = async () => {
     try {
-      const res = await apiFetch<any>('/admin/dashboard-stats', { auth: true });
+      const res = await apiFetch<any>('/admin/dashboard/stats', { auth: true });
       if (res.data?.success) {
         setPendingAdminQuotes(res.data.data.pendingAdminQuotes || 0);
       }

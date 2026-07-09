@@ -1,7 +1,7 @@
 class AppApiUrl {
-  // static const String domain = "http://10.10.28.71:5000"; // PC LAN IP — works for physical devices on the same network
-  static const String domain =
-      "https://amraoui-hiredriver-backends.vercel.app"; // Live Vercel Backend
+  static const String domain = "http://10.10.28.71:5000"; // PC LAN IP — works for physical devices on the same network
+  // static const String domain =
+  //     "https://amraoui-hiredriver-backends.vercel.app"; // Live Vercel Backend
   static const String baseUrl = "$domain/api/v1";
   static const String soketUrl = domain;
 

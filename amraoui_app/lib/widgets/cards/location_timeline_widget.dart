@@ -89,8 +89,8 @@ class LocationTimelineWidget extends StatelessWidget {
 
       final dropoffFullTitle = dCity.isNotEmpty ? '${_getFlagEmoji(dCountry)} ${dZip.isNotEmpty ? '$dZip ' : ''}$dCity' : 'Pending Location';
 
-      final companyName = d['company']?.toString() ?? mission['customerId']?['company']?.toString();
-      final customerName = (companyName != null && companyName.isNotEmpty) ? companyName : (mission['customerId']?['name']?.toString() ?? 'Customer');
+      final customerName = mission['customerId']?['name']?.toString() ?? 'Customer';
+      final distance = d['distance']?.toString() ?? (mission['distance']?.toString() ?? 'N/A km');
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +120,7 @@ class LocationTimelineWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: AppText(
-                    data: customerName,
+                    data: '$distance • $customerName',
                     fontSize: 12,
                     color: const Color(0xFF64748B),
                     fontWeight: FontWeight.w600,

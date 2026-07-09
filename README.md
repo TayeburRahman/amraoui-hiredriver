@@ -58,6 +58,45 @@ flutter run
 
 ---
 
+## 🔐 Environment Variables (.env)
+
+Create a `.env` file in the `amraoui-backend` directory and add the following configuration. Replace the empty values with your actual credentials.
+
+```env
+# Server Configuration
+APP_NAME=Vehiqqo
+BASE_URL=0.0.0.0
+PORT=5000
+SOCKET_PORT=5001
+NODE_DEV=development
+
+# Database
+MONGO_URL=mongodb+srv://<username>:<password>@cluster.mongodb.net/amraoui_backend?retryWrites=true&w=majority
+
+# Security & Authentication
+BCRYPT_SALT_ROUNDS=12
+JWT_SECRET=your_jwt_secret_here
+JWT_EXPIRES_IN=30d
+JWT_REFRESH_SECRET=your_jwt_refresh_secret_here
+JWT_REFRESH_EXPIRES_IN=365d
+ACTIVATION_SECRET=your_activation_secret
+
+# Email (SMTP)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SERVICE=gmail
+SMTP_MAIL=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+
+# Integrations
+STRIPE_SECRET_KEY=your_stripe_secret_key
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_name
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=ml_default
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+```
+
+---
 ## 🛠️ Development & Contribution
 
 - **Version Control**: When creating new features, ensure that you only commit the files necessary for that feature.

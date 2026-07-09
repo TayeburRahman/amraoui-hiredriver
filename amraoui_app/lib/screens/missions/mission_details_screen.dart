@@ -115,25 +115,6 @@ class MissionDetailsScreen extends StatelessWidget {
           '${detailsObj['driverStartDate'] ?? ''} to ${detailsObj['driverEndDate'] ?? ''}';
     }
 
-    String dateStr = '';
-    String timeStr = '';
-    if (type == 'TRANSPORT') {
-      dateStr = detailsObj['pickupDate']?.toString() ?? '';
-      timeStr = detailsObj['pickupTime']?.toString() ?? '';
-    } else if (type == 'INSPECTION') {
-      dateStr = detailsObj['inspectionDate']?.toString() ?? '';
-      timeStr = detailsObj['inspectionTime']?.toString() ?? '';
-    } else if (type == 'HIRE_DRIVER') {
-      dateStr = detailsObj['driverStartDate']?.toString() ?? '';
-      timeStr = detailsObj['driverStartTime']?.toString() ?? '';
-    }
-    String dateTimeDisplay = (dateStr.isNotEmpty || timeStr.isNotEmpty) ? '$dateStr $timeStr'.trim() : 'N/A';
-    
-    String distanceDisplay = detailsObj['distance']?.toString() ?? 'N/A';
-    if (distanceDisplay != 'N/A' && !distanceDisplay.toLowerCase().contains('km')) {
-      distanceDisplay = '$distanceDisplay km';
-    }
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -157,14 +138,14 @@ class MissionDetailsScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildHeaderStat('Proposed Price', price),
-              if (type == 'TRANSPORT') _buildHeaderStat('Distance', distanceDisplay),
+              if (type == 'TRANSPORT') _buildHeaderStat('Distance', 'N/A'),
             ],
           ),
           const Gap(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildHeaderStat('Date & Time', dateTimeDisplay),
+              _buildHeaderStat('Date & Time', 'N/A'),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -266,8 +247,6 @@ class MissionDetailsScreen extends StatelessWidget {
                 'Date & Time',
                 '${detailsObj['pickupDate'] ?? ''} ${detailsObj['pickupTime'] ?? ''}',
               ),
-              if (detailsObj['company']?.toString().isNotEmpty == true)
-                _buildInfoRow('Company', detailsObj['company']),
               _buildInfoRow(
                 'Contact',
                 '${detailsObj['pickupContactName'] ?? ''}',

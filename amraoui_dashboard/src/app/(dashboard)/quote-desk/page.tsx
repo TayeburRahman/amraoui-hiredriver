@@ -33,8 +33,18 @@ const QuoteDeskPage = () => {
 
           const mapped: any[] = [];
           relevantRequests.forEach((req: any) => {
-            const date = new Date(req.createdAt);
-            const pickupStr = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            let pickupStr = 'N/A';
+            if (req.details?.pickupDate) {
+              const pDate = new Date(req.details.pickupDate);
+              if (!isNaN(pDate.getTime())) {
+                pickupStr = `${pDate.getDate()} ${pDate.toLocaleString('default', { month: 'short' })}, ${req.details.pickupTime || pDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+              } else {
+                pickupStr = `${req.details.pickupDate} ${req.details.pickupTime || ''}`.trim();
+              }
+            } else if (req.createdAt) {
+              const date = new Date(req.createdAt);
+              pickupStr = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            }
 
             let route = 'N/A';
             if (req.type === 'TRANSPORT') {
@@ -47,6 +57,7 @@ const QuoteDeskPage = () => {
 
             const idString = req._id ? (typeof req._id === 'object' ? (req._id.$oid || String(req._id)) : String(req._id)) : 'UNKNOWN';
             const finalMissionId = (req.missionId && req.missionId.trim() !== '') ? req.missionId : `MS-${idString.slice(-5).toUpperCase()}`;
+            const licensePlate = req.details?.licensePlate || req.details?.vehiclePlate || req.details?.license_plate || req.details?.plate || 'N/A';
 
             if (req.driverQuotes && req.driverQuotes.length > 0) {
               req.driverQuotes.forEach((quote: any) => {
@@ -61,7 +72,8 @@ const QuoteDeskPage = () => {
                   type: req.type,
                   driver: quote.driverId,
                   route: route,
-                  car: req.type === 'TRANSPORT' ? `${req.details?.make} ${req.details?.model}` : req.type,
+                  car: req.type === 'TRANSPORT' ? `${req.details?.make || ''} ${req.details?.model || ''}`.trim() : req.type,
+                  licensePlate: licensePlate,
                   pickup: pickupStr,
                   quoteAmount: quote.amount,
                   estimatedTime: quote.estimatedTime,
@@ -81,7 +93,8 @@ const QuoteDeskPage = () => {
                 type: req.type,
                 driver: null,
                 route: route,
-                car: req.type === 'TRANSPORT' ? `${req.details?.make} ${req.details?.model}` : req.type,
+                car: req.type === 'TRANSPORT' ? `${req.details?.make || ''} ${req.details?.model || ''}`.trim() : req.type,
+                licensePlate: licensePlate,
                 pickup: pickupStr,
                 quoteAmount: 0,
                 estimatedTime: 'N/A',
@@ -261,6 +274,10 @@ const QuoteDeskPage = () => {
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <Car className="w-4 h-4 shrink-0 text-gray-400" />
                     <span className="truncate">{req.car}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <div className="w-4 h-4 shrink-0 flex items-center justify-center border border-gray-400 rounded-[3px] text-[8px] font-bold text-gray-400">EU</div>
+                    <span className="truncate">{req.licensePlate}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <Calendar className="w-4 h-4 shrink-0 text-gray-400" />

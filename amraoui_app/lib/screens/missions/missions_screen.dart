@@ -13,6 +13,7 @@ import 'package:amraoui_app/screens/missions/pickup_inspection_screen.dart'
 import 'package:amraoui_app/screens/missions/pickup_verification_screen.dart';
 import 'package:amraoui_app/screens/missions/delivery_inspection_screen.dart'
     hide Gap;
+import 'package:amraoui_app/screens/missions/multi_day_arrival_screen.dart';
 
 class MissionsController extends GetxController {
   var activeMainTab = 0.obs; // 0: Open List, 1: My Missions

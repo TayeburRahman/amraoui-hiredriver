@@ -2,6 +2,49 @@ import 'package:amraoui_app/utils/gap.dart';
 import 'package:amraoui_app/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 
+String _getFlagEmoji(String? addressOrCountry) {
+  if (addressOrCountry == null || addressOrCountry.isEmpty) return '🇧🇪';
+  final lower = addressOrCountry.toLowerCase();
+  
+  final Map<String, String> countryMap = {
+    'belgi': '🇧🇪', 'france': '🇫🇷', 'franc': '🇫🇷', 'frankreich': '🇫🇷',
+    'netherland': '🇳🇱', 'nederland': '🇳🇱', 'holland': '🇳🇱', 'pays-bas': '🇳🇱',
+    'germany': '🇩🇪', 'deutschland': '🇩🇪', 'allemagne': '🇩🇪',
+    'luxemb': '🇱🇺', 'ital': '🇮🇹', 'spain': '🇪🇸', 'espa': '🇪🇸', 'spanien': '🇪🇸',
+    'switz': '🇨🇭', 'suisse': '🇨🇭', 'schweiz': '🇨🇭', 'svizzera': '🇨🇭',
+    'uk ': '🇬🇧', 'united kingdom': '🇬🇧', 'england': '🇬🇧', 'royaume-uni': '🇬🇧',
+    'austri': '🇦🇹', 'österreich': '🇦🇹', 'autriche': '🇦🇹',
+    'poland': '🇵🇱', 'polska': '🇵🇱', 'pologne': '🇵🇱', 'portugal': '🇵🇹',
+    'sweden': '🇸🇪', 'sverige': '🇸🇪', 'suède': '🇸🇪',
+    'norway': '🇳🇴', 'norge': '🇳🇴', 'norvège': '🇳🇴',
+    'denmark': '🇩🇰', 'danmark': '🇩🇰', 'danemark': '🇩🇰',
+    'finland': '🇫🇮', 'suomi': '🇫🇮', 'finlande': '🇫🇮',
+    'ireland': '🇮🇪', 'irlande': '🇮🇪', 'greece': '🇬🇷', 'hellas': '🇬🇷',
+    'czech': '🇨🇿', 'česk': '🇨🇿', 'tchéquie': '🇨🇿',
+    'hungar': '🇭🇺', 'magyar': '🇭🇺', 'hongrie': '🇭🇺',
+    'romania': '🇷🇴', 'românia': '🇷🇴', 'roumanie': '🇷🇴',
+    'bulgaria': '🇧🇬', 'bulgarie': '🇧🇬', 'croatia': '🇭🇷', 'hrvatska': '🇭🇷',
+    'slovakia': '🇸🇰', 'slovensko': '🇸🇰', 'slovenia': '🇸🇮', 'slovenija': '🇸🇮',
+    'usa': '🇺🇸', 'united states': '🇺🇸', 'états-unis': '🇺🇸', 'canada': '🇨🇦',
+  };
+
+  for (final entry in countryMap.entries) {
+    if (lower.contains(entry.key)) return entry.value;
+  }
+  return '🇧🇪'; 
+}
+
+String _formatDateDDMMYYYY(String dateStr) {
+  if (dateStr.isEmpty) return '';
+  try {
+    final parts = dateStr.split('-');
+    if (parts.length == 3 && parts[0].length == 4) {
+      return '${parts[2]}/${parts[1]}/${parts[0]}';
+    }
+  } catch (_) {}
+  return dateStr;
+}
+
 class LocationTimelineWidget extends StatelessWidget {
   final Map<String, dynamic> mission;
   final Color textColor;
@@ -20,37 +63,34 @@ class LocationTimelineWidget extends StatelessWidget {
     final d = mission['details'] ?? {};
 
     if (type == 'TRANSPORT') {
-      final pickupDate = d['pickupDate']?.toString() ?? '';
+      final pickupDate = _formatDateDDMMYYYY(d['pickupDate']?.toString() ?? '');
       final pickupTime = d['pickupTime']?.toString() ?? '';
       final pDateTime = [
         pickupDate,
         pickupTime,
       ].where((s) => s.isNotEmpty).join(' - ');
 
-      final pAddress = d['pickupAddress']?.toString() ?? '';
       final pCity = d['pickupCity']?.toString() ?? '';
       final pZip = d['pickupZip']?.toString() ?? '';
-      final pickupFullAddress = [
-        pAddress,
-        pCity,
-        pZip,
-      ].where((s) => s.isNotEmpty && s != 'null').join(', ');
+      final pCountry = d['pickupCountry']?.toString() ?? d['pickupAddress']?.toString() ?? '';
+      
+      final pickupFullTitle = pCity.isNotEmpty ? '${_getFlagEmoji(pCountry)} ${pZip.isNotEmpty ? '$pZip ' : ''}$pCity' : 'Pending Location';
 
-      final dropoffDate = d['dropoffDate']?.toString() ?? '';
+      final dropoffDate = _formatDateDDMMYYYY(d['dropoffDate']?.toString() ?? '');
       final dropoffTime = d['dropoffTime']?.toString() ?? '';
       final dDateTime = [
         dropoffDate,
         dropoffTime,
       ].where((s) => s.isNotEmpty).join(' - ');
 
-      final dAddress = d['dropoffAddress']?.toString() ?? '';
       final dCity = d['dropoffCity']?.toString() ?? '';
       final dZip = d['dropoffZip']?.toString() ?? '';
-      final dropoffFullAddress = [
-        dAddress,
-        dCity,
-        dZip,
-      ].where((s) => s.isNotEmpty && s != 'null').join(', ');
+      final dCountry = d['dropoffCountry']?.toString() ?? d['dropoffAddress']?.toString() ?? '';
+
+      final dropoffFullTitle = dCity.isNotEmpty ? '${_getFlagEmoji(dCountry)} ${dZip.isNotEmpty ? '$dZip ' : ''}$dCity' : 'Pending Location';
+
+      final companyName = d['company']?.toString() ?? mission['customerId']?['company']?.toString();
+      final customerName = (companyName != null && companyName.isNotEmpty) ? companyName : (mission['customerId']?['name']?.toString() ?? 'Customer');
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,88 +98,98 @@ class LocationTimelineWidget extends StatelessWidget {
           _buildTimelineItem(
             isFirst: true,
             isLast: false,
-            title: pickupFullAddress.isNotEmpty
-                ? pickupFullAddress
-                : 'Pending Location',
+            title: pickupFullTitle,
             subtitle: pDateTime.isNotEmpty ? pDateTime : 'Pickup',
             iconColor: const Color(0xFF2563EB),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 2,
+                  height: 24,
+                  color: const Color(0xFFE2E8F0),
+                  margin: const EdgeInsets.only(left: 3, right: 26),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: AppText(
+                    data: customerName,
+                    fontSize: 12,
+                    color: const Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
           _buildTimelineItem(
             isFirst: false,
             isLast: true,
-            title: dropoffFullAddress.isNotEmpty
-                ? dropoffFullAddress
-                : 'Pending Location',
+            title: dropoffFullTitle,
             subtitle: dDateTime.isNotEmpty ? dDateTime : 'Dropoff',
             iconColor: const Color(0xFF06B6D4),
           ),
         ],
       );
     } else if (type == 'INSPECTION') {
-      final iDate = d['inspectionDate']?.toString() ?? '';
+      final iDate = _formatDateDDMMYYYY(d['inspectionDate']?.toString() ?? '');
       final iTime = d['inspectionTime']?.toString() ?? '';
       final iDateTime = [iDate, iTime].where((s) => s.isNotEmpty).join(' - ');
 
-      final iLocation = d['inspectionLocation']?.toString() ?? '';
       final iCity = d['inspectionCity']?.toString() ?? '';
       final iZip = d['inspectionZip']?.toString() ?? '';
-      final inspectionFullAddress = [
-        iLocation,
-        iCity,
-        iZip,
-      ].where((s) => s.isNotEmpty && s != 'null').join(', ');
+      final iCountry = d['inspectionCountry']?.toString() ?? d['inspectionLocation']?.toString() ?? '';
 
-      final destAddress = d['destinationAddress']?.toString() ?? '';
+      final inspectionFullTitle = iCity.isNotEmpty ? '${_getFlagEmoji(iCountry)} ${iZip.isNotEmpty ? '$iZip ' : ''}$iCity' : 'Pending Location';
+
       final destCity = d['destinationCity']?.toString() ?? '';
       final destZip = d['destinationZip']?.toString() ?? '';
-      final destFullAddress = [
-        destAddress,
-        destCity,
-        destZip,
-      ].where((s) => s.isNotEmpty && s != 'null').join(', ');
+      final destCountry = d['destinationCountry']?.toString() ?? d['destinationAddress']?.toString() ?? '';
+
+      final destFullTitle = destCity.isNotEmpty ? '${_getFlagEmoji(destCountry)} ${destZip.isNotEmpty ? '$destZip ' : ''}$destCity' : '';
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTimelineItem(
             isFirst: true,
-            isLast: destFullAddress.isEmpty,
-            title: inspectionFullAddress.isNotEmpty
-                ? inspectionFullAddress
-                : 'Pending Location',
+            isLast: destFullTitle.isEmpty,
+            title: inspectionFullTitle,
             subtitle: iDateTime.isNotEmpty ? iDateTime : 'Inspection',
             iconColor: const Color(0xFF2563EB),
           ),
-          if (destFullAddress.isNotEmpty)
+          if (destFullTitle.isNotEmpty)
             _buildTimelineItem(
               isFirst: false,
               isLast: true,
-              title: destFullAddress,
+              title: destFullTitle,
               subtitle: 'Destination',
               iconColor: const Color(0xFF06B6D4),
             ),
         ],
       );
     } else if (type == 'HIRE_DRIVER') {
-      final startDate = d['driverStartDate']?.toString() ?? '';
+      final startDate = _formatDateDDMMYYYY(d['driverStartDate']?.toString() ?? '');
       final startTime = d['driverStartTime']?.toString() ?? '';
-      final endDate = d['driverEndDate']?.toString() ?? '';
+      final endDate = _formatDateDDMMYYYY(d['driverEndDate']?.toString() ?? '');
       final endTime = d['driverEndTime']?.toString() ?? '';
 
       String combinedTime = '';
       if (startDate == endDate) {
-        // Same date
         if (startTime.isNotEmpty && endTime.isNotEmpty) {
           combinedTime = '$startDate, $startTime - $endTime';
         } else {
           combinedTime = startDate;
         }
       } else {
-        // Different dates
-        final startStr = [
-          startDate,
-          startTime,
-        ].where((s) => s.isNotEmpty).join(' ');
+        final startStr = [startDate, startTime].where((s) => s.isNotEmpty).join(' ');
         final endStr = [endDate, endTime].where((s) => s.isNotEmpty).join(' ');
         if (startStr.isNotEmpty && endStr.isNotEmpty) {
           combinedTime = '$startStr to $endStr';
@@ -150,10 +200,9 @@ class LocationTimelineWidget extends StatelessWidget {
         }
       }
 
-      final location =
-          d['driverLocation']?.toString() ??
-          d['driverCity']?.toString() ??
-          'Pending Location';
+      final city = d['driverCity']?.toString() ?? '';
+      final locationFull = d['driverLocation']?.toString() ?? '';
+      final title = city.isNotEmpty ? '${_getFlagEmoji(locationFull)} $city' : '${_getFlagEmoji(locationFull)} $locationFull';
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +210,7 @@ class LocationTimelineWidget extends StatelessWidget {
           _buildTimelineItem(
             isFirst: true,
             isLast: true,
-            title: location,
+            title: title.isNotEmpty && title != '🇧🇪 ' ? title : 'Pending Location',
             subtitle: combinedTime.isNotEmpty ? combinedTime : 'Hire Driver',
             iconColor: const Color(0xFF2563EB),
           ),
@@ -195,14 +244,6 @@ class LocationTimelineWidget extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-              if (!isLast)
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    color: const Color(0xFFE2E8F0),
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                  ),
-                ),
             ],
           ),
           const Gap(width: 16),

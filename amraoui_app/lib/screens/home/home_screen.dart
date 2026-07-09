@@ -646,6 +646,32 @@ class _HomeScreenState extends State<HomeScreen> {
           statusBg = const Color(0xFFFFFBEB);
           statusColor = const Color(0xFFF59E0B);
           statusLabel = 'Pending';
+        Widget missionIconWidget = const Icon(Icons.directions_car_outlined, color: Color(0xFF2563EB), size: 20);
+
+        if (type == 'TRANSPORT') {
+          final deliveryType = d['deliveryType'] ?? '';
+          if (deliveryType == 'tow') {
+            missionIconWidget = const Icon(Icons.local_shipping_outlined, color: Color(0xFF2563EB), size: 20);
+          } else if (deliveryType == 'license') {
+            missionIconWidget = Stack(
+              alignment: Alignment.center,
+              children: [
+                const Icon(Icons.directions_car_outlined, color: Color(0xFF2563EB), size: 20),
+                Positioned(
+                  bottom: 2,
+                  child: Container(
+                    width: 8,
+                    height: 4,
+                    decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(1)),
+                  ),
+                ),
+              ],
+            );
+          }
+        } else if (type == 'HIRE_DRIVER') {
+          missionIconWidget = const Icon(Icons.person_outline, color: Color(0xFF2563EB), size: 20);
+        } else if (type == 'INSPECTION') {
+          missionIconWidget = const Icon(Icons.fact_check_outlined, color: Color(0xFF2563EB), size: 20);
         }
 
         return Padding(
@@ -665,11 +691,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: const Color(0xFFEFF6FF),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    Icons.account_tree_outlined,
-                    color: Color(0xFF2563EB),
-                    size: 20,
-                  ),
+                  child: missionIconWidget,
                 ),
                 const Gap(width: 16),
                 Expanded(

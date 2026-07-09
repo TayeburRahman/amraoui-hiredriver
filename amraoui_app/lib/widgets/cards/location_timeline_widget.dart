@@ -214,14 +214,12 @@ class LocationTimelineWidget extends StatelessWidget {
 
       final iCity = d['inspectionCity']?.toString() ?? '';
       final iZip = d['inspectionZip']?.toString() ?? '';
-      final iCountry =
-          d['inspectionCountry']?.toString() ??
-          d['inspectionLocation']?.toString() ??
-          '';
+      final locationFull = d['inspectionLocation']?.toString() ?? '';
+      final iCountry = d['inspectionCountry']?.toString() ?? locationFull;
 
       final inspectionFullTitle = iCity.isNotEmpty
           ? '${_getFlagEmoji(iCountry)} ${iZip.isNotEmpty ? '$iZip ' : ''}$iCity'
-          : 'Pending Location';
+          : (locationFull.isNotEmpty ? '${_getFlagEmoji(locationFull)} $locationFull' : 'Pending Location');
 
       final destCity = d['destinationCity']?.toString() ?? '';
       final destZip = d['destinationZip']?.toString() ?? '';

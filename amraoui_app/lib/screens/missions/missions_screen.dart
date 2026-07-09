@@ -17,7 +17,7 @@ import 'package:amraoui_app/screens/missions/delivery_inspection_screen.dart'
 class MissionsController extends GetxController {
   var activeMainTab = 0.obs; // 0: Open List, 1: My Missions
   var activeFilter = 'All'.obs;
-  var myMissionsFilter = 'Assigned'.obs; // Assigned, Active, Completed
+  var myMissionsFilter = 'All'.obs; // All, Assigned, Active, Completed
   var searchQuery = ''.obs;
 
   var isLoading = true.obs;
@@ -83,7 +83,7 @@ class MissionsController extends GetxController {
   void setMainTab(int index) {
     activeMainTab.value = index;
     if (index == 1) {
-      myMissionsFilter.value = 'Assigned';
+      myMissionsFilter.value = 'All';
     } else {
       activeFilter.value = 'All';
     }
@@ -319,7 +319,7 @@ class _MissionsScreenState extends State<MissionsScreen> {
   }
 
   Widget _buildMyMissionsFilterTabs(MissionsController controller) {
-    final filters = ['Assigned', 'Active', 'Completed'];
+    final filters = ['All', 'Assigned', 'Active', 'Completed'];
     return Obx(
       () => Row(
         children: filters.map((filter) {
@@ -374,7 +374,11 @@ class _MissionsScreenState extends State<MissionsScreen> {
       final filteredMissions = controller.missions.where((m) {
         if (isMyMissions) {
           final mStatus = (m['status'] ?? '').toString();
-          if (myFilter == 'Assigned') {
+          if (myFilter == 'All') {
+            return mStatus == 'ASSIGNED' ||
+                   mStatus == 'IN_PROGRESS' ||
+                   mStatus == 'COMPLETED';
+          } else if (myFilter == 'Assigned') {
             return mStatus == 'ASSIGNED';
           } else if (myFilter == 'Active') {
             return mStatus == 'IN_PROGRESS';
@@ -464,7 +468,9 @@ class _MissionsScreenState extends State<MissionsScreen> {
                 ),
                 child: Icon(
                   isMyMissions
-                      ? (myFilter == 'Assigned'
+                      ? (myFilter == 'All'
+                            ? Icons.list_alt
+                            : myFilter == 'Assigned'
                             ? Icons.hourglass_top_outlined
                             : myFilter == 'Active'
                             ? Icons.directions_car_outlined
@@ -477,7 +483,7 @@ class _MissionsScreenState extends State<MissionsScreen> {
               const Gap(height: 16),
               AppText(
                 data: isMyMissions
-                    ? 'No $myFilter missions'
+                    ? (myFilter == 'All' ? 'No missions found' : 'No $myFilter missions')
                     : 'No open missions found',
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -486,7 +492,9 @@ class _MissionsScreenState extends State<MissionsScreen> {
               const Gap(height: 6),
               AppText(
                 data: isMyMissions
-                    ? (myFilter == 'Assigned'
+                    ? (myFilter == 'All'
+                          ? 'Your active and assigned missions will appear here.'
+                          : myFilter == 'Assigned'
                           ? 'Missions assigned to you will appear here.'
                           : myFilter == 'Active'
                           ? 'Missions you have started will appear here.'
@@ -597,16 +605,21 @@ class _MissionsScreenState extends State<MissionsScreen> {
           Color statusTextColor;
 
           if (isMyMissions) {
-            if (myFilter == 'Assigned') {
+            final mStat = (m['status'] ?? '').toString();
+            if (mStat == 'ASSIGNED') {
               displayStatus = 'Assigned';
               statusBgColor = const Color(0xFFF0FDF4);
               statusTextColor = const Color(0xFF22C55E);
-            } else if (myFilter == 'Active') {
+            } else if (mStat == 'IN_PROGRESS') {
               displayStatus = 'In Progress';
               statusBgColor = const Color(0xFFEFF6FF);
               statusTextColor = const Color(0xFF2563EB);
-            } else {
+            } else if (mStat == 'COMPLETED') {
               displayStatus = 'Completed';
+              statusBgColor = const Color(0xFFF1F5F9);
+              statusTextColor = const Color(0xFF64748B);
+            } else {
+              displayStatus = mStat;
               statusBgColor = const Color(0xFFF1F5F9);
               statusTextColor = const Color(0xFF64748B);
             }
@@ -915,18 +928,30 @@ class _MissionsScreenState extends State<MissionsScreen> {
                 AppText(data: title, fontSize: 18, fontWeight: FontWeight.w800),
                 Row(
                   children: [
-                    AppText(
-                      data: price,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: const Color(0xFF0F172A),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF59E0B), // Orange pill
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    const Gap(width: 8),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 14,
-                      color: Color(0xFF94A3B8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.bolt,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        const Gap(width: 4),
+                        AppText(
+                          data: price,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ],
                     ),
+                  ),
                   ],
                 ),
               ],
@@ -1166,27 +1191,34 @@ class _MissionsScreenState extends State<MissionsScreen> {
 
   void _showQuoteDialog(Map<String, dynamic> mission, String displayId) {
     final fuelCtrl = TextEditingController(
-      text: mission['myQuoteFuelCost']?.toString() ?? '',
+      text: mission['myQuoteFuelCost']?.toString() ?? '0',
     );
     final tollCtrl = TextEditingController(
-      text: mission['myQuoteTollCharges']?.toString() ?? '',
+      text: mission['myQuoteTollCharges']?.toString() ?? '0',
     );
     final travelCtrl = TextEditingController(
-      text: mission['myQuoteTravelCost']?.toString() ?? '',
+      text: mission['myQuoteTravelCost']?.toString() ?? '0',
     );
     final taxiCtrl = TextEditingController(
-      text: mission['myQuoteTaxiCost']?.toString() ?? '',
+      text: mission['myQuoteTaxiCost']?.toString() ?? '0',
     );
-    final exceptionalCtrl = TextEditingController(
-      text: mission['myQuoteExceptionalCosts']?.toString() ?? '',
+    final servicePriceCtrl = TextEditingController(
+      text: mission['myQuoteServicePrice']?.toString() ?? '0',
     );
-
     final notesCtrl = TextEditingController(
       text: mission['myQuoteMessage']?.toString() ?? '',
     );
-    final timeCtrl = TextEditingController(
-      text: mission['myQuoteTime']?.toString() ?? '',
-    );
+
+    String _sanitize(String? val) {
+      if (val == null) return '';
+      if (val.contains('\$')) return '';
+      return val;
+    }
+
+    final RxString pickupDate = _sanitize(mission['myQuotePickupDate']?.toString()).obs;
+    final RxString pickupTime = _sanitize(mission['myQuotePickupTime']?.toString()).obs;
+    final RxString dropoffDate = _sanitize(mission['myQuoteDropoffDate']?.toString()).obs;
+    final RxString dropoffTime = _sanitize(mission['myQuoteDropoffTime']?.toString()).obs;
 
     final qStatus = mission['myQuoteStatus']?.toString().toUpperCase();
     final isUpdate =
@@ -1198,19 +1230,19 @@ class _MissionsScreenState extends State<MissionsScreen> {
             .obs;
 
     void calculateTotal() {
+      double s = double.tryParse(servicePriceCtrl.text) ?? 0;
       double f = double.tryParse(fuelCtrl.text) ?? 0;
       double to = double.tryParse(tollCtrl.text) ?? 0;
       double tr = double.tryParse(travelCtrl.text) ?? 0;
       double ta = double.tryParse(taxiCtrl.text) ?? 0;
-      double e = double.tryParse(exceptionalCtrl.text) ?? 0;
-      totalAmount.value = f + to + tr + ta + e;
+      totalAmount.value = s + f + to + tr + ta;
     }
 
+    servicePriceCtrl.addListener(calculateTotal);
     fuelCtrl.addListener(calculateTotal);
     tollCtrl.addListener(calculateTotal);
     travelCtrl.addListener(calculateTotal);
     taxiCtrl.addListener(calculateTotal);
-    exceptionalCtrl.addListener(calculateTotal);
 
     // Calculate initial total
     calculateTotal();
@@ -1220,6 +1252,104 @@ class _MissionsScreenState extends State<MissionsScreen> {
         mission['myQuoteAmount'] != null) {
       totalAmount.value =
           double.tryParse(mission['myQuoteAmount'].toString()) ?? 0.0;
+    }
+
+    DateTime _stripTime(DateTime dt) {
+      return DateTime(dt.year, dt.month, dt.day);
+    }
+
+    DateTime? _parseCustomerDate(String? dateStr) {
+      if (dateStr == null || dateStr.trim().isEmpty) return null;
+      dateStr = dateStr.trim();
+      try { return _stripTime(DateTime.parse(dateStr)); } catch (_) {}
+      
+      try {
+        final parts = dateStr.split(RegExp(r'[/.-]'));
+        if (parts.length == 3) {
+          // Check if DD/MM/YYYY
+          if (parts[0].length <= 2 && parts[2].length == 4) {
+            return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+          }
+          // Check if YYYY/MM/DD
+          if (parts[0].length == 4 && parts[2].length <= 2) {
+            return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+          }
+        }
+      } catch (_) {}
+      
+      return null;
+    }
+
+    Widget buildDatePicker(String label, RxString dateObs, String? customerDateStr) {
+      final customerDate = _parseCustomerDate(customerDateStr) ?? _stripTime(DateTime.now());
+      return GestureDetector(
+        onTap: () async {
+          final picked = await showDatePicker(
+            context: Get.context!,
+            initialDate: customerDate,
+            firstDate: DateTime.now().subtract(const Duration(days: 30)),
+            lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+            builder: (context, child) {
+              return Theme(
+                data: ThemeData.light().copyWith(
+                  primaryColor: const Color(0xFF2563EB),
+                  colorScheme: const ColorScheme.light(primary: Color(0xFF2563EB)),
+                ),
+                child: child!,
+              );
+            },
+          );
+          if (picked != null) {
+            dateObs.value = "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+          }
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Obx(() => AppText(
+            data: dateObs.value.isEmpty ? label : dateObs.value,
+            color: dateObs.value.isEmpty ? const Color(0xFF64748B) : const Color(0xFF0F172A),
+            fontSize: 14,
+          )),
+        ),
+      );
+    }
+
+    Widget buildTimePicker(String label, RxString timeObs) {
+      return GestureDetector(
+        onTap: () async {
+          final picked = await showTimePicker(
+            context: Get.context!,
+            initialTime: TimeOfDay.now(),
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+                child: child!,
+              );
+            },
+          );
+          if (picked != null) {
+            timeObs.value = "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+          }
+        },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Obx(() => AppText(
+            data: timeObs.value.isEmpty ? label : timeObs.value,
+            color: timeObs.value.isEmpty ? const Color(0xFF64748B) : const Color(0xFF0F172A),
+            fontSize: 14,
+          )),
+        ),
+      );
     }
 
     Get.bottomSheet(
@@ -1253,15 +1383,34 @@ class _MissionsScreenState extends State<MissionsScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const AppText(
-                    data: 'Mission Details',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  AppText(
-                    data: displayId,
-                    fontSize: 14,
-                    color: const Color(0xFF64748B),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const AppText(
+                              data: 'Mission Details',
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            AppText(
+                              data: displayId,
+                              fontSize: 14,
+                              color: const Color(0xFF64748B),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.close, color: Color(0xFF64748B)),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
                   ),
                   const Gap(height: 16),
                   _buildMissionInfoBlock(mission),
@@ -1319,29 +1468,34 @@ class _MissionsScreenState extends State<MissionsScreen> {
                       ),
                     ],
                   ),
-                  const Gap(height: 12),
                   Row(
                     children: [
                       Expanded(
                         child: TextField(
-                          controller: exceptionalCtrl,
+                          controller: servicePriceCtrl,
                           keyboardType: TextInputType.number,
                           style: const TextStyle(fontSize: 14),
                           decoration: _modernInputDecoration(
-                            'Exceptional costs (€)',
+                            'Service Price (€)',
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  const Gap(height: 12),
+                  Row(
+                    children: [
+                      Expanded(child: buildDatePicker('Pickup Date', pickupDate, mission['details']?['pickupDate']?.toString())),
                       const Gap(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: timeCtrl,
-                          style: const TextStyle(fontSize: 14),
-                          decoration: _modernInputDecoration(
-                            'Est. Time (e.g. 2 hr)',
-                          ),
-                        ),
-                      ),
+                      Expanded(child: buildTimePicker('Pickup Time', pickupTime)),
+                    ],
+                  ),
+                  const Gap(height: 12),
+                  Row(
+                    children: [
+                      Expanded(child: buildDatePicker('Dropoff Date', dropoffDate, mission['details']?['dropoffDate']?.toString())),
+                      const Gap(width: 10),
+                      Expanded(child: buildTimePicker('Dropoff Time', dropoffTime)),
                     ],
                   ),
                   const Gap(height: 16),
@@ -1394,21 +1548,48 @@ class _MissionsScreenState extends State<MissionsScreen> {
                         elevation: 0,
                       ),
                       onPressed: () async {
-                        if (totalAmount.value == 0 || isLoading.value) return;
+                        if (isLoading.value) return;
+
+                        List<String> missingFields = [];
+                        if (totalAmount.value == 0) {
+                          missingFields.add('Costs/Service Price (Total cannot be €0.00)');
+                        }
+
+                        if (pickupDate.value.isEmpty) missingFields.add('Pickup Date');
+                        if (pickupTime.value.isEmpty) missingFields.add('Pickup Time');
+                        if (dropoffDate.value.isEmpty) missingFields.add('Dropoff Date');
+                        if (dropoffTime.value.isEmpty) missingFields.add('Dropoff Time');
+
+                        if (missingFields.isNotEmpty) {
+                          Get.snackbar(
+                            'Missing Fields',
+                            'Please provide: ${missingFields.join(", ")}',
+                            snackPosition: SnackPosition.bottom,
+                            backgroundColor: const Color(0xFFEF4444),
+                            colorText: Colors.white,
+                            borderRadius: 12,
+                            margin: const EdgeInsets.all(16),
+                            icon: const Icon(Icons.warning_amber_rounded, color: Colors.white),
+                          );
+                          return;
+                        }
+
                         isLoading.value = true;
                         try {
                           final repo = MissionRepository();
                           final res = await repo.submitQuote(
                             mission['_id'],
                             totalAmount.value,
-                            notesCtrl.text,
-                            timeCtrl.text,
+                            servicePrice: double.tryParse(servicePriceCtrl.text) ?? 0,
                             fuelCost: double.tryParse(fuelCtrl.text) ?? 0,
                             tollCharges: double.tryParse(tollCtrl.text) ?? 0,
                             travelCost: double.tryParse(travelCtrl.text) ?? 0,
                             taxiCost: double.tryParse(taxiCtrl.text) ?? 0,
-                            exceptionalCosts:
-                                double.tryParse(exceptionalCtrl.text) ?? 0,
+                            message: notesCtrl.text.isEmpty ? null : notesCtrl.text,
+                            pickupDate: pickupDate.value.isEmpty ? null : pickupDate.value,
+                            pickupTime: pickupTime.value.isEmpty ? null : pickupTime.value,
+                            dropoffDate: dropoffDate.value.isEmpty ? null : dropoffDate.value,
+                            dropoffTime: dropoffTime.value.isEmpty ? null : dropoffTime.value,
                           );
                           FocusManager.instance.primaryFocus?.unfocus();
 

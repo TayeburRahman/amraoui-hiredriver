@@ -576,7 +576,7 @@ const deleteMyAccount = async (payload: { authId: string }) => {
         $or: [{ authId: isUserExist._id }, { linkedAuthIds: isUserExist._id }]
       });
       if (customer) {
-        if (customer.authId.toString() === isUserExist._id.toString()) {
+        if (customer.authId.toString() === String(isUserExist._id)) {
           deletedUser = await Customers.findOneAndDelete({ authId: isUserExist._id });
         } else {
           deletedUser = await Customers.findByIdAndUpdate(customer._id, {

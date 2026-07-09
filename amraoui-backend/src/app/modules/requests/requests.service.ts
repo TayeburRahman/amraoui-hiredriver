@@ -670,7 +670,7 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
   ]).lean();
 };
 
-const verifyPickup = async (missionId: string, driverId: string, lat: number, lng: number) => {
+const verifyPickup = async (missionId: string, driverId: string, lat: number, lng: number, date?: string) => {
   const mission = await Requests.findById(missionId);
   if (!mission) throw new Error('Mission not found');
 
@@ -678,17 +678,29 @@ const verifyPickup = async (missionId: string, driverId: string, lat: number, ln
     throw new Error('Not authorized to update this mission');
   }
 
-  const updatedDetails = {
-    ...mission.details,
-    pickupVerification: {
+  const details = mission.details || {};
+
+  if (date && mission.type === 'HIRE_DRIVER') {
+    const driverArrivals = details.driverArrivals || [];
+    const existingIdx = driverArrivals.findIndex((a: any) => a.date === date);
+    if (existingIdx === -1) {
+      driverArrivals.push({
+        date,
+        verifiedAt: new Date(),
+        location: { lat, lng },
+      });
+      details.driverArrivals = driverArrivals;
+    }
+  } else {
+    details.pickupVerification = {
       verifiedAt: new Date(),
       location: { lat, lng },
       vehicleMatchConfirmed: true,
       arrivalDeclared: true
-    }
-  };
+    };
+  }
 
-  mission.set('details', updatedDetails);
+  mission.set('details', details);
   mission.markModified('details');
 
   await mission.save();

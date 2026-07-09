@@ -14,7 +14,7 @@ const sendEmail = async (options: IEmailOptions): Promise<void> => {
     },
   });
 
-  const { email, subject, html } = options;
+  const { email, subject, html, attachments } = options;
 
   const mailOptions = {
     from: `${config.app_name} <${config.smtp.smtp_mail}>`,
@@ -23,6 +23,7 @@ const sendEmail = async (options: IEmailOptions): Promise<void> => {
     signed_by: 'tayeburrahman.dev',
     subject,
     html,
+    attachments,
   };
   await transporter.sendMail(mailOptions);
 };

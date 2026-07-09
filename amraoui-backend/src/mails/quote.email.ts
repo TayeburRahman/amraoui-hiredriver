@@ -138,3 +138,36 @@ export const customerMissionCompleteEmailBody = (data: {
     </body>
   </html>
 `;
+
+export const driverAssignedEmailBody = (data: {
+  driverName: string;
+  requestId: string;
+  route: string;
+  hasDocuments: boolean;
+}) => `
+  <html>
+    <body style="font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px;">
+      <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+          <img src="https://i.ibb.co/60MBG4Xp/logo.png" alt="Vehiqqo Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
+          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo</div>
+        </div>
+
+        <h3 style="color: #2563EB; font-size: 20px; margin-top: 0; margin-bottom: 16px;">New Mission Assigned!</h3>
+        <p>Hello <strong>${data.driverName}</strong>,</p>
+        <p>You have been assigned to mission <strong>${data.requestId}</strong>.</p>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; margin: 20px 0; border-radius: 6px;">
+          <p style="margin: 4px 0;"><strong>Route:</strong> ${data.route}</p>
+        </div>
+        ${data.hasDocuments ? '<p><strong>Important:</strong> Attached to this email are the documents provided by the customer for this mission. Please review or print them as necessary.</p>' : ''}
+        <p>You can view the full mission details in your Driver App.</p>
+
+        <!-- Footer -->
+        <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
+          Please contact support at <a href="mailto:driver@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@vehiqqo.com</a> if you have questions.
+        </p>
+      </div>
+    </body>
+  </html>
+`;

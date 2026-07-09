@@ -17,6 +17,7 @@ import 'package:amraoui_app/screens/missions/damage_report_screen.dart';
 import 'package:amraoui_app/screens/missions/mileage_fuel_screen.dart';
 import 'package:amraoui_app/screens/missions/upload_documents_screen.dart';
 import 'package:amraoui_app/screens/missions/customer_signature_screen.dart';
+import 'package:amraoui_app/widgets/signature/full_screen_signature.dart';
 import 'package:amraoui_app/screens/missions/receiver_id_verification_screen.dart';
 import 'package:amraoui_app/screens/missions/mission_complete_screen.dart';
 
@@ -415,58 +416,73 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                 ],
               ),
               const Gap(height: 12),
-              Container(
-                height: 150,
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: const Color(0xFFCBD5E1),
-                  ), // Usually Dashed in real app
-                ),
-                child: existingDriverSignatureUrl != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(existingDriverSignatureUrl!, fit: BoxFit.contain),
-                      )
-                    : Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: CustomPaint(
-                              painter: DashedRectPainter(color: const Color(0xFF94A3B8)),
-                              child: Signature(
-                                controller: _signatureController,
-                                height: 150,
-                                backgroundColor: Colors.transparent,
-                              ),
-                            ),
-                          ),
-                          if (_signatureController.isEmpty)
-                            IgnorePointer(
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    AppText(
-                                      data: 'Tap to sign',
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF64748B),
-                                    ),
-                                    Gap(height: 4),
-                                    AppText(
-                                      data: 'Driver draws signature here',
-                                      fontSize: 12,
-                                      color: Color(0xFF94A3B8),
-                                    ),
-                                  ],
+              GestureDetector(
+                onTap: () async {
+                  final List<Point>? points = await Get.to(() => const FullScreenSignature(
+                    title: 'Driver Signature',
+                  ));
+                  if (points != null && points.isNotEmpty) {
+                    setState(() {
+                      _signatureController.points = points;
+                      existingDriverSignatureUrl = null;
+                    });
+                  }
+                },
+                child: Container(
+                  height: 150,
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFFCBD5E1),
+                    ),
+                  ),
+                  child: existingDriverSignatureUrl != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(existingDriverSignatureUrl!, fit: BoxFit.contain),
+                        )
+                      : Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CustomPaint(
+                                painter: DashedRectPainter(color: const Color(0xFF94A3B8)),
+                                child: IgnorePointer(
+                                  child: Signature(
+                                    controller: _signatureController,
+                                    height: 150,
+                                    backgroundColor: Colors.transparent,
+                                  ),
                                 ),
                               ),
                             ),
-                        ],
-                      ),
+                            if (_signatureController.isEmpty)
+                              IgnorePointer(
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      AppText(
+                                        data: 'Tap to sign',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                      Gap(height: 4),
+                                      AppText(
+                                        data: 'Driver draws signature here',
+                                        fontSize: 12,
+                                        color: Color(0xFF94A3B8),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                ),
               ),
 
               const Gap(height: 100),

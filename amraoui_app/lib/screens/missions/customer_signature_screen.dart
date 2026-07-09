@@ -10,6 +10,7 @@ import 'package:signature/signature.dart';
 import 'package:dio/dio.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:amraoui_app/widgets/signature/full_screen_signature.dart';
 
 class CustomerSignatureScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
@@ -163,47 +164,62 @@ class _CustomerSignatureScreenState extends State<CustomerSignatureScreen> {
                       ),
                     ),
                     
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFFCBD5E1), style: BorderStyle.none),
-                      ),
-                      child: savedSignatureUrl != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.network(savedSignatureUrl!, fit: BoxFit.contain),
-                            )
-                          : Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: CustomPaint(
-                                    painter: DashedRectPainter(color: const Color(0xFF94A3B8)),
-                                    child: Signature(
-                                      controller: _signatureController,
-                                      height: 200,
-                                      backgroundColor: Colors.transparent,
-                                    ),
-                                  ),
-                                ),
-                                if (_signatureController.isEmpty)
-                                  IgnorePointer(
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          const AppText(data: 'Tap to sign', fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
-                                          const Gap(height: 4),
-                                          AppText(data: widget.isDelivery ? 'Receiver draws signature here' : 'Customer draws signature here', fontSize: 13, color: const Color(0xFFCBD5E1)),
-                                        ],
+                    GestureDetector(
+                      onTap: () async {
+                        final List<Point>? points = await Get.to(() => FullScreenSignature(
+                          title: widget.isDelivery ? 'Receiver Signature' : 'Customer Signature',
+                        ));
+                        if (points != null && points.isNotEmpty) {
+                          setState(() {
+                            _signatureController.points = points;
+                            savedSignatureUrl = null;
+                          });
+                        }
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFCBD5E1), style: BorderStyle.none),
+                        ),
+                        child: savedSignatureUrl != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(savedSignatureUrl!, fit: BoxFit.contain),
+                              )
+                            : Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: CustomPaint(
+                                      painter: DashedRectPainter(color: const Color(0xFF94A3B8)),
+                                      child: IgnorePointer(
+                                        child: Signature(
+                                          controller: _signatureController,
+                                          height: 200,
+                                          backgroundColor: Colors.transparent,
+                                        ),
                                       ),
                                     ),
                                   ),
-                              ],
-                            ),
+                                  if (_signatureController.isEmpty)
+                                    IgnorePointer(
+                                      child: Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const AppText(data: 'Tap to sign', fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF94A3B8)),
+                                            const Gap(height: 4),
+                                            AppText(data: widget.isDelivery ? 'Receiver draws signature here' : 'Customer draws signature here', fontSize: 13, color: const Color(0xFFCBD5E1)),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                      ),
                     ),
                     const Gap(height: 16),
                   ],

@@ -219,14 +219,12 @@ class LocationTimelineWidget extends StatelessWidget {
 
       final destCity = d['destinationCity']?.toString() ?? '';
       final destZip = d['destinationZip']?.toString() ?? '';
-      final destCountry =
-          d['destinationCountry']?.toString() ??
-          d['destinationAddress']?.toString() ??
-          '';
+      final destAddress = d['destinationAddress']?.toString() ?? '';
+      final destCountry = d['destinationCountry']?.toString() ?? destAddress;
 
       final destFullTitle = destCity.isNotEmpty
           ? '${_getFlagEmoji(destCountry)} ${destZip.isNotEmpty ? '$destZip ' : ''}$destCity'
-          : '';
+          : (destAddress.isNotEmpty ? '${_getFlagEmoji(destAddress)} $destAddress' : '');
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,

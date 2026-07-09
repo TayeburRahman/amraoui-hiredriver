@@ -81,7 +81,11 @@ class HomeController extends GetxController {
   Future<void> fetchAll() async {
     isLoading(true);
     try {
-      await Future.wait([_fetchProfile(), _fetchMissions(), _fetchNotifications()]);
+      await Future.wait([
+        _fetchProfile(),
+        _fetchMissions(),
+        _fetchNotifications(),
+      ]);
     } catch (e) {
       print('HomeController fetchAll error: $e');
     } finally {
@@ -94,7 +98,9 @@ class HomeController extends GetxController {
       final res = await _notifRepo.getNotifications();
       if (res.data != null && res.data['success'] == true) {
         final List notifs = res.data['data'] ?? [];
-        unreadNotifications.value = notifs.where((n) => !(n['isRead'] ?? false)).length;
+        unreadNotifications.value = notifs
+            .where((n) => !(n['isRead'] ?? false))
+            .length;
       }
     } catch (e) {
       print('HomeController _fetchNotifications error: $e');
@@ -252,7 +258,9 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(width: 12),
         GestureDetector(
           onTap: () {
-            Get.to(() => const NotificationsScreen())?.then((_) => c._fetchNotifications());
+            Get.to(
+              () => const NotificationsScreen(),
+            )?.then((_) => c._fetchNotifications());
           },
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -274,7 +282,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Color(0xFF0F172A),
                 ),
                 Obx(() {
-                  if (c.unreadNotifications.value == 0) return const SizedBox.shrink();
+                  if (c.unreadNotifications.value == 0)
+                    return const SizedBox.shrink();
                   return Positioned(
                     right: 2,
                     top: 2,
@@ -587,7 +596,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     }
-
+    ////////////////////
     return Column(
       children: quotes.asMap().entries.map<Widget>((entry) {
         final i = entry.key;
@@ -648,32 +657,55 @@ class _HomeScreenState extends State<HomeScreen> {
           statusLabel = 'Pending';
         }
 
-        Widget missionIconWidget = const Icon(Icons.directions_car_outlined, color: Color(0xFF2563EB), size: 20);
+        Widget missionIconWidget = const Icon(
+          Icons.directions_car_outlined,
+          color: Color(0xFF2563EB),
+          size: 20,
+        );
 
         if (type == 'TRANSPORT') {
           final deliveryType = d['deliveryType'] ?? '';
           if (deliveryType == 'tow') {
-            missionIconWidget = const Icon(Icons.local_shipping_outlined, color: Color(0xFF2563EB), size: 20);
+            missionIconWidget = const Icon(
+              Icons.local_shipping_outlined,
+              color: Color(0xFF2563EB),
+              size: 20,
+            );
           } else if (deliveryType == 'license') {
             missionIconWidget = Stack(
               alignment: Alignment.center,
               children: [
-                const Icon(Icons.directions_car_outlined, color: Color(0xFF2563EB), size: 20),
+                const Icon(
+                  Icons.directions_car_outlined,
+                  color: Color(0xFF2563EB),
+                  size: 20,
+                ),
                 Positioned(
                   bottom: 2,
                   child: Container(
                     width: 8,
                     height: 4,
-                    decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(1)),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(1),
+                    ),
                   ),
                 ),
               ],
             );
           }
         } else if (type == 'HIRE_DRIVER') {
-          missionIconWidget = const Icon(Icons.person_outline, color: Color(0xFF2563EB), size: 20);
+          missionIconWidget = const Icon(
+            Icons.person_outline,
+            color: Color(0xFF2563EB),
+            size: 20,
+          );
         } else if (type == 'INSPECTION') {
-          missionIconWidget = const Icon(Icons.fact_check_outlined, color: Color(0xFF2563EB), size: 20);
+          missionIconWidget = const Icon(
+            Icons.fact_check_outlined,
+            color: Color(0xFF2563EB),
+            size: 20,
+          );
         }
 
         return Padding(

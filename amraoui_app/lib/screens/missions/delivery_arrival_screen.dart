@@ -136,11 +136,15 @@ class _DeliveryArrivalScreenState extends State<DeliveryArrivalScreen> {
   @override
   Widget build(BuildContext context) {
     final details = widget.mission['details'] ?? {};
-    final dropoffLocation = details['dropoffLocation'] ?? {};
-    final address = dropoffLocation['name'] ?? 'Address not specified';
-    final receiverInfo = widget.mission['userInfo'] ?? {}; // Or dropoff person info if different
+    final dAddress = details['dropoffAddress']?.toString() ?? '';
+    final dCity = details['dropoffCity']?.toString() ?? '';
+    final dZip = details['dropoffZip']?.toString() ?? '';
+    final addressStr = [dAddress, dZip, dCity].where((s) => s.isNotEmpty).join(', ');
+    final address = addressStr.isNotEmpty ? addressStr : 'Address not specified';
 
-
+    final receiverName = details['dropoffContactName']?.toString() ?? 'Unknown';
+    final receiverPhone = details['dropoffContactPhone']?.toString() ?? '';
+    final receiverCompany = details['dropoffCompany']?.toString() ?? '';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -230,13 +234,17 @@ class _DeliveryArrivalScreenState extends State<DeliveryArrivalScreen> {
                             children: [
                               const Icon(Icons.person_outline, size: 18, color: Color(0xFF475569)),
                               const Gap(width: 8),
-                              AppText(data: receiverInfo['name'] ?? 'Fatima El Amrani', fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+                              AppText(data: receiverName, fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
                             ],
                           ),
-                          const Gap(height: 12),
-                          AppText(data: receiverInfo['phone'] ?? '+212 6 98 76 54 32', fontSize: 14, color: const Color(0xFF64748B)),
-                          const Gap(height: 4),
-                          const AppText(data: 'Luxury Cars Marrakech', fontSize: 14, color: Color(0xFF64748B)),
+                          if (receiverPhone.isNotEmpty) ...[
+                            const Gap(height: 12),
+                            AppText(data: receiverPhone, fontSize: 14, color: const Color(0xFF64748B)),
+                          ],
+                          if (receiverCompany.isNotEmpty) ...[
+                            const Gap(height: 4),
+                            AppText(data: receiverCompany, fontSize: 14, color: const Color(0xFF64748B)),
+                          ],
                         ],
                       ),
                     ),
@@ -281,7 +289,7 @@ class _DeliveryArrivalScreenState extends State<DeliveryArrivalScreen> {
                               children: [
                                 TileLayer(
                                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  userAgentPackageName: 'com.example.app',
+                                  userAgentPackageName: 'com.amraoui.app',
                                 ),
                                 MarkerLayer(
                                   markers: [

@@ -38,13 +38,16 @@ export type IExpense = {
 export type IDriverQuote = {
   driverId: mongoose.Schema.Types.ObjectId;
   amount: number;
+  servicePrice?: number;
   fuelCost?: number;
   tollCharges?: number;
   travelCost?: number;
   taxiCost?: number;
-  exceptionalCosts?: number;
-  message: string;
-  estimatedTime?: string;
+  message?: string;
+  pickupDate?: string;
+  pickupTime?: string;
+  dropoffDate?: string;
+  dropoffTime?: string;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   createdAt: Date;
 };

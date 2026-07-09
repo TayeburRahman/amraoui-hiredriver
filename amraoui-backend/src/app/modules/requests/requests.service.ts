@@ -2,7 +2,7 @@ import { FilterQuery, Types } from 'mongoose';
 import Requests from './requests.model';
 import { IRequest, RequestStatus } from './requests.interface';
 
-import { customerQuoteEmailBody, customerDriverAssignedEmailBody, customerMissionCompleteEmailBody } from '../../../mails/quote.email';
+import { customerQuoteEmailBody, customerDriverAssignedEmailBody, customerMissionCompleteEmailBody, driverAssignedEmailBody } from '../../../mails/quote.email';
 import { NotificationService } from '../notifications/notifications.service';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
@@ -85,7 +85,7 @@ const createRequest = async (payload: any) => {
   // Notify Admins
   try {
     const admins = await Auth.find({ role: { $in: [ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN] } });
-    
+
     for (const admin of admins) {
       // 1. Create DB Notification
       await NotificationService.createNotification({
@@ -97,16 +97,16 @@ const createRequest = async (payload: any) => {
       } as any);
 
       // 2. Send Email
-      await sendEmail(
-        admin.email,
-        'New Transport Request Created',
-        `A new transport request (${proposedId}) has been created and is waiting for your attention.`
-      );
+      await sendEmail({
+        email: admin.email,
+        subject: 'New Transport Request Created',
+        html: `A new transport request (${proposedId}) has been created and is waiting for your attention.`
+      });
 
       // 3. Emit Real-Time Socket Event
       if ((global as any).io) {
         // Emit specifically to the admin's room if connected
-        (global as any).io.to(admin._id.toString()).emit('notification', {
+        (global as any).io.to(String(admin._id)).emit('notification', {
           title: 'New Customer Request',
           message: `Customer submitted request ${proposedId}.`,
           type: 'SYSTEM'
@@ -319,8 +319,43 @@ const customerReply = async (id: string, action: 'ACCEPT' | 'REJECT') => {
     id,
     { status },
     { new: true }
-  );
+  ).populate({ path: 'customerId', select: 'name email' });
   if (!result) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
+
+  if (action === 'ACCEPT') {
+    try {
+      const admins = await Auth.find({ role: { $in: [ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN] } });
+      for (const admin of admins) {
+        // 1. Create DB Notification
+        await NotificationService.createNotification({
+          recipientId: admin._id,
+          title: 'Quote Accepted',
+          message: `Customer accepted the quote for request ${result.missionId || 'Request'}.`,
+          type: 'SYSTEM',
+          link: '/quote-desk'
+        } as any);
+
+        // 2. Send Email
+        await sendEmail({
+          email: admin.email,
+          subject: `Quote Accepted - ${result.missionId || 'Request'}`,
+          html: `<p>Great news! The customer has accepted the quote for request <strong>${result.missionId || 'Request'}</strong>. It is now open for drivers to bid.</p>`
+        });
+
+        // 3. Emit Real-Time Socket Event
+        if ((global as any).io) {
+          (global as any).io.to(String(admin._id)).emit('notification', {
+            title: 'Quote Accepted',
+            message: `Customer accepted the quote for request ${result.missionId || 'Request'}.`,
+            type: 'SYSTEM'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to notify admins of quote acceptance:', error);
+    }
+  }
+
   return result;
 };
 
@@ -351,13 +386,16 @@ const submitDriverQuote = async (
   driverId: string,
   quoteData: {
     amount: number;
+    servicePrice?: number;
     fuelCost?: number;
     tollCharges?: number;
     travelCost?: number;
     taxiCost?: number;
-    exceptionalCosts?: number;
-    message: string;
-    estimatedTime?: string;
+    message?: string;
+    pickupDate?: string;
+    pickupTime?: string;
+    dropoffDate?: string;
+    dropoffTime?: string;
   }
 ) => {
   const mission = await Requests.findById(missionId);
@@ -367,7 +405,7 @@ const submitDriverQuote = async (
   const existingIdx = mission.driverQuotes.findIndex(
     (q) => q.driverId?.toString() === driverId
   );
-  
+
   let isAutoAssigned = false;
   if (mission.adminQuote?.driverPrice && quoteData.amount <= mission.adminQuote.driverPrice) {
     isAutoAssigned = true;
@@ -376,26 +414,32 @@ const submitDriverQuote = async (
   if (existingIdx >= 0) {
     // Update existing quote
     mission.driverQuotes[existingIdx].amount = quoteData.amount;
+    mission.driverQuotes[existingIdx].servicePrice = quoteData.servicePrice || 0;
     mission.driverQuotes[existingIdx].fuelCost = quoteData.fuelCost || 0;
     mission.driverQuotes[existingIdx].tollCharges = quoteData.tollCharges || 0;
     mission.driverQuotes[existingIdx].travelCost = quoteData.travelCost || 0;
     mission.driverQuotes[existingIdx].taxiCost = quoteData.taxiCost || 0;
-    mission.driverQuotes[existingIdx].exceptionalCosts = quoteData.exceptionalCosts || 0;
     mission.driverQuotes[existingIdx].message = quoteData.message;
-    if (quoteData.estimatedTime) mission.driverQuotes[existingIdx].estimatedTime = quoteData.estimatedTime;
+    if (quoteData.pickupDate) mission.driverQuotes[existingIdx].pickupDate = quoteData.pickupDate;
+    if (quoteData.pickupTime) mission.driverQuotes[existingIdx].pickupTime = quoteData.pickupTime;
+    if (quoteData.dropoffDate) mission.driverQuotes[existingIdx].dropoffDate = quoteData.dropoffDate;
+    if (quoteData.dropoffTime) mission.driverQuotes[existingIdx].dropoffTime = quoteData.dropoffTime;
     mission.driverQuotes[existingIdx].status = isAutoAssigned ? 'ACCEPTED' : 'PENDING';
   } else {
     // Add new quote
     mission.driverQuotes.push({
       driverId: driverObjId as any,
       amount: quoteData.amount,
+      servicePrice: quoteData.servicePrice || 0,
       fuelCost: quoteData.fuelCost || 0,
       tollCharges: quoteData.tollCharges || 0,
       travelCost: quoteData.travelCost || 0,
       taxiCost: quoteData.taxiCost || 0,
-      exceptionalCosts: quoteData.exceptionalCosts || 0,
       message: quoteData.message,
-      estimatedTime: quoteData.estimatedTime,
+      pickupDate: quoteData.pickupDate,
+      pickupTime: quoteData.pickupTime,
+      dropoffDate: quoteData.dropoffDate,
+      dropoffTime: quoteData.dropoffTime,
       status: isAutoAssigned ? 'ACCEPTED' : 'PENDING',
       createdAt: new Date(),
     });
@@ -414,6 +458,15 @@ const submitDriverQuote = async (
   }
 
   await mission.save();
+
+  // Helper to format documents for email
+  const getMissionAttachments = (details: any) => {
+    if (!details?.documents || !Array.isArray(details.documents)) return [];
+    return details.documents.map((docPath: string) => ({
+      filename: docPath.split('/').pop() || 'document',
+      path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'http://localhost:5000'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
+    }));
+  };
 
   if (isAutoAssigned) {
     try {
@@ -465,8 +518,28 @@ const submitDriverQuote = async (
           link: '/driver/missions',
           metadata: { requestId: mission._id.toString() }
         }).catch(console.error);
+
+        // Email Driver
+        if (driver.email) {
+          const route = mission.type === 'TRANSPORT' ? `${mission.details?.pickupCity || mission.details?.pickupAddress || 'Unknown'} → ${mission.details?.dropoffCity || mission.details?.dropoffAddress || 'Unknown'}` :
+                        mission.type === 'INSPECTION' ? mission.details?.inspectionLocation || 'Unknown' :
+                        mission.details?.driverCity || 'Unknown';
+          const attachments = getMissionAttachments(mission.details);
+          const emailHtml = driverAssignedEmailBody({
+            driverName: driver.name || (driver as any).firstName || 'Driver',
+            requestId: mission.missionId || mission._id.toString(),
+            route,
+            hasDocuments: attachments.length > 0
+          });
+          sendEmail({
+            email: driver.email,
+            subject: `Mission Assigned - ${mission.missionId || 'Request'}`,
+            html: emailHtml,
+            attachments
+          }).catch(console.error);
+        }
       }
-      
+
       // We could add an admin notification here if there is a specific admin ID.
       // Usually admins might be polling or we can insert a generic notification.
     } catch (e) {
@@ -518,22 +591,76 @@ const cancelMissionByDriver = async (
 };
 
 // ─── Assign Driver (Admin) ──────────────────────────────────────────────────
-const assignDriver = async (missionId: string, quoteId: string) => {
+const assignDriver = async (missionId: string, quoteId?: string, driverId?: string) => {
   const mission = await Requests.findById(missionId);
   if (!mission) throw new Error('Mission not found');
 
-  const quote = mission.driverQuotes.find((q: any) => q._id?.toString() === quoteId);
-  if (!quote) throw new Error('Quote not found');
+  if (quoteId) {
+    const quote = mission.driverQuotes.find((q: any) => q._id?.toString() === quoteId);
+    if (!quote) throw new Error('Quote not found');
 
-  // Mark this quote as ACCEPTED, others as REJECTED
-  mission.driverQuotes.forEach((q: any) => {
-    q.status = q._id?.toString() === quoteId ? 'ACCEPTED' : 'REJECTED';
-  });
+    // Mark this quote as ACCEPTED, others as REJECTED
+    mission.driverQuotes.forEach((q: any) => {
+      q.status = q._id?.toString() === quoteId ? 'ACCEPTED' : 'REJECTED';
+    });
 
-  mission.assignedDriverId = quote.driverId;
+    mission.assignedDriverId = quote.driverId;
+  } else if (driverId) {
+    const driverObjId = new Types.ObjectId(driverId);
+    mission.assignedDriverId = driverObjId as any;
+    mission.driverQuotes.forEach((q: any) => {
+      q.status = 'REJECTED';
+    });
+  }
+
   mission.status = RequestStatus.ASSIGNED;
-
   await mission.save();
+  
+  // Helper to format documents for email
+  const getMissionAttachments = (details: any) => {
+    if (!details?.documents || !Array.isArray(details.documents)) return [];
+    return details.documents.map((docPath: string) => ({
+      filename: docPath.split('/').pop() || 'document',
+      path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'http://localhost:5000'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
+    }));
+  };
+  
+  if (driverId) {
+    // Notify the manually assigned driver
+    const driver = await (await import('../auth/auth.model')).default.findById(driverId).lean() || await (await import('../drivers/drivers.model')).default.findById(driverId).lean();
+    if (driver) {
+      const authId = driver.authId || driver._id;
+      NotificationService.createNotification({
+        recipientId: authId,
+        title: 'Mission Assigned!',
+        message: `You have been manually assigned to mission ${mission.missionId || 'Request'}.`,
+        type: 'MISSION_ASSIGNED',
+        link: '/driver/missions',
+        metadata: { requestId: mission._id.toString() }
+      }).catch(console.error);
+
+      // Email Driver
+      if (driver.email) {
+        const route = mission.type === 'TRANSPORT' ? `${mission.details?.pickupCity || mission.details?.pickupAddress || 'Unknown'} → ${mission.details?.dropoffCity || mission.details?.dropoffAddress || 'Unknown'}` :
+                      mission.type === 'INSPECTION' ? mission.details?.inspectionLocation || 'Unknown' :
+                      mission.details?.driverCity || 'Unknown';
+        const attachments = getMissionAttachments(mission.details);
+        const emailHtml = driverAssignedEmailBody({
+          driverName: driver.name || (driver as any).firstName || 'Driver',
+          requestId: mission.missionId || mission._id.toString(),
+          route,
+          hasDocuments: attachments.length > 0
+        });
+        sendEmail({
+          email: driver.email,
+          subject: `Mission Assigned - ${mission.missionId || 'Request'}`,
+          html: emailHtml,
+          attachments
+        }).catch(console.error);
+      }
+    }
+  }
+
   return Requests.findById(missionId).populate([
     { path: 'customerId', select: 'name email phone profileImage' },
     { path: 'assignedDriverId', select: 'name email phone' },
@@ -675,7 +802,7 @@ const updateDeliveryInspection = async (missionId: string, driverId: string, sec
 
       if (customer) {
         const custAuthId = customer.authId || customer._id;
-        
+
         NotificationService.createNotification({
           recipientId: custAuthId,
           title: 'Mission Completed',
@@ -746,6 +873,32 @@ const uploadInvoice = async (id: string, fileUrl: string) => {
   return result;
 };
 
+// ─── Document Management ───────────────────────────────────────────────────────────
+const addDocument = async (id: string, fileUrl: string) => {
+  const mission = await Requests.findById(id);
+  if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
+  
+  if (!mission.details.documents) {
+    mission.details.documents = [];
+  }
+  mission.details.documents.push(fileUrl);
+  mission.markModified('details');
+  await mission.save();
+  return mission;
+};
+
+const deleteDocument = async (id: string, fileUrl: string) => {
+  const mission = await Requests.findById(id);
+  if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
+  
+  if (mission.details.documents && Array.isArray(mission.details.documents)) {
+    mission.details.documents = mission.details.documents.filter((doc: string) => doc !== fileUrl);
+    mission.markModified('details');
+    await mission.save();
+  }
+  return mission;
+};
+
 export const RequestsService = {
   createRequest,
   getAllRequests,
@@ -769,4 +922,6 @@ export const RequestsService = {
   sendAdminQuote,
   customerReply,
   uploadInvoice,
+  addDocument,
+  deleteDocument,
 };

@@ -293,17 +293,20 @@ const getMissionsForDriver = catchAsync(async (req: Request, res: Response) => {
 const submitDriverQuote = catchAsync(async (req: Request, res: Response) => {
   const driverId = (req as any).user?.userId;
   const { id } = req.params;
-  const { amount, fuelCost, tollCharges, travelCost, taxiCost, exceptionalCosts, message, estimatedTime } = req.body;
+  const { amount, servicePrice, fuelCost, tollCharges, travelCost, taxiCost, message, pickupDate, pickupTime, dropoffDate, dropoffTime } = req.body;
 
   const quoteData = {
     amount: Number(amount),
+    servicePrice: servicePrice ? Number(servicePrice) : 0,
     fuelCost: fuelCost ? Number(fuelCost) : 0,
     tollCharges: tollCharges ? Number(tollCharges) : 0,
     travelCost: travelCost ? Number(travelCost) : 0,
     taxiCost: taxiCost ? Number(taxiCost) : 0,
-    exceptionalCosts: exceptionalCosts ? Number(exceptionalCosts) : 0,
     message,
-    estimatedTime
+    pickupDate,
+    pickupTime,
+    dropoffDate,
+    dropoffTime
   };
 
   const updated = await RequestsService.submitDriverQuote(
@@ -352,18 +355,18 @@ const cancelMissionByDriver = catchAsync(async (req: Request, res: Response) => 
 // ─── PATCH /api/v1/requests/:id/assign-driver (Admin) ──────────────────────
 const assignDriver = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { quoteId } = req.body;
+  const { quoteId, driverId } = req.body;
 
-  if (!quoteId) {
+  if (!quoteId && !driverId) {
     return sendResponse(res, {
       statusCode: httpStatus.BAD_REQUEST,
       success: false,
-      message: 'quoteId is required',
+      message: 'Either quoteId or driverId is required',
       data: null,
     });
   }
 
-  const updated = await RequestsService.assignDriver(id, quoteId);
+  const updated = await RequestsService.assignDriver(id, quoteId, driverId);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -557,6 +560,43 @@ const uploadInvoice = catchAsync(async (req, res) => {
   });
 });
 
+const addDocument = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  
+  if (!files || !files['document']) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Document file is required');
+  }
+
+  const fileUrl = files['document'][0].path;
+  const result = await RequestsService.addDocument(id, fileUrl);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Document added successfully',
+    data: result,
+  });
+});
+
+const deleteDocument = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const fileUrl = req.body.fileUrl;
+  
+  if (!fileUrl) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Document URL is required');
+  }
+
+  const result = await RequestsService.deleteDocument(id, fileUrl);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Document deleted successfully',
+    data: result,
+  });
+});
+
 export const RequestsController = {
   createRequest,
   getAllRequests,
@@ -580,4 +620,6 @@ export const RequestsController = {
   sendAdminQuote,
   customerReply,
   uploadInvoice,
+  addDocument,
+  deleteDocument,
 };

@@ -175,4 +175,19 @@ router.patch(
   RequestsController.uploadInvoice
 );
 
+// PATCH /api/v1/requests/:id/documents (Admin upload document)
+router.patch(
+  '/:id/documents',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  uploadFile(),
+  RequestsController.addDocument
+);
+
+// DELETE /api/v1/requests/:id/documents (Admin delete document)
+router.delete(
+  '/:id/documents',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  RequestsController.deleteDocument
+);
+
 export const RequestsRoutes = router;

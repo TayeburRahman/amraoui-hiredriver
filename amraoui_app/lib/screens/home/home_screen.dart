@@ -646,6 +646,8 @@ class _HomeScreenState extends State<HomeScreen> {
           statusBg = const Color(0xFFFFFBEB);
           statusColor = const Color(0xFFF59E0B);
           statusLabel = 'Pending';
+        }
+
         Widget missionIconWidget = const Icon(Icons.directions_car_outlined, color: Color(0xFF2563EB), size: 20);
 
         if (type == 'TRANSPORT') {

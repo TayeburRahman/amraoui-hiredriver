@@ -226,6 +226,10 @@ class LocationTimelineWidget extends StatelessWidget {
           ? '${_getFlagEmoji(destCountry)} ${destZip.isNotEmpty ? '$destZip ' : ''}$destCity'
           : (destAddress.isNotEmpty ? '${_getFlagEmoji(destAddress)} $destAddress' : '');
 
+      final destDate = _formatDateDDMMYYYY(d['destinationDate']?.toString() ?? '');
+      final destTime = d['destinationTime']?.toString() ?? '';
+      final destDateTime = [destDate, destTime].where((s) => s.isNotEmpty).join(' - ');
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -241,7 +245,7 @@ class LocationTimelineWidget extends StatelessWidget {
               isFirst: false,
               isLast: true,
               title: destFullTitle,
-              subtitle: 'Destination',
+              subtitle: destDateTime.isNotEmpty ? destDateTime : 'Destination',
               iconColor: const Color(0xFF06B6D4),
             ),
         ],

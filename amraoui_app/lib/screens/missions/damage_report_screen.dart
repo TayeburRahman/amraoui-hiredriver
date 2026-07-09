@@ -30,6 +30,7 @@ class DamageReportScreen extends StatefulWidget {
 class _DamageReportScreenState extends State<DamageReportScreen> {
   String? damageStatus;
   String? damagedComponent;
+  String? damageCondition;
   final TextEditingController _commentController = TextEditingController();
   String? damagePhoto;
 
@@ -41,6 +42,7 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
     if (widget.existingReport != null) {
       damageStatus = widget.existingReport!['status'];
       damagedComponent = widget.existingReport!['component'];
+      damageCondition = widget.existingReport!['condition'];
       _commentController.text = widget.existingReport!['comment'] ?? '';
       damagePhoto = widget.existingReport!['photo'];
     }
@@ -106,6 +108,7 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                       setState(() {
                         damageStatus = val;
                         damagedComponent = null;
+                        damageCondition = null;
                         damagePhoto = null;
                       });
                     }),
@@ -117,30 +120,58 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                 ),
               ),
               
-              if (hasDamage) ...[
-                const Gap(height: 24),
-                _buildSectionTitle('Damaged Component'),
-                const Gap(height: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                if (hasDamage) ...[
+                  const Gap(height: 24),
+                  _buildSectionTitle('State which component is damaged'),
+                  const Gap(height: 12),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildRadioOption('Bumper', damagedComponent, (val) => setState(() => damagedComponent = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Bonnet', damagedComponent, (val) => setState(() => damagedComponent = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Right-hand light unit', damagedComponent, (val) => setState(() => damagedComponent = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Left-hand light unit', damagedComponent, (val) => setState(() => damagedComponent = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Door', damagedComponent, (val) => setState(() => damagedComponent = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Other', damagedComponent, (val) => setState(() => damagedComponent = val)),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      _buildRadioOption('Bumper', damagedComponent, (val) => setState(() => damagedComponent = val)),
-                      const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                      _buildRadioOption('Bonnet', damagedComponent, (val) => setState(() => damagedComponent = val)),
-                      const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                      _buildRadioOption('Right-hand light unit', damagedComponent, (val) => setState(() => damagedComponent = val)),
-                      const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                      _buildRadioOption('Left-hand light unit', damagedComponent, (val) => setState(() => damagedComponent = val)),
-                      const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                      _buildRadioOption('Door', damagedComponent, (val) => setState(() => damagedComponent = val)),
-                    ],
+                  
+                  const Gap(height: 24),
+                  _buildSectionTitle('State the condition of the component'),
+                  const Gap(height: 12),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      children: [
+                        _buildRadioOption('Scratch', damageCondition, (val) => setState(() => damageCondition = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Impact', damageCondition, (val) => setState(() => damageCondition = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Paintwork chipped', damageCondition, (val) => setState(() => damageCondition = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Broken', damageCondition, (val) => setState(() => damageCondition = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Dirty', damageCondition, (val) => setState(() => damageCondition = val)),
+                        const Divider(height: 1, color: Color(0xFFE2E8F0)),
+                        _buildRadioOption('Other', damageCondition, (val) => setState(() => damageCondition = val)),
+                      ],
+                    ),
                   ),
-                ),
                 
                 const Gap(height: 24),
                 _buildSectionTitle('Comment'),
@@ -249,6 +280,10 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                 Get.snackbar('Required', 'Please select damaged component', backgroundColor: Colors.red.withOpacity(0.9), colorText: Colors.white, snackPosition: SnackPosition.bottom, margin: const EdgeInsets.all(20));
                 return;
               }
+              if (hasDamage && damageCondition == null) {
+                Get.snackbar('Required', 'Please select damage condition', backgroundColor: Colors.red.withOpacity(0.9), colorText: Colors.white, snackPosition: SnackPosition.bottom, margin: const EdgeInsets.all(20));
+                return;
+              }
               if (hasDamage && damagePhoto == null) {
                 Get.snackbar('Required', 'Please capture damage photo', backgroundColor: Colors.red.withOpacity(0.9), colorText: Colors.white, snackPosition: SnackPosition.bottom, margin: const EdgeInsets.all(20));
                 return;
@@ -265,6 +300,7 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                 final Map<String, dynamic> uploadData = {
                   'status': damageStatus,
                   'component': damagedComponent,
+                  'condition': damageCondition,
                   'comment': _commentController.text,
                 };
 

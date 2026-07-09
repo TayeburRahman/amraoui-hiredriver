@@ -97,7 +97,7 @@ router.patch(
 // PATCH /api/v1/requests/:id/customer-reply
 router.patch(
   '/:id/customer-reply',
-  auth(ENUM_USER_ROLE.CUSTOMERS),
+  auth(ENUM_USER_ROLE.CUSTOMERS, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
   RequestsController.customerReply
 );
 

@@ -542,7 +542,7 @@ const CustomersPage = () => {
         onClose={() => setIsModalOpen(false)}
         customer={selectedCustomer}
         onBlockToggle={handleBlockToggle}
-        onRefresh={() => fetchCustomers(currentPage)}
+        onRefresh={() => fetchCustomers()}
       />
 
       {/* Create Customer Modal */}

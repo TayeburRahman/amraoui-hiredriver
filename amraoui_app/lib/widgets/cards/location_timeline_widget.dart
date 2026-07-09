@@ -5,33 +5,83 @@ import 'package:flutter/material.dart';
 String _getFlagEmoji(String? addressOrCountry) {
   if (addressOrCountry == null || addressOrCountry.isEmpty) return '🇧🇪';
   final lower = addressOrCountry.toLowerCase();
-  
+
   final Map<String, String> countryMap = {
-    'belgi': '🇧🇪', 'france': '🇫🇷', 'franc': '🇫🇷', 'frankreich': '🇫🇷',
-    'netherland': '🇳🇱', 'nederland': '🇳🇱', 'holland': '🇳🇱', 'pays-bas': '🇳🇱',
-    'germany': '🇩🇪', 'deutschland': '🇩🇪', 'allemagne': '🇩🇪',
-    'luxemb': '🇱🇺', 'ital': '🇮🇹', 'spain': '🇪🇸', 'espa': '🇪🇸', 'spanien': '🇪🇸',
-    'switz': '🇨🇭', 'suisse': '🇨🇭', 'schweiz': '🇨🇭', 'svizzera': '🇨🇭',
-    'uk ': '🇬🇧', 'united kingdom': '🇬🇧', 'england': '🇬🇧', 'royaume-uni': '🇬🇧',
-    'austri': '🇦🇹', 'österreich': '🇦🇹', 'autriche': '🇦🇹',
-    'poland': '🇵🇱', 'polska': '🇵🇱', 'pologne': '🇵🇱', 'portugal': '🇵🇹',
-    'sweden': '🇸🇪', 'sverige': '🇸🇪', 'suède': '🇸🇪',
-    'norway': '🇳🇴', 'norge': '🇳🇴', 'norvège': '🇳🇴',
-    'denmark': '🇩🇰', 'danmark': '🇩🇰', 'danemark': '🇩🇰',
-    'finland': '🇫🇮', 'suomi': '🇫🇮', 'finlande': '🇫🇮',
-    'ireland': '🇮🇪', 'irlande': '🇮🇪', 'greece': '🇬🇷', 'hellas': '🇬🇷',
-    'czech': '🇨🇿', 'česk': '🇨🇿', 'tchéquie': '🇨🇿',
-    'hungar': '🇭🇺', 'magyar': '🇭🇺', 'hongrie': '🇭🇺',
-    'romania': '🇷🇴', 'românia': '🇷🇴', 'roumanie': '🇷🇴',
-    'bulgaria': '🇧🇬', 'bulgarie': '🇧🇬', 'croatia': '🇭🇷', 'hrvatska': '🇭🇷',
-    'slovakia': '🇸🇰', 'slovensko': '🇸🇰', 'slovenia': '🇸🇮', 'slovenija': '🇸🇮',
-    'usa': '🇺🇸', 'united states': '🇺🇸', 'états-unis': '🇺🇸', 'canada': '🇨🇦',
+    'belgi': '🇧🇪',
+    'france': '🇫🇷',
+    'franc': '🇫🇷',
+    'frankreich': '🇫🇷',
+    'netherland': '🇳🇱',
+    'nederland': '🇳🇱',
+    'holland': '🇳🇱',
+    'pays-bas': '🇳🇱',
+    'germany': '🇩🇪',
+    'deutschland': '🇩🇪',
+    'allemagne': '🇩🇪',
+    'luxemb': '🇱🇺',
+    'ital': '🇮🇹',
+    'spain': '🇪🇸',
+    'espa': '🇪🇸',
+    'spanien': '🇪🇸',
+    'switz': '🇨🇭',
+    'suisse': '🇨🇭',
+    'schweiz': '🇨🇭',
+    'svizzera': '🇨🇭',
+    'uk ': '🇬🇧',
+    'united kingdom': '🇬🇧',
+    'england': '🇬🇧',
+    'royaume-uni': '🇬🇧',
+    'austri': '🇦🇹',
+    'österreich': '🇦🇹',
+    'autriche': '🇦🇹',
+    'poland': '🇵🇱',
+    'polska': '🇵🇱',
+    'pologne': '🇵🇱',
+    'portugal': '🇵🇹',
+    'sweden': '🇸🇪',
+    'sverige': '🇸🇪',
+    'suède': '🇸🇪',
+    'norway': '🇳🇴',
+    'norge': '🇳🇴',
+    'norvège': '🇳🇴',
+    'denmark': '🇩🇰',
+    'danmark': '🇩🇰',
+    'danemark': '🇩🇰',
+    'finland': '🇫🇮',
+    'suomi': '🇫🇮',
+    'finlande': '🇫🇮',
+    'ireland': '🇮🇪',
+    'irlande': '🇮🇪',
+    'greece': '🇬🇷',
+    'hellas': '🇬🇷',
+    'czech': '🇨🇿',
+    'česk': '🇨🇿',
+    'tchéquie': '🇨🇿',
+    'hungar': '🇭🇺',
+    'magyar': '🇭🇺',
+    'hongrie': '🇭🇺',
+    'romania': '🇷🇴',
+    'românia': '🇷🇴',
+    'roumanie': '🇷🇴',
+    'bulgaria': '🇧🇬',
+    'bulgarie': '🇧🇬',
+    'croatia': '🇭🇷',
+    'hrvatska': '🇭🇷',
+    'slovakia': '🇸🇰',
+    'slovensko': '🇸🇰',
+    'slovenia': '🇸🇮',
+    'slovenija': '🇸🇮',
+    'usa': '🇺🇸',
+    'united states': '🇺🇸',
+    'états-unis': '🇺🇸',
+    'canada': '🇨🇦',
+    'bangladesh': '🇧🇩',
   };
 
   for (final entry in countryMap.entries) {
     if (lower.contains(entry.key)) return entry.value;
   }
-  return '🇧🇪'; 
+  return '🇧🇪';
 }
 
 String _formatDateDDMMYYYY(String dateStr) {
@@ -72,14 +122,18 @@ class LocationTimelineWidget extends StatelessWidget {
 
       final pCity = d['pickupCity']?.toString() ?? '';
       final pZip = d['pickupZip']?.toString() ?? '';
-      final pCountry = d['pickupCountry']?.toString() ?? d['pickupAddress']?.toString() ?? '';
-      final pContact = d['pickupContactName']?.toString() ?? '';
-      
-      final pickupFullTitle = pCity.isNotEmpty ? '${_getFlagEmoji(pCountry)} ${pZip.isNotEmpty ? '$pZip ' : ''}$pCity' : 'Pending Location';
-      final pSubtitle = pDateTime.isNotEmpty ? pDateTime : 'Pickup';
-      final pickupFinalSubtitle = pContact.isNotEmpty ? '$pContact • $pSubtitle' : pSubtitle;
+      final pCountry =
+          d['pickupCountry']?.toString() ??
+          d['pickupAddress']?.toString() ??
+          '';
 
-      final dropoffDate = _formatDateDDMMYYYY(d['dropoffDate']?.toString() ?? '');
+      final pickupFullTitle = pCity.isNotEmpty
+          ? '${_getFlagEmoji(pCountry)} ${pZip.isNotEmpty ? '$pZip ' : ''}$pCity'
+          : 'Pending Location';
+
+      final dropoffDate = _formatDateDDMMYYYY(
+        d['dropoffDate']?.toString() ?? '',
+      );
       final dropoffTime = d['dropoffTime']?.toString() ?? '';
       final dDateTime = [
         dropoffDate,
@@ -88,16 +142,20 @@ class LocationTimelineWidget extends StatelessWidget {
 
       final dCity = d['dropoffCity']?.toString() ?? '';
       final dZip = d['dropoffZip']?.toString() ?? '';
-      final dCountry = d['dropoffCountry']?.toString() ?? d['dropoffAddress']?.toString() ?? '';
-      final dContact = d['dropoffContactName']?.toString() ?? '';
+      final dCountry =
+          d['dropoffCountry']?.toString() ??
+          d['dropoffAddress']?.toString() ??
+          '';
 
-      final dropoffFullTitle = dCity.isNotEmpty ? '${_getFlagEmoji(dCountry)} ${dZip.isNotEmpty ? '$dZip ' : ''}$dCity' : 'Pending Location';
-      final dSubtitle = dDateTime.isNotEmpty ? dDateTime : 'Dropoff';
-      final dropoffFinalSubtitle = dContact.isNotEmpty ? '$dContact • $dSubtitle' : dSubtitle;
+      final dropoffFullTitle = dCity.isNotEmpty
+          ? '${_getFlagEmoji(dCountry)} ${dZip.isNotEmpty ? '$dZip ' : ''}$dCity'
+          : 'Pending Location';
 
-      final customerCompany = mission['customerId']?['company']?.toString() ?? '';
-      final customerName = mission['customerId']?['name']?.toString() ?? 'Customer';
-      final displayCustomer = customerCompany.isNotEmpty ? '$customerCompany ($customerName)' : customerName;
+      final customerName =
+          mission['customerId']?['name']?.toString() ?? 'Customer';
+      final distance =
+          d['distance']?.toString() ??
+          (mission['distance']?.toString() ?? 'N/A km');
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +164,7 @@ class LocationTimelineWidget extends StatelessWidget {
             isFirst: true,
             isLast: false,
             title: pickupFullTitle,
-            subtitle: pickupFinalSubtitle,
+            subtitle: pDateTime.isNotEmpty ? pDateTime : 'Pickup',
             iconColor: const Color(0xFF2563EB),
           ),
           Padding(
@@ -120,14 +178,17 @@ class LocationTimelineWidget extends StatelessWidget {
                   margin: const EdgeInsets.only(left: 3, right: 26),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(color: const Color(0xFFE2E8F0)),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: AppText(
-                    data: displayCustomer,
+                    data: '$distance • $customerName',
                     fontSize: 12,
                     color: const Color(0xFF64748B),
                     fontWeight: FontWeight.w600,
@@ -140,7 +201,7 @@ class LocationTimelineWidget extends StatelessWidget {
             isFirst: false,
             isLast: true,
             title: dropoffFullTitle,
-            subtitle: dropoffFinalSubtitle,
+            subtitle: dDateTime.isNotEmpty ? dDateTime : 'Dropoff',
             iconColor: const Color(0xFF06B6D4),
           ),
         ],
@@ -152,15 +213,25 @@ class LocationTimelineWidget extends StatelessWidget {
 
       final iCity = d['inspectionCity']?.toString() ?? '';
       final iZip = d['inspectionZip']?.toString() ?? '';
-      final iCountry = d['inspectionCountry']?.toString() ?? d['inspectionLocation']?.toString() ?? '';
+      final iCountry =
+          d['inspectionCountry']?.toString() ??
+          d['inspectionLocation']?.toString() ??
+          '';
 
-      final inspectionFullTitle = iCity.isNotEmpty ? '${_getFlagEmoji(iCountry)} ${iZip.isNotEmpty ? '$iZip ' : ''}$iCity' : 'Pending Location';
+      final inspectionFullTitle = iCity.isNotEmpty
+          ? '${_getFlagEmoji(iCountry)} ${iZip.isNotEmpty ? '$iZip ' : ''}$iCity'
+          : 'Pending Location';
 
       final destCity = d['destinationCity']?.toString() ?? '';
       final destZip = d['destinationZip']?.toString() ?? '';
-      final destCountry = d['destinationCountry']?.toString() ?? d['destinationAddress']?.toString() ?? '';
+      final destCountry =
+          d['destinationCountry']?.toString() ??
+          d['destinationAddress']?.toString() ??
+          '';
 
-      final destFullTitle = destCity.isNotEmpty ? '${_getFlagEmoji(destCountry)} ${destZip.isNotEmpty ? '$destZip ' : ''}$destCity' : '';
+      final destFullTitle = destCity.isNotEmpty
+          ? '${_getFlagEmoji(destCountry)} ${destZip.isNotEmpty ? '$destZip ' : ''}$destCity'
+          : '';
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +254,9 @@ class LocationTimelineWidget extends StatelessWidget {
         ],
       );
     } else if (type == 'HIRE_DRIVER') {
-      final startDate = _formatDateDDMMYYYY(d['driverStartDate']?.toString() ?? '');
+      final startDate = _formatDateDDMMYYYY(
+        d['driverStartDate']?.toString() ?? '',
+      );
       final startTime = d['driverStartTime']?.toString() ?? '';
       final endDate = _formatDateDDMMYYYY(d['driverEndDate']?.toString() ?? '');
       final endTime = d['driverEndTime']?.toString() ?? '';
@@ -196,7 +269,10 @@ class LocationTimelineWidget extends StatelessWidget {
           combinedTime = startDate;
         }
       } else {
-        final startStr = [startDate, startTime].where((s) => s.isNotEmpty).join(' ');
+        final startStr = [
+          startDate,
+          startTime,
+        ].where((s) => s.isNotEmpty).join(' ');
         final endStr = [endDate, endTime].where((s) => s.isNotEmpty).join(' ');
         if (startStr.isNotEmpty && endStr.isNotEmpty) {
           combinedTime = '$startStr to $endStr';
@@ -209,7 +285,9 @@ class LocationTimelineWidget extends StatelessWidget {
 
       final city = d['driverCity']?.toString() ?? '';
       final locationFull = d['driverLocation']?.toString() ?? '';
-      final title = city.isNotEmpty ? '${_getFlagEmoji(locationFull)} $city' : '${_getFlagEmoji(locationFull)} $locationFull';
+      final title = city.isNotEmpty
+          ? '${_getFlagEmoji(locationFull)} $city'
+          : '${_getFlagEmoji(locationFull)} $locationFull';
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,7 +295,9 @@ class LocationTimelineWidget extends StatelessWidget {
           _buildTimelineItem(
             isFirst: true,
             isLast: true,
-            title: title.isNotEmpty && title != '🇧🇪 ' ? title : 'Pending Location',
+            title: title.isNotEmpty && title != '🇧🇪 '
+                ? title
+                : 'Pending Location',
             subtitle: combinedTime.isNotEmpty ? combinedTime : 'Hire Driver',
             iconColor: const Color(0xFF2563EB),
           ),

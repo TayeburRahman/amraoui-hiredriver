@@ -1686,11 +1686,21 @@ class _MissionsScreenState extends State<MissionsScreen> {
       final bool isVerified =
           verification != null && verification['arrivalDeclared'] == true;
 
-      // Route to PickupVerification and PickupInspection for ALL mission types
-      if (isVerified) {
-        Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
+      if (type == 'INSPECTION') {
+        if (isVerified) {
+          Get.to(() => DeliveryInspectionScreen(mission: mission, reqId: reqId));
+        } else {
+          Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+        }
+      } else if (type == 'HIRE_DRIVER') {
+        Get.to(() => MultiDayArrivalScreen(mission: mission, reqId: reqId));
       } else {
-        Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+        // TRANSPORT
+        if (isVerified && verification['vehicleMatchConfirmed'] == true) {
+          Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
+        } else {
+          Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+        }
       }
       return;
     }

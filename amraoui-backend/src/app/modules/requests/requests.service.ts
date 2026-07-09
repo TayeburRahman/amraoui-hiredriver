@@ -193,9 +193,12 @@ const getMissionsForDriver = async (driverId: string) => {
       myQuoteTollCharges: myQuote?.tollCharges ?? null,
       myQuoteTravelCost: myQuote?.travelCost ?? null,
       myQuoteTaxiCost: myQuote?.taxiCost ?? null,
-      myQuoteExceptionalCosts: myQuote?.exceptionalCosts ?? null,
+      myQuoteServicePrice: myQuote?.servicePrice ?? null,
       myQuoteMessage: myQuote?.message ?? null,
-      myQuoteTime: myQuote?.estimatedTime ?? null,
+      myQuotePickupDate: myQuote?.pickupDate ?? null,
+      myQuotePickupTime: myQuote?.pickupTime ?? null,
+      myQuoteDropoffDate: myQuote?.dropoffDate ?? null,
+      myQuoteDropoffTime: myQuote?.dropoffTime ?? null,
       myQuoteId: myQuote?._id ?? null,
     };
   });

@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'cancel_mission_screen.dart';
 import 'missions_screen.dart'; // To access MissionsController
 import 'pickup_verification_screen.dart';
+import 'multi_day_arrival_screen.dart';
 import 'pickup_inspection_screen.dart' hide Gap;
 import 'delivery_inspection_screen.dart' hide Gap;
 
@@ -114,6 +115,25 @@ class MissionDetailsScreen extends StatelessWidget {
           '${detailsObj['driverStartDate'] ?? ''} to ${detailsObj['driverEndDate'] ?? ''}';
     }
 
+    String dateStr = '';
+    String timeStr = '';
+    if (type == 'TRANSPORT') {
+      dateStr = detailsObj['pickupDate']?.toString() ?? '';
+      timeStr = detailsObj['pickupTime']?.toString() ?? '';
+    } else if (type == 'INSPECTION') {
+      dateStr = detailsObj['inspectionDate']?.toString() ?? '';
+      timeStr = detailsObj['inspectionTime']?.toString() ?? '';
+    } else if (type == 'HIRE_DRIVER') {
+      dateStr = detailsObj['driverStartDate']?.toString() ?? '';
+      timeStr = detailsObj['driverStartTime']?.toString() ?? '';
+    }
+    String dateTimeDisplay = (dateStr.isNotEmpty || timeStr.isNotEmpty) ? '$dateStr $timeStr'.trim() : 'N/A';
+    
+    String distanceDisplay = detailsObj['distance']?.toString() ?? 'N/A';
+    if (distanceDisplay != 'N/A' && !distanceDisplay.toLowerCase().contains('km')) {
+      distanceDisplay = '$distanceDisplay km';
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -137,14 +157,14 @@ class MissionDetailsScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildHeaderStat('Proposed Price', price),
-              if (type == 'TRANSPORT') _buildHeaderStat('Distance', 'N/A'),
+              if (type == 'TRANSPORT') _buildHeaderStat('Distance', distanceDisplay),
             ],
           ),
           const Gap(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildHeaderStat('Date & Time', 'N/A'),
+              _buildHeaderStat('Date & Time', dateTimeDisplay),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -246,6 +266,8 @@ class MissionDetailsScreen extends StatelessWidget {
                 'Date & Time',
                 '${detailsObj['pickupDate'] ?? ''} ${detailsObj['pickupTime'] ?? ''}',
               ),
+              if (detailsObj['company']?.toString().isNotEmpty == true)
+                _buildInfoRow('Company', detailsObj['company']),
               _buildInfoRow(
                 'Contact',
                 '${detailsObj['pickupContactName'] ?? ''}',
@@ -298,7 +320,7 @@ class MissionDetailsScreen extends StatelessWidget {
           icon: Icons.settings_outlined,
           content: Column(
             children: [
-              _buildInfoRow('Delivery Type', detailsObj['deliveryType'] ?? ''),
+              _buildInfoRow('Delivery Type', (detailsObj['deliveryType']?.toString().toLowerCase() == 'tow') ? 'Vehicle Carrier' : (detailsObj['deliveryType'] ?? '')),
               if (detailsObj['specialInstructions']?.toString().isNotEmpty ==
                   true)
                 _buildInfoRow(
@@ -458,7 +480,58 @@ class MissionDetailsScreen extends StatelessWidget {
       );
     }
 
+    if (detailsObj['documents'] != null && detailsObj['documents'] is List && (detailsObj['documents'] as List).isNotEmpty) {
+      widgets.add(const Gap(height: 16));
+      widgets.add(
+        _buildSectionCard(
+          title: 'Attached Documents',
+          icon: Icons.attach_file,
+          content: Column(
+            children: (detailsObj['documents'] as List).map((doc) => _buildDocumentRow(doc.toString())).toList(),
+          ),
+        ),
+      );
+    }
+
     return widgets;
+  }
+
+  Widget _buildDocumentRow(String docUrl) {
+    final fileName = docUrl.split('/').last;
+    final fullUrl = docUrl.startsWith('http') ? docUrl : 'https://vehiqqo-backend.onrender.com\$docUrl';
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                const Icon(Icons.description, size: 20, color: Color(0xFF2563EB)),
+                const Gap(width: 8),
+                Expanded(
+                  child: AppText(
+                    data: fileName,
+                    fontSize: 13,
+                    color: const Color(0xFF334155),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.download, size: 20, color: Color(0xFF64748B)),
+            onPressed: () async {
+              final uri = Uri.parse(fullUrl);
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildContactCard({
@@ -641,35 +714,18 @@ class MissionDetailsScreen extends StatelessWidget {
 
               if (type == 'INSPECTION') {
                 if (isVerified) {
-                  Get.to(
-                    () => DeliveryInspectionScreen(
-                      mission: mission,
-                      reqId: reqId,
-                    ),
-                  );
+                  Get.to(() => DeliveryInspectionScreen(mission: mission, reqId: reqId));
                 } else {
-                  Get.to(
-                    () => PickupVerificationScreen(
-                      mission: mission,
-                      reqId: reqId,
-                    ),
-                  );
+                  Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
                 }
+              } else if (type == 'HIRE_DRIVER') {
+                Get.to(() => MultiDayArrivalScreen(mission: mission, reqId: reqId));
               } else {
-                if (isVerified &&
-                    (verification['vehicleMatchConfirmed'] == true ||
-                        type == 'HIRE_DRIVER')) {
-                  Get.to(
-                    () =>
-                        PickupInspectionScreen(mission: mission, reqId: reqId),
-                  );
+                // TRANSPORT
+                if (isVerified && verification['vehicleMatchConfirmed'] == true) {
+                  Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
                 } else {
-                  Get.to(
-                    () => PickupVerificationScreen(
-                      mission: mission,
-                      reqId: reqId,
-                    ),
-                  );
+                  Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
                 }
               }
             },

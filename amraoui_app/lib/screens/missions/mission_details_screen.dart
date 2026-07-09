@@ -384,7 +384,6 @@ class MissionDetailsScreen extends StatelessWidget {
           title: 'Customer Information',
           name: detailsObj['customerName'] ?? 'Unknown Customer',
           phone: customerPhone,
-          email: detailsObj['customerEmail']?.toString(),
         ),
       );
     }
@@ -434,27 +433,41 @@ class MissionDetailsScreen extends StatelessWidget {
       );
     }
 
-    // Default Customer details if not inspection (Inspection already has details mapped)
-    if (type != 'INSPECTION') {
-      final customer = mission['customerId'] ?? {};
-      final String name =
-          (type == 'TRANSPORT' && detailsObj['firstName'] != null)
-          ? '${detailsObj['firstName']} ${detailsObj['lastName'] ?? ''}'
-          : customer['name']?.toString() ?? 'Unknown Customer';
-      final String phone = (type == 'TRANSPORT' && detailsObj['phone'] != null)
-          ? detailsObj['phone']
-          : customer['phone_number']?.toString() ?? '';
-      final String email = (type == 'TRANSPORT' && detailsObj['email'] != null)
-          ? detailsObj['email']
-          : customer['email']?.toString() ?? '';
+    if (type == 'TRANSPORT') {
+      final pickupName = detailsObj['pickupContactName']?.toString() ?? 'Pickup Contact';
+      final pickupPhone = detailsObj['pickupContactPhone']?.toString() ?? '';
+      
+      final dropoffName = detailsObj['dropoffContactName']?.toString() ?? 'Delivery Contact';
+      final dropoffPhone = detailsObj['dropoffContactPhone']?.toString() ?? '';
 
       widgets.add(const Gap(height: 16));
       widgets.add(
         _buildContactCard(
-          title: 'Customer Information',
+          title: 'Pick up contact',
+          name: pickupName,
+          phone: pickupPhone,
+        ),
+      );
+
+      widgets.add(const Gap(height: 16));
+      widgets.add(
+        _buildContactCard(
+          title: 'Delivery contact',
+          name: dropoffName,
+          phone: dropoffPhone,
+        ),
+      );
+    } else if (type == 'HIRE_DRIVER') {
+      final customer = mission['customerId'] ?? {};
+      final String name = customer['name']?.toString() ?? 'Unknown Customer';
+      final String phone = customer['phone_number']?.toString() ?? '';
+      
+      widgets.add(const Gap(height: 16));
+      widgets.add(
+        _buildContactCard(
+          title: 'Contact Information',
           name: name,
           phone: phone,
-          email: email,
         ),
       );
     }
@@ -517,7 +530,6 @@ class MissionDetailsScreen extends StatelessWidget {
     required String title,
     required String name,
     required String phone,
-    String? email,
   }) {
     return _buildSectionCard(
       title: title,
@@ -542,14 +554,6 @@ class MissionDetailsScreen extends StatelessWidget {
                     fontSize: 13,
                     color: const Color(0xFF64748B),
                   ),
-                if (email != null && email.isNotEmpty) ...[
-                  const Gap(height: 2),
-                  AppText(
-                    data: email,
-                    fontSize: 13,
-                    color: const Color(0xFF64748B),
-                  ),
-                ],
               ],
             ),
           ),

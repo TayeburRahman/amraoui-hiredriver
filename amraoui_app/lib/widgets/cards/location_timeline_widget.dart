@@ -73,8 +73,11 @@ class LocationTimelineWidget extends StatelessWidget {
       final pCity = d['pickupCity']?.toString() ?? '';
       final pZip = d['pickupZip']?.toString() ?? '';
       final pCountry = d['pickupCountry']?.toString() ?? d['pickupAddress']?.toString() ?? '';
+      final pContact = d['pickupContactName']?.toString() ?? '';
       
       final pickupFullTitle = pCity.isNotEmpty ? '${_getFlagEmoji(pCountry)} ${pZip.isNotEmpty ? '$pZip ' : ''}$pCity' : 'Pending Location';
+      final pSubtitle = pDateTime.isNotEmpty ? pDateTime : 'Pickup';
+      final pickupFinalSubtitle = pContact.isNotEmpty ? '$pContact • $pSubtitle' : pSubtitle;
 
       final dropoffDate = _formatDateDDMMYYYY(d['dropoffDate']?.toString() ?? '');
       final dropoffTime = d['dropoffTime']?.toString() ?? '';
@@ -86,11 +89,15 @@ class LocationTimelineWidget extends StatelessWidget {
       final dCity = d['dropoffCity']?.toString() ?? '';
       final dZip = d['dropoffZip']?.toString() ?? '';
       final dCountry = d['dropoffCountry']?.toString() ?? d['dropoffAddress']?.toString() ?? '';
+      final dContact = d['dropoffContactName']?.toString() ?? '';
 
       final dropoffFullTitle = dCity.isNotEmpty ? '${_getFlagEmoji(dCountry)} ${dZip.isNotEmpty ? '$dZip ' : ''}$dCity' : 'Pending Location';
+      final dSubtitle = dDateTime.isNotEmpty ? dDateTime : 'Dropoff';
+      final dropoffFinalSubtitle = dContact.isNotEmpty ? '$dContact • $dSubtitle' : dSubtitle;
 
+      final customerCompany = mission['customerId']?['company']?.toString() ?? '';
       final customerName = mission['customerId']?['name']?.toString() ?? 'Customer';
-      final distance = d['distance']?.toString() ?? (mission['distance']?.toString() ?? 'N/A km');
+      final displayCustomer = customerCompany.isNotEmpty ? '$customerCompany ($customerName)' : customerName;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,7 +106,7 @@ class LocationTimelineWidget extends StatelessWidget {
             isFirst: true,
             isLast: false,
             title: pickupFullTitle,
-            subtitle: pDateTime.isNotEmpty ? pDateTime : 'Pickup',
+            subtitle: pickupFinalSubtitle,
             iconColor: const Color(0xFF2563EB),
           ),
           Padding(
@@ -120,7 +127,7 @@ class LocationTimelineWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: AppText(
-                    data: '$distance • $customerName',
+                    data: displayCustomer,
                     fontSize: 12,
                     color: const Color(0xFF64748B),
                     fontWeight: FontWeight.w600,
@@ -133,7 +140,7 @@ class LocationTimelineWidget extends StatelessWidget {
             isFirst: false,
             isLast: true,
             title: dropoffFullTitle,
-            subtitle: dDateTime.isNotEmpty ? dDateTime : 'Dropoff',
+            subtitle: dropoffFinalSubtitle,
             iconColor: const Color(0xFF06B6D4),
           ),
         ],

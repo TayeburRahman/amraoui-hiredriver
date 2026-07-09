@@ -542,14 +542,15 @@ const updateDeliveryInspection = catchAsync(async (req: Request, res: Response) 
 });
 
 // ─── Upload Invoice ───────────────────────────────────────────────────────────
-const uploadInvoice = catchAsync(async (req, res) => {
+const uploadInvoice = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-  if (!req.file) {
+  if (!files || !files['invoice'] || files['invoice'].length === 0) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Invoice PDF file is required');
   }
 
-  const fileUrl = req.file.path;
+  const fileUrl = files['invoice'][0].path;
   const result = await RequestsService.uploadInvoice(id, fileUrl);
 
   sendResponse(res, {

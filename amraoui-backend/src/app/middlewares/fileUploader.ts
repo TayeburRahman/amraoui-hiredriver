@@ -41,6 +41,7 @@ export const uploadFile = () => {
       'vehicle_carrier_image',
       'dealer_plate_image',
       'invoice',
+      'document',
     ];
 
     if (file.fieldname === undefined) {
@@ -74,6 +75,7 @@ export const uploadFile = () => {
     { name: 'vehicle_carrier_image', maxCount: 1 },
     { name: 'dealer_plate_image', maxCount: 1 },
     { name: 'invoice', maxCount: 1 },
+    { name: 'document', maxCount: 10 },
   ]);
 
   return upload;

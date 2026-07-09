@@ -21,7 +21,6 @@ interface CustomerDetailsModalProps {
   onClose: () => void;
   customer: ICustomerRecord | null;
   onBlockToggle?: (id: string, email: string, currentlyBlocked: boolean) => void;
-  onBlockToggle?: (id: string, email: string, currentlyBlocked: boolean) => void;
   onRefresh?: () => void;
 }
 

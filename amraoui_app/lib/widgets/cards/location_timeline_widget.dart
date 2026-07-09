@@ -123,14 +123,12 @@ class LocationTimelineWidget extends StatelessWidget {
 
       final pCity = d['pickupCity']?.toString() ?? '';
       final pZip = d['pickupZip']?.toString() ?? '';
-      final pCountry =
-          d['pickupCountry']?.toString() ??
-          d['pickupAddress']?.toString() ??
-          '';
+      final pAddress = d['pickupAddress']?.toString() ?? '';
+      final pCountry = d['pickupCountry']?.toString() ?? pAddress;
 
       final pickupFullTitle = pCity.isNotEmpty
           ? '${_getFlagEmoji(pCountry)} ${pZip.isNotEmpty ? '$pZip ' : ''}$pCity'
-          : 'Pending Location';
+          : (pAddress.isNotEmpty ? '${_getFlagEmoji(pAddress)} $pAddress' : 'Pending Location');
 
       final dropoffDate = _formatDateDDMMYYYY(
         d['dropoffDate']?.toString() ?? '',
@@ -143,14 +141,12 @@ class LocationTimelineWidget extends StatelessWidget {
 
       final dCity = d['dropoffCity']?.toString() ?? '';
       final dZip = d['dropoffZip']?.toString() ?? '';
-      final dCountry =
-          d['dropoffCountry']?.toString() ??
-          d['dropoffAddress']?.toString() ??
-          '';
+      final dAddress = d['dropoffAddress']?.toString() ?? '';
+      final dCountry = d['dropoffCountry']?.toString() ?? dAddress;
 
       final dropoffFullTitle = dCity.isNotEmpty
           ? '${_getFlagEmoji(dCountry)} ${dZip.isNotEmpty ? '$dZip ' : ''}$dCity'
-          : 'Pending Location';
+          : (dAddress.isNotEmpty ? '${_getFlagEmoji(dAddress)} $dAddress' : 'Pending Location');
 
       final customerName =
           mission['customerId']?['name']?.toString() ?? 'Customer';

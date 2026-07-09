@@ -39,7 +39,12 @@ class _DeliveryArrivalScreenState extends State<DeliveryArrivalScreen> {
     final details = widget.mission['details'];
     if (details != null && details['deliveryArrivalDeclared'] == true) {
       isArrivalDeclared = true;
-      arrivalTime = details['deliveryArrivalTime'];
+      try {
+        final parsed = DateTime.parse(details['deliveryArrivalTime'].toString());
+        arrivalTime = DateFormat('HH:mm').format(parsed.toLocal());
+      } catch (e) {
+        arrivalTime = details['deliveryArrivalTime']?.toString();
+      }
       if (details['deliveryArrivalLocation'] != null) {
         currentLocation = LatLng(
           details['deliveryArrivalLocation']['coordinates'][1] ?? 0.0,
@@ -288,8 +293,9 @@ class _DeliveryArrivalScreenState extends State<DeliveryArrivalScreen> {
                               ),
                               children: [
                                 TileLayer(
-                                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  userAgentPackageName: 'com.amraoui.app',
+                                  urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+                                  subdomains: const ['a', 'b', 'c', 'd'],
+                                  userAgentPackageName: 'com.example.amraoui_app',
                                 ),
                                 MarkerLayer(
                                   markers: [

@@ -263,7 +263,7 @@ class QuotesScreen extends StatelessWidget {
 
       return Column(
         children: list.map((m) {
-          final id = m['displayId'] ?? 'ID N/A';
+          final id = m['missionId'] ?? m['displayId'] ?? (m['_id'] != null ? '#REQ-${m['_id'].substring(m['_id'].length - 5).toUpperCase()}' : 'ID N/A');
           final price = m['myQuoteAmount'] != null
               ? '€${m['myQuoteAmount']}'
               : '€0';

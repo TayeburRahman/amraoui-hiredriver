@@ -76,6 +76,7 @@ String _getFlagEmoji(String? addressOrCountry) {
     'états-unis': '🇺🇸',
     'canada': '🇨🇦',
     'bangladesh': '🇧🇩',
+    'india': '🇮🇳',
   };
 
   for (final entry in countryMap.entries) {

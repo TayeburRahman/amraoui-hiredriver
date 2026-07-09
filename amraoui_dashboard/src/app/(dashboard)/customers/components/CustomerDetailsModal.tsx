@@ -15,7 +15,7 @@ import {
   User,
 } from 'lucide-react';
 import type { ICustomerRecord } from '../page';
-
+// 
 interface CustomerDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -207,11 +207,10 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
               <h3 className="text-lg font-bold text-gray-900">{customer.name}</h3>
               <p className="text-xs text-gray-400">{email}</p>
               <span
-                className={`inline-block mt-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                  isBlocked
-                    ? 'bg-red-100 text-red-600'
-                    : 'bg-green-100 text-green-600'
-                }`}
+                className={`inline-block mt-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${isBlocked
+                  ? 'bg-red-100 text-red-600'
+                  : 'bg-green-100 text-green-600'
+                  }`}
               >
                 {isBlocked ? 'Deactivated' : 'Active'}
               </span>
@@ -255,14 +254,14 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
           <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Logins / Access</p>
-              <button 
+              <button
                 onClick={() => setShowAddLogin(!showAddLogin)}
                 className="text-xs font-semibold text-blue-600 hover:text-blue-700"
               >
                 {showAddLogin ? 'Cancel' : '+ Add Login'}
               </button>
             </div>
-            
+
             <div className="space-y-3">
               <div className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100">
                 <div>
@@ -418,11 +417,10 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
               )}
               <button
                 onClick={handleBlockClick}
-                className={`w-full py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${
-                  isBlocked
-                    ? 'bg-green-50 text-green-700 hover:bg-green-100'
-                    : 'bg-red-50 text-red-700 hover:bg-red-100'
-                }`}
+                className={`w-full py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-colors ${isBlocked
+                  ? 'bg-green-50 text-green-700 hover:bg-green-100'
+                  : 'bg-red-50 text-red-700 hover:bg-red-100'
+                  }`}
               >
                 {isBlocked ? (
                   <>

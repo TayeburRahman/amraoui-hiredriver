@@ -5,7 +5,7 @@ import { MapPin, Car, FileText, CheckCircle2, User, Mail, Phone, Building, Arrow
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ViewDetailsModal } from '@/app/(dashboard)/customer-request/components/ViewDetailsModal';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, getProfileImageUrl } from '@/lib/api';
 
 const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = use(params);
@@ -700,10 +700,17 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                         (d.phone_number || d.phone)?.toLowerCase().includes(driverSearch.toLowerCase())
                                     ).map(driver => (
                                         <label key={driver._id} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${selectedDriverId === driver._id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>
-                                            <input type="radio" name="driver" value={driver._id} checked={selectedDriverId === driver._id} onChange={() => setSelectedDriverId(driver._id)} className="w-4 h-4 text-blue-600" />
-                                            <div>
-                                                <p className="font-semibold text-gray-900 text-sm">{driver.name || driver.firstName + ' ' + driver.lastName}</p>
-                                                <p className="text-xs text-gray-500">{driver.phone_number || driver.phone || driver.email || driver.authId?.email}</p>
+                                            <input type="radio" name="driver" value={driver._id} checked={selectedDriverId === driver._id} onChange={() => setSelectedDriverId(driver._id)} className="w-4 h-4 text-blue-600 shrink-0" />
+                                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
+                                                {driver.profile_image ? (
+                                                    <img src={getProfileImageUrl(driver.profile_image) || ''} alt={driver.name || 'Driver'} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <User className="w-5 h-5 text-gray-400" />
+                                                )}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-semibold text-gray-900 text-sm truncate">{driver.name || driver.firstName + ' ' + driver.lastName}</p>
+                                                <p className="text-xs text-gray-500 truncate">{driver.phone_number || driver.phone || driver.email || driver.authId?.email}</p>
                                             </div>
                                         </label>
                                     ))}

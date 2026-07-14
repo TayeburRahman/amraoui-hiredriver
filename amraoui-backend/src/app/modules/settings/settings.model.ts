@@ -17,7 +17,7 @@ const SettingsSchema = new Schema<ISettings>(
     },
     supportEmail: {
       type: String,
-      default: 'support@vehiqqo ',
+      default: 'support@vehiqqo.com',
     },
     supportHours: {
       type: String,

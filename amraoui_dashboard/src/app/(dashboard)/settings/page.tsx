@@ -126,7 +126,7 @@ const SettingsPage = () => {
             setPrivacyContent(s.privacyPolicy || "");
             setTermsContent(s.termsCondition || "");
             setSupportText(s.supportText || "Need assistance with your bookings, account settings, or have other questions? Get in touch with our team.");
-            setSupportEmail(s.supportEmail || "support@vehiqqo ");
+            setSupportEmail(s.supportEmail || "support@vehiqqo.com");
             setSupportHours(s.supportHours || "Mon - Fri, 9:00 - 18:00 CET.");
             setSupportResponseTime(s.supportResponseTime || "Usually under 2 hours");
           }
@@ -395,8 +395,8 @@ const SettingsPage = () => {
 
       {alertMessage && (
         <div className={`mb-6 p-4 rounded-xl text-sm border font-medium transition-all ${alertMessage.type === 'success'
-            ? 'bg-green-50 border-green-200 text-green-700'
-            : 'bg-red-50 border-red-200 text-red-700'
+          ? 'bg-green-50 border-green-200 text-green-700'
+          : 'bg-red-50 border-red-200 text-red-700'
           }`}>
           {alertMessage.type === 'success' ? '✓ ' : '⚠ '}
           {alertMessage.text}
@@ -415,8 +415,8 @@ const SettingsPage = () => {
                   key={item.name}
                   onClick={() => setActiveTab(item.name)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${isActive
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-400'}`} />
@@ -661,7 +661,7 @@ const SettingsPage = () => {
                           value={supportEmail}
                           onChange={(e) => setSupportEmail(e.target.value)}
                           className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
-                          placeholder="support@vehiqqo "
+                          placeholder="support@vehiqqo.com"
                         />
                       </div>
                       <div className="space-y-2">
@@ -1119,8 +1119,8 @@ const SettingsPage = () => {
                 <button
                   onClick={() => handleToggleBlockAdmin(selectedAdmin)}
                   className={`flex-1 py-2 border rounded-lg font-bold transition-colors text-center text-xs ${selectedAdmin.authId?.is_block
-                      ? 'border-green-200 text-green-600 hover:bg-green-50'
-                      : 'border-red-200 text-red-600 hover:bg-red-50'
+                    ? 'border-green-200 text-green-600 hover:bg-green-50'
+                    : 'border-red-200 text-red-600 hover:bg-red-50'
                     }`}
                 >
                   {selectedAdmin.authId?.is_block ? 'Activate Admin Account' : 'Suspend Admin Account'}

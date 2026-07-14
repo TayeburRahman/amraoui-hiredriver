@@ -1402,15 +1402,15 @@ function TransportRequestContent() {
                   <div className="space-y-3">
                     <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">1. Customer</h4>
                     <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Name</span>
-                        <span className="text-sm font-bold text-brand-text truncate max-w-[150px] sm:max-w-[200px]">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-sm font-medium text-slate-500 shrink-0">Name</span>
+                        <span className="text-sm font-bold text-brand-text truncate min-w-0 text-right flex-1">
                           {formData.firstName || formData.lastName ? `${formData.firstName} ${formData.lastName}` : '-'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Contact</span>
-                        <span className="text-sm font-bold text-brand-text">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-sm font-medium text-slate-500 shrink-0">Contact</span>
+                        <span className="text-sm font-bold text-brand-text truncate min-w-0 text-right flex-1">
                           {formData.phone || '-'}
                         </span>
                       </div>
@@ -1429,13 +1429,13 @@ function TransportRequestContent() {
                           <div className="w-[2px] h-8 bg-slate-200" />
                           <div className="h-3 w-3 rounded-full bg-brand-blue" />
                         </div>
-                        <div className="flex flex-col justify-between h-14">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-brand-text break-words line-clamp-2">{formData.pickupAddress ? `${formData.pickupAddress}` : 'Pickup location not set'}</span>
+                        <div className="flex flex-col justify-between h-14 min-w-0 flex-1">
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-bold text-brand-text break-all line-clamp-2">{formData.pickupAddress ? `${formData.pickupAddress}` : 'Pickup location not set'}</span>
                             {formData.pickupDate && <span className="text-xs text-slate-500">{formData.pickupDate}</span>}
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-brand-text break-words line-clamp-2">{formData.dropoffAddress ? `${formData.dropoffAddress}` : 'Dropoff location not set'}</span>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-bold text-brand-text break-all line-clamp-2">{formData.dropoffAddress ? `${formData.dropoffAddress}` : 'Dropoff location not set'}</span>
                             {formData.dropoffDate && <span className="text-xs text-slate-500">{formData.dropoffDate}</span>}
                           </div>
                         </div>
@@ -1451,31 +1451,31 @@ function TransportRequestContent() {
                     <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
                       <div className="flex justify-between items-center gap-4">
                         <span className="text-sm font-medium text-slate-500 shrink-0">Make & Model</span>
-                        <span className="text-sm font-bold text-brand-text truncate text-right flex-1">
+                        <span className="text-sm font-bold text-brand-text truncate min-w-0 text-right flex-1">
                           {formData.make || formData.model ? `${formData.make} ${formData.model}` : '-'}
                         </span>
                       </div>
                       <div className="flex justify-between items-center gap-4">
                         <span className="text-sm font-medium text-slate-500 shrink-0">Plate Number</span>
-                        <span className="text-sm font-bold text-brand-text truncate text-right flex-1">
+                        <span className="text-sm font-bold text-brand-text truncate min-w-0 text-right flex-1">
                           {formData.plate || '-'}
                         </span>
                       </div>
                       <div className="flex justify-between items-center gap-4">
                         <span className="text-sm font-medium text-slate-500 shrink-0">VIN</span>
-                        <span className="text-sm font-bold text-brand-text truncate text-right flex-1">
+                        <span className="text-sm font-bold text-brand-text truncate min-w-0 text-right flex-1">
                           {formData.vin || '-'}
                         </span>
                       </div>
                       <div className="flex justify-between items-center gap-4">
                         <span className="text-sm font-medium text-slate-500 shrink-0">Type</span>
-                        <span className="text-sm font-bold text-brand-text capitalize truncate text-right flex-1">
+                        <span className="text-sm font-bold text-brand-text capitalize truncate min-w-0 text-right flex-1">
                           {formData.vehicleType || '-'}
                         </span>
                       </div>
                       <div className="flex justify-between items-start border-t border-slate-100/50 pt-2 gap-4">
-                        <span className="text-xs font-bold text-brand-blue capitalize break-words flex-1">{formData.deliveryType?.toLowerCase() === 'tow' ? 'Vehicle Carrier' : formData.deliveryType.replace('_', ' ')}</span>
-                        <span className="text-xs font-bold text-slate-500 capitalize text-right shrink-0">{formData.engineType || '-'}</span>
+                        <span className="text-xs font-bold text-brand-blue capitalize break-all min-w-0 flex-1">{formData.deliveryType?.toLowerCase() === 'tow' ? 'Vehicle Carrier' : formData.deliveryType.replace('_', ' ')}</span>
+                        <span className="text-xs font-bold text-slate-500 capitalize text-right shrink-0 min-w-0 truncate">{formData.engineType || '-'}</span>
                       </div>
                     </div>
                   </div>
@@ -1526,21 +1526,21 @@ function TransportRequestContent() {
                   <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
                     <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">7. Schedule & Payment</h4>
                     <div className="p-4 rounded-2xl bg-slate-50 space-y-3 border border-slate-100/50">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Pickup</span>
-                        <span className="text-sm font-bold text-brand-text">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-sm font-medium text-slate-500 shrink-0">Pickup</span>
+                        <span className="text-sm font-bold text-brand-text truncate min-w-0 text-right flex-1">
                           {formData.pickupDate ? `${formData.pickupDate} ${formData.pickupTime}` : '-'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Delivery</span>
-                        <span className="text-sm font-bold text-brand-text">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-sm font-medium text-slate-500 shrink-0">Delivery</span>
+                        <span className="text-sm font-bold text-brand-text truncate min-w-0 text-right flex-1">
                           {formData.dropoffDate ? `${formData.dropoffDate} ${formData.dropoffTime}` : '-'}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-slate-500">Payment</span>
-                        <span className="text-sm font-bold text-brand-blue capitalize">
+                      <div className="flex justify-between items-center gap-4">
+                        <span className="text-sm font-medium text-slate-500 shrink-0">Payment</span>
+                        <span className="text-sm font-bold text-brand-blue capitalize truncate min-w-0 text-right flex-1">
                           {formData.paymentMethod.replace('_', ' ')}
                         </span>
                       </div>

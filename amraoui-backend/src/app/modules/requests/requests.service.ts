@@ -622,21 +622,43 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
   // Helper to format documents for email
   const getMissionAttachments = (details: any) => {
     if (!details?.documents || !Array.isArray(details.documents)) return [];
-    return details.documents.map((docPath: string) => ({
-      filename: docPath.split('/').pop() || 'document',
-      path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'http://localhost:5000'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
-    }));
+    
+    const getDocLabel = (docUrl: string, index: number) => {
+      // Find exact matches if URLs are stored in specific fields
+      if (details.vehiclePhotos && docUrl.includes(details.vehiclePhotos)) return 'Vehicle photos';
+      if (details.registrationDocumentName && docUrl.includes(details.registrationDocumentName)) return 'Registration document';
+      if (details.referenceDocumentName && docUrl.includes(details.referenceDocumentName)) return 'Reference document';
+      
+      // Fallback based on sequence (legacy support)
+      if (index === 0 && details.vehiclePhotos) return 'Vehicle photos';
+      if (index === 1 && details.registrationDocumentName) return 'Registration document';
+      if (index === 2 && details.referenceDocumentName) return 'Reference document';
+      
+      return `Attached Document ${index + 1}`;
+    };
+
+    return details.documents.map((docPath: string, i: number) => {
+      const ext = docPath.split('.').pop() || 'pdf';
+      const label = getDocLabel(docPath, i);
+      const safeLabel = label.replace(/\s+/g, '_');
+      
+      return {
+        filename: `${safeLabel}.${ext}`,
+        path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'http://localhost:5000'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
+      };
+    });
   };
   
-  if (driverId) {
-    // Notify the manually assigned driver
-    const driver = await (await import('../auth/auth.model')).default.findById(driverId).lean() || await (await import('../drivers/drivers.model')).default.findById(driverId).lean();
+  const notifyDriverId = driverId || mission.assignedDriverId?.toString();
+  if (notifyDriverId) {
+    // Notify the assigned driver (either manually or via accepted quote)
+    const driver = await (await import('../auth/auth.model')).default.findById(notifyDriverId).lean() || await (await import('../drivers/drivers.model')).default.findById(notifyDriverId).lean();
     if (driver) {
       const authId = driver.authId || driver._id;
       NotificationService.createNotification({
         recipientId: authId,
         title: 'Mission Assigned!',
-        message: `You have been manually assigned to mission ${mission.missionId || 'Request'}.`,
+        message: `You have been assigned to mission ${mission.missionId || 'Request'}.`,
         type: 'MISSION_ASSIGNED',
         link: '/driver/missions',
         metadata: { requestId: mission._id.toString() }

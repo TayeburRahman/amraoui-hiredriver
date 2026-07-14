@@ -12,6 +12,7 @@ export const app: Application = express();
 
 // ─── CORS ─────────────────────────────────────────────
 const isDev = process.env.NODE_ENV !== 'production';
+app.use((req, res, next) => { res.setHeader("Vary", "Origin"); next(); });
 
 app.use(
   cors({

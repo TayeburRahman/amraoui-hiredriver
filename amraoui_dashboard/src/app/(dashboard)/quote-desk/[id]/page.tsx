@@ -51,12 +51,13 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         fetchRequest();
     }, [id, reqId]);
 
-    const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleUploadDocument = async (e: React.ChangeEvent<HTMLInputElement>, documentType: string) => {
         if (!e.target.files || e.target.files.length === 0) return;
         
         const file = e.target.files[0];
         const formData = new FormData();
         formData.append('document', file);
+        formData.append('documentType', documentType);
 
         setIsUploadingDoc(true);
         try {
@@ -541,7 +542,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                 <div className="rounded-full px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full max-w-[120px]">
                                     {isUploadingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : "Add Photo"}
                                 </div>
-                                <input type="file" className="hidden" onChange={handleUploadDocument} disabled={isUploadingDoc} />
+                                <input type="file" className="hidden" onChange={(e) => handleUploadDocument(e, 'vehiclePhotos')} disabled={isUploadingDoc} />
                             </label>
 
                             {/* Registration Document */}
@@ -556,7 +557,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                 <div className="rounded-full px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full max-w-[120px]">
                                     {isUploadingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : "Add Document"}
                                 </div>
-                                <input type="file" className="hidden" onChange={handleUploadDocument} disabled={isUploadingDoc} />
+                                <input type="file" className="hidden" onChange={(e) => handleUploadDocument(e, 'registrationDocumentName')} disabled={isUploadingDoc} />
                             </label>
 
                             {/* Reference Document */}
@@ -571,7 +572,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                 <div className="rounded-full px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full max-w-[120px]">
                                     {isUploadingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : "Add File"}
                                 </div>
-                                <input type="file" className="hidden" onChange={handleUploadDocument} disabled={isUploadingDoc} />
+                                <input type="file" className="hidden" onChange={(e) => handleUploadDocument(e, 'referenceDocumentName')} disabled={isUploadingDoc} />
                             </label>
                         </div>
                         

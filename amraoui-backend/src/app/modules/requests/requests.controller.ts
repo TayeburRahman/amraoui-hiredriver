@@ -564,13 +564,14 @@ const uploadInvoice = catchAsync(async (req: Request, res: Response) => {
 const addDocument = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const { documentType } = req.body;
 
   if (!files || !files['document']) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Document file is required');
   }
 
   const fileUrl = files['document'][0].path;
-  const result = await RequestsService.addDocument(id, fileUrl);
+  const result = await RequestsService.addDocument(id, fileUrl, documentType);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

@@ -889,13 +889,29 @@ const uploadInvoice = async (id: string, fileUrl: string) => {
 };
 
 // ─── Document Management ───────────────────────────────────────────────────────────
-const addDocument = async (id: string, fileUrl: string) => {
+const addDocument = async (id: string, fileUrl: string, documentType?: string) => {
   const mission = await Requests.findById(id);
   if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
   
   if (!mission.details.documents) {
     mission.details.documents = [];
   }
+
+  // If a specific document type was uploaded, replace the old one
+  if (documentType) {
+    const previousFilename = mission.details[documentType];
+    if (previousFilename && mission.details.documents.length > 0) {
+      // Find and remove the old URL from the array that matches the previous filename
+      const previousUrlIndex = mission.details.documents.findIndex(d => d.includes(previousFilename));
+      if (previousUrlIndex !== -1) {
+        mission.details.documents.splice(previousUrlIndex, 1);
+      }
+    }
+    // Update the filename in details
+    const newFilename = fileUrl.split('/').pop() || '';
+    mission.details[documentType] = newFilename;
+  }
+
   mission.details.documents.push(fileUrl);
   mission.markModified('details');
   await mission.save();

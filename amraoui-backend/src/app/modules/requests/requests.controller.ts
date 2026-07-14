@@ -564,7 +564,7 @@ const uploadInvoice = catchAsync(async (req: Request, res: Response) => {
 const addDocument = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-  
+
   if (!files || !files['document']) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Document file is required');
   }
@@ -583,7 +583,7 @@ const addDocument = catchAsync(async (req: Request, res: Response) => {
 const deleteDocument = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const fileUrl = req.body.fileUrl;
-  
+
   if (!fileUrl) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Document URL is required');
   }
@@ -619,6 +619,7 @@ const updateCustomerRequest = catchAsync(async (req: Request, res: Response) => 
   });
 });
 
+// =================
 // ─── Customer Cancel Request ──────────────────────────────────────────────────
 const cancelCustomerRequest = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;

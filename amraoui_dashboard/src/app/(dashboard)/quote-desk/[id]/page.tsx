@@ -12,11 +12,20 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     const searchParams = useSearchParams();
     const reqId = searchParams.get('reqId') || id; // Fallback to id if reqId is missing
 
-    const getDocumentLabel = (docUrl: string, details: any) => {
+    const getDocumentLabel = (docUrl: string, details: any, index: number) => {
         if (!details) return 'Attached Document';
         if (details.vehiclePhotos && docUrl.includes(details.vehiclePhotos)) return 'Vehicle photos';
         if (details.registrationDocumentName && docUrl.includes(details.registrationDocumentName)) return 'Registration document';
         if (details.referenceDocumentName && docUrl.includes(details.referenceDocumentName)) return 'Reference document';
+        
+        // Fallback for older legacy requests (like the one in testing) where the backend didn't link the names
+        if (details.documents && details.documents.length > 0) {
+            // Attempt to guess by order if they uploaded all three originally
+            if (index === 0 && details.vehiclePhotos) return 'Vehicle photos';
+            if (index === 1 && details.registrationDocumentName) return 'Registration document';
+            if (index === 2 && details.referenceDocumentName) return 'Reference document';
+        }
+
         return 'Attached Document';
     };
 
@@ -591,7 +600,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                             ) : (
                                 request.details.documents.map((doc: string, idx: number) => {
                                     const filename = doc.split('/').pop() || `Document ${idx + 1}`;
-                                    const docLabel = getDocumentLabel(doc, request.details);
+                                    const docLabel = getDocumentLabel(doc, request.details, idx);
                                     const isDeleting = isDeletingDoc === doc;
                                     return (
                                         <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">

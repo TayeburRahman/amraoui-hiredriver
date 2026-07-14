@@ -118,7 +118,7 @@ router.patch(
 // PUT /api/v1/requests/:id (Customer edit)
 router.put(
   '/:id',
-  auth(ENUM_USER_ROLE.CUSTOMERS),
+  auth(ENUM_USER_ROLE.CUSTOMERS, ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
   RequestsController.updateCustomerRequest
 );
 

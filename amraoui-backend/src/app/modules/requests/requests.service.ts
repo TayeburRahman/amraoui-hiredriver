@@ -915,8 +915,12 @@ const deleteDocument = async (id: string, fileUrl: string) => {
 };
 
 // ─── Customer Edit Request ────────────────────────────────────────────────────────
-const updateCustomerRequest = async (id: string, customerId: string, payload: any) => {
-  const mission = await Requests.findOne({ _id: id, customerId });
+const updateCustomerRequest = async (id: string, customerId: string, role: string, payload: any) => {
+  const query: any = { _id: id };
+  if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
+    query.customerId = customerId;
+  }
+  const mission = await Requests.findOne(query);
   if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found or unauthorized');
 
   // Check if status allows editing
@@ -938,8 +942,12 @@ const updateCustomerRequest = async (id: string, customerId: string, payload: an
 };
 
 // ─── Customer Cancel Request ──────────────────────────────────────────────────────
-const cancelCustomerRequest = async (id: string, customerId: string) => {
-  const mission = await Requests.findOne({ _id: id, customerId });
+const cancelCustomerRequest = async (id: string, customerId: string, role: string) => {
+  const query: any = { _id: id };
+  if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
+    query.customerId = customerId;
+  }
+  const mission = await Requests.findOne(query);
   if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found or unauthorized');
 
   // Allow cancelling at any time (as per requirements)

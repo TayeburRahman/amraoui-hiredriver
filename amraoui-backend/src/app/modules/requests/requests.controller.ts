@@ -602,13 +602,14 @@ const deleteDocument = catchAsync(async (req: Request, res: Response) => {
 const updateCustomerRequest = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const customerId = (req as any).user?.userId;
+  const role = (req as any).user?.role;
   const payload = req.body;
 
   if (!customerId) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized');
   }
 
-  const updated = await RequestsService.updateCustomerRequest(id, customerId, payload);
+  const updated = await RequestsService.updateCustomerRequest(id, customerId, role, payload);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -622,18 +623,19 @@ const updateCustomerRequest = catchAsync(async (req: Request, res: Response) => 
 const cancelCustomerRequest = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const customerId = (req as any).user?.userId;
+  const role = (req as any).user?.role;
 
   if (!customerId) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized');
   }
 
-  const updated = await RequestsService.cancelCustomerRequest(id, customerId);
+  const canceled = await RequestsService.cancelCustomerRequest(id, customerId, role);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Request cancelled successfully',
-    data: updated,
+    data: canceled,
   });
 });
 

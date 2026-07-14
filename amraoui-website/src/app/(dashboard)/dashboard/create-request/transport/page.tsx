@@ -269,9 +269,10 @@ function TransportRequestContent() {
 
         // Upload files sequentially using native fetch to avoid Axios boundary issues
         const token = localStorage.getItem('token');
-        const uploadDoc = async (file: File) => {
+        const uploadDoc = async (file: File, type: string) => {
           const form = new FormData();
           form.append('document', file);
+          form.append('documentType', type);
           await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/requests/${reqId}/documents`, {
             method: 'PATCH',
             headers: {
@@ -283,7 +284,7 @@ function TransportRequestContent() {
 
         if (reqId && vehiclePhotoFile) {
           try {
-            await uploadDoc(vehiclePhotoFile);
+            await uploadDoc(vehiclePhotoFile, 'vehiclePhotos');
           } catch (e) {
             console.error('Failed to upload vehicle photo:', e);
           }
@@ -291,7 +292,7 @@ function TransportRequestContent() {
 
         if (reqId && registrationFile) {
           try {
-            await uploadDoc(registrationFile);
+            await uploadDoc(registrationFile, 'registrationDocumentName');
           } catch (e) {
             console.error('Failed to upload registration document:', e);
           }
@@ -299,7 +300,7 @@ function TransportRequestContent() {
 
         if (reqId && referenceFile) {
           try {
-            await uploadDoc(referenceFile);
+            await uploadDoc(referenceFile, 'referenceDocumentName');
           } catch (e) {
             console.error('Failed to upload reference document:', e);
           }

@@ -68,7 +68,7 @@ app.use('/api/v1', routes);
 // ─── Health Check ─────────────────────────────────────
 app.get('/', (_req: Request, res: Response) => {
   res.json({
-    message: 'Amraoui HireDriver API is running ✅',
+    message: 'Vehiqqo HireDriver API is running ✅',
     version: 'v1',
     endpoints: {
       auth: '/api/v1/auth',

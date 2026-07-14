@@ -97,7 +97,7 @@ const registrationAccount = async (payload: IAuth) => {
     }).catch((error) => console.error("Failed to send email:", error.message));
 
     sendEmail({
-      email: "partner@vehiqqo.com",
+      email: "partner@Vehiqqo .com",
       subject: "New Customer Registration Pending Approval",
       html: `
         <h2>New Customer Registration</h2>
@@ -480,7 +480,7 @@ const resendCodeActivationAccount = async (payload: { email: string }) => {
             <p>Your activation code is: <strong style="font-size: 24px; color: #007bff;">${activationCode}</strong></p>
             <p>Please use this code to activate your account. If you did not request this, please ignore this email.</p>
             <p>Thank you!</p>
-            <div class="footer"><p>&copy; ${new Date().getFullYear()} Vehiqqo</p></div>
+            <div class="footer"><p>&copy; ${new Date().getFullYear()} Vehiqqo </p></div>
         </div>
     </body>
     </html>`
@@ -528,7 +528,7 @@ const resendCodeForgotAccount = async (payload: ForgotPasswordPayload) => {
             <p>Your password reset code is: <strong style="font-size: 24px; color: #007bff;">${verifyCode}</strong></p>
             <p>This code expires in 3 minutes. If you did not request this, please ignore this email.</p>
             <p>Thank you!</p>
-            <div class="footer"><p>&copy; ${new Date().getFullYear()} Vehiqqo</p></div>
+            <div class="footer"><p>&copy; ${new Date().getFullYear()} Vehiqqo </p></div>
         </div>
     </body>
     </html>`
@@ -637,7 +637,7 @@ const updateMyProfile = async (req: RequestData) => {
     case ENUM_USER_ROLE.CUSTOMERS: {
       const customer = await Customers.findById(userId);
       if (!customer) throw new ApiError(httpStatus.NOT_FOUND, "Customer not found!");
-      
+
       const authUpdate: Record<string, any> = {};
       if (data.name) authUpdate.name = data.name;
       if (profile_image) authUpdate.profile_image = profile_image;

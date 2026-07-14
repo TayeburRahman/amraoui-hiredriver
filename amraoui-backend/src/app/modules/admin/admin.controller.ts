@@ -113,6 +113,28 @@ const deleteCustomerLogin = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ─── Update Customer Profile ───────────────────
+const updateCustomer = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.updateCustomer(req.params.id, req.body);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Customer updated successfully',
+    data: result,
+  });
+});
+
+// ─── Delete Customer ───────────────────────────
+const deleteCustomer = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.deleteCustomer(req.params.id);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: 'Customer deleted successfully',
+    data: result,
+  });
+});
+
 export const AdminController = {
   blockUnblockAuthUser,
   getAllCustomers,
@@ -124,4 +146,6 @@ export const AdminController = {
   addCustomerLogin,
   updateCustomerLogin,
   deleteCustomerLogin,
+  updateCustomer,
+  deleteCustomer,
 };

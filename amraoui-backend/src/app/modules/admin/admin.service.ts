@@ -173,7 +173,7 @@ const approveCustomer = async (customerId: string) => {
     sendEmail({
       email: customer.email,
       subject: "Account Approved",
-      html: `<h2>Welcome to Vehiqqo!</h2><p>Your account has been approved by the admin. You can now log in to the portal.</p>`,
+      html: `<h2>Welcome to Vehiqqo !</h2><p>Your account has been approved by the admin. You can now log in to the portal.</p>`,
     }).catch(console.error);
   }
 
@@ -182,19 +182,19 @@ const approveCustomer = async (customerId: string) => {
 
 // ─── Create Customer manually ────────────────
 const createCustomer = async (payload: any) => {
-   const authResponse = await AuthService.registrationAccount({
-      ...payload,
-      role: ENUM_USER_ROLE.CUSTOMERS,
-   });
+  const authResponse = await AuthService.registrationAccount({
+    ...payload,
+    role: ENUM_USER_ROLE.CUSTOMERS,
+  });
 
-   if (authResponse?.result?._id) {
-       await Customers.findByIdAndUpdate(authResponse.result._id, { status: 'active' });
-       if (authResponse.result.authId) {
-         await Auth.findByIdAndUpdate(authResponse.result.authId, { isActive: true });
-       }
-   }
+  if (authResponse?.result?._id) {
+    await Customers.findByIdAndUpdate(authResponse.result._id, { status: 'active' });
+    if (authResponse.result.authId) {
+      await Auth.findByIdAndUpdate(authResponse.result.authId, { isActive: true });
+    }
+  }
 
-   return authResponse.result;
+  return authResponse.result;
 };
 
 // ─── Add Customer Login ────────────────────────
@@ -219,11 +219,11 @@ const addCustomerLogin = async (customerId: string, payload: any) => {
   if (authResponse?.result?._id) {
     // Delete the inadvertently created Customer record from registrationAccount
     await Customers.findByIdAndDelete(authResponse.result._id);
-    
+
     // Activate the auth record immediately
     if (authResponse.result.authId) {
       await Auth.findByIdAndUpdate(authResponse.result.authId, { isActive: true });
-      
+
       // Link the new auth record to the existing customer
       await Customers.findByIdAndUpdate(customerId, {
         $push: { linkedAuthIds: authResponse.result.authId }
@@ -248,7 +248,7 @@ const updateCustomerLogin = async (customerId: string, authId: string, payload: 
   if (payload.password) {
     updateData.password = await bcrypt.hash(payload.password, Number(config.bcrypt_salt_rounds));
   }
-  
+
   await Auth.findByIdAndUpdate(authId, updateData);
   return getCustomerById(customerId);
 };
@@ -268,6 +268,57 @@ const deleteCustomerLogin = async (customerId: string, authId: string) => {
   return getCustomerById(customerId);
 };
 
+// ─── Update Customer Profile ───────────────────
+const updateCustomer = async (customerId: string, payload: any) => {
+  const customer = await Customers.findById(customerId);
+  if (!customer) throw new ApiError(httpStatus.NOT_FOUND, 'Customer not found');
+
+  const updateData: any = {};
+  if (payload.name !== undefined) updateData.name = payload.name;
+  if (payload.family_name !== undefined) updateData.family_name = payload.family_name;
+  if (payload.company !== undefined) updateData.company = payload.company;
+  if (payload.tax_number !== undefined) updateData.tax_number = payload.tax_number;
+  if (payload.email !== undefined) updateData.email = payload.email;
+  if (payload.phone_number !== undefined) updateData.phone_number = payload.phone_number;
+  if (payload.message !== undefined) updateData.message = payload.message;
+  if (payload.profile_image !== undefined) updateData.profile_image = payload.profile_image;
+
+  if (payload.password) {
+    updateData.password = await bcrypt.hash(payload.password, Number(config.bcrypt_salt_rounds));
+  }
+
+  // Sync to primary Auth record
+  const authUpdateData: any = {};
+  if (payload.name !== undefined) authUpdateData.name = payload.name;
+  if (payload.email !== undefined) authUpdateData.email = payload.email;
+  if (updateData.password) authUpdateData.password = updateData.password;
+  
+  if (Object.keys(authUpdateData).length > 0) {
+    await Auth.findByIdAndUpdate(customer.authId, authUpdateData);
+  }
+
+  const updatedCustomer = await Customers.findByIdAndUpdate(
+    customerId,
+    updateData,
+    { new: true, runValidators: true }
+  ).populate('authId');
+
+  return updatedCustomer;
+};
+
+// ─── Delete Customer ───────────────────────────
+const deleteCustomer = async (customerId: string) => {
+  const customer = await Customers.findById(customerId);
+  if (!customer) throw new ApiError(httpStatus.NOT_FOUND, 'Customer not found');
+
+  const authIdsToDelete = [customer.authId, ...(customer.linkedAuthIds || [])];
+  await Auth.deleteMany({ _id: { $in: authIdsToDelete } });
+
+  await Customers.findByIdAndDelete(customerId);
+
+  return customer;
+};
+
 export const AdminService = {
   blockUnblockAuthUser,
   getAllCustomers,
@@ -279,4 +330,6 @@ export const AdminService = {
   addCustomerLogin,
   updateCustomerLogin,
   deleteCustomerLogin,
+  updateCustomer,
+  deleteCustomer,
 };

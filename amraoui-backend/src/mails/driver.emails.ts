@@ -7,11 +7,11 @@ export const driverActivationEmailBody = (data: {
       <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <!-- Logo -->
         <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
-          <img src="https://i.ibb.co/60MBG4Xp/logo.png" alt="Vehiqqo Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
-          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo</div>
+          <img src="https://amraoui-hiredriver.vercel.app/logo.png" alt="Vehiqqo  Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
+          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo </div>
         </div>
 
-        <h3 style="color: #2563EB; font-size: 20px; margin-top: 0; margin-bottom: 16px;">Welcome to Vehiqqo</h3>
+        <h3 style="color: #2563EB; font-size: 20px; margin-top: 0; margin-bottom: 16px;">Welcome to Vehiqqo </h3>
         <p>Hello ${data.name},</p>
         <p>Thank you for registering as a driver. Please verify your email with this code:</p>
         <div style="text-align: center; margin: 24px 0;">
@@ -22,7 +22,7 @@ export const driverActivationEmailBody = (data: {
 
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@vehiqqo.com</a> if you have questions.
+          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
         </p>
       </div>
     </body>
@@ -35,8 +35,8 @@ export const driverDocumentsSubmittedEmailBody = (data: { name: string }) => `
       <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <!-- Logo -->
         <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
-          <img src="https://i.ibb.co/60MBG4Xp/logo.png" alt="Vehiqqo Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
-          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo</div>
+          <img src="https://amraoui-hiredriver.vercel.app/logo.png" alt="Vehiqqo  Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
+          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo </div>
         </div>
 
         <h3 style="color: #2563EB; font-size: 20px; margin-top: 0; margin-bottom: 16px;">Documents Submitted</h3>
@@ -46,7 +46,7 @@ export const driverDocumentsSubmittedEmailBody = (data: { name: string }) => `
 
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@vehiqqo.com</a> if you have questions.
+          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
         </p>
       </div>
     </body>
@@ -59,8 +59,8 @@ export const driverApprovedEmailBody = (data: { name: string }) => `
       <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <!-- Logo -->
         <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
-          <img src="https://i.ibb.co/60MBG4Xp/logo.png" alt="Vehiqqo Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
-          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo</div>
+          <img src="https://amraoui-hiredriver.vercel.app/logo.png" alt="Vehiqqo  Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
+          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo </div>
         </div>
 
         <h3 style="color: #16A34A; font-size: 20px; margin-top: 0; margin-bottom: 16px;">Account Approved</h3>
@@ -69,7 +69,7 @@ export const driverApprovedEmailBody = (data: { name: string }) => `
 
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@vehiqqo.com</a> if you have questions.
+          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
         </p>
       </div>
     </body>
@@ -85,8 +85,8 @@ export const driverDeclinedEmailBody = (data: {
       <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <!-- Logo -->
         <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
-          <img src="https://i.ibb.co/60MBG4Xp/logo.png" alt="Vehiqqo Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
-          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo</div>
+          <img src="https://amraoui-hiredriver.vercel.app/logo.png" alt="Vehiqqo  Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
+          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo </div>
         </div>
 
         <h3 style="color: #DC2626; font-size: 20px; margin-top: 0; margin-bottom: 16px;">Application Declined</h3>
@@ -96,7 +96,7 @@ export const driverDeclinedEmailBody = (data: {
         
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@vehiqqo.com</a> if you have questions.
+          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
         </p>
       </div>
     </body>
@@ -112,8 +112,8 @@ export const adminNewDriverDocumentsEmailBody = (data: {
       <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
         <!-- Logo -->
         <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
-          <img src="https://i.ibb.co/60MBG4Xp/logo.png" alt="Vehiqqo Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
-          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo</div>
+          <img src="https://amraoui-hiredriver.vercel.app/logo.png" alt="Vehiqqo  Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
+          <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo </div>
         </div>
 
         <h3 style="color: #2563EB; font-size: 20px; margin-top: 0; margin-bottom: 16px;">New Driver Documents</h3>
@@ -122,7 +122,7 @@ export const adminNewDriverDocumentsEmailBody = (data: {
 
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@vehiqqo.com</a> if you have questions.
+          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
         </p>
       </div>
     </body>

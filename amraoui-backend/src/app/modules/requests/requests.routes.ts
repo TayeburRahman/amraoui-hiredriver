@@ -196,10 +196,10 @@ router.patch(
   RequestsController.uploadInvoice
 );
 
-// PATCH /api/v1/requests/:id/documents (Admin upload document)
+// PATCH /api/v1/requests/:id/documents (Admin/Customer upload document)
 router.patch(
   '/:id/documents',
-  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
   uploadFile(),
   RequestsController.addDocument
 );

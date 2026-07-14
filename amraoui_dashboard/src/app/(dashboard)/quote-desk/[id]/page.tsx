@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, use } from 'react';
-import { MapPin, Car, FileText, CheckCircle2, User, Mail, Phone, Building, ArrowLeft, Loader2, Paperclip, Trash2, Upload, Search } from 'lucide-react';
+import { MapPin, Car, FileText, CheckCircle2, User, Mail, Phone, Building, ArrowLeft, Loader2, Paperclip, Trash2, Upload, Search, ShieldCheck, UploadCloud } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ViewDetailsModal } from '@/app/(dashboard)/customer-request/components/ViewDetailsModal';
@@ -523,17 +523,59 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
 
                     {/* Documents & Photos */}
                     <div className="bg-white rounded-xl border border-gray-200 p-6">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                                <Paperclip className="w-4 h-4 text-gray-400" />
-                                <h2 className="text-sm font-bold text-gray-900">Documents & Photos</h2>
-                            </div>
-                            <label className={`cursor-pointer flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-lg border transition-colors ${isUploadingDoc ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' : 'bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100'}`}>
-                                {isUploadingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                                Upload File
+                        <div className="flex items-center gap-2 mb-6">
+                            <Paperclip className="w-5 h-5 text-gray-400" />
+                            <h2 className="text-lg font-bold text-gray-900">Documents & Photos</h2>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                            {/* Vehicle Photos */}
+                            <label className={`cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center flex flex-col items-center transition-all duration-200 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'}`}>
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm mb-3">
+                                    <UploadCloud className="h-5 w-5 text-blue-500" />
+                                </div>
+                                <h3 className="text-sm font-bold text-gray-900 mb-1">Vehicle photos</h3>
+                                <p className="text-gray-500 text-xs leading-relaxed mb-4 flex-1">
+                                    {request.details?.vehiclePhotos || "Add clear photos of the vehicle if available."}
+                                </p>
+                                <div className="rounded-full px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full max-w-[120px]">
+                                    {isUploadingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : "Add Photo"}
+                                </div>
+                                <input type="file" className="hidden" onChange={handleUploadDocument} disabled={isUploadingDoc} />
+                            </label>
+
+                            {/* Registration Document */}
+                            <label className={`cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center flex flex-col items-center transition-all duration-200 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'}`}>
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm mb-3">
+                                    <UploadCloud className="h-5 w-5 text-blue-500" />
+                                </div>
+                                <h3 className="text-sm font-bold text-gray-900 mb-1">Registration document</h3>
+                                <p className="text-gray-500 text-xs leading-relaxed mb-4 flex-1">
+                                    {request.details?.registrationDocumentName || "Upload vehicle registration or ownership document."}
+                                </p>
+                                <div className="rounded-full px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full max-w-[120px]">
+                                    {isUploadingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : "Add Document"}
+                                </div>
+                                <input type="file" className="hidden" onChange={handleUploadDocument} disabled={isUploadingDoc} />
+                            </label>
+
+                            {/* Reference Document */}
+                            <label className={`cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center flex flex-col items-center transition-all duration-200 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'}`}>
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm mb-3">
+                                    <UploadCloud className="h-5 w-5 text-blue-500" />
+                                </div>
+                                <h3 className="text-sm font-bold text-gray-900 mb-1">Reference document</h3>
+                                <p className="text-gray-500 text-xs leading-relaxed mb-4 flex-1">
+                                    {request.details?.referenceDocumentName || "Add any extra file for the driver or admin."}
+                                </p>
+                                <div className="rounded-full px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full max-w-[120px]">
+                                    {isUploadingDoc ? <Loader2 className="w-3.5 h-3.5 animate-spin mx-auto" /> : "Add File"}
+                                </div>
                                 <input type="file" className="hidden" onChange={handleUploadDocument} disabled={isUploadingDoc} />
                             </label>
                         </div>
+                        
+                        <h3 className="text-xs font-bold text-gray-400 uppercase mb-3">Attached Files</h3>
                         <div className="space-y-3">
                             {(!request.details?.documents || request.details.documents.length === 0) ? (
                                 <p className="text-sm text-gray-500 text-center py-4">No documents attached.</p>

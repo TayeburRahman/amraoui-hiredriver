@@ -95,6 +95,7 @@ function TransportRequestContent() {
 
   const [vehiclePhotoFile, setVehiclePhotoFile] = useState<File | null>(null);
   const [registrationFile, setRegistrationFile] = useState<File | null>(null);
+  const [referenceFile, setReferenceFile] = useState<File | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -266,12 +267,23 @@ function TransportRequestContent() {
       if (res.data?.success) {
         const reqId = res.data.data?._id;
 
-        // Upload files sequentially if they exist
+        // Upload files sequentially using native fetch to avoid Axios boundary issues
+        const token = localStorage.getItem('token');
+        const uploadDoc = async (file: File) => {
+          const form = new FormData();
+          form.append('document', file);
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/requests/${reqId}/documents`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: form
+          });
+        };
+
         if (reqId && vehiclePhotoFile) {
           try {
-            const formData = new FormData();
-            formData.append('document', vehiclePhotoFile);
-            await api.patch(`/requests/${reqId}/documents`, formData);
+            await uploadDoc(vehiclePhotoFile);
           } catch (e) {
             console.error('Failed to upload vehicle photo:', e);
           }
@@ -279,11 +291,17 @@ function TransportRequestContent() {
 
         if (reqId && registrationFile) {
           try {
-            const formData = new FormData();
-            formData.append('document', registrationFile);
-            await api.patch(`/requests/${reqId}/documents`, formData);
+            await uploadDoc(registrationFile);
           } catch (e) {
             console.error('Failed to upload registration document:', e);
+          }
+        }
+
+        if (reqId && referenceFile) {
+          try {
+            await uploadDoc(referenceFile);
+          } catch (e) {
+            console.error('Failed to upload reference document:', e);
           }
         }
 
@@ -973,7 +991,13 @@ function TransportRequestContent() {
                         <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.referenceDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
                           {formData.referenceDocumentName ? 'Change File' : 'Add File'}
                         </div>
-                        <input type="file" className="hidden" onChange={(e) => updateForm('referenceDocumentName', e.target.files?.[0]?.name || '')} />
+                        <input type="file" className="hidden" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setReferenceFile(file);
+                            updateForm('referenceDocumentName', file.name);
+                          }
+                        }} />
                       </label>
                     </div>
                   </div>

@@ -590,8 +590,14 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {Object.entries(mission.raw.details).map(([key, value]) => {
-                    // Skip already displayed contact fields
-                    if (['firstName', 'lastName', 'email', 'phone', 'company'].includes(key)) return null;
+                    // Skip already displayed contact fields and internal execution data
+                    const excludedFields = [
+                      'firstName', 'lastName', 'email', 'phone', 'company',
+                      'documents', 'pickupInspection', 'deliveryInspection', 
+                      'pickupVerification', 'deliveryArrivalDeclared', 
+                      'deliveryArrivalTime', 'deliveryArrivalLocation'
+                    ];
+                    if (excludedFields.includes(key)) return null;
 
                     let displayValue = value;
                     if (typeof displayValue === 'boolean') displayValue = displayValue ? 'Yes' : 'No';

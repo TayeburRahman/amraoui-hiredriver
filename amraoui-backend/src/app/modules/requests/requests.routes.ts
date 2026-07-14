@@ -115,6 +115,13 @@ router.patch(
   RequestsController.cancelRequest
 );
 
+// PUT /api/v1/requests/:id (Customer edit)
+router.put(
+  '/:id',
+  auth(ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.updateCustomerRequest
+);
+
 // PATCH /api/v1/requests/:id/cancel-customer (Customer cancel)
 router.patch(
   '/:id/cancel-customer',

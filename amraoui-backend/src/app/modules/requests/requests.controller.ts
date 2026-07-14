@@ -598,6 +598,45 @@ const deleteDocument = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ─── Customer Update Request ──────────────────────────────────────────────────
+const updateCustomerRequest = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const customerId = (req as any).user?.userId;
+  const payload = req.body;
+
+  if (!customerId) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized');
+  }
+
+  const updated = await RequestsService.updateCustomerRequest(id, customerId, payload);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Request updated successfully',
+    data: updated,
+  });
+});
+
+// ─── Customer Cancel Request ──────────────────────────────────────────────────
+const cancelCustomerRequest = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const customerId = (req as any).user?.userId;
+
+  if (!customerId) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized');
+  }
+
+  const updated = await RequestsService.cancelCustomerRequest(id, customerId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Request cancelled successfully',
+    data: updated,
+  });
+});
+
 export const RequestsController = {
   createRequest,
   getAllRequests,
@@ -623,4 +662,6 @@ export const RequestsController = {
   uploadInvoice,
   addDocument,
   deleteDocument,
+  updateCustomerRequest,
+  cancelCustomerRequest,
 };

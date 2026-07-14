@@ -78,5 +78,5 @@ export const uploadFile = () => {
     { name: 'document', maxCount: 10 },
   ]);
 
-  return upload;
+  return upload as any;
 };

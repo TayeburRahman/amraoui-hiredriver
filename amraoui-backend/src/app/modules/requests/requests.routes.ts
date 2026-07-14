@@ -66,6 +66,13 @@ router.get(
   RequestsController.getRequestById
 );
 
+// PUT /api/v1/requests/:id (Customer edit)
+router.put(
+  '/:id',
+  auth(ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.updateCustomerRequest
+);
+
 // PATCH /api/v1/requests/:id/status
 router.patch(
   '/:id/status',
@@ -106,6 +113,13 @@ router.patch(
   '/:id/cancel',
   auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
   RequestsController.cancelRequest
+);
+
+// PATCH /api/v1/requests/:id/cancel-customer (Customer cancel)
+router.patch(
+  '/:id/cancel-customer',
+  auth(ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.cancelCustomerRequest
 );
 
 // POST /api/v1/requests/:id/expenses

@@ -22,7 +22,7 @@ export const driverActivationEmailBody = (data: {
 
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
+          Please contact support at <a href="mailto:partner@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">partner@vehiqqo.com</a> if you have questions.
         </p>
       </div>
     </body>
@@ -46,7 +46,7 @@ export const driverDocumentsSubmittedEmailBody = (data: { name: string }) => `
 
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
+          Please contact support at <a href="mailto:partner@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">partner@vehiqqo.com</a> if you have questions.
         </p>
       </div>
     </body>
@@ -69,7 +69,7 @@ export const driverApprovedEmailBody = (data: { name: string }) => `
 
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
+          Please contact support at <a href="mailto:partner@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">partner@vehiqqo.com</a> if you have questions.
         </p>
       </div>
     </body>
@@ -96,7 +96,7 @@ export const driverDeclinedEmailBody = (data: {
         
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
+          Please contact support at <a href="mailto:partner@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">partner@vehiqqo.com</a> if you have questions.
         </p>
       </div>
     </body>
@@ -122,7 +122,7 @@ export const adminNewDriverDocumentsEmailBody = (data: {
 
         <!-- Footer -->
         <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
-          Please contact support at <a href="mailto:driver@Vehiqqo .com" style="color: #2563EB; text-decoration: none; font-weight: 600;">driver@Vehiqqo .com</a> if you have questions.
+          Please contact support at <a href="mailto:partner@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">partner@vehiqqo.com</a> if you have questions.
         </p>
       </div>
     </body>

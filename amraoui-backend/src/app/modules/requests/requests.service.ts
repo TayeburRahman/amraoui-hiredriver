@@ -914,6 +914,40 @@ const deleteDocument = async (id: string, fileUrl: string) => {
   return mission;
 };
 
+// ─── Customer Edit Request ────────────────────────────────────────────────────────
+const updateCustomerRequest = async (id: string, customerId: string, payload: any) => {
+  const mission = await Requests.findOne({ _id: id, customerId });
+  if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found or unauthorized');
+
+  // Check if status allows editing
+  const allowedStatuses = [RequestStatus.PENDING_ADMIN_QUOTE, RequestStatus.CUSTOMER_REVIEWING_QUOTE];
+  if (!allowedStatuses.includes(mission.status as RequestStatus)) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Cannot edit request at this stage');
+  }
+
+  // Update only allowed fields (details mostly)
+  if (payload.details) {
+    mission.details = { ...mission.details, ...payload.details };
+    mission.markModified('details');
+  }
+  
+  if (payload.type) mission.type = payload.type;
+
+  await mission.save();
+  return mission;
+};
+
+// ─── Customer Cancel Request ──────────────────────────────────────────────────────
+const cancelCustomerRequest = async (id: string, customerId: string) => {
+  const mission = await Requests.findOne({ _id: id, customerId });
+  if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found or unauthorized');
+
+  // Allow cancelling at any time (as per requirements)
+  mission.status = RequestStatus.CANCELLED;
+  await mission.save();
+  return mission;
+};
+
 export const RequestsService = {
   createRequest,
   getAllRequests,
@@ -939,4 +973,6 @@ export const RequestsService = {
   uploadInvoice,
   addDocument,
   deleteDocument,
+  updateCustomerRequest,
+  cancelCustomerRequest,
 };

@@ -716,6 +716,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
       <ProofViewerModal
         isOpen={isProofModalOpen}
         onClose={() => setIsProofModalOpen(false)}
+        mission={mission}
       />
 
       <AddExpenseModal

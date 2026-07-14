@@ -27,6 +27,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showManualAssignModal, setShowManualAssignModal] = useState(false);
     const [drivers, setDrivers] = useState<any[]>([]);
+    const [driverSearch, setDriverSearch] = useState('');
     const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
     const [isFetchingDrivers, setIsFetchingDrivers] = useState(false);
     
@@ -127,7 +128,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         try {
             const res = await apiFetch<any>('/drivers?limit=100', { auth: true });
             if (res.data?.success) {
-                setDrivers(res.data.data?.data || []);
+                setDrivers(res.data.data?.drivers || []);
             }
         } catch (error) {
             console.error("Error fetching drivers:", error);
@@ -676,21 +677,42 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                         <div className="p-6 border-b border-gray-100">
                             <h3 className="text-xl font-bold text-gray-900">Manual Driver Assignment</h3>
                             <p className="text-gray-500 text-sm mt-1">Select a driver from the list below.</p>
+                            <div className="mt-4 relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search by name, email, or ID..."
+                                    value={driverSearch}
+                                    onChange={(e) => setDriverSearch(e.target.value)}
+                                    className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                            </div>
                         </div>
                         <div className="p-6 overflow-y-auto flex-1">
                             {isFetchingDrivers ? (
                                 <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-600" /></div>
                             ) : (
                                 <div className="space-y-3">
-                                    {drivers.map(driver => (
+                                    {drivers.filter(d => 
+                                        (d.name || d.firstName + ' ' + d.lastName)?.toLowerCase().includes(driverSearch.toLowerCase()) || 
+                                        (d.email || d.authId?.email)?.toLowerCase().includes(driverSearch.toLowerCase()) || 
+                                        d._id.toLowerCase().includes(driverSearch.toLowerCase()) ||
+                                        (d.phone_number || d.phone)?.toLowerCase().includes(driverSearch.toLowerCase())
+                                    ).map(driver => (
                                         <label key={driver._id} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${selectedDriverId === driver._id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>
                                             <input type="radio" name="driver" value={driver._id} checked={selectedDriverId === driver._id} onChange={() => setSelectedDriverId(driver._id)} className="w-4 h-4 text-blue-600" />
                                             <div>
                                                 <p className="font-semibold text-gray-900 text-sm">{driver.name || driver.firstName + ' ' + driver.lastName}</p>
-                                                <p className="text-xs text-gray-500">{driver.phone_number || driver.phone || driver.email}</p>
+                                                <p className="text-xs text-gray-500">{driver.phone_number || driver.phone || driver.email || driver.authId?.email}</p>
                                             </div>
                                         </label>
                                     ))}
+                                    {drivers.length > 0 && drivers.filter(d => 
+                                        (d.name || d.firstName + ' ' + d.lastName)?.toLowerCase().includes(driverSearch.toLowerCase()) || 
+                                        (d.email || d.authId?.email)?.toLowerCase().includes(driverSearch.toLowerCase()) || 
+                                        d._id.toLowerCase().includes(driverSearch.toLowerCase()) ||
+                                        (d.phone_number || d.phone)?.toLowerCase().includes(driverSearch.toLowerCase())
+                                    ).length === 0 && <p className="text-center text-gray-500 py-4">No drivers match your search.</p>}
                                     {drivers.length === 0 && <p className="text-center text-gray-500 py-4">No drivers found.</p>}
                                 </div>
                             )}

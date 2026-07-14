@@ -5,7 +5,8 @@ import { StatusBadge } from '@/components/ui/StatusBadge';
 import { SegmentedTabs } from '@/components/ui/SegmentedTabs';
 import { Pagination } from '../mission-monitoring/components/Pagination';
 import { CustomerDetailsModal } from './components/CustomerDetailsModal';
-import { Search, Users, RefreshCw, UserPlus, X, CheckCircle, Loader2 } from 'lucide-react';
+import { CustomerEditModal } from './components/CustomerEditModal';
+import { Search, Users, RefreshCw, UserPlus, X, CheckCircle, Loader2, Edit, Trash2 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────
 export interface ICustomerRecord {
@@ -238,6 +239,9 @@ const CustomersPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [customerToEdit, setCustomerToEdit] = useState<ICustomerRecord | null>(null);
+  const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
 
   // Debounce search
   useEffect(() => {
@@ -352,6 +356,26 @@ const CustomersPage = () => {
       // silently fail
     } finally {
       setApprovingId(null);
+    }
+  };
+
+  const handleDeleteCustomer = async (customerId: string) => {
+    if (!window.confirm("Are you sure you want to delete this customer? This action cannot be undone.")) return;
+    setIsDeletingId(customerId);
+    try {
+      const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+      const res = await fetch(`${BACKEND_URL}/api/v1/admin/customers/${customerId}`, {
+        method: 'DELETE',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) throw new Error('Delete failed');
+      fetchCustomers();
+    } catch {
+      // silently fail
+    } finally {
+      setIsDeletingId(null);
     }
   };
 
@@ -505,8 +529,24 @@ const CustomersPage = () => {
                         <button
                           onClick={() => handleViewCustomer(customer)}
                           className="text-gray-900 font-bold hover:text-blue-600 transition-colors text-sm"
+                          title="View Customer"
                         >
                           View
+                        </button>
+                        <button
+                          onClick={() => { setCustomerToEdit(customer); setIsEditOpen(true); }}
+                          className="text-gray-500 hover:text-blue-600 transition-colors"
+                          title="Edit Customer"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCustomer(customer._id)}
+                          disabled={isDeletingId === customer._id}
+                          className="text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+                          title="Delete Customer"
+                        >
+                          {isDeletingId === customer._id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
                         </button>
                       </div>
                     </td>
@@ -546,11 +586,17 @@ const CustomersPage = () => {
       />
 
       {/* Create Customer Modal */}
-      {/* // */}
       <CreateCustomerModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
         onSuccess={fetchCustomers}
+      />
+
+      <CustomerEditModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onSuccess={fetchCustomers}
+        customer={customerToEdit}
       />
     </div>
   );

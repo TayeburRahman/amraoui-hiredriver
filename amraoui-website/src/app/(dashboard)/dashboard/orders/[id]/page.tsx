@@ -30,6 +30,8 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
   const [mission, setMission] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   useEffect(() => {
     const fetchMission = async () => {
@@ -60,6 +62,24 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
       </div>
     );
   }
+
+  const handleCancelOrder = async () => {
+    setIsCancelling(true);
+    try {
+      const res = await api.patch(`/requests/${id}/cancel-customer`);
+      if (res.data?.success) {
+        setMission((prev: any) => ({ ...prev, status: 'CANCELLED' }));
+        setShowCancelModal(false);
+      } else {
+        alert('Failed to cancel order');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred while cancelling the order');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   if (error || !mission) {
     return (
@@ -462,7 +482,25 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
 
             {/* Action Buttons */}
             <div className="pt-4 border-t border-slate-100 flex flex-col gap-3">
-              <Link href={`/dashboard/orders/${id}/report`} className="block">
+              {(mission.status === 'PENDING_ADMIN_QUOTE' || mission.status === 'CUSTOMER_REVIEWING_QUOTE') && (
+                <Link href={`/dashboard/create-request/${isTransport ? 'transport' : isInspection ? 'inspection' : 'hire-driver'}?editId=${mission._id || id}`} className="block">
+                  <Button variant="outline" className="w-full h-12 rounded-2xl border-brand-blue text-brand-blue hover:bg-brand-blue-light font-bold transition-colors">
+                    Edit Order
+                  </Button>
+                </Link>
+              )}
+              
+              {mission.status !== 'CANCELLED' && mission.status !== 'COMPLETED' && (
+                <Button 
+                  onClick={() => setShowCancelModal(true)}
+                  variant="outline" 
+                  className="w-full h-12 rounded-2xl border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 font-bold transition-colors"
+                >
+                  Cancel Order
+                </Button>
+              )}
+
+              <Link href={`/dashboard/orders/${id}/report`} className="block mt-2">
                 <Button className="w-full h-12 rounded-2xl bg-brand-blue hover:bg-brand-blue-hover text-white font-bold transition-colors shadow-md shadow-blue-100">
                   View Delivery Report / Proofs
                 </Button>
@@ -473,6 +511,35 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
         </Card>
 
       </div>
+
+      {/* Cancel Warning Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <Card className="w-full max-w-md p-6 sm:p-8 rounded-[2rem] border-none shadow-2xl bg-white animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-black text-brand-text mb-2">Cancel Order?</h3>
+            <p className="text-slate-500 mb-6 font-medium">
+              Are you sure you want to cancel this mission? This action cannot be undone and drivers will be notified.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                onClick={() => setShowCancelModal(false)}
+                disabled={isCancelling}
+                variant="outline"
+                className="w-full h-12 rounded-2xl border-slate-200 text-slate-600 font-bold"
+              >
+                No, keep it
+              </Button>
+              <Button 
+                onClick={handleCancelOrder}
+                disabled={isCancelling}
+                className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-bold"
+              >
+                {isCancelling ? 'Cancelling...' : 'Yes, Cancel Order'}
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

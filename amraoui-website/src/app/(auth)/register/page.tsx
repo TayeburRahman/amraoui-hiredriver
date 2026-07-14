@@ -145,7 +145,7 @@ export default function RegisterPage() {
 
       const { accessToken, user } = res.data;
       dispatch(setCredentials({ user, token: accessToken }));
-      toast.success('Account activated! Welcome to Vehiqqo.');
+      toast.success('Account activated! Welcome to Vehiqqo .');
       router.push('/dashboard');
     } catch (err: any) {
       const msg = err?.response?.data?.message || 'Invalid or expired code. Please try again.';
@@ -264,7 +264,7 @@ export default function RegisterPage() {
             <NextImage src="/assets/logo.png" alt="Logo" width={160} height={45} style={{ height: 'auto' }} priority />
           </Link>
           {/* <h1 className="text-3xl font-black text-brand-text">Create account</h1> */}
-          <p className="text-slate-400 font-medium mt-2">Join Amraoui for smarter transport solutions</p>
+          <p className="text-slate-400 font-medium mt-2">Join Vehiqqo for smarter transport solutions</p>
         </div>
 
         <Card className="shadow-2xl shadow-blue-100/50 border-none rounded-[2.5rem] overflow-hidden bg-white">

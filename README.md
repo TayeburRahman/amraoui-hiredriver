@@ -1,8 +1,8 @@
-# Amraoui - Hire Driver Platform
+# Vehiqqo - Hire Driver Platform
 
-![Amraoui Landing Page](amraoui-website/public/assets/landing/hero-bg.png)
+![Vehiqqo Landing Page](amraoui-website/public/assets/landing/hero-bg.png)
 
-Amraoui is a comprehensive SaaS platform designed for hiring and managing drivers. It connects customers needing reliable transportation services with qualified drivers, while providing administrators with the necessary tools to monitor and control the entire ecosystem.
+Vehiqqo is a comprehensive SaaS platform designed for hiring and managing drivers. It connects customers needing reliable transportation services with qualified drivers, while providing administrators with the necessary tools to monitor and control the entire ecosystem.
 
 ## 🏗️ Project Structure
 
@@ -64,7 +64,7 @@ Create a `.env` file in the `amraoui-backend` directory and add the following co
 
 ```env
 # Server Configuration
-APP_NAME=Vehiqqo
+APP_NAME=Vehiqqo 
 BASE_URL=0.0.0.0
 PORT=5000
 SOCKET_PORT=5001

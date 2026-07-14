@@ -309,12 +309,19 @@ function OrdersPageContent() {
                       </Badge>
                     </td>
                     <td className="py-5 px-6 sm:px-8 align-middle text-right">
-                      {order.status === 'PendingReview' || order.status === 'Pending' ? (
-                        <OfferReceivedModal order={order.raw}>
-                          <Button variant="link" className="text-brand-blue font-bold px-0 h-auto hover:no-underline">
-                            {order.actionText}
-                          </Button>
-                        </OfferReceivedModal>
+                      {order.status === 'PendingReview' ? (
+                        <div className="flex items-center justify-end gap-3">
+                          <OfferReceivedModal order={order.raw}>
+                            <Button variant="link" className="text-brand-blue font-bold px-0 h-auto hover:no-underline">
+                              Review Quote
+                            </Button>
+                          </OfferReceivedModal>
+                          <Link href={`/dashboard/orders/${order.realId}`}>
+                            <Button variant="outline" size="sm" className="h-8 text-xs font-bold rounded-lg">
+                              Details
+                            </Button>
+                          </Link>
+                        </div>
                       ) : (
                         <Link href={`/dashboard/orders/${order.realId}`}>
                           <Button variant="link" className="text-brand-blue font-bold px-0 h-auto hover:no-underline">

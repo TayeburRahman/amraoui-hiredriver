@@ -154,9 +154,7 @@ class MissionDetailsScreen extends StatelessWidget {
           const Gap(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildHeaderStat('Proposed Price', price),
-            ],
+            children: [_buildHeaderStat('Proposed Price', price)],
           ),
           const Gap(height: 16),
           Row(
@@ -507,7 +505,7 @@ class MissionDetailsScreen extends StatelessWidget {
     final fileName = docUrl.split('/').last;
     final fullUrl = docUrl.startsWith('http')
         ? docUrl
-        : 'https://vehiqqo-backend.onrender.com\$docUrl';
+        : 'https://Vehiqqo -backend.onrender.com\$docUrl';
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
 import api from '@/lib/axios';
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
@@ -59,8 +59,10 @@ const specialRequirements = [
   { id: "automatic_transmission", label: "Automatic transmission" },
 ];
 
-export default function HireDriverPage() {
+function HireDriverContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('editId');
   const { t, language } = useTranslation();
   const isRTL = language === 'ar';
 
@@ -95,6 +97,27 @@ export default function HireDriverPage() {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
+
+  useEffect(() => {
+    const fetchEditData = async () => {
+      try {
+        const res = await api.get(`/requests/${editId}`);
+        if (res.data?.success) {
+          const mission = res.data.data;
+          if (mission.details) {
+            setFormData(prev => ({ ...prev, ...mission.details }));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch request for editing', err);
+        router.push('/dashboard/orders');
+      }
+    };
+
+    if (editId) {
+      fetchEditData();
+    }
+  }, [editId, router]);
 
   const driverCount = formData.driverCount || 1;
   const selectedTasks = formData.driverTasks || [];
@@ -159,7 +182,13 @@ export default function HireDriverPage() {
         details: formData,
       };
 
-      const res = await api.post('/requests', payload);
+      let res;
+      if (editId) {
+        res = await api.put(`/requests/${editId}`, payload);
+      } else {
+        res = await api.post('/requests', payload);
+      }
+      
       if (res.data?.success) {
         router.push('/dashboard/orders');
       }
@@ -522,5 +551,13 @@ export default function HireDriverPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function HireDriverPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div></div>}>
+      <HireDriverContent />
+    </Suspense>
   );
 }

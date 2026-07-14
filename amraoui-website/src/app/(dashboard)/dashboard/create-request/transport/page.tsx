@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import api from '@/lib/axios';
 import { Card } from '@/components/ui/card';
@@ -86,11 +86,15 @@ const initialFormData = {
   paymentMethod: 'invoice',
 };
 
-export default function TransportRequestPage() {
+function TransportRequestContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('editId');
   const { t, language } = useTranslation();
   const isRTL = language === 'ar';
 
+  const [vehiclePhotoFile, setVehiclePhotoFile] = useState<File | null>(null);
+  const [registrationFile, setRegistrationFile] = useState<File | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -105,8 +109,30 @@ export default function TransportRequestPage() {
 
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load saved state on mount
+  // Load saved state on mount or fetch edit data
   useEffect(() => {
+    const fetchEditData = async () => {
+      try {
+        const res = await api.get(`/requests/${editId}`);
+        if (res.data?.success) {
+          const mission = res.data.data;
+          if (mission.details) {
+            setFormData({ ...initialFormData, ...mission.details });
+          }
+          setIsLoaded(true);
+        }
+      } catch (err) {
+        console.error('Failed to fetch request for editing', err);
+        toast.error('Failed to load request for editing.');
+        router.push('/dashboard/orders');
+      }
+    };
+
+    if (editId) {
+      fetchEditData();
+      return;
+    }
+
     const savedStep = localStorage.getItem('transport_currentStep');
     const savedForm = localStorage.getItem('transport_formData');
 
@@ -125,13 +151,13 @@ export default function TransportRequestPage() {
 
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Save state when it changes
+  // Save state when it changes (only if not editing)
   useEffect(() => {
-    if (isLoaded && !isSuccess) {
+    if (isLoaded && !isSuccess && !editId) {
       localStorage.setItem('transport_currentStep', currentStep.toString());
       localStorage.setItem('transport_formData', JSON.stringify(formData));
     }
-  }, [currentStep, formData, isLoaded, isSuccess]);
+  }, [currentStep, formData, isLoaded, isSuccess, editId]);
 
   const toggleDeliveryCondition = (condition: string) => {
     setFormData(prev => {
@@ -230,17 +256,48 @@ export default function TransportRequestPage() {
         details: formData,
       };
 
-      const res = await api.post('/requests', payload);
+      let res;
+      if (editId) {
+        res = await api.put(`/requests/${editId}`, payload);
+      } else {
+        res = await api.post('/requests', payload);
+      }
+      
       if (res.data?.success) {
+        const reqId = res.data.data?._id;
+
+        // Upload files sequentially if they exist
+        if (reqId && vehiclePhotoFile) {
+          try {
+            const formData = new FormData();
+            formData.append('document', vehiclePhotoFile);
+            await api.patch(`/requests/${reqId}/documents`, formData);
+          } catch (e) {
+            console.error('Failed to upload vehicle photo:', e);
+          }
+        }
+
+        if (reqId && registrationFile) {
+          try {
+            const formData = new FormData();
+            formData.append('document', registrationFile);
+            await api.patch(`/requests/${reqId}/documents`, formData);
+          } catch (e) {
+            console.error('Failed to upload registration document:', e);
+          }
+        }
+
         setIsSuccess(true);
         // Clear saved state on successful submission
-        localStorage.removeItem('transport_currentStep');
-        localStorage.removeItem('transport_formData');
+        if (!editId) {
+          localStorage.removeItem('transport_currentStep');
+          localStorage.removeItem('transport_formData');
+        }
 
         setCurrentStep(1);
         setFormData(initialFormData);
 
-        toast.success(t.createRequest?.successMessage || 'Transport request created successfully!');
+        toast.success(editId ? 'Transport request updated successfully!' : t.createRequest?.successMessage || 'Transport request created successfully!');
         // Handle success - maybe redirect to orders
         router.push('/dashboard/orders');
       }
@@ -870,7 +927,13 @@ export default function TransportRequestPage() {
                         <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.vehiclePhotos ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
                           {formData.vehiclePhotos ? 'Change Photo' : 'Add Photo'}
                         </div>
-                        <input type="file" className="hidden" onChange={(e) => updateForm('vehiclePhotos', e.target.files?.[0]?.name || '')} />
+                        <input type="file" className="hidden" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setVehiclePhotoFile(file);
+                            updateForm('vehiclePhotos', file.name);
+                          }
+                        }} />
                       </label>
 
                       {/* Registration */}
@@ -887,7 +950,13 @@ export default function TransportRequestPage() {
                         <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.registrationDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
                           {formData.registrationDocumentName ? 'Change Document' : 'Add Document'}
                         </div>
-                        <input type="file" className="hidden" onChange={(e) => updateForm('registrationDocumentName', e.target.files?.[0]?.name || '')} />
+                        <input type="file" className="hidden" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setRegistrationFile(file);
+                            updateForm('registrationDocumentName', file.name);
+                          }
+                        }} />
                       </label>
 
                       {/* Reference */}
@@ -1470,5 +1539,13 @@ export default function TransportRequestPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TransportRequestPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue"></div></div>}>
+      <TransportRequestContent />
+    </Suspense>
   );
 }

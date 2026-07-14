@@ -23,12 +23,12 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({ isOpen
             <h2 className="text-xl font-bold text-gray-900">INV-C-20458</h2>
             <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-700">Paid</span>
           </div>
-          <p className="text-xs text-gray-400">#MS-20458 • Amraoui • 22 Apr 2026</p>
+          <p className="text-xs text-gray-400">#MS-20458 • Vehiqqo • 22 Apr 2026</p>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide text-sm">
-          
+
           {/* Big Blue Card */}
           <div className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white p-6 rounded-2xl shadow-md">
             <p className="text-xs opacity-80 mb-1">Total Amount</p>

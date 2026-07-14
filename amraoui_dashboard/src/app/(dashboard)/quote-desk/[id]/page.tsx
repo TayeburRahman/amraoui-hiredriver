@@ -12,6 +12,15 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     const searchParams = useSearchParams();
     const reqId = searchParams.get('reqId') || id; // Fallback to id if reqId is missing
 
+    const renderDeliveryType = (type: string | undefined) => {
+        if (!type) return 'N/A';
+        const t = type.toLowerCase();
+        if (t === 'license') return 'Use of dealer plates (Z or V green plates)';
+        if (t === 'tow') return 'Transport with vehicle carrier (trailer)';
+        if (t === 'drive') return 'Drive with car';
+        return type;
+    };
+
     const [request, setRequest] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isAssigning, setIsAssigning] = useState(false);
@@ -462,7 +471,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                     <div className="flex justify-between border-t border-gray-100 pt-2 mt-2">
                                         <span className="text-gray-400">Delivery Type</span>
                                         <span className="font-bold text-blue-600 capitalize">
-                                            {request.details?.deliveryType?.toLowerCase() === 'tow' ? 'Vehicle Carrier' : (request.details?.deliveryType || 'N/A')}
+                                            {renderDeliveryType(request.details?.deliveryType)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">

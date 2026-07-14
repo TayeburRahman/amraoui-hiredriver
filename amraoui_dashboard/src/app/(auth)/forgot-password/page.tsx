@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Mail, Loader2, Shield, ArrowLeft } from "lucide-react";
+import { Mail, Loader2, ArrowLeft } from "lucide-react";
 import { forgotPassword } from "@/lib/auth.api";
 
 const ForgotPasswordPage = () => {
@@ -38,9 +38,9 @@ const ForgotPasswordPage = () => {
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 shadow-lg shadow-blue-500/30 mb-4">
-            <Shield className="w-8 h-8 text-white" />
+            <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Amraoui Admin</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Vehiqqo Admin</h1>
           <p className="text-blue-300/70 text-sm mt-1">Secure Admin Portal</p>
         </div>
 
@@ -78,7 +78,7 @@ const ForgotPasswordPage = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@amraoui.com"
+                  placeholder="admin@vehiqqo "
                   required
                   className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-sm"
                 />
@@ -103,7 +103,7 @@ const ForgotPasswordPage = () => {
         </div>
 
         <p className="text-center text-xs text-slate-600 mt-6">
-          Vehiqqo © {new Date().getFullYear()}
+          Vehiqqo  © {new Date().getFullYear()}
         </p>
       </div>
     </div>

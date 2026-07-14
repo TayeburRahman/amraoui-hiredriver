@@ -5,9 +5,22 @@ let socket: Socket | null = null;
 export const getSocket = () => {
   if (!socket) {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
-    socket = io(backendUrl, {
-      autoConnect: false,
-    });
+
+    if (backendUrl.includes('vercel.app')) {
+      socket = {
+        on: () => { },
+        off: () => { },
+        emit: () => { },
+        connect: () => { },
+        disconnect: () => { },
+        disconnected: true,
+        io: { opts: { query: {} } },
+      } as unknown as Socket;
+    } else {
+      socket = io(backendUrl, {
+        autoConnect: false,
+      });
+    }
   }
   return socket;
 };

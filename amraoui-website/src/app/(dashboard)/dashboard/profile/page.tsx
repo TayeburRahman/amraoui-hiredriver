@@ -384,7 +384,7 @@ export default function ProfilePage() {
   const [isFetching, setIsFetching] = useState(true);
   const [showSupportModal, setShowSupportModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  
+
   const [globalSettings, setGlobalSettings] = useState<any>({});
 
   // Lifted state to persist across tab changes
@@ -417,7 +417,7 @@ export default function ProfilePage() {
         setIsFetching(false);
       }
     };
-    
+
     const fetchSettings = async () => {
       try {
         const res = await api.get('/settings');
@@ -428,7 +428,7 @@ export default function ProfilePage() {
         console.error('Failed to load global settings', err);
       }
     };
-    
+
     fetchProfile();
     fetchSettings();
   }, [dispatch]);
@@ -623,8 +623,8 @@ export default function ProfilePage() {
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Email Address</span>
-                <a href={`mailto:${globalSettings.supportEmail || 'support@amraoui.com'}`} className="text-sm font-bold text-brand-blue hover:underline">
-                  {globalSettings.supportEmail || 'support@amraoui.com'}
+                <a href={`mailto:${globalSettings.supportEmail || 'support@vehiqqo '}`} className="text-sm font-bold text-brand-blue hover:underline">
+                  {globalSettings.supportEmail || 'support@vehiqqo '}
                 </a>
               </div>
 
@@ -651,7 +651,7 @@ export default function ProfilePage() {
               <Button
                 className="flex-1 rounded-xl h-11 font-bold bg-brand-blue hover:bg-brand-blue-hover text-white"
                 onClick={() => {
-                  window.open(`mailto:${globalSettings.supportEmail || 'support@amraoui.com'}`);
+                  window.open(`mailto:${globalSettings.supportEmail || 'support@vehiqqo '}`);
                   setShowSupportModal(false);
                 }}
               >
@@ -687,7 +687,7 @@ export default function ProfilePage() {
                 <div>
                   <h3 className="font-bold text-brand-text text-base mb-1.5">2. Service Description</h3>
                   <p>
-                    Amraoui operates an on-demand driver and transport request system, connecting individual and corporate customers with professional, vetted drivers for vehicle collection, delivery, and inspection missions.
+                    Vehiqqo operates an on-demand driver and transport request system, connecting individual and corporate customers with professional, vetted drivers for vehicle collection, delivery, and inspection missions.
                   </p>
                 </div>
                 <div>
@@ -705,7 +705,7 @@ export default function ProfilePage() {
                 <div>
                   <h3 className="font-bold text-brand-text text-base mb-1.5">5. Contact Us</h3>
                   <p>
-                    If you have any questions or feedback regarding these terms or our privacy policy, please contact us at <a href={`mailto:${globalSettings.supportEmail || 'support@amraoui.com'}`} className="text-brand-blue font-bold hover:underline">{globalSettings.supportEmail || 'support@amraoui.com'}</a>.
+                    If you have any questions or feedback regarding these terms or our privacy policy, please contact us at <a href={`mailto:${globalSettings.supportEmail || 'support@vehiqqo '}`} className="text-brand-blue font-bold hover:underline">{globalSettings.supportEmail || 'support@vehiqqo '}</a>.
                   </p>
                 </div>
               </>

@@ -29,16 +29,16 @@ const Header = ({ onMenuClick }: TProps) => {
   const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const [adminName, setAdminName] = useState("Admin User");
-  const [adminEmail, setAdminEmail] = useState("admin@amraoui.com");
+  const [adminEmail, setAdminEmail] = useState("admin@vehiqqo ");
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
   useEffect(() => {
     const session = getSession();
     if (session) {
       setAdminName(session.name || "Admin User");
-      setAdminEmail(session.email || "admin@amraoui.com");
+      setAdminEmail(session.email || "admin@vehiqqo ");
       setProfileImage(getProfileImageUrl(session.profile_image));
-      
+
       const socket = connectSocket(session.id, session.role || 'ADMIN');
       socket.on('notification', () => {
         // Refetch notifications on new event
@@ -218,7 +218,7 @@ const Header = ({ onMenuClick }: TProps) => {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={handleLogout}
                 className="cursor-pointer text-destructive focus:text-destructive"
               >

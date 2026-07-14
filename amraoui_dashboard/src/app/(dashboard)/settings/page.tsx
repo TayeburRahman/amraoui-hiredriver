@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { 
-  User, Bell, Shield, Globe, CreditCard, Save, HelpCircle, 
-  FileLock, FileText, Users, Bold, Italic, Underline, List, 
-  AlignLeft, AlignCenter, AlignRight, ChevronDown, ChevronUp, 
-  Plus, Edit2, Trash2, Eye, EyeOff, Upload, Search, X, Key, Loader2 
+import {
+  User, Bell, Shield, Globe, CreditCard, Save, HelpCircle,
+  FileLock, FileText, Users, Bold, Italic, Underline, List,
+  AlignLeft, AlignCenter, AlignRight, ChevronDown, ChevronUp,
+  Plus, Edit2, Trash2, Eye, EyeOff, Upload, Search, X, Key, Loader2
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
@@ -28,7 +28,7 @@ const SettingsPage = () => {
   // Auth State
   const [token, setToken] = useState<string | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<string>("ADMIN");
-  
+
   // Loading & Alert States
   const [loading, setLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -61,7 +61,7 @@ const SettingsPage = () => {
 
   const [privacyContent, setPrivacyContent] = useState("");
   const [termsContent, setTermsContent] = useState("");
-  
+
   // Support state
   const [supportText, setSupportText] = useState("");
   const [supportEmail, setSupportEmail] = useState("");
@@ -126,7 +126,7 @@ const SettingsPage = () => {
             setPrivacyContent(s.privacyPolicy || "");
             setTermsContent(s.termsCondition || "");
             setSupportText(s.supportText || "Need assistance with your bookings, account settings, or have other questions? Get in touch with our team.");
-            setSupportEmail(s.supportEmail || "support@amraoui.com");
+            setSupportEmail(s.supportEmail || "support@vehiqqo ");
             setSupportHours(s.supportHours || "Mon - Fri, 9:00 - 18:00 CET.");
             setSupportResponseTime(s.supportResponseTime || "Usually under 2 hours");
           }
@@ -212,7 +212,7 @@ const SettingsPage = () => {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
-    
+
     if (newPassword !== confirmPassword) {
       showAlert('error', "New passwords do not match.");
       return;
@@ -364,10 +364,10 @@ const SettingsPage = () => {
 
   // Filters and search for Admin list
   const filteredAdmins = admins.filter(admin => {
-    const matchesSearch = 
-      admin.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch =
+      admin.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       admin.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const isBlocked = admin.authId?.is_block;
     if (statusFilter === "Active") return matchesSearch && !isBlocked;
     if (statusFilter === "Suspended") return matchesSearch && isBlocked;
@@ -394,11 +394,10 @@ const SettingsPage = () => {
       </div>
 
       {alertMessage && (
-        <div className={`mb-6 p-4 rounded-xl text-sm border font-medium transition-all ${
-          alertMessage.type === 'success' 
-            ? 'bg-green-50 border-green-200 text-green-700' 
+        <div className={`mb-6 p-4 rounded-xl text-sm border font-medium transition-all ${alertMessage.type === 'success'
+            ? 'bg-green-50 border-green-200 text-green-700'
             : 'bg-red-50 border-red-200 text-red-700'
-        }`}>
+          }`}>
           {alertMessage.type === 'success' ? '✓ ' : '⚠ '}
           {alertMessage.text}
         </div>
@@ -415,11 +414,10 @@ const SettingsPage = () => {
                 <button
                   key={item.name}
                   onClick={() => setActiveTab(item.name)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                    isActive
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${isActive
                       ? 'bg-blue-600 text-white shadow-md'
                       : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-400'}`} />
                   {item.name}
@@ -432,12 +430,12 @@ const SettingsPage = () => {
         {/* Content Area */}
         <div className="flex-1">
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
-            
+
             {/* Tab-based Header */}
             <div className="flex items-center justify-between mb-8 pb-6 border-b border-gray-100">
               <h2 className="text-xl font-bold text-gray-900">{activeTab} Settings</h2>
               {activeTab === 'Profile' && (
-                <button 
+                <button
                   onClick={handleSaveProfile}
                   disabled={saveLoading}
                   className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm text-sm disabled:opacity-75"
@@ -447,7 +445,7 @@ const SettingsPage = () => {
                 </button>
               )}
               {['Privacy Policy', 'Terms Condition', 'Help & Support'].includes(activeTab) && (
-                <button 
+                <button
                   onClick={handleSaveSettings}
                   disabled={saveLoading}
                   className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm text-sm disabled:opacity-75"
@@ -473,7 +471,7 @@ const SettingsPage = () => {
                           <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
                           <span className="text-blue-600 text-2xl font-bold">
-                            {fullName ? fullName.split(" ").map(n => n[0]).join("").slice(0,2).toUpperCase() : "AD"}
+                            {fullName ? fullName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() : "AD"}
                           </span>
                         )}
                       </div>
@@ -489,47 +487,47 @@ const SettingsPage = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-900">Full Name</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-900">Email Address (Read-only)</label>
-                        <input 
-                          type="email" 
+                        <input
+                          type="email"
                           value={email}
                           disabled
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 outline-none text-sm cursor-not-allowed" 
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 outline-none text-sm cursor-not-allowed"
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-900">Phone Number</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-900">Date of Birth</label>
-                        <input 
-                          type="date" 
+                        <input
+                          type="date"
                           value={dateOfBirth}
                           onChange={(e) => setDateOfBirth(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                         />
                       </div>
                       <div className="space-y-2 sm:col-span-2">
                         <label className="text-sm font-bold text-gray-900">Address</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={address}
                           onChange={(e) => setAddress(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                         />
                       </div>
                     </div>
@@ -543,13 +541,13 @@ const SettingsPage = () => {
                         <div className="space-y-2">
                           <label className="text-sm font-bold text-gray-900">Current Password</label>
                           <div className="relative">
-                            <input 
-                              type={showCurrent ? "text" : "password"} 
+                            <input
+                              type={showCurrent ? "text" : "password"}
                               value={currentPassword}
                               onChange={(e) => setCurrentPassword(e.target.value)}
-                              placeholder="********" 
+                              placeholder="********"
                               required
-                              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                             />
                             <button
                               type="button"
@@ -564,13 +562,13 @@ const SettingsPage = () => {
                         <div className="space-y-2">
                           <label className="text-sm font-bold text-gray-900">New Password</label>
                           <div className="relative">
-                            <input 
-                              type={showNew ? "text" : "password"} 
+                            <input
+                              type={showNew ? "text" : "password"}
                               value={newPassword}
                               onChange={(e) => setNewPassword(e.target.value)}
-                              placeholder="********" 
+                              placeholder="********"
                               required
-                              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                             />
                             <button
                               type="button"
@@ -584,13 +582,13 @@ const SettingsPage = () => {
                         <div className="space-y-2">
                           <label className="text-sm font-bold text-gray-900">Confirm New Password</label>
                           <div className="relative">
-                            <input 
-                              type={showConfirm ? "text" : "password"} 
+                            <input
+                              type={showConfirm ? "text" : "password"}
                               value={confirmPassword}
                               onChange={(e) => setConfirmPassword(e.target.value)}
-                              placeholder="********" 
+                              placeholder="********"
                               required
-                              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                             />
                             <button
                               type="button"
@@ -602,7 +600,7 @@ const SettingsPage = () => {
                           </div>
                         </div>
                       </div>
-                      <button 
+                      <button
                         type="submit"
                         disabled={saveLoading}
                         className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors shadow-sm text-sm flex items-center gap-2"
@@ -618,7 +616,7 @@ const SettingsPage = () => {
                 {(activeTab === 'Privacy Policy' || activeTab === 'Terms Condition') && (
                   <div className="space-y-6">
                     <p className="text-sm text-gray-500">Edit the content for {activeTab}. This will be visible to users.</p>
-                    
+
                     <div className="border border-gray-200 rounded-xl overflow-hidden">
                       <div className="bg-gray-50 p-2 border-b border-gray-200 flex flex-wrap gap-1">
                         <button className="p-1.5 rounded hover:bg-gray-100 text-gray-600"><Bold className="w-4 h-4" /></button>
@@ -631,8 +629,8 @@ const SettingsPage = () => {
                         <button className="p-1.5 rounded hover:bg-gray-100 text-gray-600"><AlignCenter className="w-4 h-4" /></button>
                         <button className="p-1.5 rounded hover:bg-gray-100 text-gray-600"><AlignRight className="w-4 h-4" /></button>
                       </div>
-                      <textarea 
-                        rows={15} 
+                      <textarea
+                        rows={15}
                         value={activeTab === 'Privacy Policy' ? privacyContent : termsContent}
                         onChange={(e) => activeTab === 'Privacy Policy' ? setPrivacyContent(e.target.value) : setTermsContent(e.target.value)}
                         className="w-full p-4 focus:outline-none text-sm text-gray-700 font-mono"
@@ -648,41 +646,41 @@ const SettingsPage = () => {
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-900">Support Message</label>
-                        <textarea 
+                        <textarea
                           rows={3}
                           value={supportText}
                           onChange={(e) => setSupportText(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                           placeholder="Need assistance with your bookings..."
                         ></textarea>
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-900">Support Email Address</label>
-                        <input 
-                          type="email" 
+                        <input
+                          type="email"
                           value={supportEmail}
                           onChange={(e) => setSupportEmail(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
-                          placeholder="support@amraoui.com"
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
+                          placeholder="support@vehiqqo "
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-900">Operating Hours</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={supportHours}
                           onChange={(e) => setSupportHours(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                           placeholder="Mon - Fri, 9:00 - 18:00 CET."
                         />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-900">Response Time</label>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           value={supportResponseTime}
                           onChange={(e) => setSupportResponseTime(e.target.value)}
-                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm" 
+                          className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
                           placeholder="Usually under 2 hours"
                         />
                       </div>
@@ -695,7 +693,7 @@ const SettingsPage = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center mb-4">
                       <p className="text-sm text-gray-500">Manage frequently asked questions here.</p>
-                      <button 
+                      <button
                         onClick={() => {
                           setFaqQuestion("");
                           setFaqAnswer("");
@@ -706,19 +704,19 @@ const SettingsPage = () => {
                         <Plus className="w-4 h-4" /> Add FAQ
                       </button>
                     </div>
-                    
+
                     <div className="space-y-3">
                       {faqs.map((faq, index) => (
                         <div key={faq.id} className="border border-gray-100 rounded-xl overflow-hidden shadow-sm bg-white">
                           <div className="w-full p-4 flex justify-between items-center bg-gray-50/30 hover:bg-gray-50">
-                            <div 
+                            <div
                               className="flex-1 cursor-pointer"
                               onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
                             >
                               <span className="font-bold text-gray-900 text-sm">{faq.q}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <button 
+                              <button
                                 onClick={() => {
                                   setSelectedFaq(faq);
                                   setFaqQuestion(faq.q);
@@ -729,13 +727,13 @@ const SettingsPage = () => {
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleDeleteFaq(faq.id)}
                                 className="text-gray-400 hover:text-red-600 p-1"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
-                              <div 
+                              <div
                                 className="cursor-pointer p-1"
                                 onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
                               >
@@ -774,7 +772,7 @@ const SettingsPage = () => {
                           <p className="text-xs text-gray-500">View, search, and manage all admin accounts</p>
                         </div>
                         <div className="flex items-center gap-4">
-                          <button 
+                          <button
                             onClick={() => setIsAddAdminModalOpen(true)}
                             className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-colors flex items-center gap-1 shadow-sm"
                           >
@@ -787,9 +785,9 @@ const SettingsPage = () => {
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="relative w-full sm:w-64">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                          <input 
-                            type="text" 
-                            placeholder="Search admins..." 
+                          <input
+                            type="text"
+                            placeholder="Search admins..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -800,9 +798,8 @@ const SettingsPage = () => {
                             <button
                               key={filterVal}
                               onClick={() => setStatusFilter(filterVal)}
-                              className={`px-4 py-1.5 rounded-lg font-medium transition-all ${
-                                statusFilter === filterVal ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                              }`}
+                              className={`px-4 py-1.5 rounded-lg font-medium transition-all ${statusFilter === filterVal ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                                }`}
                             >
                               {filterVal}
                             </button>
@@ -850,15 +847,14 @@ const SettingsPage = () => {
                                     <td className="px-4 py-4 text-gray-500">{admin.phone_number || 'N/A'}</td>
                                     <td className="px-4 py-4 font-bold text-gray-700">{admin.authId?.role || 'ADMIN'}</td>
                                     <td className="px-4 py-4">
-                                      <span className={`px-2.5 py-0.5 rounded-full font-semibold text-[10px] ${
-                                        isBlocked ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'
-                                      }`}>
+                                      <span className={`px-2.5 py-0.5 rounded-full font-semibold text-[10px] ${isBlocked ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-green-50 text-green-600 border border-green-100'
+                                        }`}>
                                         {isBlocked ? 'Suspended' : 'Active'}
                                       </span>
                                     </td>
                                     <td className="px-4 py-4">
                                       <div className="flex gap-2">
-                                        <button 
+                                        <button
                                           onClick={() => {
                                             setSelectedAdmin(admin);
                                             setIsViewAdminModalOpen(true);
@@ -867,7 +863,7 @@ const SettingsPage = () => {
                                         >
                                           <Eye className="w-4 h-4" />
                                         </button>
-                                        <button 
+                                        <button
                                           onClick={() => handleToggleBlockAdmin(admin)}
                                           title={isBlocked ? "Activate Admin" : "Suspend Admin"}
                                           className={`transition-colors ${isBlocked ? 'text-green-500 hover:text-green-600' : 'text-red-400 hover:text-red-600'}`}
@@ -907,62 +903,62 @@ const SettingsPage = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="font-bold text-gray-700">First Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="First Name" 
+                  <input
+                    type="text"
+                    placeholder="First Name"
                     value={adminFirstName}
                     onChange={(e) => setAdminFirstName(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                 </div>
                 <div className="space-y-1">
                   <label className="font-bold text-gray-700">Last Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="Last Name" 
+                  <input
+                    type="text"
+                    placeholder="Last Name"
                     value={adminLastName}
                     onChange={(e) => setAdminLastName(e.target.value)}
                     required
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
                 <label className="font-bold text-gray-700">Phone Number</label>
-                <input 
-                  type="text" 
-                  placeholder="+33 6 00 00 00 00" 
+                <input
+                  type="text"
+                  placeholder="+33 6 00 00 00 00"
                   value={adminPhone}
                   onChange={(e) => setAdminPhone(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="font-bold text-gray-700">Admin Email</label>
-                <input 
-                  type="email" 
-                  placeholder="email@example.com" 
+                <input
+                  type="email"
+                  placeholder="email@example.com"
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="font-bold text-gray-700">Password</label>
                 <div className="relative">
-                  <input 
-                    type={showAdminPassword ? "text" : "password"} 
-                    placeholder="********" 
+                  <input
+                    type={showAdminPassword ? "text" : "password"}
+                    placeholder="********"
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
                     required
-                    className="w-full px-3 py-2 pr-10 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+                    className="w-full px-3 py-2 pr-10 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   />
                   <button
                     type="button"
@@ -974,8 +970,8 @@ const SettingsPage = () => {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={saveLoading}
                 className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors mt-2 flex items-center justify-center gap-2 text-sm shadow-md"
               >
@@ -1001,27 +997,27 @@ const SettingsPage = () => {
             <div className="p-6 space-y-4 text-xs">
               <div className="space-y-1">
                 <label className="font-bold text-gray-700">Question</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter FAQ Question..." 
+                <input
+                  type="text"
+                  placeholder="Enter FAQ Question..."
                   value={faqQuestion}
                   onChange={(e) => setFaqQuestion(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="font-bold text-gray-700">Answer</label>
-                <textarea 
-                  rows={4} 
-                  placeholder="Enter FAQ Answer..." 
+                <textarea
+                  rows={4}
+                  placeholder="Enter FAQ Answer..."
                   value={faqAnswer}
                   onChange={(e) => setFaqAnswer(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 ></textarea>
               </div>
 
-              <button 
+              <button
                 onClick={handleAddFaq}
                 className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors mt-2 text-sm shadow-md"
               >
@@ -1046,25 +1042,25 @@ const SettingsPage = () => {
             <div className="p-6 space-y-4 text-xs">
               <div className="space-y-1">
                 <label className="font-bold text-gray-700">Question</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={faqQuestion}
                   onChange={(e) => setFaqQuestion(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="font-bold text-gray-700">Answer</label>
-                <textarea 
-                  rows={4} 
+                <textarea
+                  rows={4}
                   value={faqAnswer}
                   onChange={(e) => setFaqAnswer(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 ></textarea>
               </div>
 
-              <button 
+              <button
                 onClick={handleEditFaq}
                 className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors mt-2 text-sm shadow-md"
               >
@@ -1112,22 +1108,20 @@ const SettingsPage = () => {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Status:</span>
-                  <span className={`px-2.5 py-0.5 rounded-full font-medium text-[10px] ${
-                    selectedAdmin.authId?.is_block ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
-                  }`}>
+                  <span className={`px-2.5 py-0.5 rounded-full font-medium text-[10px] ${selectedAdmin.authId?.is_block ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'
+                    }`}>
                     {selectedAdmin.authId?.is_block ? 'Suspended' : 'Active'}
                   </span>
                 </div>
               </div>
 
               <div className="pt-4 flex gap-2">
-                <button 
+                <button
                   onClick={() => handleToggleBlockAdmin(selectedAdmin)}
-                  className={`flex-1 py-2 border rounded-lg font-bold transition-colors text-center text-xs ${
-                    selectedAdmin.authId?.is_block 
-                      ? 'border-green-200 text-green-600 hover:bg-green-50' 
+                  className={`flex-1 py-2 border rounded-lg font-bold transition-colors text-center text-xs ${selectedAdmin.authId?.is_block
+                      ? 'border-green-200 text-green-600 hover:bg-green-50'
                       : 'border-red-200 text-red-600 hover:bg-red-50'
-                  }`}
+                    }`}
                 >
                   {selectedAdmin.authId?.is_block ? 'Activate Admin Account' : 'Suspend Admin Account'}
                 </button>

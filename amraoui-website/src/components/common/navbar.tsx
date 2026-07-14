@@ -57,7 +57,7 @@ export function Navbar() {
         <div className="flex h-20 items-center justify-center">
           <div className="flex w-full items-center justify-between rounded-full bg-white px-6 py-2 shadow-xl border border-white/10">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/assets/logo.png" alt="Amraoui Logo" width={130} height={45} className="object-contain h-11 w-auto" />
+              <Image src="/assets/logo.png" alt="Vehiqqo Logo" width={130} height={45} className="object-contain h-11 w-auto" />
             </Link>
 
             <div className="hidden items-center gap-1 lg:flex">
@@ -67,11 +67,10 @@ export function Navbar() {
                   <a
                     key={link.href}
                     href={link.href}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
-                      isActive
-                        ? 'bg-brand-blue/10 text-brand-blue'
-                        : 'text-slate-500 hover:bg-slate-50 hover:text-brand-blue'
-                    }`}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${isActive
+                      ? 'bg-brand-blue/10 text-brand-blue'
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-brand-blue'
+                      }`}
                   >
                     {link.label}
                   </a>
@@ -93,8 +92,8 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40 rounded-2xl border-slate-100 shadow-2xl p-2">
                   {languages.map((lang) => (
-                    <DropdownMenuItem 
-                      key={lang.code} 
+                    <DropdownMenuItem
+                      key={lang.code}
                       onClick={() => handleLanguageChange(lang.code)}
                       className={`rounded-xl p-3 cursor-pointer flex items-center justify-between ${language === lang.code ? 'bg-brand-blue/10 text-brand-blue' : ''}`}
                     >
@@ -107,7 +106,7 @@ export function Navbar() {
 
               {isAuthenticated ? (
                 <DropdownMenu>
-                  <DropdownMenuTrigger 
+                  <DropdownMenuTrigger
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
                       "relative h-10 w-10 rounded-full border-2 border-slate-50 overflow-hidden p-0"
@@ -165,11 +164,10 @@ export function Navbar() {
                 <a
                   key={link.href}
                   href={link.href}
-                  className={`block rounded-xl px-4 py-3 text-base font-semibold transition-all border ${
-                    isActive
-                      ? 'bg-brand-blue/10 text-brand-blue'
-                      : 'text-slate-600 hover:bg-slate-50'
-                  }`}
+                  className={`block rounded-xl px-4 py-3 text-base font-semibold transition-all border ${isActive
+                    ? 'bg-brand-blue/10 text-brand-blue'
+                    : 'text-slate-600 hover:bg-slate-50'
+                    }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}

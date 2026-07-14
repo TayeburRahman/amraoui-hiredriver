@@ -25,22 +25,22 @@ import { apiFetch } from "@/lib/api";
 import { getSession } from "@/lib/auth";
 import { connectSocket } from "@/lib/socket";
 
- const menuItems = [
-    { icon: LayoutDashboard, label: "Overview", href: "overview" },
-    { icon: Users, label: "Create Request", href: "/create-request" },
-    { icon: FileText, label: "Quote Desk", href: "/quote-desk" },
-    { icon: MapPin, label: "Mission Monitoring", href: "/mission-monitoring" },
-    { icon: Car, label: "Drivers", href: "/drivers" },
-    { icon: Building2, label: "Customers", href: "/customers" },
-    { icon: FolderOpen, label: "Order Documents", href: "/order-documents" },
-    {
-      icon: ClipboardCheck,
-      label: "Inspection & Reports",
-      href: "/inspections-reports",
-    },
-    { icon: DollarSign, label: "Finance", href: "/finance" },
-    { icon: Settings, label: "Settings", href: "/settings" },
-  ];
+const menuItems = [
+  { icon: LayoutDashboard, label: "Overview", href: "overview" },
+  { icon: Users, label: "Create Request", href: "/create-request" },
+  { icon: FileText, label: "Quote Desk", href: "/quote-desk" },
+  { icon: MapPin, label: "Mission Monitoring", href: "/mission-monitoring" },
+  { icon: Car, label: "Drivers", href: "/drivers" },
+  { icon: Building2, label: "Customers", href: "/customers" },
+  { icon: FolderOpen, label: "Order Documents", href: "/order-documents" },
+  {
+    icon: ClipboardCheck,
+    label: "Inspection & Reports",
+    href: "/inspections-reports",
+  },
+  { icon: DollarSign, label: "Finance", href: "/finance" },
+  { icon: Settings, label: "Settings", href: "/settings" },
+];
 
 interface SidebarProps {
   open: boolean;
@@ -65,7 +65,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
 
   useEffect(() => {
     fetchStats();
-    
+
     const session = getSession();
     if (session) {
       const socket = connectSocket(session.id, session.role || 'ADMIN');
@@ -95,7 +95,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between px-6 py-4  border-b">
             <Link href="/" className="flex items-center justify-center w-full py-2">
-              <Image src={logo} alt="Amraoui Logo" width={160} height={45} className="object-contain" style={{ height: 'auto' }} priority/>
+              <Image src={logo} alt="Vehiqqo Logo" width={160} height={45} className="object-contain" style={{ height: 'auto' }} priority />
             </Link>
             <Button
               variant="ghost"
@@ -158,7 +158,7 @@ const Sidebar = ({ open, setOpen }: SidebarProps) => {
                     </Link>
                   )}
 
-               
+
                 </div>
               );
             })}

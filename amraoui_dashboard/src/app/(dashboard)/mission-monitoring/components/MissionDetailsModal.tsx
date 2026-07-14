@@ -608,9 +608,9 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                     const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
 
                     return (
-                      <div key={key} className={String(displayValue).length > 50 ? "col-span-1 sm:col-span-2 md:col-span-3" : ""}>
-                        <p className="text-gray-400">{formattedKey}</p>
-                        <p className="font-bold text-gray-900 whitespace-pre-wrap">{String(displayValue)}</p>
+                      <div key={key} className={String(displayValue).length > 50 ? "col-span-1 sm:col-span-2 md:col-span-3" : "min-w-0"}>
+                        <p className="text-gray-400 truncate">{formattedKey}</p>
+                        <p className="font-bold text-gray-900 whitespace-pre-wrap break-words">{String(displayValue)}</p>
                       </div>
                     );
                   })}

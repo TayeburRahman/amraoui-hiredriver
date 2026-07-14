@@ -940,7 +940,7 @@ function TransportRequestContent() {
                         <h3 className="text-base font-bold text-brand-text mb-2">
                           Vehicle photos
                         </h3>
-                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1">
+                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1 break-all w-full px-2">
                           {formData.vehiclePhotos ? formData.vehiclePhotos : "Add clear photos of the vehicle if available."}
                         </p>
                         <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.vehiclePhotos ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
@@ -963,7 +963,7 @@ function TransportRequestContent() {
                         <h3 className="text-base font-bold text-brand-text mb-2">
                           Registration document
                         </h3>
-                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1">
+                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1 break-all w-full px-2">
                           {formData.registrationDocumentName ? formData.registrationDocumentName : "Upload vehicle registration or ownership document."}
                         </p>
                         <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.registrationDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
@@ -986,7 +986,7 @@ function TransportRequestContent() {
                         <h3 className="text-base font-bold text-brand-text mb-2">
                           Reference document
                         </h3>
-                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1">
+                        <p className="text-slate-500 text-xs leading-relaxed mb-4 flex-1 break-all w-full px-2">
                           {formData.referenceDocumentName ? formData.referenceDocumentName : "Add any extra file for the driver or admin."}
                         </p>
                         <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.referenceDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>

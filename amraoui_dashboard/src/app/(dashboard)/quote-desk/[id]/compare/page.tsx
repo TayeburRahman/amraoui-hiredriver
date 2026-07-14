@@ -178,11 +178,11 @@ const CompareDrivers = ({ params }: { params: Promise<{ id: string }> }) => {
                                 <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 mb-4">
                                     <div className="flex justify-between text-xs text-gray-500 mb-2">
                                         <span>Estimated Service price</span>
-                                        <span className="font-bold text-gray-900">€{Math.round(quote.amount * 0.85)}</span>
+                                        <span className="font-bold text-gray-900">€{quote.servicePrice || quote.amount}</span>
                                     </div>
                                     <div className="flex justify-between text-xs text-gray-500 mb-3">
                                         <span>Estimated Extra costs</span>
-                                        <span className="font-bold text-gray-900">€{Math.round(quote.amount * 0.15)}</span>
+                                        <span className="font-bold text-gray-900">€{(quote.fuelCost || 0) + (quote.tollCharges || 0) + (quote.travelCost || 0) + (quote.taxiCost || 0)}</span>
                                     </div>
                                     <div className="flex justify-between items-center pt-3 border-t border-gray-200">
                                         <span className="font-bold text-gray-900 text-sm">Total Quote</span>

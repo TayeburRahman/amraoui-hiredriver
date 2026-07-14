@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, use } from 'react';
-import { MapPin, Car, FileText, CheckCircle2, User, Mail, Phone, Building, ArrowLeft, Loader2, Paperclip, Trash2, Upload } from 'lucide-react';
+import { MapPin, Car, FileText, CheckCircle2, User, Mail, Phone, Building, ArrowLeft, Loader2, Paperclip, Trash2, Upload, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ViewDetailsModal } from '@/app/(dashboard)/customer-request/components/ViewDetailsModal';

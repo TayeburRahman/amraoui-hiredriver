@@ -12,6 +12,14 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     const searchParams = useSearchParams();
     const reqId = searchParams.get('reqId') || id; // Fallback to id if reqId is missing
 
+    const getDocumentLabel = (docUrl: string, details: any) => {
+        if (!details) return 'Attached Document';
+        if (details.vehiclePhotos && docUrl.includes(details.vehiclePhotos)) return 'Vehicle photos';
+        if (details.registrationDocumentName && docUrl.includes(details.registrationDocumentName)) return 'Registration document';
+        if (details.referenceDocumentName && docUrl.includes(details.referenceDocumentName)) return 'Reference document';
+        return 'Attached Document';
+    };
+
     const renderDeliveryType = (type: string | undefined) => {
         if (!type) return 'N/A';
         const t = type.toLowerCase();
@@ -531,12 +539,12 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                             {/* Vehicle Photos */}
-                            <label className={`cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center flex flex-col items-center transition-all duration-200 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'}`}>
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm mb-3">
+                            <label className={`cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center flex flex-col items-center transition-all duration-200 w-full overflow-hidden ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'}`}>
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm mb-3 shrink-0">
                                     <UploadCloud className="h-5 w-5 text-blue-500" />
                                 </div>
                                 <h3 className="text-sm font-bold text-gray-900 mb-1">Vehicle photos</h3>
-                                <p className="text-gray-500 text-xs leading-relaxed mb-4 flex-1">
+                                <p className="text-gray-500 text-xs leading-relaxed mb-4 flex-1 w-full truncate px-2">
                                     {request.details?.vehiclePhotos || "Add clear photos of the vehicle if available."}
                                 </p>
                                 <div className="rounded-full px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full max-w-[120px]">
@@ -546,12 +554,12 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                             </label>
 
                             {/* Registration Document */}
-                            <label className={`cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center flex flex-col items-center transition-all duration-200 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'}`}>
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm mb-3">
+                            <label className={`cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center flex flex-col items-center transition-all duration-200 w-full overflow-hidden ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'}`}>
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm mb-3 shrink-0">
                                     <UploadCloud className="h-5 w-5 text-blue-500" />
                                 </div>
                                 <h3 className="text-sm font-bold text-gray-900 mb-1">Registration document</h3>
-                                <p className="text-gray-500 text-xs leading-relaxed mb-4 flex-1">
+                                <p className="text-gray-500 text-xs leading-relaxed mb-4 flex-1 w-full truncate px-2">
                                     {request.details?.registrationDocumentName || "Upload vehicle registration or ownership document."}
                                 </p>
                                 <div className="rounded-full px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full max-w-[120px]">
@@ -561,12 +569,12 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                             </label>
 
                             {/* Reference Document */}
-                            <label className={`cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center flex flex-col items-center transition-all duration-200 ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'}`}>
-                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm mb-3">
+                            <label className={`cursor-pointer rounded-2xl border-2 border-dashed p-4 text-center flex flex-col items-center transition-all duration-200 w-full overflow-hidden ${isUploadingDoc ? 'opacity-50 cursor-not-allowed' : 'border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50'}`}>
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm mb-3 shrink-0">
                                     <UploadCloud className="h-5 w-5 text-blue-500" />
                                 </div>
                                 <h3 className="text-sm font-bold text-gray-900 mb-1">Reference document</h3>
-                                <p className="text-gray-500 text-xs leading-relaxed mb-4 flex-1">
+                                <p className="text-gray-500 text-xs leading-relaxed mb-4 flex-1 w-full truncate px-2">
                                     {request.details?.referenceDocumentName || "Add any extra file for the driver or admin."}
                                 </p>
                                 <div className="rounded-full px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors w-full max-w-[120px]">
@@ -583,6 +591,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                             ) : (
                                 request.details.documents.map((doc: string, idx: number) => {
                                     const filename = doc.split('/').pop() || `Document ${idx + 1}`;
+                                    const docLabel = getDocumentLabel(doc, request.details);
                                     const isDeleting = isDeletingDoc === doc;
                                     return (
                                         <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
@@ -590,9 +599,12 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                                 <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center shrink-0">
                                                     <FileText className="w-4 h-4 text-blue-600" />
                                                 </div>
-                                                <span className="text-sm font-medium text-gray-700 truncate group-hover:text-blue-600 transition-colors">
-                                                    {filename}
-                                                </span>
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider mb-0.5">{docLabel}</span>
+                                                    <span className="text-sm font-medium text-gray-700 truncate group-hover:text-blue-600 transition-colors">
+                                                        {filename}
+                                                    </span>
+                                                </div>
                                             </a>
                                             <button 
                                                 onClick={() => handleDeleteDocument(doc)}

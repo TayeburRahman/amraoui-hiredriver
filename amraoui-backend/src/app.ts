@@ -19,7 +19,7 @@ app.use(
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
 
-      // Allow any localhost port, local LAN IPs, Next.js, and Vercel domains
+
       const isAllowed =
         /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
         /^https?:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||

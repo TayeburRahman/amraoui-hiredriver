@@ -51,8 +51,10 @@ const PhotosModalContent = ({ type, data }: { type: 'pickup' | 'delivery', data:
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {allPhotos.map((photo, i) => (
             <div key={i} className="aspect-square rounded-[2rem] bg-blue-50/50 border border-slate-100 border-dashed overflow-hidden flex flex-col relative group">
-              <img src={photo.url} alt={photo.label} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 pb-3">
+              <a href={photo.url} target="_blank" rel="noreferrer" className="absolute inset-0 cursor-pointer block hover:opacity-90 transition-opacity">
+                <img src={photo.url} alt={photo.label} className="w-full h-full object-cover" />
+              </a>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 pb-3 pointer-events-none">
                 <p className="font-bold text-white text-xs z-10">{photo.label}</p>
               </div>
             </div>
@@ -104,9 +106,11 @@ const DamageModalContent = ({ data }: { data: any }) => {
               </div>
             )}
             {report.photo && (
-               <div className="aspect-video rounded-2xl border border-slate-200 overflow-hidden mt-4">
-                 <img src={report.photo} alt="Damage proof" className="w-full h-full object-cover" />
-               </div>
+             <div className="aspect-video rounded-2xl border border-slate-200 overflow-hidden mt-4 group">
+                 <a href={report.photo} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                   <img src={report.photo} alt="Damage proof" className="w-full h-full object-cover" />
+                 </a>
+             </div>
             )}
           </div>
         )}
@@ -144,8 +148,10 @@ const SignatureModalContent = ({ data }: { data: any }) => {
         <h4 className="font-bold text-brand-text">{title}</h4>
         <p className="text-slate-500 font-medium text-sm">Customer Name: <span className="font-bold text-brand-text">{sig.customerName}</span></p>
         {sig.signaturePhoto && (
-          <div className="h-40 rounded-2xl border-2 border-dashed border-blue-200 bg-white flex items-center justify-center p-4">
-            <img src={sig.signaturePhoto} alt="Signature" className="h-full object-contain" />
+          <div className="h-40 rounded-2xl border-2 border-dashed border-blue-200 bg-white flex items-center justify-center p-4 group">
+            <a href={sig.signaturePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+              <img src={sig.signaturePhoto} alt="Signature" className="h-full w-full object-contain" />
+            </a>
           </div>
         )}
         {sig.updatedAt && <p className="text-xs text-slate-400 font-medium mt-4">Signed on {new Date(sig.updatedAt).toLocaleString()}</p>}
@@ -164,16 +170,20 @@ const SignatureModalContent = ({ data }: { data: any }) => {
           {receiver.idFront && (
             <div>
               <p className="text-xs font-bold text-slate-400 mb-2">ID Front</p>
-              <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2">
-                <img src={receiver.idFront} alt="ID Front" className="h-full object-contain" />
+              <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group">
+                <a href={receiver.idFront} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                  <img src={receiver.idFront} alt="ID Front" className="h-full w-full object-contain" />
+                </a>
               </div>
             </div>
           )}
           {receiver.idBack && (
             <div>
               <p className="text-xs font-bold text-slate-400 mb-2">ID Back</p>
-              <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2">
-                <img src={receiver.idBack} alt="ID Back" className="h-full object-contain" />
+              <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group">
+                <a href={receiver.idBack} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                  <img src={receiver.idBack} alt="ID Back" className="h-full w-full object-contain" />
+                </a>
               </div>
             </div>
           )}
@@ -191,16 +201,20 @@ const SignatureModalContent = ({ data }: { data: any }) => {
           {conf.driverSelfiePhoto && (
             <div>
               <p className="text-xs font-bold text-slate-400 mb-2">Driver Selfie</p>
-              <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2">
-                <img src={conf.driverSelfiePhoto} alt="Driver Selfie" className="h-full object-contain" />
+              <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group">
+                <a href={conf.driverSelfiePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                  <img src={conf.driverSelfiePhoto} alt="Driver Selfie" className="h-full w-full object-contain" />
+                </a>
               </div>
             </div>
           )}
           {conf.driverSignaturePhoto && (
             <div>
               <p className="text-xs font-bold text-slate-400 mb-2">Driver Signature</p>
-              <div className="h-40 rounded-2xl border-2 border-dashed border-slate-200 bg-white flex items-center justify-center p-4">
-                <img src={conf.driverSignaturePhoto} alt="Driver Signature" className="h-full object-contain" />
+              <div className="h-40 rounded-2xl border-2 border-dashed border-slate-200 bg-white flex items-center justify-center p-4 group">
+                <a href={conf.driverSignaturePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                  <img src={conf.driverSignaturePhoto} alt="Driver Signature" className="h-full w-full object-contain" />
+                </a>
               </div>
             </div>
           )}
@@ -282,8 +296,10 @@ const MileageModalContent = ({ data }: { data: any }) => {
                  <span className="text-2xl font-black text-brand-blue">{pickup.fuelLevel || 'N/A'}</span>
                </div>
                {pickup.fuelGaugePhoto && (
-                 <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden">
-                   <img src={pickup.fuelGaugePhoto} alt="Pickup fuel gauge" className="w-full h-full object-cover" />
+                 <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
+                   <a href={pickup.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                     <img src={pickup.fuelGaugePhoto} alt="Pickup fuel gauge" className="w-full h-full object-cover" />
+                   </a>
                  </div>
                )}
             </div>
@@ -293,8 +309,10 @@ const MileageModalContent = ({ data }: { data: any }) => {
                  <span className="text-2xl font-black text-brand-text">{delivery.fuelLevel || 'N/A'}</span>
                </div>
                {delivery.fuelGaugePhoto && (
-                 <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden">
-                   <img src={delivery.fuelGaugePhoto} alt="Delivery fuel gauge" className="w-full h-full object-cover" />
+                 <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
+                   <a href={delivery.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                     <img src={delivery.fuelGaugePhoto} alt="Delivery fuel gauge" className="w-full h-full object-cover" />
+                   </a>
                  </div>
                )}
             </div>
@@ -309,16 +327,20 @@ const MileageModalContent = ({ data }: { data: any }) => {
                {pickup.odometerPhoto && (
                  <div>
                    <p className="text-xs font-bold text-slate-400 mb-2">Pickup Odometer</p>
-                   <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden">
-                     <img src={pickup.odometerPhoto} alt="Pickup Odometer" className="w-full h-full object-cover" />
+                   <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden group">
+                     <a href={pickup.odometerPhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                       <img src={pickup.odometerPhoto} alt="Pickup Odometer" className="w-full h-full object-cover" />
+                     </a>
                    </div>
                  </div>
                )}
                {delivery.odometerPhoto && (
                  <div>
                    <p className="text-xs font-bold text-slate-400 mb-2">Delivery Odometer</p>
-                   <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden">
-                     <img src={delivery.odometerPhoto} alt="Delivery Odometer" className="w-full h-full object-cover" />
+                   <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden group">
+                     <a href={delivery.odometerPhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                       <img src={delivery.odometerPhoto} alt="Delivery Odometer" className="w-full h-full object-cover" />
+                     </a>
                    </div>
                  </div>
                )}

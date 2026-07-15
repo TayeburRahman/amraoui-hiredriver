@@ -70,7 +70,7 @@ export function Contact({ id }: { id?: string }) {
             </p>
 
             <form className="space-y-3" onSubmit={handleSubmit}>
-              <Select value={topic} onValueChange={setTopic}>
+              <Select value={topic} onValueChange={(val) => setTopic(val || '')}>
                 <SelectTrigger className="w-full data-[size=default]:h-12 rounded-full capitalize">
                   <SelectValue placeholder={t.landing.contact.topic} />
                 </SelectTrigger>

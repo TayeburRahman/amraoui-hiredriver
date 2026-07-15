@@ -53,7 +53,7 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({ isOpen
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Customer</span>
-                <span className="font-bold text-gray-900">Amraoui</span>
+                <span className="font-bold text-gray-900">Vihiqqo</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">Vehicle</span>

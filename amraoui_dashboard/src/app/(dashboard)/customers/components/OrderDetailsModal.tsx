@@ -31,18 +31,18 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, on
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide text-sm">
-          
+
           {/* Customer Details */}
           <div>
             <h3 className="text-sm font-bold text-gray-900 mb-3">Customer Details</h3>
             <div className="space-y-2 text-xs text-gray-600">
               <div className="flex items-center gap-2">
                 <User className="w-3.5 h-3.5 text-gray-400" />
-                <span className="font-bold text-gray-900">Customer Name:</span> Amraoui
+                <span className="font-bold text-gray-900">Customer Name:</span> Vehiqqo
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-gray-400" />
-                <span className="font-bold text-gray-900">Email:</span> amraoui@premiummotors.com
+                <span className="font-bold text-gray-900">Email:</span> vehiqqo@premiummotors.com
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-gray-400" />
@@ -174,7 +174,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ isOpen, on
           {/* Admin Note */}
           <div>
             <p className="font-bold text-gray-900 mb-2 text-xs">Admin Note</p>
-            <textarea 
+            <textarea
               className="w-full p-3 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={3}
               placeholder="Add internal note for this request..."

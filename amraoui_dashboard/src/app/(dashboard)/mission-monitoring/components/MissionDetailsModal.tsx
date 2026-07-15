@@ -526,7 +526,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
             <div className="grid grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-xl border border-gray-100 text-xs">
               <div>
                 <p className="text-gray-400">Customer</p>
-                <p className="font-bold text-gray-900">{mission.customer || "Amraoui"}</p>
+                <p className="font-bold text-gray-900">{mission.customer || "Vehiqqo"}</p>
               </div>
               <div>
                 <p className="text-gray-400">Driver</p>
@@ -593,8 +593,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                     // Skip already displayed contact fields and internal execution data
                     const excludedFields = [
                       'firstName', 'lastName', 'email', 'phone', 'company',
-                      'documents', 'pickupInspection', 'deliveryInspection', 
-                      'pickupVerification', 'deliveryArrivalDeclared', 
+                      'documents', 'pickupInspection', 'deliveryInspection',
+                      'pickupVerification', 'deliveryArrivalDeclared',
                       'deliveryArrivalTime', 'deliveryArrivalLocation'
                     ];
                     if (excludedFields.includes(key)) return null;

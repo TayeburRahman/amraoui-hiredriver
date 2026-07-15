@@ -39,7 +39,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
       return;
     }
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app';
       const fileUrl = order.invoiceUrl.startsWith('http') ? order.invoiceUrl : `${baseUrl}/${order.invoiceUrl.replace(/\\/g, '/')}`;
       
       const response = await fetch(fileUrl);

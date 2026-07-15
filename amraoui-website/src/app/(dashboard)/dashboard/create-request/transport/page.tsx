@@ -273,7 +273,7 @@ function TransportRequestContent() {
           const form = new FormData();
           form.append('document', file);
           form.append('documentType', type);
-          await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}/requests/${reqId}/documents`, {
+          await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1'}/requests/${reqId}/documents`, {
             method: 'PATCH',
             headers: {
               'Authorization': `Bearer ${token}`

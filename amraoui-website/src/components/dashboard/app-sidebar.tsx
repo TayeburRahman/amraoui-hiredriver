@@ -90,7 +90,7 @@ export function AppSidebar({ role }: { role?: string }) {
           <SidebarMenuItem>
             <Link href="/dashboard/profile" className="flex items-center gap-3 px-2 py-3 hover:bg-slate-50 rounded-xl transition-colors cursor-pointer w-full group">
               <Avatar className="h-10 w-10 border-2 border-brand-blue/10 group-hover:border-brand-blue/30 transition-colors">
-                <AvatarImage src={user?.profile_image ? (user.profile_image.startsWith('http') ? user.profile_image : `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace('/api/v1', '')}${user.profile_image}`) : undefined} />
+                <AvatarImage src={user?.profile_image ? (user.profile_image.startsWith('http') ? user.profile_image : `${(process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1').replace('/api/v1', '')}${user.profile_image}`) : undefined} />
                 <AvatarFallback className="bg-brand-blue text-white font-semibold">
                   {user?.name?.split(' ').map((n: string) => n[0]).join('').toUpperCase() || 'AM'}
                 </AvatarFallback>

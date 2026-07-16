@@ -142,7 +142,13 @@ const registrationAccount = async (payload: IAuth) => {
       break;
     case ENUM_USER_ROLE.DRIVER:
       // Driver accounts need admin approval — created with status=pending
-      result = await Drivers.create({ ...other, status: "pending" });
+      const hasDocuments = !!(other.license_document_front || other.id_document_front);
+      result = await Drivers.create({ 
+        ...other, 
+        status: "pending",
+        documents_submitted: hasDocuments,
+        documents_submitted_at: hasDocuments ? new Date() : null
+      });
       break;
     case ENUM_USER_ROLE.ADMIN:
     case ENUM_USER_ROLE.SUPER_ADMIN:

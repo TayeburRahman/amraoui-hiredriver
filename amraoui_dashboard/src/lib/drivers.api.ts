@@ -19,7 +19,11 @@ export interface BackendDriver {
   status: "pending" | "approved" | "declined";
   documents_submitted?: boolean;
   license_document?: string | null;
+  license_document_front?: string | null;
+  license_document_back?: string | null;
   id_document?: string | null;
+  id_document_front?: string | null;
+  id_document_back?: string | null;
   contract_document?: string | null;
   vehicle_carrier_image?: string | null;
   dealer_plate_image?: string | null;

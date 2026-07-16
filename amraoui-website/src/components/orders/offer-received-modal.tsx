@@ -48,7 +48,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Amraoui_Invoice_${order.missionId || order._id.substring(0, 8)}.pdf`;
+      a.download = `Vehiqqo_${order.missionId || order._id.substring(0, 8)}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);

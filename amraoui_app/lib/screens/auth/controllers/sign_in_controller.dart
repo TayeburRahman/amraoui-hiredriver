@@ -1,3 +1,4 @@
+import 'package:amraoui_app/const/storage/get_storage.dart';
 import 'package:amraoui_app/models/driver_model.dart';
 import 'package:amraoui_app/routes/app_routes.dart';
 import 'package:amraoui_app/service/repository/auth_repository.dart';
@@ -16,6 +17,23 @@ class SignInController extends GetxController {
   var isPasswordVisible = false.obs;
   var rememberMe = false.obs;
   var currentLanguage = 'EN'.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadSavedCredentials();
+  }
+
+  void _loadSavedCredentials() {
+    final isRemembered = AppStorage().getValue(StorageKey.rememberMe) ?? false;
+    if (isRemembered == true) {
+      final savedEmail = AppStorage().getValue(StorageKey.savedEmail);
+      final savedPassword = AppStorage().getValue(StorageKey.savedPassword);
+      emailController.text = savedEmail?.toString() ?? '';
+      passwordController.text = savedPassword?.toString() ?? '';
+      rememberMe.value = true;
+    }
+  }
 
   void changeLanguage(String langCode) {
     currentLanguage.value = langCode;
@@ -69,6 +87,16 @@ class SignInController extends GetxController {
         refreshToken: data['refreshToken'].toString(),
         driver: driver,
       );
+
+      if (rememberMe.value) {
+        AppStorage().setValue(StorageKey.rememberMe, true);
+        AppStorage().setValue(StorageKey.savedEmail, emailController.text.trim().toLowerCase());
+        AppStorage().setValue(StorageKey.savedPassword, passwordController.text);
+      } else {
+        AppStorage().setValue(StorageKey.rememberMe, false);
+        AppStorage().removeValue(StorageKey.savedEmail);
+        AppStorage().removeValue(StorageKey.savedPassword);
+      }
 
       AuthNavigation.routeDriver(driver);
     } on DioException catch (e) {

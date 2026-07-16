@@ -25,9 +25,25 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
   const totalExpenses = fuelCost + tollCost;
   const totalPayableToDriver = servicePrice + totalExpenses;
 
-  const downloadInvoice = () => {
+  const downloadInvoice = async () => {
     if (req.invoiceUrl) {
-      window.open(req.invoiceUrl, '_blank');
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+        const fileUrl = req.invoiceUrl.startsWith('http') ? req.invoiceUrl : `${baseUrl}/${req.invoiceUrl.replace(/\\/g, '/')}`;
+        const response = await fetch(fileUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Vehiqqo_${invoice.mission}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } catch (error) {
+        console.error("Failed to download invoice", error);
+        window.open(req.invoiceUrl, '_blank');
+      }
     } else {
       alert('No invoice document available for download.');
     }

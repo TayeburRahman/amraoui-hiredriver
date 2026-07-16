@@ -42,6 +42,10 @@ export const uploadFile = () => {
       'dealer_plate_image',
       'invoice',
       'document',
+      'id_document_front',
+      'id_document_back',
+      'license_document_front',
+      'license_document_back',
     ];
 
     if (file.fieldname === undefined) {
@@ -65,8 +69,8 @@ export const uploadFile = () => {
   };
 
   const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
+    storage: storage as any,
+    fileFilter: fileFilter as any,
   }).fields([
     { name: 'image', maxCount: 30 },
     { name: 'product_img', maxCount: 10 },
@@ -76,6 +80,10 @@ export const uploadFile = () => {
     { name: 'dealer_plate_image', maxCount: 1 },
     { name: 'invoice', maxCount: 1 },
     { name: 'document', maxCount: 10 },
+    { name: 'id_document_front', maxCount: 1 },
+    { name: 'id_document_back', maxCount: 1 },
+    { name: 'license_document_front', maxCount: 1 },
+    { name: 'license_document_back', maxCount: 1 },
   ]);
 
   return upload as any;

@@ -213,6 +213,46 @@ class SignUpScreen extends StatelessWidget {
                 ),
                 const Gap(height: 20),
 
+                _buildFieldLabel('ID Document (Front)'),
+                Obx(
+                  () => _ImageUploadPlaceholder(
+                    hint: 'Upload ID Document Front',
+                    hasImage: controller.idDocumentFrontImagePath.value.isNotEmpty,
+                    onTap: controller.pickIdDocumentFront,
+                  ),
+                ),
+                const Gap(height: 20),
+
+                _buildFieldLabel('ID Document (Back)'),
+                Obx(
+                  () => _ImageUploadPlaceholder(
+                    hint: 'Upload ID Document Back',
+                    hasImage: controller.idDocumentBackImagePath.value.isNotEmpty,
+                    onTap: controller.pickIdDocumentBack,
+                  ),
+                ),
+                const Gap(height: 20),
+
+                _buildFieldLabel('Driver License (Front)'),
+                Obx(
+                  () => _ImageUploadPlaceholder(
+                    hint: 'Upload Driver License Front',
+                    hasImage: controller.driverLicenseFrontImagePath.value.isNotEmpty,
+                    onTap: controller.pickDriverLicenseFront,
+                  ),
+                ),
+                const Gap(height: 20),
+
+                _buildFieldLabel('Driver License (Back)'),
+                Obx(
+                  () => _ImageUploadPlaceholder(
+                    hint: 'Upload Driver License Back',
+                    hasImage: controller.driverLicenseBackImagePath.value.isNotEmpty,
+                    onTap: controller.pickDriverLicenseBack,
+                  ),
+                ),
+                const Gap(height: 20),
+
                 _buildFieldLabel('Vehicle carrier?'),
                 Obx(
                   () => _YesNoToggle(

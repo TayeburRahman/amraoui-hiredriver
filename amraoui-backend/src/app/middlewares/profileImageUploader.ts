@@ -32,7 +32,7 @@ const fileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterC
 };
 
 export const uploadProfileImage = multer({
-  storage,
-  fileFilter,
+  storage: storage as any,
+  fileFilter: fileFilter as any,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB limit
-}).single('profile_image');
+}).single('profile_image') as any;

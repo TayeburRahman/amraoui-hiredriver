@@ -111,7 +111,7 @@ function InvoicesPageContent() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Amraoui_Invoice_${invoice.missionId}.pdf`;
+      a.download = `Vehiqqo_${invoice.missionId}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);

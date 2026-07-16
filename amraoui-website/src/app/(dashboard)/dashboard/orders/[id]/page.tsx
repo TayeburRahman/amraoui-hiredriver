@@ -456,16 +456,43 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
                 </div>
 
                 {/* Step 3 */}
-                <div className="flex gap-4 relative z-10 pb-6">
-                  <div className={`h-6 w-6 rounded-full ${isPickupStarted ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-slate-200 text-transparent'} flex items-center justify-center flex-shrink-0 mt-0.5`}>
-                    {isPickupStarted ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-3.5 w-3.5" />}
+                {!isHireDriver && (
+                  <div className="flex gap-4 relative z-10 pb-6">
+                    <div className={`h-6 w-6 rounded-full ${isPickupStarted ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-slate-200 text-transparent'} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                      {isPickupStarted ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-3.5 w-3.5" />}
+                    </div>
+                    <div>
+                      <p className={`font-bold text-sm ${isPickupStarted ? 'text-brand-text' : 'text-slate-400'}`}>
+                        {isTransport ? 'Pickup in progress' : isInspection ? 'Inspection started' : 'Service started'}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className={`font-bold text-sm ${isPickupStarted ? 'text-brand-text' : 'text-slate-400'}`}>
-                      {isTransport ? 'Pickup in progress' : isInspection ? 'Inspection started' : 'Service started'}
-                    </p>
+                )}
+
+                {/* Hire a Driver Specific Daily Check-ins */}
+                {isHireDriver && (mission.details?.driverArrivals || []).map((arrival: any, idx: number) => (
+                  <div key={idx} className="flex gap-4 relative z-10 pb-6">
+                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <CheckCircle2 className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-brand-text text-sm">Arrived: {arrival.date}</p>
+                      <p className="text-xs font-medium text-slate-400 mt-1">{new Date(arrival.verifiedAt).toLocaleString()}</p>
+                    </div>
                   </div>
-                </div>
+                ))}
+                {isHireDriver && (!mission.details?.driverArrivals || mission.details.driverArrivals.length === 0) && (
+                  <div className="flex gap-4 relative z-10 pb-6">
+                    <div className={`h-6 w-6 rounded-full ${isPickupStarted ? 'bg-emerald-500 text-white' : 'bg-white border-2 border-slate-200 text-transparent'} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                      {isPickupStarted ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-3.5 w-3.5" />}
+                    </div>
+                    <div>
+                      <p className={`font-bold text-sm ${isPickupStarted ? 'text-brand-text' : 'text-slate-400'}`}>
+                        Service started
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* Step 4 */}
                 <div className="flex gap-4 relative z-10 pb-6">

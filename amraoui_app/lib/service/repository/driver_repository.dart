@@ -10,29 +10,48 @@ class DriverRepository {
   final Dio _auth = AppApi().sendRequest;
 
   Future<Map<String, dynamic>?> submitDocuments({
-    dynamic licenseDocument,
-    dynamic idDocument,
+    dynamic licenseDocumentFront,
+    dynamic licenseDocumentBack,
+    dynamic idDocumentFront,
+    dynamic idDocumentBack,
     dynamic contractDocument,
   }) async {
     try {
       final map = <String, dynamic>{};
 
-      if (licenseDocument != null) {
-        Uint8List bytes = await licenseDocument.readAsBytes();
-        final fileName = (licenseDocument is XFile)
-            ? licenseDocument.name
-            : licenseDocument.path.split('/').last;
-        map['license_document'] = MultipartFile.fromBytes(
+      if (licenseDocumentFront != null) {
+        Uint8List bytes = await licenseDocumentFront.readAsBytes();
+        final fileName = (licenseDocumentFront is XFile)
+            ? licenseDocumentFront.name
+            : licenseDocumentFront.path.split('/').last;
+        map['license_document_front'] = MultipartFile.fromBytes(
           bytes,
           filename: fileName,
         );
       }
-      if (idDocument != null) {
-        Uint8List bytes = await idDocument.readAsBytes();
-        final fileName = (idDocument is XFile)
-            ? idDocument.name
-            : idDocument.path.split('/').last;
-        map['id_document'] = MultipartFile.fromBytes(bytes, filename: fileName);
+      if (licenseDocumentBack != null) {
+        Uint8List bytes = await licenseDocumentBack.readAsBytes();
+        final fileName = (licenseDocumentBack is XFile)
+            ? licenseDocumentBack.name
+            : licenseDocumentBack.path.split('/').last;
+        map['license_document_back'] = MultipartFile.fromBytes(
+          bytes,
+          filename: fileName,
+        );
+      }
+      if (idDocumentFront != null) {
+        Uint8List bytes = await idDocumentFront.readAsBytes();
+        final fileName = (idDocumentFront is XFile)
+            ? idDocumentFront.name
+            : idDocumentFront.path.split('/').last;
+        map['id_document_front'] = MultipartFile.fromBytes(bytes, filename: fileName);
+      }
+      if (idDocumentBack != null) {
+        Uint8List bytes = await idDocumentBack.readAsBytes();
+        final fileName = (idDocumentBack is XFile)
+            ? idDocumentBack.name
+            : idDocumentBack.path.split('/').last;
+        map['id_document_back'] = MultipartFile.fromBytes(bytes, filename: fileName);
       }
       if (contractDocument != null) {
         Uint8List bytes = await contractDocument.readAsBytes();

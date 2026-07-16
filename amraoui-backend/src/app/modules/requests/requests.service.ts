@@ -924,7 +924,7 @@ const addDocument = async (id: string, fileUrl: string, documentType?: string) =
     const previousFilename = mission.details[documentType];
     if (previousFilename && mission.details.documents.length > 0) {
       // Find and remove the old URL from the array that matches the previous filename
-      const previousUrlIndex = mission.details.documents.findIndex(d => d.includes(previousFilename));
+      const previousUrlIndex = mission.details.documents.findIndex((d: string) => d.includes(previousFilename));
       if (previousUrlIndex !== -1) {
         mission.details.documents.splice(previousUrlIndex, 1);
       }

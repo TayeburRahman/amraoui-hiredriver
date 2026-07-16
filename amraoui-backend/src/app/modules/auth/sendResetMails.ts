@@ -15,7 +15,7 @@ export async function sendResetEmail(to: string, html: string) {
   await transporter.sendMail({
     from: config.smtp.smtp_mail,
     to,
-    subject: 'Reset Password Link',
+    subject: 'Resend OTP Password  Vehiqqo',
     html,
   });
 }

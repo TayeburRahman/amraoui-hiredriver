@@ -6,7 +6,6 @@ export interface ILocation {
 }
 
 export interface IDrivers extends Document {
-  _id: mongoose.Schema.Types.ObjectId;
   authId: mongoose.Schema.Types.ObjectId;
   name: string;
   email: string;
@@ -26,7 +25,11 @@ export interface IDrivers extends Document {
   rating?: number;
   status: 'pending' | 'approved' | 'declined';
   license_document?: string | null;
+  license_document_front?: string | null;
+  license_document_back?: string | null;
   id_document?: string | null;
+  id_document_front?: string | null;
+  id_document_back?: string | null;
   contract_document?: string | null;
   documents_submitted?: boolean;
   documents_submitted_at?: Date | null;

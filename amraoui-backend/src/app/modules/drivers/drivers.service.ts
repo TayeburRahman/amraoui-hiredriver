@@ -106,10 +106,14 @@ const submitDriverDocuments = async (
   }
 
   const licenseFile = files?.license_document?.[0];
+  const licenseFrontFile = files?.license_document_front?.[0];
+  const licenseBackFile = files?.license_document_back?.[0];
   const idFile = files?.id_document?.[0];
+  const idFrontFile = files?.id_document_front?.[0];
+  const idBackFile = files?.id_document_back?.[0];
   const contractFile = files?.contract_document?.[0];
 
-  if (!licenseFile && !idFile && !contractFile) {
+  if (!licenseFile && !licenseFrontFile && !idFile && !idFrontFile && !contractFile) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Please upload at least one document');
   }
 
@@ -119,13 +123,17 @@ const submitDriverDocuments = async (
   };
 
   if (licenseFile) updateData.license_document = licenseFile.path;
+  if (licenseFrontFile) updateData.license_document_front = licenseFrontFile.path;
+  if (licenseBackFile) updateData.license_document_back = licenseBackFile.path;
   if (idFile) updateData.id_document = idFile.path;
+  if (idFrontFile) updateData.id_document_front = idFrontFile.path;
+  if (idBackFile) updateData.id_document_back = idBackFile.path;
   if (contractFile) updateData.contract_document = contractFile.path;
 
   // Mark as submitted only if they have provided both required docs at some point
   if (
-    (driver.license_document || licenseFile) &&
-    (driver.id_document || idFile)
+    (driver.license_document || driver.license_document_front || licenseFile || licenseFrontFile) &&
+    (driver.id_document || driver.id_document_front || idFile || idFrontFile)
   ) {
     updateData.documents_submitted = true;
     updateData.documents_submitted_at = driver.documents_submitted_at || new Date();
@@ -161,7 +169,7 @@ const submitDriverDocuments = async (
 };
 
 const deleteMyDocument = async (driverId: string, documentType: string) => {
-  const allowedTypes = ['license_document', 'id_document', 'contract_document'];
+  const allowedTypes = ['license_document', 'id_document', 'contract_document', 'id_document_front', 'id_document_back', 'license_document_front', 'license_document_back'];
   if (!allowedTypes.includes(documentType)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid document type');
   }
@@ -377,7 +385,11 @@ const updateDocumentByAdmin = async (
   if (!driver) throw new ApiError(httpStatus.NOT_FOUND, 'Driver not found');
 
   const licenseFile = files?.license_document?.[0];
+  const licenseFrontFile = files?.license_document_front?.[0];
+  const licenseBackFile = files?.license_document_back?.[0];
   const idFile = files?.id_document?.[0];
+  const idFrontFile = files?.id_document_front?.[0];
+  const idBackFile = files?.id_document_back?.[0];
   const contractFile = files?.contract_document?.[0];
   const profileImageFile = files?.profile_image?.[0];
   const vehicleCarrierFile = files?.vehicle_carrier_image?.[0];
@@ -391,10 +403,30 @@ const updateDocumentByAdmin = async (
     updateData.license_status = 'pending';
     newActivity.push({ message: 'License document uploaded', by: adminName, date: new Date() });
   }
+  if (licenseFrontFile) {
+    updateData.license_document_front = licenseFrontFile.path;
+    updateData.license_status = 'pending';
+    newActivity.push({ message: 'License document front uploaded', by: adminName, date: new Date() });
+  }
+  if (licenseBackFile) {
+    updateData.license_document_back = licenseBackFile.path;
+    updateData.license_status = 'pending';
+    newActivity.push({ message: 'License document back uploaded', by: adminName, date: new Date() });
+  }
   if (idFile) {
     updateData.id_document = idFile.path;
     updateData.id_status = 'pending';
     newActivity.push({ message: 'ID document uploaded', by: adminName, date: new Date() });
+  }
+  if (idFrontFile) {
+    updateData.id_document_front = idFrontFile.path;
+    updateData.id_status = 'pending';
+    newActivity.push({ message: 'ID document front uploaded', by: adminName, date: new Date() });
+  }
+  if (idBackFile) {
+    updateData.id_document_back = idBackFile.path;
+    updateData.id_status = 'pending';
+    newActivity.push({ message: 'ID document back uploaded', by: adminName, date: new Date() });
   }
   if (contractFile) {
     updateData.contract_document = contractFile.path;
@@ -426,12 +458,12 @@ const updateDocumentByAdmin = async (
 };
 
 const deleteDocumentByAdmin = async (driverId: string, documentType: string, adminName: string) => {
-  const allowedTypes = ['license_document', 'id_document', 'contract_document', 'profile_image', 'vehicle_carrier_image', 'dealer_plate_image'];
+  const allowedTypes = ['license_document', 'id_document', 'contract_document', 'profile_image', 'vehicle_carrier_image', 'dealer_plate_image', 'id_document_front', 'id_document_back', 'license_document_front', 'license_document_back'];
   if (!allowedTypes.includes(documentType)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid document type');
   }
 
-  const statusField = documentType === 'profile_image' ? null : documentType.replace('_document', '_status').replace('_image', '_status');
+  const statusField = documentType === 'profile_image' ? null : documentType.replace('_document_front', '_status').replace('_document_back', '_status').replace('_document', '_status').replace('_image', '_status');
 
   const updateData: any = {
     [documentType]: null,
@@ -459,7 +491,7 @@ const updateDocumentStatus = async (
   message?: string,
   adminName?: string
 ) => {
-  const allowedTypes = ['license_document', 'id_document', 'contract_document', 'vehicle_carrier_image', 'dealer_plate_image'];
+  const allowedTypes = ['license_document', 'id_document', 'contract_document', 'vehicle_carrier_image', 'dealer_plate_image', 'id_document_front', 'id_document_back', 'license_document_front', 'license_document_back'];
   if (!allowedTypes.includes(documentType)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid document type');
   }
@@ -467,7 +499,11 @@ const updateDocumentStatus = async (
   // Map document type to its status field
   const statusFieldMap: Record<string, string> = {
     license_document: 'license_status',
+    license_document_front: 'license_status',
+    license_document_back: 'license_status',
     id_document: 'id_status',
+    id_document_front: 'id_status',
+    id_document_back: 'id_status',
     contract_document: 'contract_status',
     vehicle_carrier_image: 'vehicle_carrier_status',
     dealer_plate_image: 'dealer_plate_status',

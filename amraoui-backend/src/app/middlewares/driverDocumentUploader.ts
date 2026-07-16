@@ -23,7 +23,7 @@ const allowedMimeTypes = [
 ];
 
 const fileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedFields = ['license_document', 'id_document', 'contract_document', 'profile_image', 'vehicle_carrier_image', 'dealer_plate_image'];
+  const allowedFields = ['license_document', 'id_document', 'contract_document', 'profile_image', 'vehicle_carrier_image', 'dealer_plate_image', 'id_document_front', 'id_document_back', 'license_document_front', 'license_document_back'];
   if (!allowedFields.includes(file.fieldname)) {
     return cb(new Error(`Invalid field: ${file.fieldname}`));
   }
@@ -34,8 +34,8 @@ const fileFilter = (_req: any, file: Express.Multer.File, cb: multer.FileFilterC
 };
 
 export const uploadDriverDocuments = multer({
-  storage,
-  fileFilter,
+  storage: storage as any,
+  fileFilter: fileFilter as any,
   limits: { fileSize: 10 * 1024 * 1024 },
 }).fields([
   { name: 'license_document', maxCount: 1 },
@@ -44,4 +44,8 @@ export const uploadDriverDocuments = multer({
   { name: 'profile_image', maxCount: 1 },
   { name: 'vehicle_carrier_image', maxCount: 1 },
   { name: 'dealer_plate_image', maxCount: 1 },
-]);
+  { name: 'id_document_front', maxCount: 1 },
+  { name: 'id_document_back', maxCount: 1 },
+  { name: 'license_document_front', maxCount: 1 },
+  { name: 'license_document_back', maxCount: 1 },
+]) as any;

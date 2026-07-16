@@ -636,23 +636,56 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                   </span>
                   <span className="font-medium text-gray-900">Driver assigned</span>
                 </div>
-                <div className="relative pl-7 text-xs flex items-center justify-between">
-                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
-                    <CheckCircle2 className="w-2.5 h-2.5 text-white" />
-                  </span>
-                  <span className="font-medium text-gray-900">Pickup started</span>
-                </div>
-                <div className="relative pl-7 text-xs flex items-center justify-between">
-                  <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
-                    <CheckCircle2 className="w-2.5 h-2.5 text-white" />
-                  </span>
-                  <span className="font-medium text-gray-900">Mission Completed</span>
-                </div>
+                {mission.raw?.type !== 'HIRE_DRIVER' ? (
+                  <>
+                    <div className="relative pl-7 text-xs flex items-center justify-between">
+                      <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
+                        <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                      </span>
+                      <span className="font-medium text-gray-900">Pickup started</span>
+                    </div>
+                    <div className="relative pl-7 text-xs flex items-center justify-between">
+                      <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
+                        <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                      </span>
+                      <span className="font-medium text-gray-900">Mission Completed</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {(mission.raw?.details?.driverArrivals || []).map((arrival: any, idx: number) => (
+                      <div key={idx} className="relative pl-7 text-xs flex items-center justify-between">
+                        <span className="absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center bg-green-500">
+                          <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                        </span>
+                        <div>
+                          <span className="font-medium text-gray-900 block">Arrived: {arrival.date}</span>
+                          <span className="text-gray-500">{new Date(arrival.verifiedAt).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    ))}
+                    {(!mission.raw?.details?.driverArrivals || mission.raw.details.driverArrivals.length === 0) && (
+                      <div className="relative pl-7 text-xs flex items-center justify-between">
+                        <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
+                          <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                        </span>
+                        <span className="font-medium text-gray-900">Service started</span>
+                      </div>
+                    )}
+                    <div className="relative pl-7 text-xs flex items-center justify-between mt-3">
+                      <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
+                        <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                      </span>
+                      <span className="font-medium text-gray-900">Mission Completed</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
 
           {/* Proof & Report Status */}
+          {mission.raw?.type !== 'HIRE_DRIVER' && (
           <div>
             <h3 className="text-sm font-bold text-gray-900 mb-3">Proof & Report Status</h3>
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -682,18 +715,21 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               </div>
             </div>
           </div>
+          )}
 
 
         </div>
 
         {/* Footer */}
         <div className="p-6 border-t border-gray-100 flex gap-3 text-sm">
-          <button
-            onClick={() => setIsProofModalOpen(true)}
-            className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors flex items-center justify-center gap-1"
-          >
-            <Download className="w-4 h-4" /> View Proof
-          </button>
+          {mission.raw?.type !== 'HIRE_DRIVER' && (
+            <button
+              onClick={() => setIsProofModalOpen(true)}
+              className="flex-1 py-2.5 border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors flex items-center justify-center gap-1"
+            >
+              <Download className="w-4 h-4" /> View Proof
+            </button>
+          )}
 
           <button
             onClick={handleDeleteMission}

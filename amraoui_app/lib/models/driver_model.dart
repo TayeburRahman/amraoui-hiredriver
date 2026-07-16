@@ -11,7 +11,11 @@ class DriverModel {
   final String status;
   final bool documentsSubmitted;
   final String? licenseDocument;
+  final String? licenseDocumentFront;
+  final String? licenseDocumentBack;
   final String? idDocument;
+  final String? idDocumentFront;
+  final String? idDocumentBack;
   final String? contractDocument;
   final String? declineReason;
 
@@ -28,7 +32,11 @@ class DriverModel {
     required this.status,
     this.documentsSubmitted = false,
     this.licenseDocument,
+    this.licenseDocumentFront,
+    this.licenseDocumentBack,
     this.idDocument,
+    this.idDocumentFront,
+    this.idDocumentBack,
     this.contractDocument,
     this.declineReason,
   });
@@ -51,7 +59,11 @@ class DriverModel {
       status: json['status']?.toString() ?? 'pending',
       documentsSubmitted: json['documents_submitted'] == true,
       licenseDocument: json['license_document']?.toString(),
+      licenseDocumentFront: json['license_document_front']?.toString(),
+      licenseDocumentBack: json['license_document_back']?.toString(),
       idDocument: json['id_document']?.toString(),
+      idDocumentFront: json['id_document_front']?.toString(),
+      idDocumentBack: json['id_document_back']?.toString(),
       contractDocument: json['contract_document']?.toString(),
       declineReason: json['decline_reason']?.toString(),
     );
@@ -70,7 +82,11 @@ class DriverModel {
         'status': status,
         'documents_submitted': documentsSubmitted,
         'license_document': licenseDocument,
+        'license_document_front': licenseDocumentFront,
+        'license_document_back': licenseDocumentBack,
         'id_document': idDocument,
+        'id_document_front': idDocumentFront,
+        'id_document_back': idDocumentBack,
         'contract_document': contractDocument,
         'decline_reason': declineReason,
       };

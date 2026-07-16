@@ -43,7 +43,7 @@ export function FirstOrder({ id }: { id?: string }) {
           <div className="flex-1 relative w-full h-[300px] md:h-[450px] z-10">
             <Image
               src="/assets/landing/order.svg"
-              alt="Hiflow Order Illustration"
+              alt="Vehiqqo Order Illustration"
               fill
               className="object-contain"
               priority

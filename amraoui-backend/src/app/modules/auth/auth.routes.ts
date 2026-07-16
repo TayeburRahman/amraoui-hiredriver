@@ -32,6 +32,18 @@ router.post(
       if (files.dealer_plate_image && files.dealer_plate_image[0]) {
         req.body.dealer_plate_image = files.dealer_plate_image[0].path;
       }
+      if (files.id_document_front && files.id_document_front[0]) {
+        req.body.id_document_front = files.id_document_front[0].path;
+      }
+      if (files.id_document_back && files.id_document_back[0]) {
+        req.body.id_document_back = files.id_document_back[0].path;
+      }
+      if (files.license_document_front && files.license_document_front[0]) {
+        req.body.license_document_front = files.license_document_front[0].path;
+      }
+      if (files.license_document_back && files.license_document_back[0]) {
+        req.body.license_document_back = files.license_document_back[0].path;
+      }
     }
     next();
   },

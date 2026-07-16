@@ -106,7 +106,23 @@ const DriversSchema = new Schema<IDrivers>(
       type: String,
       default: null,
     },
+    license_document_front: {
+      type: String,
+      default: null,
+    },
+    license_document_back: {
+      type: String,
+      default: null,
+    },
     id_document: {
+      type: String,
+      default: null,
+    },
+    id_document_front: {
+      type: String,
+      default: null,
+    },
+    id_document_back: {
       type: String,
       default: null,
     },

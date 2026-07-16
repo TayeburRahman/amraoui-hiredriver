@@ -1,6 +1,8 @@
 import 'package:amraoui_app/utils/gap.dart';
 import 'package:amraoui_app/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:amraoui_app/const/app_const/google_mao_key.dart';
 
 String _getFlagEmoji(String? addressOrCountry) {
   if (addressOrCountry == null || addressOrCountry.isEmpty) return '🇧🇪';
@@ -96,7 +98,7 @@ String _formatDateDDMMYYYY(String dateStr) {
   return dateStr;
 }
 
-class LocationTimelineWidget extends StatelessWidget {
+class LocationTimelineWidget extends StatefulWidget {
   final Map<String, dynamic> mission;
   final Color textColor;
   final Color secondaryTextColor;
@@ -109,9 +111,101 @@ class LocationTimelineWidget extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<LocationTimelineWidget> createState() => _LocationTimelineWidgetState();
+}
+
+class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
+  String _calculatedDistance = 'Calculating...';
+
+  @override
+  void initState() {
+    super.initState();
+    _initDistance();
+  }
+
+  @override
+  void didUpdateWidget(LocationTimelineWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mission['_id'] != widget.mission['_id']) {
+      _initDistance();
+    }
+  }
+
+  void _initDistance() {
+    final d = widget.mission['details'] ?? {};
+    final dist = d['distance']?.toString() ?? widget.mission['distance']?.toString();
+    if (dist != null && dist.isNotEmpty && dist != 'null') {
+      setState(() {
+        _calculatedDistance = dist;
+      });
+    } else {
+      setState(() {
+        _calculatedDistance = 'Calculating...';
+      });
+      _fetchDistance(d);
+    }
+  }
+
+  Future<void> _fetchDistance(Map<String, dynamic> d) async {
+    final type = widget.mission['type'];
+    if (type != 'TRANSPORT') return;
+
+    final pCity = d['pickupCity']?.toString() ?? '';
+    final pZip = d['pickupZip']?.toString() ?? '';
+    final pAddress = d['pickupAddress']?.toString() ?? '';
+    final pCountry = d['pickupCountry']?.toString() ?? '';
+    
+    final dCity = d['dropoffCity']?.toString() ?? '';
+    final dZip = d['dropoffZip']?.toString() ?? '';
+    final dAddress = d['dropoffAddress']?.toString() ?? '';
+    final dCountry = d['dropoffCountry']?.toString() ?? '';
+
+    final origin = [pAddress, pZip, pCity, pCountry].where((e) => e.isNotEmpty).join(', ');
+    final destination = [dAddress, dZip, dCity, dCountry].where((e) => e.isNotEmpty).join(', ');
+
+    if (origin.isEmpty || destination.isEmpty) {
+      if (mounted) setState(() { _calculatedDistance = 'N/A km'; });
+      return;
+    }
+
+    try {
+      final apiKey = AppConstMapKey.instance.googleMapApiKey;
+      final url = 'https://maps.googleapis.com/maps/api/distancematrix/json?origins=${Uri.encodeComponent(origin)}&destinations=${Uri.encodeComponent(destination)}&key=$apiKey';
+      final response = await Dio().get(url);
+      if (response.data != null) {
+        if (response.data['status'] == 'OK' && response.data['rows'] != null && response.data['rows'].isNotEmpty) {
+          var elements = response.data['rows'][0]['elements'];
+          if (elements != null && elements.isNotEmpty) {
+            var distance = elements[0]['distance'];
+            if (distance != null && mounted) {
+              setState(() {
+                _calculatedDistance = distance['text'];
+              });
+              return;
+            }
+          }
+        } else if (response.data['status'] != null) {
+          if (mounted) setState(() { _calculatedDistance = response.data['status']; });
+          return;
+        }
+      }
+    } catch (e) {
+      if (mounted) setState(() { _calculatedDistance = 'Network Err'; });
+      return;
+    }
+    
+    // Fallback if failed or no distance returned
+    if (mounted) {
+      setState(() {
+        _calculatedDistance = 'N/A km';
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final type = mission['type'];
-    final d = mission['details'] ?? {};
+    final type = widget.mission['type'];
+    final d = widget.mission['details'] ?? {};
 
     if (type == 'TRANSPORT') {
       final pickupDate = _formatDateDDMMYYYY(d['pickupDate']?.toString() ?? '');
@@ -149,10 +243,8 @@ class LocationTimelineWidget extends StatelessWidget {
           : (dAddress.isNotEmpty ? '${_getFlagEmoji(dAddress)} $dAddress' : 'Pending Location');
 
       final customerName =
-          mission['customerId']?['name']?.toString() ?? 'Customer';
-      final distance =
-          d['distance']?.toString() ??
-          (mission['distance']?.toString() ?? 'N/A km');
+          widget.mission['customerId']?['name']?.toString() ?? 'Customer';
+      final distance = _calculatedDistance;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,13 +433,13 @@ class LocationTimelineWidget extends StatelessWidget {
                     data: title,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: textColor,
+                    color: widget.textColor,
                   ),
                   const Gap(height: 4),
                   AppText(
                     data: subtitle,
                     fontSize: 13,
-                    color: secondaryTextColor,
+                    color: widget.secondaryTextColor,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -103,12 +103,16 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
   // Calculate completeness
   const checks = [
     { label: 'Profile picture uploaded', done: !!driver.profile_image },
-    { label: 'Driver license uploaded', done: !!driver.license_document },
-    { label: 'ID document uploaded', done: !!driver.id_document },
-    { label: 'Contract document uploaded', done: !!driver.contract_document },
+    { label: 'Driver license (Front) uploaded', done: !!driver.license_document_front },
+    { label: 'Driver license (Back) uploaded', done: !!driver.license_document_back },
+    { label: 'ID document (Front) uploaded', done: !!driver.id_document_front },
+    { label: 'ID document (Back) uploaded', done: !!driver.id_document_back },
     { label: 'Driver license verified', done: driver.license_status === 'verified' },
     { label: 'ID document verified', done: driver.id_status === 'verified' },
-    { label: 'Contract document verified', done: driver.contract_status === 'verified' },
+    ...(driver.contract_document ? [
+      { label: 'Contract document uploaded', done: true },
+      { label: 'Contract document verified', done: driver.contract_status === 'verified' }
+    ] : []),
     ...(driver.vehicle_carrier_image ? [{ label: 'Vehicle carrier image verified', done: driver.vehicle_carrier_status === 'verified' }] : []),
     ...(driver.dealer_plate_image ? [{ label: 'Dealer plate image verified', done: driver.dealer_plate_status === 'verified' }] : []),
   ];
@@ -266,8 +270,10 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
               {/* Document Card Template */}
               {[
                 { type: 'profile_image', title: 'Profile Image', val: driver.profile_image, status: null, icon: FileText, date: driver.createdAt, isImage: true, hasStatus: false },
-                { type: 'license_document', title: 'Driver License', val: driver.license_document, status: driver.license_status, icon: FileText, num: driver.license_number, date: driver.createdAt, isImage: false, hasStatus: true },
-                { type: 'id_document', title: 'ID Document', val: driver.id_document, status: driver.id_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
+                { type: 'license_document_front', title: 'Driver License (Front)', val: driver.license_document_front, status: driver.license_status, icon: FileText, num: driver.license_number, date: driver.createdAt, isImage: false, hasStatus: true },
+                { type: 'license_document_back', title: 'Driver License (Back)', val: driver.license_document_back, status: driver.license_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
+                { type: 'id_document_front', title: 'ID Document (Front)', val: driver.id_document_front, status: driver.id_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
+                { type: 'id_document_back', title: 'ID Document (Back)', val: driver.id_document_back, status: driver.id_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
                 { type: 'contract_document', title: 'Contract Document', val: driver.contract_document, status: driver.contract_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
                 { type: 'vehicle_carrier_image', title: 'Vehicle Carrier Image', val: driver.vehicle_carrier_image, status: driver.vehicle_carrier_status, icon: FileText, date: driver.createdAt, isImage: true, hasStatus: true },
                 { type: 'dealer_plate_image', title: 'Dealer Plate Image', val: driver.dealer_plate_image, status: driver.dealer_plate_status, icon: FileText, date: driver.createdAt, isImage: true, hasStatus: true },

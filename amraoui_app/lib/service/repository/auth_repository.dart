@@ -24,6 +24,10 @@ class AuthRepository {
     String? profileImagePath,
     String? vehicleCarrierImagePath,
     String? dealerPlateImagePath,
+    String? idDocumentFrontImagePath,
+    String? idDocumentBackImagePath,
+    String? driverLicenseFrontImagePath,
+    String? driverLicenseBackImagePath,
   }) async {
     try {
       final Map<String, dynamic> jsonData = {
@@ -72,6 +76,42 @@ class AuthRepository {
           MapEntry(
             'dealer_plate_image',
             await MultipartFile.fromFile(dealerPlateImagePath),
+          ),
+        );
+      }
+
+      if (idDocumentFrontImagePath != null && idDocumentFrontImagePath.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'id_document_front',
+            await MultipartFile.fromFile(idDocumentFrontImagePath),
+          ),
+        );
+      }
+
+      if (idDocumentBackImagePath != null && idDocumentBackImagePath.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'id_document_back',
+            await MultipartFile.fromFile(idDocumentBackImagePath),
+          ),
+        );
+      }
+
+      if (driverLicenseFrontImagePath != null && driverLicenseFrontImagePath.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'license_document_front',
+            await MultipartFile.fromFile(driverLicenseFrontImagePath),
+          ),
+        );
+      }
+
+      if (driverLicenseBackImagePath != null && driverLicenseBackImagePath.isNotEmpty) {
+        formData.files.add(
+          MapEntry(
+            'license_document_back',
+            await MultipartFile.fromFile(driverLicenseBackImagePath),
           ),
         );
       }

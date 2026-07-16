@@ -126,7 +126,7 @@ const SettingsPage = () => {
             setPrivacyContent(s.privacyPolicy || "");
             setTermsContent(s.termsCondition || "");
             setSupportText(s.supportText || "Need assistance with your bookings, account settings, or have other questions? Get in touch with our team.");
-            setSupportEmail(s.supportEmail || "support@vehiqqo.com");
+            setSupportEmail(s.supportEmail || "partner@vehiqqo.com");
             setSupportHours(s.supportHours || "Mon - Fri, 9:00 - 18:00 CET.");
             setSupportResponseTime(s.supportResponseTime || "Usually under 2 hours");
           }
@@ -661,7 +661,7 @@ const SettingsPage = () => {
                           value={supportEmail}
                           onChange={(e) => setSupportEmail(e.target.value)}
                           className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow text-sm"
-                          placeholder="support@vehiqqo.com"
+                          placeholder="partner@vehiqqo.com"
                         />
                       </div>
                       <div className="space-y-2">

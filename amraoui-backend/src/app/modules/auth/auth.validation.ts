@@ -27,6 +27,10 @@ const create = z.object({
     vehicle_carrier_image: z.string().optional(),
     dealer_plate_image: z.string().optional(),
     profile_image: z.string().optional(),
+    id_document_front: z.string().optional(),
+    id_document_back: z.string().optional(),
+    license_document_front: z.string().optional(),
+    license_document_back: z.string().optional(),
   }),
 });
 
@@ -52,6 +56,10 @@ const updateUserZodSchema = z.object({
     tax_number: z.string().optional(),
     vehicle_carrier_image: z.string().optional(),
     dealer_plate_image: z.string().optional(),
+    id_document_front: z.string().optional(),
+    id_document_back: z.string().optional(),
+    license_document_front: z.string().optional(),
+    license_document_back: z.string().optional(),
   }),
 });
 

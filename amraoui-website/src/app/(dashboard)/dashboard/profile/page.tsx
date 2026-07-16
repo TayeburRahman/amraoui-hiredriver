@@ -623,8 +623,8 @@ export default function ProfilePage() {
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Email Address</span>
-                <a href={`mailto:${globalSettings.supportEmail || 'support@vehiqqo.com'}`} className="text-sm font-bold text-brand-blue hover:underline">
-                  {globalSettings.supportEmail || 'support@vehiqqo.com'}
+                <a href={`mailto:${globalSettings.supportEmail || 'partner@vehiqqo.com'}`} className="text-sm font-bold text-brand-blue hover:underline">
+                  {globalSettings.supportEmail || 'partner@vehiqqo.com'}
                 </a>
               </div>
 
@@ -651,7 +651,7 @@ export default function ProfilePage() {
               <Button
                 className="flex-1 rounded-xl h-11 font-bold bg-brand-blue hover:bg-brand-blue-hover text-white"
                 onClick={() => {
-                  window.open(`mailto:${globalSettings.supportEmail || 'support@vehiqqo.com'}`);
+                  window.open(`mailto:${globalSettings.supportEmail || 'partner@vehiqqo.com'}`);
                   setShowSupportModal(false);
                 }}
               >
@@ -705,7 +705,7 @@ export default function ProfilePage() {
                 <div>
                   <h3 className="font-bold text-brand-text text-base mb-1.5">5. Contact Us</h3>
                   <p>
-                    If you have any questions or feedback regarding these terms or our privacy policy, please contact us at <a href={`mailto:${globalSettings.supportEmail || 'support@vehiqqo.com'}`} className="text-brand-blue font-bold hover:underline">{globalSettings.supportEmail || 'support@vehiqqo.com'}</a>.
+                    If you have any questions or feedback regarding these terms or our privacy policy, please contact us at <a href={`mailto:${globalSettings.supportEmail || 'partner@vehiqqo.com'}`} className="text-brand-blue font-bold hover:underline">{globalSettings.supportEmail || 'partner@vehiqqo.com'}</a>.
                   </p>
                 </div>
               </>

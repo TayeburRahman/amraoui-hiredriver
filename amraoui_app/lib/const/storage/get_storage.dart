@@ -15,6 +15,9 @@ class StorageKey {
   static const String userInfo = "userInfo";
   static const String pendingEmail = "pendingEmail";
   static const String verifyMode = "verifyMode";
+  static const String savedEmail = "savedEmail";
+  static const String savedPassword = "savedPassword";
+  static const String rememberMe = "rememberMe";
 }
 
 class AppStorage {
@@ -91,8 +94,10 @@ class AppStorage {
     await box.write(StorageKey.role, value);
   }
 
-  ///logout
   Future<void> storageAllClear() async {
-    await box.erase();
+    await removeValue(StorageKey.token);
+    await removeValue(StorageKey.refreshToken);
+    await removeValue(StorageKey.userInfo);
+    await removeValue(StorageKey.role);
   }
 }

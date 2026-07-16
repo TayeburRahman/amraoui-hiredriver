@@ -562,12 +562,43 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
 
       {/* Report Details Grid */}
       <div className="space-y-4">
-        <h2 className="text-xl font-black text-brand-text">{t.orders.deliveryReport?.reportDetails || 'Report Details'}</h2>
+        <h2 className="text-xl font-black text-brand-text">
+          {isHireDriver ? 'Daily Driver Check-ins' : (t.orders.deliveryReport?.reportDetails || 'Report Details')}
+        </h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          
-          {/* Card 1 */}
-          <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
+        {isHireDriver ? (
+          <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white">
+            <div className="space-y-4">
+              {(mission.details?.driverArrivals || []).length > 0 ? (
+                (mission.details.driverArrivals).map((arrival: any, idx: number) => (
+                  <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center">
+                        <CheckCircle2 className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-brand-text">Arrival Verified</p>
+                        <p className="text-sm font-medium text-slate-500">Scheduled: {arrival.date}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-emerald-600">Logged At</p>
+                      <p className="text-sm font-medium text-slate-500">{new Date(arrival.verifiedAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100">
+                  <p className="text-slate-500 font-medium">No check-ins have been recorded yet.</p>
+                </div>
+              )}
+            </div>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            
+            {/* Card 1 */}
+            <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
             <div className="flex items-start gap-4">
               <div className={`h-12 w-12 rounded-2xl ${pickupPhotosCount > 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400'} flex items-center justify-center flex-shrink-0`}>
                 <ImageIcon className="h-5 w-5" />
@@ -669,13 +700,15 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
           </Card>
 
         </div>
+        )}
       </div>
 
       {/* Transport Timeline */}
-      <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
-        <h2 className="text-xl font-black text-brand-text">{t.orders.deliveryReport?.transportTimeline || 'Transport Timeline'}</h2>
-        
-        <div className="space-y-3">
+      {!isHireDriver && (
+        <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
+          <h2 className="text-xl font-black text-brand-text">{t.orders.deliveryReport?.transportTimeline || 'Transport Timeline'}</h2>
+          
+          <div className="space-y-3">
           <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 flex items-center gap-4 border border-slate-100">
             <div className="h-8 w-8 rounded-full border-2 border-emerald-500 text-emerald-500 flex items-center justify-center flex-shrink-0 bg-white">
               <CheckCircle2 className="h-5 w-5" />
@@ -715,6 +748,7 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
           </div>
         </div>
       </Card>
+      )}
       
       {/* Dialog for Modals */}
       <Dialog open={!!activeModal} onOpenChange={(open) => !open && setActiveModal(null)}>

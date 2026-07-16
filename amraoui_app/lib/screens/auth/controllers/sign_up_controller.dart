@@ -45,6 +45,10 @@ class SignUpController extends GetxController {
   var profileImagePath = ''.obs;
   var vehicleCarrierImagePath = ''.obs;
   var dealerPlateImagePath = ''.obs;
+  var idDocumentFrontImagePath = ''.obs;
+  var idDocumentBackImagePath = ''.obs;
+  var driverLicenseFrontImagePath = ''.obs;
+  var driverLicenseBackImagePath = ''.obs;
 
   final passwordController = TextEditingController(
     text: kDebugMode ? 'Test@123' : '',
@@ -92,6 +96,34 @@ class SignUpController extends GetxController {
     }
   }
 
+  Future<void> pickIdDocumentFront() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      idDocumentFrontImagePath.value = pickedFile.path;
+    }
+  }
+
+  Future<void> pickIdDocumentBack() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      idDocumentBackImagePath.value = pickedFile.path;
+    }
+  }
+
+  Future<void> pickDriverLicenseFront() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      driverLicenseFrontImagePath.value = pickedFile.path;
+    }
+  }
+
+  Future<void> pickDriverLicenseBack() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      driverLicenseBackImagePath.value = pickedFile.path;
+    }
+  }
+
   void updateCountry(Country country) => selectedCountry.value = country;
   void togglePasswordVisibility() =>
       isPasswordVisible.value = !isPasswordVisible.value;
@@ -133,6 +165,10 @@ class SignUpController extends GetxController {
         profileImagePath: profileImagePath.value.isNotEmpty ? profileImagePath.value : null,
         vehicleCarrierImagePath: isVehicleCarrier.value ? vehicleCarrierImagePath.value : null,
         dealerPlateImagePath: isDealerPlate.value ? dealerPlateImagePath.value : null,
+        idDocumentFrontImagePath: idDocumentFrontImagePath.value.isNotEmpty ? idDocumentFrontImagePath.value : null,
+        idDocumentBackImagePath: idDocumentBackImagePath.value.isNotEmpty ? idDocumentBackImagePath.value : null,
+        driverLicenseFrontImagePath: driverLicenseFrontImagePath.value.isNotEmpty ? driverLicenseFrontImagePath.value : null,
+        driverLicenseBackImagePath: driverLicenseBackImagePath.value.isNotEmpty ? driverLicenseBackImagePath.value : null,
       );
       hideGlobalLoading();
 

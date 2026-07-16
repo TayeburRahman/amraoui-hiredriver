@@ -9,8 +9,10 @@ class DocumentsController extends GetxController {
   var isLoading = true.obs;
   var isUploading = false.obs;
 
-  var licenseDoc = ''.obs;
-  var idDoc = ''.obs;
+  var licenseDocFront = ''.obs;
+  var licenseDocBack = ''.obs;
+  var idDocFront = ''.obs;
+  var idDocBack = ''.obs;
   var contractDoc = ''.obs;
 
   @override
@@ -24,8 +26,10 @@ class DocumentsController extends GetxController {
       isLoading.value = true;
       final data = await _repository.getMyProfile();
       if (data != null) {
-        licenseDoc.value = data['license_document'] ?? '';
-        idDoc.value = data['id_document'] ?? '';
+        licenseDocFront.value = data['license_document_front'] ?? '';
+        licenseDocBack.value = data['license_document_back'] ?? '';
+        idDocFront.value = data['id_document_front'] ?? '';
+        idDocBack.value = data['id_document_back'] ?? '';
         contractDoc.value = data['contract_document'] ?? '';
       }
     } catch (e) {
@@ -48,19 +52,25 @@ class DocumentsController extends GetxController {
       isUploading.value = true;
       Get.snackbar('Uploading', 'Please wait while your document is being uploaded...');
 
-      dynamic licenseFile = docType == 'license_document' ? file : null;
-      dynamic idFile = docType == 'id_document' ? file : null;
+      dynamic licenseFileFront = docType == 'license_document_front' ? file : null;
+      dynamic licenseFileBack = docType == 'license_document_back' ? file : null;
+      dynamic idFileFront = docType == 'id_document_front' ? file : null;
+      dynamic idFileBack = docType == 'id_document_back' ? file : null;
       dynamic contractFile = docType == 'contract_document' ? file : null;
 
       final updatedData = await _repository.submitDocuments(
-        licenseDocument: licenseFile,
-        idDocument: idFile,
+        licenseDocumentFront: licenseFileFront,
+        licenseDocumentBack: licenseFileBack,
+        idDocumentFront: idFileFront,
+        idDocumentBack: idFileBack,
         contractDocument: contractFile,
       );
 
       if (updatedData != null) {
-        if (docType == 'license_document') licenseDoc.value = updatedData['license_document'] ?? '';
-        if (docType == 'id_document') idDoc.value = updatedData['id_document'] ?? '';
+        if (docType == 'license_document_front') licenseDocFront.value = updatedData['license_document_front'] ?? '';
+        if (docType == 'license_document_back') licenseDocBack.value = updatedData['license_document_back'] ?? '';
+        if (docType == 'id_document_front') idDocFront.value = updatedData['id_document_front'] ?? '';
+        if (docType == 'id_document_back') idDocBack.value = updatedData['id_document_back'] ?? '';
         if (docType == 'contract_document') contractDoc.value = updatedData['contract_document'] ?? '';
         Get.snackbar('Success', 'Document uploaded successfully');
       }

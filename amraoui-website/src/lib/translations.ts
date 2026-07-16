@@ -279,15 +279,15 @@ export const translations = {
         badge: "Smart Logistics Solutions",
         title: "Delivering More",
         titleGradient: "Than Promises",
-        description: "Hiflow helps professionals move vehicles faster with trusted drivers, real-time tracking, and 48-hour delivery coverage across the world.",
+        description: "Vehiqqo helps professionals move vehicles faster with trusted drivers, real-time tracking, and 48-hour delivery coverage across the world.",
         customerBtn: "Become a customer",
         driverBtn: "Become a driver",
       },
       solutions: {
         badge: "Solutions",
-        title: "Hiflow: the smarter",
+        title: "Vehiqqo: the smarter",
         titleLine2: "delivery solution",
-        description: "Choose the delivery solution that fits your operation. From single vehicle movement to recurring logistics, Hiflow connects you with trusted drivers and real-time visibility.",
+        description: "Choose the delivery solution that fits your operation. From single vehicle movement to recurring logistics, Vehiqqo connects you with trusted drivers and real-time visibility.",
         cardTitle: "Professional drivers",
         cardDesc: "10,000+ professional drivers respond within 48 hours. Fast, secure, and personal vehicle delivery for your business.",
         verifiedBadge: "Verified Driver",
@@ -298,7 +298,7 @@ export const translations = {
         }
       },
       whyChoose: {
-        title: "Why choose Hiflow?",
+        title: "Why choose Vehiqqo?",
         feat1: {
           title: "Choose your delivery options",
           desc: "Discover flexible delivery services tailored to your business.",
@@ -317,7 +317,7 @@ export const translations = {
         feat4: {
           title: "Available equipment",
           desc: "Our support team and operational tools are always ready for your needs.",
-          link: "Why choose Hiflow?"
+          link: "Why choose Vehiqqo?"
         }
       },
       becomeDriver: {
@@ -642,13 +642,13 @@ export const translations = {
         badge: "Solutions Logistiques Intelligentes",
         title: "Livrer Plus",
         titleGradient: "Que des Promesses",
-        description: "Hiflow aide les professionnels à déplacer les véhicules plus rapidement avec des chauffeurs de confiance, un suivi en temps réel et une couverture de livraison en 48 heures dans toute l'Espagne.",
+        description: "Vehiqqo aide les professionnels à déplacer les véhicules plus rapidement avec des chauffeurs de confiance, un suivi en temps réel et une couverture de livraison en 48 heures dans toute l'Espagne.",
         customerBtn: "Je suis un Client",
         driverBtn: "Je suis un chauffeur",
       },
       solutions: {
         badge: "Solutions",
-        title: "Hiflow: la solution",
+        title: "Vehiqqo: la solution",
         titleLine2: "de livraison plus intelligente",
         description: "Choisissez la solution de livraison qui convient à votre opération. Du mouvement de véhicule unique à la logistique récurrente.",
         cardTitle: "Chauffeurs professionnels",
@@ -661,7 +661,7 @@ export const translations = {
         }
       },
       whyChoose: {
-        title: "Pourquoi choisir Hiflow ?",
+        title: "Pourquoi choisir Vehiqqo ?",
         feat1: {
           title: "Choisissez vos options de livraison",
           desc: "Découvrez des services de livraison flexibles adaptés à votre entreprise.",
@@ -680,7 +680,7 @@ export const translations = {
         feat4: {
           title: "Équipement disponible",
           desc: "Notre équipe de support et nos outils opérationnels sont toujours prêts pour vos besoins.",
-          link: "Pourquoi Hiflow ?"
+          link: "Pourquoi Vehiqqo ?"
         }
       },
       becomeDriver: {
@@ -1005,13 +1005,13 @@ export const translations = {
         badge: "Slimme Logistieke Oplossingen",
         title: "Meer Leveren",
         titleGradient: "Dan Beloftes",
-        description: "Hiflow helpt professionals voertuigen sneller te verplaatsen met vertrouwde chauffeurs, realtime tracking en 48-uurs levering in heel Spanje.",
+        description: "Vehiqqo helpt professionals voertuigen sneller te verplaatsen met vertrouwde chauffeurs, realtime tracking en 48-uurs levering in heel Spanje.",
         customerBtn: "Ik ben een Klant",
         driverBtn: "Ik ben een chauffeur",
       },
       solutions: {
         badge: "Oplossingen",
-        title: "Hiflow: de slimme",
+        title: "Vehiqqo: de slimme",
         titleLine2: "leveringsoplossing",
         description: "Kies de leveringsoplossing die bij uw bedrijf past. Van eenmalig voertuigtransport tot terugkerende logistiek.",
         cardTitle: "Professionele chauffeurs",
@@ -1024,7 +1024,7 @@ export const translations = {
         }
       },
       whyChoose: {
-        title: "Waarom kiezen voor Hiflow?",
+        title: "Waarom kiezen voor Vehiqqo?",
         feat1: {
           title: "Kies uw leveringsopties",
           desc: "Ontdek flexibele leveringsdiensten op maat van uw bedrijf.",
@@ -1043,7 +1043,7 @@ export const translations = {
         feat4: {
           title: "Beschikbare apparatuur",
           desc: "Ons supportteam en onze tools staan altijd klaar voor uw behoeften.",
-          link: "Waarom Hiflow?"
+          link: "Waarom Vehiqqo?"
         }
       },
       becomeDriver: {

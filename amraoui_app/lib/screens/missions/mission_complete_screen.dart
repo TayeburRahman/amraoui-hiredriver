@@ -48,6 +48,14 @@ class MissionCompleteScreen extends StatelessWidget {
     if (vehicleText.isEmpty) vehicleText = 'Not specified';
 
     String distanceText = detailsObj['distance']?.toString() ?? 'N/A';
+    try {
+      double pMileage = double.parse(detailsObj['pickupInspection']?['mileageAndFuel']?['mileage']?.toString() ?? '0');
+      double dMileage = double.parse(detailsObj['deliveryInspection']?['mileageAndFuel']?['mileage']?.toString() ?? '0');
+      if (dMileage > 0 && dMileage >= pMileage) {
+        distanceText = '${dMileage - pMileage}';
+      }
+    } catch (_) {}
+
     if (!distanceText.endsWith('km') && distanceText != 'N/A' && distanceText.isNotEmpty && distanceText != 'null') {
       distanceText = '$distanceText km';
     } else if (distanceText.isEmpty || distanceText == 'null') {
@@ -55,6 +63,23 @@ class MissionCompleteScreen extends StatelessWidget {
     }
 
     String durationText = detailsObj['estimatedTime']?.toString() ?? 'N/A';
+    try {
+      String? startStr = detailsObj['pickupVerification']?['verifiedAt']?.toString();
+      String? endStr = detailsObj['deliveryArrivalTime']?.toString();
+      if (startStr != null && endStr != null) {
+        DateTime start = DateTime.parse(startStr);
+        DateTime end = DateTime.parse(endStr);
+        Duration diff = end.difference(start);
+        int hours = diff.inHours;
+        int mins = diff.inMinutes.remainder(60);
+        if (hours > 0) {
+          durationText = '$hours h $mins m';
+        } else {
+          durationText = '$mins min';
+        }
+      }
+    } catch (_) {}
+
     if (durationText.isEmpty || durationText == 'null') {
       durationText = 'N/A';
     }

@@ -207,19 +207,37 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
                           <span className="text-gray-400">Damage Status</span>
                           <span className="font-bold text-gray-900">{pickupDamage}</span>
                         </div>
-                        {request.details?.pickupInspection?.damageReport?.damageDescription && (
-                          <div className="mt-1 p-2 bg-gray-50 rounded text-gray-600 text-[11px]">
-                            {request.details.pickupInspection.damageReport.damageDescription}
-                          </div>
-                        )}
-                        {request.details?.pickupInspection?.damageReport?.damagePhotos && (
-                          <div className="flex gap-2 mt-2 overflow-x-auto">
-                            {request.details.pickupInspection.damageReport.damagePhotos.map((p: string, i: number) => (
-                              <a key={i} href={p} target="_blank" rel="noreferrer">
-                                <img src={p} className="h-10 w-10 object-cover rounded shadow-sm" />
-                              </a>
+                        {request.details?.pickupInspection?.damageReport?.damagesList?.length > 0 ? (
+                          <div className="mt-2 space-y-2">
+                            {request.details.pickupInspection.damageReport.damagesList.map((dmg: any, i: number) => (
+                              <div key={i} className="p-2 bg-gray-50 rounded text-[11px] text-gray-600 flex gap-2">
+                                {dmg.photo && (
+                                  <a href={dmg.photo} target="_blank" rel="noreferrer" className="shrink-0">
+                                    <img src={dmg.photo} className="h-12 w-12 object-cover rounded shadow-sm" />
+                                  </a>
+                                )}
+                                <div>
+                                  <p className="font-bold text-gray-900">{dmg.component} - <span className="text-red-500">{dmg.condition}</span></p>
+                                  {dmg.comment && <p>{dmg.comment}</p>}
+                                </div>
+                              </div>
                             ))}
                           </div>
+                        ) : (
+                          <>
+                            {request.details?.pickupInspection?.damageReport?.comment && (
+                              <div className="mt-1 p-2 bg-gray-50 rounded text-gray-600 text-[11px]">
+                                {request.details.pickupInspection.damageReport.comment}
+                              </div>
+                            )}
+                            {request.details?.pickupInspection?.damageReport?.photo && (
+                              <div className="mt-2">
+                                <a href={request.details.pickupInspection.damageReport.photo} target="_blank" rel="noreferrer">
+                                  <img src={request.details.pickupInspection.damageReport.photo} className="h-12 w-12 object-cover rounded shadow-sm" />
+                                </a>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                       <hr className="border-gray-100" />
@@ -269,19 +287,37 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
                           <span className="text-gray-400">Status</span>
                           <span className="font-bold text-gray-900">{deliveryDamage}</span>
                         </div>
-                        {request.details?.deliveryInspection?.damageReport?.damageDescription && (
-                          <div className="mt-1 p-2 bg-yellow-50 rounded text-gray-600 text-[11px]">
-                            {request.details.deliveryInspection.damageReport.damageDescription}
-                          </div>
-                        )}
-                        {request.details?.deliveryInspection?.damageReport?.damagePhotos && (
-                          <div className="flex gap-2 mt-2 overflow-x-auto">
-                            {request.details.deliveryInspection.damageReport.damagePhotos.map((p: string, i: number) => (
-                              <a key={i} href={p} target="_blank" rel="noreferrer">
-                                <img src={p} className="h-10 w-10 object-cover rounded shadow-sm" />
-                              </a>
+                        {request.details?.deliveryInspection?.damageReport?.damagesList?.length > 0 ? (
+                          <div className="mt-2 space-y-2">
+                            {request.details.deliveryInspection.damageReport.damagesList.map((dmg: any, i: number) => (
+                              <div key={i} className="p-2 bg-yellow-50 rounded text-[11px] text-gray-600 flex gap-2">
+                                {dmg.photo && (
+                                  <a href={dmg.photo} target="_blank" rel="noreferrer" className="shrink-0">
+                                    <img src={dmg.photo} className="h-12 w-12 object-cover rounded shadow-sm" />
+                                  </a>
+                                )}
+                                <div>
+                                  <p className="font-bold text-gray-900">{dmg.component} - <span className="text-red-500">{dmg.condition}</span></p>
+                                  {dmg.comment && <p>{dmg.comment}</p>}
+                                </div>
+                              </div>
                             ))}
                           </div>
+                        ) : (
+                          <>
+                            {request.details?.deliveryInspection?.damageReport?.comment && (
+                              <div className="mt-1 p-2 bg-yellow-50 rounded text-gray-600 text-[11px]">
+                                {request.details.deliveryInspection.damageReport.comment}
+                              </div>
+                            )}
+                            {request.details?.deliveryInspection?.damageReport?.photo && (
+                              <div className="mt-2">
+                                <a href={request.details.deliveryInspection.damageReport.photo} target="_blank" rel="noreferrer">
+                                  <img src={request.details.deliveryInspection.damageReport.photo} className="h-12 w-12 object-cover rounded shadow-sm" />
+                                </a>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                       <hr className="border-gray-100" />

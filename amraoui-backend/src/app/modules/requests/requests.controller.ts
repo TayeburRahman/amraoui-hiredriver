@@ -496,6 +496,21 @@ const updatePickupInspection = catchAsync(async (req: Request, res: Response) =>
     }
   }
 
+  if (data.damagesList && typeof data.damagesList === 'string') {
+    try {
+      const parsedList = JSON.parse(data.damagesList);
+      parsedList.forEach((damage: any) => {
+        if (damage.photoRef && data[damage.photoRef]) {
+          damage.photo = data[damage.photoRef];
+          delete data[damage.photoRef];
+        }
+      });
+      data.damagesList = parsedList;
+    } catch(e) {
+      console.error('Failed to parse damagesList', e);
+    }
+  }
+
   const updated = await RequestsService.updatePickupInspection(id, driverId, section, data);
 
   sendResponse(res, {
@@ -551,6 +566,21 @@ const updateDeliveryInspection = catchAsync(async (req: Request, res: Response) 
           }
         }
       });
+    }
+  }
+
+  if (data.damagesList && typeof data.damagesList === 'string') {
+    try {
+      const parsedList = JSON.parse(data.damagesList);
+      parsedList.forEach((damage: any) => {
+        if (damage.photoRef && data[damage.photoRef]) {
+          damage.photo = data[damage.photoRef];
+          delete data[damage.photoRef];
+        }
+      });
+      data.damagesList = parsedList;
+    } catch(e) {
+      console.error('Failed to parse damagesList', e);
     }
   }
 

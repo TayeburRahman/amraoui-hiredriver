@@ -893,7 +893,7 @@ const updateDeliveryInspection = async (missionId: string, driverId: string, sec
             title: 'Mission Completed',
             message: `Mission ${mission.missionId || 'Request'} has been completed by the driver.`,
             type: 'MISSION_COMPLETED',
-            link: '/dashboard/orders',
+            link: '/mission-monitoring',
             metadata: { requestId: mission._id.toString() }
           }).catch(console.error);
         }

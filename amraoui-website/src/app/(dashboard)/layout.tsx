@@ -40,7 +40,6 @@ export default function DashboardLayout({
     }
   }, [isAuthenticated, user, isHydrated, router]);
 
-  // Show loading spinner while hydrating
   if (!isHydrated || isLoading || !isAuthenticated) {
     return (
       <div className="h-screen w-screen flex flex-col items-center justify-center bg-brand-bg">
@@ -53,7 +52,6 @@ export default function DashboardLayout({
     );
   }
 
-  // Access denied for non-customers
   const role = user?.authId?.role || user?.role;
   if (role && role !== 'CUSTOMERS') {
     return null;

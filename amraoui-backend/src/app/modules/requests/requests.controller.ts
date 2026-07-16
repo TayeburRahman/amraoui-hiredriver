@@ -380,7 +380,7 @@ const assignDriver = catchAsync(async (req: Request, res: Response) => {
 const verifyPickup = catchAsync(async (req: Request, res: Response) => {
   const driverId = (req as any).user?.userId;
   const { id } = req.params;
-  const { lat, lng, date } = req.body;
+  const { lat, lng, date, distanceFromTarget } = req.body;
 
   if (lat === undefined || lng === undefined) {
     return sendResponse(res, {
@@ -391,7 +391,7 @@ const verifyPickup = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
-  const updated = await RequestsService.verifyPickup(id, driverId, lat, lng, date);
+  const updated = await RequestsService.verifyPickup(id, driverId, lat, lng, date, distanceFromTarget);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -404,7 +404,7 @@ const verifyPickup = catchAsync(async (req: Request, res: Response) => {
 const verifyDeliveryArrival = catchAsync(async (req: Request, res: Response) => {
   const driverId = (req as any).user?.userId;
   const { id } = req.params;
-  const { lat, lng } = req.body;
+  const { lat, lng, distanceFromTarget } = req.body;
 
   if (lat === undefined || lng === undefined) {
     return sendResponse(res, {
@@ -415,7 +415,7 @@ const verifyDeliveryArrival = catchAsync(async (req: Request, res: Response) => 
     });
   }
 
-  const updated = await RequestsService.verifyDeliveryArrival(id, driverId, lat, lng);
+  const updated = await RequestsService.verifyDeliveryArrival(id, driverId, lat, lng, distanceFromTarget);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

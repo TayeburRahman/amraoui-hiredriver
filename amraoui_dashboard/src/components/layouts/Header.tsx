@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { clearSession, getProfileImageUrl, apiFetch } from "@/lib/api";
 import { getSession } from "@/lib/auth";
 import { connectSocket, disconnectSocket } from "@/lib/socket";
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 type TProps = {
   onMenuClick: () => void;
@@ -166,7 +167,7 @@ const Header = ({ onMenuClick }: TProps) => {
                         {notif.message}
                       </p>
                       <p className="text-[10px] text-slate-400 mt-2 font-medium">
-                        {new Date(notif.createdAt).toLocaleString()}
+                        {formatDateTime(notif.createdAt)}
                       </p>
                     </div>
                   ))}

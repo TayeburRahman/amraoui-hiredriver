@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 import 'package:amraoui_app/screens/missions/delivery_inspection_screen.dart';
+import 'package:amraoui_app/utils/location_helper.dart';
 
 class DeliveryArrivalScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
@@ -30,6 +31,7 @@ class _DeliveryArrivalScreenState extends State<DeliveryArrivalScreen> {
   bool isLoadingLocation = true;
   bool isDeclaring = false;
   LatLng? currentLocation;
+  double? distanceToDelivery;
   final MapController _mapController = MapController();
 
   @override
@@ -87,8 +89,31 @@ class _DeliveryArrivalScreenState extends State<DeliveryArrivalScreen> {
       Position position = await Geolocator.getCurrentPosition();
       setState(() {
         currentLocation = LatLng(position.latitude, position.longitude);
-        isLoadingLocation = false;
       });
+      
+      final details = widget.mission['details'] ?? {};
+      final dAddress = details['dropoffAddress']?.toString() ?? '';
+      final dZip = details['dropoffZip']?.toString() ?? '';
+      final dCity = details['dropoffCity']?.toString() ?? '';
+      final dCountry = details['dropoffCountry']?.toString() ?? '';
+      final dLocation = [dAddress, dZip, dCity, dCountry].where((e) => e.isNotEmpty).join(', ');
+
+      if (dLocation.isNotEmpty) {
+        final targetLatLng = await LocationHelper.geocodeAddress(dLocation);
+        if (targetLatLng != null && currentLocation != null) {
+          if (mounted) {
+            setState(() {
+              distanceToDelivery = LocationHelper.calculateDistanceInMeters(currentLocation!, targetLatLng);
+            });
+          }
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          isLoadingLocation = false;
+        });
+      }
     } catch (e) {
       setState(() => isLoadingLocation = false);
     }
@@ -109,7 +134,8 @@ class _DeliveryArrivalScreenState extends State<DeliveryArrivalScreen> {
       final res = await repo.verifyDeliveryArrival(
         widget.mission['_id'] ?? widget.reqId, 
         currentLocation!.latitude, 
-        currentLocation!.longitude
+        currentLocation!.longitude,
+        distanceFromTarget: distanceToDelivery,
       );
 
       if (res.statusCode == 200) {
@@ -201,18 +227,50 @@ class _DeliveryArrivalScreenState extends State<DeliveryArrivalScreen> {
                         const Gap(height: 4),
                         Row(
                           children: [
-                            Icon(Icons.access_time, size: 16, color: isArrivalDeclared ? const Color(0xFF10B981) : const Color(0xFF94A3B8)),
+                            Icon(
+                              Icons.access_time, 
+                              size: 16, 
+                              color: (isArrivalDeclared && distanceToDelivery != null && distanceToDelivery! > 100)
+                                  ? Colors.red
+                                  : isArrivalDeclared ? const Color(0xFF10B981) : const Color(0xFF94A3B8)
+                            ),
                             const Gap(width: 4),
                             AppText(
                               data: isArrivalDeclared ? (arrivalTime ?? '--:--') : '--:--', 
                               fontSize: 14, 
                               fontWeight: FontWeight.bold, 
-                              color: isArrivalDeclared ? const Color(0xFF10B981) : const Color(0xFF94A3B8)
+                              color: (isArrivalDeclared && distanceToDelivery != null && distanceToDelivery! > 100)
+                                  ? Colors.red
+                                  : isArrivalDeclared ? const Color(0xFF10B981) : const Color(0xFF94A3B8)
                             ),
                           ],
                         ),
                       ],
                     ),
+                    if (isArrivalDeclared && distanceToDelivery != null && distanceToDelivery! > 100) ...[
+                      const Gap(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Colors.red.shade600, size: 20),
+                            const Gap(width: 8),
+                            Expanded(
+                              child: AppText(
+                                data: 'Warning: You are ${(distanceToDelivery! / 1000).toStringAsFixed(1)} km away from the expected location.',
+                                fontSize: 12,
+                                color: Colors.red.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

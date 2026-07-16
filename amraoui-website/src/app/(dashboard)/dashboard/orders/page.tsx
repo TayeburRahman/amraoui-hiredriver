@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Truck, ArrowRight, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { OfferReceivedModal } from '@/components/orders/offer-received-modal';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 type OrderStatus = 'Active' | 'Completed' | 'Pending' | 'Cancelled' | 'PendingReview';
 
@@ -125,7 +126,7 @@ function OrdersPageContent() {
               plate: plateStr,
               from: fromStr,
               to: toStr,
-              date: new Date(req.createdAt).toLocaleDateString(),
+              date: formatDate(req.createdAt),
               status,
               statusColor,
               actionText,

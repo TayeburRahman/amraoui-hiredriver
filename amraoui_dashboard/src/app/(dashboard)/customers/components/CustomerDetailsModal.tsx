@@ -15,6 +15,7 @@ import {
   User,
 } from 'lucide-react';
 import type { ICustomerRecord } from '../page';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 // 
 interface CustomerDetailsModalProps {
   isOpen: boolean;
@@ -155,11 +156,7 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
+    return formatDate(dateStr);
   };
 
   const handleBlockClick = () => {

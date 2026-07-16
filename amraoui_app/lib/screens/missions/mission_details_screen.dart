@@ -11,6 +11,7 @@ import 'pickup_verification_screen.dart';
 import 'multi_day_arrival_screen.dart';
 import 'pickup_inspection_screen.dart' hide Gap;
 import 'delivery_inspection_screen.dart' hide Gap;
+import 'package:intl/intl.dart';
 
 class MissionDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> mission;
@@ -21,6 +22,16 @@ class MissionDetailsScreen extends StatelessWidget {
     required this.mission,
     required this.reqId,
   });
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.trim().isEmpty) return '';
+    try {
+      final parsed = DateTime.parse(dateStr);
+      return DateFormat('dd/MM/yyyy').format(parsed);
+    } catch (_) {
+      return dateStr;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,29 +116,29 @@ class MissionDetailsScreen extends StatelessWidget {
     } else if (type == 'INSPECTION') {
       pLocation = detailsObj['inspectionLocation'] ?? 'Unknown Location';
       dLocation = detailsObj['inspectionDate'] != null
-          ? '${detailsObj['inspectionDate']} ${detailsObj['inspectionTime'] ?? ''}'
+          ? '${_formatDate(detailsObj['inspectionDate'])} ${detailsObj['inspectionTime'] ?? ''}'
           : 'Unknown Date';
     } else if (type == 'HIRE_DRIVER') {
       pLocation = detailsObj['driverCity']?.toString().isNotEmpty == true
           ? detailsObj['driverCity']
           : (detailsObj['driverLocation'] ?? 'Unknown');
       dLocation =
-          '${detailsObj['driverStartDate'] ?? ''} to ${detailsObj['driverEndDate'] ?? ''}';
+          '${_formatDate(detailsObj['driverStartDate'])} to ${_formatDate(detailsObj['driverEndDate'])}';
     }
 
     String headerDateTime = 'N/A';
     if (type == 'TRANSPORT') {
-      final pd = detailsObj['pickupDate'] ?? '';
+      final pd = _formatDate(detailsObj['pickupDate']);
       final pt = detailsObj['pickupTime'] ?? '';
       headerDateTime = [pd, pt].where((s) => s.isNotEmpty).join(' ');
       if (headerDateTime.isEmpty) headerDateTime = 'N/A';
     } else if (type == 'INSPECTION') {
-      final id = detailsObj['inspectionDate'] ?? '';
+      final id = _formatDate(detailsObj['inspectionDate']);
       final it = detailsObj['inspectionTime'] ?? '';
       headerDateTime = [id, it].where((s) => s.isNotEmpty).join(' ');
       if (headerDateTime.isEmpty) headerDateTime = 'N/A';
     } else if (type == 'HIRE_DRIVER') {
-      final sd = detailsObj['driverStartDate'] ?? '';
+      final sd = _formatDate(detailsObj['driverStartDate']);
       final st = detailsObj['driverStartTime'] ?? '';
       headerDateTime = [sd, st].where((s) => s.isNotEmpty).join(' ');
       if (headerDateTime.isEmpty) headerDateTime = 'N/A';
@@ -260,7 +271,7 @@ class MissionDetailsScreen extends StatelessWidget {
               ),
               _buildInfoRow(
                 'Date & Time',
-                '${detailsObj['pickupDate'] ?? ''} ${detailsObj['pickupTime'] ?? ''}',
+                '${_formatDate(detailsObj['pickupDate'])} ${detailsObj['pickupTime'] ?? ''}'.trim(),
               ),
               _buildInfoRow(
                 'Contact',
@@ -289,7 +300,7 @@ class MissionDetailsScreen extends StatelessWidget {
               ),
               _buildInfoRow(
                 'Date & Time',
-                '${detailsObj['dropoffDate'] ?? ''} ${detailsObj['dropoffTime'] ?? ''}',
+                '${_formatDate(detailsObj['dropoffDate'])} ${detailsObj['dropoffTime'] ?? ''}'.trim(),
               ),
               _buildInfoRow(
                 'Contact',
@@ -390,7 +401,7 @@ class MissionDetailsScreen extends StatelessWidget {
               _buildInfoRow('Location', detailsObj['inspectionLocation'] ?? ''),
               _buildInfoRow(
                 'Date & Time',
-                '${detailsObj['inspectionDate'] ?? ''} ${detailsObj['inspectionTime'] ?? ''}',
+                '${_formatDate(detailsObj['inspectionDate'])} ${detailsObj['inspectionTime'] ?? ''}'.trim(),
               ),
               if (detailsObj['inspectionNotes']?.toString().isNotEmpty == true)
                 _buildInfoRow('Notes', detailsObj['inspectionNotes']),
@@ -406,7 +417,7 @@ class MissionDetailsScreen extends StatelessWidget {
           title: 'Customer Information',
           name: detailsObj['customerName'] ?? 'Unknown Customer',
           phone: customerPhone,
-          email: detailsObj['customerEmail']?.toString(),
+          companyName: mission['customerId']?['company_name']?.toString() ?? detailsObj['companyName']?.toString(),
         ),
       );
     }
@@ -428,11 +439,11 @@ class MissionDetailsScreen extends StatelessWidget {
               ),
               _buildInfoRow(
                 'Start',
-                '${detailsObj['driverStartDate'] ?? ''} ${detailsObj['driverStartTime'] ?? ''}',
+                '${_formatDate(detailsObj['driverStartDate'])} ${detailsObj['driverStartTime'] ?? ''}'.trim(),
               ),
               _buildInfoRow(
                 'End',
-                '${detailsObj['driverEndDate'] ?? ''} ${detailsObj['driverEndTime'] ?? ''}',
+                '${_formatDate(detailsObj['driverEndDate'])} ${detailsObj['driverEndTime'] ?? ''}'.trim(),
               ),
               if (detailsObj['driverTasks'] != null &&
                   detailsObj['driverTasks'] is List)
@@ -459,26 +470,60 @@ class MissionDetailsScreen extends StatelessWidget {
     // Default Customer details if not inspection (Inspection already has details mapped)
     if (type != 'INSPECTION') {
       final customer = mission['customerId'] ?? {};
-      final String name =
-          (type == 'TRANSPORT' && detailsObj['firstName'] != null)
-          ? '${detailsObj['firstName']} ${detailsObj['lastName'] ?? ''}'
+      final companyName = customer['company_name']?.toString() ?? detailsObj['companyName']?.toString();
+      
+      final String fallbackName = (type == 'TRANSPORT' && detailsObj['firstName'] != null)
+          ? '${detailsObj['firstName']} ${detailsObj['lastName'] ?? ''}'.trim()
           : customer['name']?.toString() ?? 'Unknown Customer';
-      final String phone = (type == 'TRANSPORT' && detailsObj['phone'] != null)
+      final String fallbackPhone = (type == 'TRANSPORT' && detailsObj['phone'] != null)
           ? detailsObj['phone']
           : customer['phone_number']?.toString() ?? '';
-      final String email = (type == 'TRANSPORT' && detailsObj['email'] != null)
-          ? detailsObj['email']
-          : customer['email']?.toString() ?? '';
 
-      widgets.add(const Gap(height: 16));
-      widgets.add(
-        _buildContactCard(
-          title: 'Customer Information',
-          name: name,
-          phone: phone,
-          email: email,
-        ),
-      );
+      if (type == 'TRANSPORT') {
+        final pickupName = detailsObj['pickupContactName']?.toString().isNotEmpty == true 
+            ? detailsObj['pickupContactName'] 
+            : fallbackName;
+        final pickupPhone = detailsObj['pickupContactPhone']?.toString().isNotEmpty == true 
+            ? detailsObj['pickupContactPhone'] 
+            : fallbackPhone;
+        
+        final dropoffName = detailsObj['dropoffContactName']?.toString().isNotEmpty == true 
+            ? detailsObj['dropoffContactName'] 
+            : fallbackName;
+        final dropoffPhone = detailsObj['dropoffContactPhone']?.toString().isNotEmpty == true 
+            ? detailsObj['dropoffContactPhone'] 
+            : fallbackPhone;
+
+        widgets.add(const Gap(height: 16));
+        widgets.add(
+          _buildContactCard(
+            title: 'Pickup Contact',
+            name: pickupName,
+            phone: pickupPhone,
+            companyName: companyName,
+          ),
+        );
+
+        widgets.add(const Gap(height: 16));
+        widgets.add(
+          _buildContactCard(
+            title: 'Delivery Contact',
+            name: dropoffName,
+            phone: dropoffPhone,
+            companyName: companyName,
+          ),
+        );
+      } else {
+        widgets.add(const Gap(height: 16));
+        widgets.add(
+          _buildContactCard(
+            title: 'Customer Information',
+            name: fallbackName,
+            phone: fallbackPhone,
+            companyName: companyName,
+          ),
+        );
+      }
     }
 
     if (detailsObj['documents'] != null &&
@@ -553,7 +598,7 @@ class MissionDetailsScreen extends StatelessWidget {
     required String title,
     required String name,
     required String phone,
-    String? email,
+    String? companyName,
   }) {
     return _buildSectionCard(
       title: title,
@@ -565,6 +610,15 @@ class MissionDetailsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (companyName != null && companyName.isNotEmpty) ...[
+                  AppText(
+                    data: companyName,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: const Color(0xFF2563EB), // Using the blue accent color
+                  ),
+                  const Gap(height: 2),
+                ],
                 AppText(
                   data: name,
                   fontSize: 15,
@@ -578,14 +632,6 @@ class MissionDetailsScreen extends StatelessWidget {
                     fontSize: 13,
                     color: const Color(0xFF64748B),
                   ),
-                if (email != null && email.isNotEmpty) ...[
-                  const Gap(height: 2),
-                  AppText(
-                    data: email,
-                    fontSize: 13,
-                    color: const Color(0xFF64748B),
-                  ),
-                ],
               ],
             ),
           ),

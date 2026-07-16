@@ -132,7 +132,7 @@ class NotificationsScreen extends StatelessWidget {
                 if (createdAt != null) {
                   try {
                     final date = DateTime.parse(createdAt).toLocal();
-                    timeText = DateFormat('MMM d, yyyy • h:mm a').format(date);
+                    timeText = DateFormat('dd/MM/yyyy HH:mm').format(date);
                   } catch (_) {}
                 }
 

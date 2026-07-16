@@ -15,6 +15,7 @@ import {
 import { useTranslation } from '@/hooks/useTranslation';
 import Link from 'next/link';
 import api from '@/lib/axios';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 export default function DashboardHome() {
   const { t } = useTranslation();
@@ -81,7 +82,7 @@ export default function DashboardHome() {
               from: fromStr,
               to: toStr,
               route: routeStr,
-              date: new Date(req.createdAt).toLocaleDateString(),
+              date: formatDate(req.createdAt),
               status,
               statusColor,
               raw: req

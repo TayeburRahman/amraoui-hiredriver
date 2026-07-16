@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
   Dialog,
   DialogContent,
   DialogHeader,
@@ -154,7 +155,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
             </a>
           </div>
         )}
-        {sig.updatedAt && <p className="text-xs text-slate-400 font-medium mt-4">Signed on {new Date(sig.updatedAt).toLocaleString()}</p>}
+        {sig.updatedAt && <p className="text-xs text-slate-400 font-medium mt-4">Signed on {formatDateTime(sig.updatedAt)}</p>}
       </div>
     );
   };
@@ -536,7 +537,7 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
           <div className="bg-slate-50 p-4 rounded-2xl">
             <p className="text-xs font-bold text-slate-400 mb-1">{isHireDriver ? 'Service Start' : (t.orders.deliveryReport?.pickup || 'Pickup Time')}</p>
             <p className="font-bold text-brand-text">
-              {d.pickupVerification?.verifiedAt ? new Date(d.pickupVerification.verifiedAt).toLocaleDateString() : 'Pending'}
+              {d.pickupVerification?.verifiedAt ? formatDate(d.pickupVerification.verifiedAt) : 'Pending'}
             </p>
             <p className="text-xs font-medium text-slate-400">
               {d.pickupVerification?.verifiedAt ? new Date(d.pickupVerification.verifiedAt).toLocaleTimeString() : ''}
@@ -545,7 +546,7 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
           <div className="bg-slate-50 p-4 rounded-2xl">
             <p className="text-xs font-bold text-slate-400 mb-1">{isHireDriver ? 'Service End' : (t.orders.deliveryReport?.delivery || 'Delivery Time')}</p>
             <p className="font-bold text-brand-text">
-              {deliveryDate ? new Date(deliveryDate).toLocaleDateString() : 'Pending'}
+              {deliveryDate ? formatDate(deliveryDate) : 'Pending'}
             </p>
             <p className="text-xs font-medium text-slate-400">
               {deliveryDate ? new Date(deliveryDate).toLocaleTimeString() : ''}
@@ -583,7 +584,7 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-emerald-600">Logged At</p>
-                      <p className="text-sm font-medium text-slate-500">{new Date(arrival.verifiedAt).toLocaleString()}</p>
+                      <p className="text-sm font-medium text-slate-500">{formatDateTime(arrival.verifiedAt)}</p>
                     </div>
                   </div>
                 ))
@@ -715,7 +716,7 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
             </div>
             <div>
               <p className="font-bold text-brand-text text-sm sm:text-base">{t.orders.deliveryReport?.requestSubmitted || 'Request Submitted'}</p>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">{new Date(mission.createdAt).toLocaleString()}</p>
+              <p className="text-xs font-medium text-slate-500 mt-0.5">{formatDateTime(mission.createdAt)}</p>
             </div>
           </div>
 
@@ -728,7 +729,7 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
                 {t.orders.deliveryReport?.vehiclePickedUp || 'Vehicle Picked Up'}
               </p>
               <p className="text-xs font-medium text-slate-500 mt-0.5">
-                {d.pickupVerification?.verifiedAt ? `${new Date(d.pickupVerification.verifiedAt).toLocaleString()}` : 'Pending'}
+                {d.pickupVerification?.verifiedAt ? `${formatDateTime(d.pickupVerification.verifiedAt)}` : 'Pending'}
               </p>
             </div>
           </div>
@@ -742,7 +743,7 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
                 {t.orders.deliveryReport?.deliveredSuccessfully || 'Delivered Successfully'}
               </p>
               <p className="text-xs font-medium text-slate-500 mt-0.5">
-                {deliveryDate ? `${new Date(deliveryDate).toLocaleString()}` : 'Pending'}
+                {deliveryDate ? `${formatDateTime(deliveryDate)}` : 'Pending'}
               </p>
             </div>
           </div>

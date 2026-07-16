@@ -296,7 +296,7 @@ class _MultiDayArrivalScreenState extends State<MultiDayArrivalScreen> {
               
               ...days.map((date) {
                 final dateStr = DateFormat('yyyy-MM-dd').format(date);
-                final displayDate = DateFormat('EEEE, MMM d').format(date);
+                final displayDate = DateFormat('dd/MM/yyyy').format(date);
                 
                 final existingArrival = driverArrivals.firstWhere(
                   (a) => a['date'] == dateStr,

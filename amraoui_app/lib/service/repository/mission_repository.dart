@@ -48,18 +48,20 @@ class MissionRepository {
     });
   }
 
-  Future<Response> verifyPickup(String id, double lat, double lng, {String? date}) async {
+  Future<Response> verifyPickup(String id, double lat, double lng, {String? date, double? distanceFromTarget}) async {
     return await _auth.patch('/requests/missions/$id/pickup-verification', data: {
       'lat': lat,
       'lng': lng,
       if (date != null) 'date': date,
+      if (distanceFromTarget != null) 'distanceFromTarget': distanceFromTarget,
     });
   }
 
-  Future<Response> verifyDeliveryArrival(String id, double lat, double lng) async {
+  Future<Response> verifyDeliveryArrival(String id, double lat, double lng, {double? distanceFromTarget}) async {
     return await _auth.patch('/requests/missions/$id/delivery-arrival', data: {
       'lat': lat,
       'lng': lng,
+      if (distanceFromTarget != null) 'distanceFromTarget': distanceFromTarget,
     });
   }
 

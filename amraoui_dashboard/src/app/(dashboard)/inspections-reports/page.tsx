@@ -5,6 +5,7 @@ import { Search, Filter } from 'lucide-react';
 import { Pagination } from '../mission-monitoring/components/Pagination';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 
 interface InspectionReport {
@@ -48,11 +49,11 @@ const InspectionsReportsPage = () => {
     if (r.type === 'TRANSPORT') vehicle = `${r.details?.make || ''} ${r.details?.model || ''}`.trim() || 'N/A';
     else if (r.type === 'INSPECTION') vehicle = `${r.details?.vehicleBrand || ''} ${r.details?.vehicleModel || ''}`.trim() || 'N/A';
 
-    let pickupDate = r.details?.pickupVerification?.verifiedAt ? new Date(r.details.pickupVerification.verifiedAt).toLocaleDateString() : 'Pending';
+    let pickupDate = r.details?.pickupVerification?.verifiedAt ? formatDate(r.details.pickupVerification.verifiedAt) : 'Pending';
     if (r.type === 'INSPECTION') pickupDate = 'N/A'; // Inspections don't have pickup
 
     const deliveryDate = r.details?.deliveryArrivalTime || r.details?.deliveryInspection?.driverConfirmation?.updatedAt;
-    const deliveryStr = deliveryDate ? new Date(deliveryDate).toLocaleDateString() : 'Pending';
+    const deliveryStr = deliveryDate ? formatDate(deliveryDate) : 'Pending';
 
     let completeness = 0;
     let expectedSteps = 2; // Default for TRANSPORT

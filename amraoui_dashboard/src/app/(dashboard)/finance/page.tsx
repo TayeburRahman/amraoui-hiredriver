@@ -8,6 +8,7 @@ import { DriverPayoutChart } from "./components/DriverPayoutChart";
 import { FinanceTable, Invoice } from "./components/FinanceTable";
 import { Pagination } from "../mission-monitoring/components/Pagination";
 import { apiFetch } from "@/lib/api";
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 const mockInvoices: Invoice[] = [
   {
@@ -108,7 +109,7 @@ const FinancePage = () => {
       amount: r.adminQuote?.amount || 0,
       status: r.status === 'COMPLETED' ? 'Paid' : (r.status === 'CANCELLED' ? 'Failed' : 'Pending'),
       method: r.details?.paymentMethod || 'Invoice',
-      date: new Date(r.updatedAt).toLocaleDateString(),
+      date: formatDate(r.updatedAt),
       rawRequest: r
     };
   });

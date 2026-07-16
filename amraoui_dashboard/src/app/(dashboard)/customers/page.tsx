@@ -7,6 +7,7 @@ import { Pagination } from '../mission-monitoring/components/Pagination';
 import { CustomerDetailsModal } from './components/CustomerDetailsModal';
 import { CustomerEditModal } from './components/CustomerEditModal';
 import { Search, Users, RefreshCw, UserPlus, X, CheckCircle, Loader2, Edit, Trash2 } from 'lucide-react';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 // ─── Types ────────────────────────────────────────────
 export interface ICustomerRecord {
@@ -381,9 +382,7 @@ const CustomersPage = () => {
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('en-GB', {
-      day: '2-digit', month: 'short', year: 'numeric',
-    });
+    return formatDate(dateStr);
   };
 
   const getStatusBadge = (status: string) => {

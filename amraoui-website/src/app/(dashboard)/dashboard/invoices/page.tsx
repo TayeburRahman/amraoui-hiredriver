@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, ChevronLeft, ChevronRight, FileText, Download } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 interface Invoice {
   id: string;
@@ -60,7 +61,7 @@ function InvoicesPageContent() {
               missionId: missionIdStr,
               vehicle: vehicleStr,
               plate: plateStr,
-              date: new Date(req.createdAt).toLocaleDateString(),
+              date: formatDate(req.createdAt),
               amount: finalAmount,
               invoiceUrl: req.invoiceUrl
             };

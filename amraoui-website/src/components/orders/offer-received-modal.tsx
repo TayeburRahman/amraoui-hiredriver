@@ -1,5 +1,6 @@
 import React, { useState, cloneElement, ReactElement } from 'react';
 import api from '@/lib/axios';
+import { formatDate } from '@/lib/dateUtils';
 import {
   Dialog,
   DialogContent,
@@ -150,7 +151,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-slate-400 mb-0.5">Date</p>
-                      <p className="text-sm font-bold text-slate-900">{new Date(order?.createdAt || Date.now()).toLocaleDateString()}</p>
+                      <p className="text-sm font-bold text-slate-900">{formatDate(order?.createdAt || Date.now())}</p>
                     </div>
                   </div>
 

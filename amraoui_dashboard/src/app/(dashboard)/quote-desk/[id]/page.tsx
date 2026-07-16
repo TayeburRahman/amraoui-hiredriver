@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ViewDetailsModal } from '@/app/(dashboard)/customer-request/components/ViewDetailsModal';
 import { apiFetch, getProfileImageUrl } from '@/lib/api';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = use(params);
@@ -301,7 +302,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                                 {quote.status}
                                             </span>
                                             <span className="text-xs text-gray-400 mt-2">
-                                                {new Date(quote.createdAt).toLocaleDateString()}
+                                                {formatDate(quote.createdAt)}
                                             </span>
                                         </div>
                                     </div>
@@ -341,7 +342,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Submitted</span>
-                                <span className="font-bold text-gray-900">{date.toLocaleString()}</span>
+                                <span className="font-bold text-gray-900">{formatDateTime(date)}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Contact Email</span>

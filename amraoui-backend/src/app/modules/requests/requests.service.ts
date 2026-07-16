@@ -692,7 +692,7 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
   ]).lean();
 };
 
-const verifyPickup = async (missionId: string, driverId: string, lat: number, lng: number, date?: string) => {
+const verifyPickup = async (missionId: string, driverId: string, lat: number, lng: number, date?: string, distanceFromTarget?: number) => {
   const mission = await Requests.findById(missionId);
   if (!mission) throw new Error('Mission not found');
 
@@ -718,7 +718,8 @@ const verifyPickup = async (missionId: string, driverId: string, lat: number, ln
       verifiedAt: new Date(),
       location: { lat, lng },
       vehicleMatchConfirmed: true,
-      arrivalDeclared: true
+      arrivalDeclared: true,
+      ...(distanceFromTarget !== undefined && { distanceFromTarget }),
     };
   }
 
@@ -729,7 +730,7 @@ const verifyPickup = async (missionId: string, driverId: string, lat: number, ln
   return mission;
 };
 
-const verifyDeliveryArrival = async (missionId: string, driverId: string, lat: number, lng: number) => {
+const verifyDeliveryArrival = async (missionId: string, driverId: string, lat: number, lng: number, distanceFromTarget?: number) => {
   const mission = await Requests.findById(missionId);
   if (!mission) throw new Error('Mission not found');
 
@@ -741,6 +742,7 @@ const verifyDeliveryArrival = async (missionId: string, driverId: string, lat: n
     ...mission.details,
     deliveryArrivalDeclared: true,
     deliveryArrivalTime: new Date().toISOString(),
+    ...(distanceFromTarget !== undefined && { deliveryArrivalDistance: distanceFromTarget }),
     deliveryArrivalLocation: {
       type: 'Point',
       coordinates: [lng, lat]

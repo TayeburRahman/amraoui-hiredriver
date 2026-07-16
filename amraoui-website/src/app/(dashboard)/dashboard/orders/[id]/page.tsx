@@ -22,6 +22,7 @@ import {
   Building2
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 export default function OrderTrackingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -397,7 +398,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
 
               <div className="flex items-center gap-2 text-brand-blue text-sm font-bold mt-2">
                 <Clock className="h-4 w-4" />
-                <span>{new Date(mission.createdAt).toLocaleDateString()}</span>
+                <span>{formatDate(mission.createdAt)}</span>
               </div>
             </div>
 
@@ -440,7 +441,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
                   </div>
                   <div>
                     <p className="font-bold text-brand-text text-sm">Request submitted</p>
-                    <p className="text-xs font-medium text-slate-400 mt-1">{new Date(mission.createdAt).toLocaleString()}</p>
+                    <p className="text-xs font-medium text-slate-400 mt-1">{formatDateTime(mission.createdAt)}</p>
                   </div>
                 </div>
 
@@ -477,7 +478,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
                     </div>
                     <div>
                       <p className="font-bold text-brand-text text-sm">Arrived: {arrival.date}</p>
-                      <p className="text-xs font-medium text-slate-400 mt-1">{new Date(arrival.verifiedAt).toLocaleString()}</p>
+                      <p className="text-xs font-medium text-slate-400 mt-1">{formatDateTime(arrival.verifiedAt)}</p>
                     </div>
                   </div>
                 ))}
@@ -501,7 +502,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
                   </div>
                   <div>
                     <p className={`font-bold text-sm ${isCompleted ? 'text-brand-text' : 'text-slate-400'}`}>Completed</p>
-                    {isCompleted && mission.updatedAt && <p className="text-xs font-medium text-slate-400 mt-1">{new Date(mission.updatedAt).toLocaleString()}</p>}
+                    {isCompleted && mission.updatedAt && <p className="text-xs font-medium text-slate-400 mt-1">{formatDateTime(mission.updatedAt)}</p>}
                   </div>
                 </div>
               </div>

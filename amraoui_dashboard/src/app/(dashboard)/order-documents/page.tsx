@@ -5,6 +5,7 @@ import { Search, Filter } from 'lucide-react';
 import { Pagination } from '../mission-monitoring/components/Pagination';
 import { OrderDocumentModal } from './components/OrderDocumentModal';
 import { apiFetch } from '@/lib/api';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 interface VehicleDocument {
   id: string;
@@ -126,7 +127,7 @@ const OrderDocumentsPage = () => {
         customer: r.customerId?.name || 'N/A',
         mission: r.missionId || 'N/A',
         status,
-        updated: new Date(r.updatedAt).toLocaleDateString(),
+        updated: formatDate(r.updatedAt),
         rawDocsCount: totalDocs,
         documents,
         documentChecklist

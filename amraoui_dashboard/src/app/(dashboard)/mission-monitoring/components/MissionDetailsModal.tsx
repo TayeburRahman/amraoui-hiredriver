@@ -6,6 +6,7 @@ import { X, User, Mail, Phone, MapPin, Car, FileText, CheckCircle2, Clock, Plus,
 import { ProofViewerModal } from './ProofViewerModal';
 import { AddExpenseModal } from './AddExpenseModal';
 import Link from 'next/link';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 
 interface MissionDetailsModalProps {
@@ -642,8 +643,34 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                       <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
                         <CheckCircle2 className="w-2.5 h-2.5 text-white" />
                       </span>
-                      <span className="font-medium text-gray-900">Pickup started</span>
+                      <div className="flex flex-col flex-grow">
+                        <span className="font-medium text-gray-900">Pickup started</span>
+                        {mission.raw?.details?.pickupVerification?.distanceFromTarget !== undefined && (
+                          <span className={`mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full w-fit ${mission.raw.details.pickupVerification.distanceFromTarget <= 100 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {mission.raw.details.pickupVerification.distanceFromTarget <= 100 
+                              ? 'Location Verified' 
+                              : `Warning: ${(mission.raw.details.pickupVerification.distanceFromTarget / 1000).toFixed(1)} km away`}
+                          </span>
+                        )}
+                      </div>
                     </div>
+                    {mission.raw?.details?.deliveryArrivalDeclared && (
+                      <div className="relative pl-7 text-xs flex items-center justify-between">
+                        <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center bg-green-500`}>
+                          <CheckCircle2 className="w-2.5 h-2.5 text-white" />
+                        </span>
+                        <div className="flex flex-col flex-grow">
+                          <span className="font-medium text-gray-900">Delivery Arrival</span>
+                          {mission.raw?.details?.deliveryArrivalDistance !== undefined && (
+                            <span className={`mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full w-fit ${mission.raw.details.deliveryArrivalDistance <= 100 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                              {mission.raw.details.deliveryArrivalDistance <= 100 
+                                ? 'Location Verified' 
+                                : `Warning: ${(mission.raw.details.deliveryArrivalDistance / 1000).toFixed(1)} km away`}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     <div className="relative pl-7 text-xs flex items-center justify-between">
                       <span className={`absolute left-0 top-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${['COMPLETED'].includes(mission.raw?.status) ? 'bg-green-500' : 'bg-gray-300'}`}>
                         <CheckCircle2 className="w-2.5 h-2.5 text-white" />
@@ -660,7 +687,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                         </span>
                         <div>
                           <span className="font-medium text-gray-900 block">Arrived: {arrival.date}</span>
-                          <span className="text-gray-500">{new Date(arrival.verifiedAt).toLocaleString()}</span>
+                          <span className="text-gray-500">{formatDateTime(arrival.verifiedAt)}</span>
                         </div>
                       </div>
                     ))}

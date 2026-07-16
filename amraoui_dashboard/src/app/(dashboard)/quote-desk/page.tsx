@@ -13,6 +13,7 @@ import { Search, Filter, ArrowUpDown, MapPin, Car, Calendar, Loader2 } from 'luc
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { apiFetch, getProfileImageUrl } from '@/lib/api';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 const tabs = ["All", "Pending Quote", "Waiting for Quotes", "Quotes Received", "Pending Assignment", "Assigned", "Urgent"];
 
@@ -37,13 +38,12 @@ const QuoteDeskPage = () => {
             if (req.details?.pickupDate) {
               const pDate = new Date(req.details.pickupDate);
               if (!isNaN(pDate.getTime())) {
-                pickupStr = `${pDate.getDate()} ${pDate.toLocaleString('default', { month: 'short' })}, ${req.details.pickupTime || pDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+                pickupStr = req.details.pickupTime ? `${formatDate(pDate)} ${req.details.pickupTime}` : formatDate(pDate);
               } else {
                 pickupStr = `${req.details.pickupDate} ${req.details.pickupTime || ''}`.trim();
               }
             } else if (req.createdAt) {
-              const date = new Date(req.createdAt);
-              pickupStr = `${date.getDate()} ${date.toLocaleString('default', { month: 'short' })}, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+              pickupStr = formatDateTime(req.createdAt);
             }
 
             let route = 'N/A';

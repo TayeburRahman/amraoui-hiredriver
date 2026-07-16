@@ -9,6 +9,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:amraoui_app/service/repository/mission_repository.dart';
 import 'pickup_inspection_screen.dart';
 import 'delivery_inspection_screen.dart';
+import 'package:amraoui_app/utils/location_helper.dart';
 
 class PickupVerificationScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
@@ -29,6 +30,8 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
   bool vehicleMatchConfirmed = false;
   LatLng? driverLocation;
   bool isLoadingLocation = true;
+  double? distanceToPickup;
+  bool isCalculatingDistance = false;
 
   @override
   void initState() {
@@ -76,8 +79,42 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
       if (mounted) {
         setState(() {
           driverLocation = LatLng(position.latitude, position.longitude);
-          isLoadingLocation = false;
         });
+        
+        // Calculate distance to pickup
+        setState(() => isCalculatingDistance = true);
+        final type = widget.mission['type'];
+        final details = widget.mission['details'] ?? {};
+        String pLocation = '';
+        if (type == 'INSPECTION') {
+          pLocation = details['inspectionLocation'] ?? '';
+        } else if (type == 'HIRE_DRIVER') {
+          pLocation = details['driverLocation'] ?? details['driverCity'] ?? '';
+        } else {
+          final pAddress = details['pickupAddress']?.toString() ?? '';
+          final pZip = details['pickupZip']?.toString() ?? '';
+          final pCity = details['pickupCity']?.toString() ?? '';
+          final pCountry = details['pickupCountry']?.toString() ?? '';
+          pLocation = [pAddress, pZip, pCity, pCountry].where((e) => e.isNotEmpty).join(', ');
+        }
+
+        if (pLocation.isNotEmpty) {
+          final targetLatLng = await LocationHelper.geocodeAddress(pLocation);
+          if (targetLatLng != null && driverLocation != null) {
+            if (mounted) {
+              setState(() {
+                distanceToPickup = LocationHelper.calculateDistanceInMeters(driverLocation!, targetLatLng);
+              });
+            }
+          }
+        }
+        
+        if (mounted) {
+          setState(() {
+            isLoadingLocation = false;
+            isCalculatingDistance = false;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -175,10 +212,47 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const AppText(data: 'Declared Arrival', fontSize: 13, color: Color(0xFF64748B)),
-                        AppText(data: arrivalDeclared ? TimeOfDay.now().format(context) : '--:--', fontSize: 14, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+                        AppText(
+                          data: 'Declared Arrival', 
+                          fontSize: 13, 
+                          color: (arrivalDeclared && distanceToPickup != null && distanceToPickup! > 100) 
+                              ? Colors.red 
+                              : const Color(0xFF64748B),
+                        ),
+                        AppText(
+                          data: arrivalDeclared ? TimeOfDay.now().format(context) : '--:--', 
+                          fontSize: 14, 
+                          fontWeight: FontWeight.w600, 
+                          color: (arrivalDeclared && distanceToPickup != null && distanceToPickup! > 100) 
+                              ? Colors.red 
+                              : const Color(0xFF0F172A),
+                        ),
                       ],
                     ),
+                    if (arrivalDeclared && distanceToPickup != null && distanceToPickup! > 100) ...[
+                      const Gap(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: Colors.red.shade600, size: 20),
+                            const Gap(width: 8),
+                            Expanded(
+                              child: AppText(
+                                data: 'Warning: You are ${(distanceToPickup! / 1000).toStringAsFixed(1)} km away from the expected location.',
+                                fontSize: 12,
+                                color: Colors.red.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                     const Gap(height: 16),
                     Container(
                       height: 150,
@@ -387,7 +461,8 @@ class _PickupVerificationScreenState extends State<PickupVerificationScreen> {
                 final res = await repo.verifyPickup(
                   widget.mission['_id'], 
                   driverLocation!.latitude, 
-                  driverLocation!.longitude
+                  driverLocation!.longitude,
+                  distanceFromTarget: distanceToPickup,
                 );
                 
                 Get.back(); // close loading dialog

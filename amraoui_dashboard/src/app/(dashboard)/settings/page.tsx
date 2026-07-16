@@ -19,6 +19,7 @@ import {
 } from '@/lib/auth.api';
 import { getProfileImageUrl, apiFetch } from '@/lib/api';
 import { extractRoleFromUser, getSession } from '@/lib/auth';
+import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 const SettingsPage = () => {
   const router = useRouter();
@@ -1099,7 +1100,7 @@ const SettingsPage = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-400">Joined Date:</span>
                   <span className="font-bold text-gray-900">
-                    {selectedAdmin.createdAt ? new Date(selectedAdmin.createdAt).toLocaleDateString() : 'N/A'}
+                    {selectedAdmin.createdAt ? formatDate(selectedAdmin.createdAt) : 'N/A'}
                   </span>
                 </div>
                 <div className="flex justify-between">

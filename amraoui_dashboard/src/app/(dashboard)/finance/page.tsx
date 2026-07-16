@@ -110,7 +110,8 @@ const FinancePage = () => {
       status: r.status === 'COMPLETED' ? 'Paid' : (r.status === 'CANCELLED' ? 'Failed' : 'Pending'),
       method: r.details?.paymentMethod || 'Invoice',
       date: formatDate(r.updatedAt),
-      rawRequest: r
+      rawRequest: r,
+      commissionStatus: r.commissionStatus || 'PENDING'
     };
   });
 

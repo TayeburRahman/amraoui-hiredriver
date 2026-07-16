@@ -131,6 +131,29 @@ const updateRequestStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateCommissionStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { commissionStatus } = req.body as { commissionStatus: string };
+
+  const updated = await RequestsService.updateCommissionStatus(id, commissionStatus);
+
+  if (!updated) {
+    return sendResponse(res, {
+      statusCode: httpStatus.NOT_FOUND,
+      success: false,
+      message: 'Request not found',
+      data: null,
+    });
+  }
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Commission status updated successfully',
+    data: updated,
+  });
+});
+
 // ─── PATCH /api/v1/requests/:id/base-fee ────────────────────────────────────
 const updateBaseFee = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -646,6 +669,7 @@ export const RequestsController = {
   getAllRequests,
   getRequestById,
   updateRequestStatus,
+  updateCommissionStatus,
   updateBaseFee,
   updateDriverPrice,
   cancelRequest,

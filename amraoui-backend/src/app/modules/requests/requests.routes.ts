@@ -75,6 +75,13 @@ router.patch(
   RequestsController.updateRequestStatus
 );
 
+// PATCH /api/v1/requests/:id/commission-status
+router.patch(
+  '/:id/commission-status',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  RequestsController.updateCommissionStatus
+);
+
 // PATCH /api/v1/requests/:id/base-fee
 router.patch(
   '/:id/base-fee',

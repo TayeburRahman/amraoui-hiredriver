@@ -1,19 +1,24 @@
 import React from 'react';
 import { Invoice } from './FinanceTable';
 
+import { apiFetch } from '@/lib/api';
+
 interface FinanceModalProps {
   invoice: Invoice | null;
   isOpen: boolean;
   onClose: () => void;
+  activeTab?: string;
 }
 
-export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onClose }) => {
+export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onClose, activeTab }) => {
   if (!isOpen || !invoice) return null;
-
-  // The user requested different designs for "Pending" and "Paid". 
-  // We'll use the status to render the appropriate design.
-  // We'll use the status to render the appropriate design.
-  const isPending = invoice.status === 'Pending' || invoice.status === 'Failed';
+  // If we are looking at the Driver Commission tab, we show the driver payout logic
+  const isDriverCommission = activeTab === 'Driver Commission';
+  // If not Driver Commission tab, fallback to old logic for other tabs
+  const isPending = isDriverCommission 
+    ? invoice.commissionStatus === 'PENDING' 
+    : (invoice.status === 'Pending' || invoice.status === 'Failed');
+    
   const req = invoice.rawRequest || {};
   
   const adminQuoteAmount = req.adminQuote?.amount || invoice.amount || 0;
@@ -24,6 +29,25 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
   const tollCost = acceptedDriverQuote?.tollCharges || 0;
   const totalExpenses = fuelCost + tollCost;
   const totalPayableToDriver = servicePrice + totalExpenses;
+
+  const handleMarkPaid = async () => {
+    if (!req._id) return;
+    try {
+      const res = await apiFetch(`/requests/${req._id}/commission-status`, {
+        method: 'PATCH',
+        auth: true,
+        body: JSON.stringify({ commissionStatus: 'PAID' })
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Failed to update commission status');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating commission status');
+    }
+  };
 
   const downloadInvoice = async () => {
     if (req.invoiceUrl) {
@@ -60,11 +84,11 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
               <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
                 isPending ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'
               }`}>
-                {invoice.status}
+                {isDriverCommission ? invoice.commissionStatus : invoice.status}
               </span>
             </div>
             <p className="text-xs text-gray-500 font-medium">
-              {invoice.mission} • {isPending ? 'Driver Payout' : invoice.customer} • {invoice.date}
+              {invoice.mission} • {isDriverCommission ? 'Driver Payout' : invoice.customer} • {invoice.date}
             </p>
           </div>
           <button 
@@ -81,18 +105,18 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
         <div className="p-6 pt-4 space-y-6">
           
           {/* Highlight Box */}
-          <div className={`p-5 rounded-xl text-white ${isPending ? 'bg-green-500' : 'bg-gradient-to-r from-blue-500 to-cyan-400'}`}>
+          <div className={`p-5 rounded-xl text-white ${isPending ? 'bg-orange-500' : (isDriverCommission ? 'bg-green-500' : 'bg-gradient-to-r from-blue-500 to-cyan-400')}`}>
             <p className="text-sm font-medium mb-1 opacity-90">
-              {isPending ? 'Total Payable to Driver' : 'Total Amount'}
+              {isDriverCommission ? 'Total Payable to Driver' : 'Total Amount'}
             </p>
-            <h3 className="text-4xl font-bold mb-2">€{isPending ? totalPayableToDriver.toFixed(2) : adminQuoteAmount.toFixed(2)}</h3>
+            <h3 className="text-4xl font-bold mb-2">€{isDriverCommission ? totalPayableToDriver.toFixed(2) : adminQuoteAmount.toFixed(2)}</h3>
             <p className="text-xs opacity-80">
-              {isPending ? `Service: €${servicePrice.toFixed(2)} • Expenses: €${totalExpenses.toFixed(2)}` : `${invoice.method} • TXN-${req._id?.substring(0, 4) || '8472'}`}
+              {isDriverCommission ? `Service: €${servicePrice.toFixed(2)} • Expenses: €${totalExpenses.toFixed(2)}` : `${invoice.method} • TXN-${req._id?.substring(0, 4) || '8472'}`}
             </p>
           </div>
 
-          {isPending ? (
-            // Pending Design Details (Driver Payout)
+          {isDriverCommission ? (
+            // Driver Payout Design Details
             <>
               {/* Commission Details */}
               <div className="border border-gray-100 rounded-xl p-4 space-y-3">
@@ -149,7 +173,11 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
                 <h4 className="text-xs font-bold text-gray-900 mb-3">Payout Information</h4>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-500">Payment Status</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 text-orange-600">Pending</span>
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    invoice.commissionStatus === 'PAID' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-orange-600'
+                  }`}>
+                    {invoice.commissionStatus}
+                  </span>
                 </div>
               </div>
 
@@ -162,10 +190,12 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                   Download Invoice
                 </button>
-                <button className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                  Mark Paid
-                </button>
+                {invoice.commissionStatus !== 'PAID' && (
+                  <button onClick={handleMarkPaid} className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                    Mark Paid
+                  </button>
+                )}
                 <button className="px-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1">
                   $ Adjust
                 </button>

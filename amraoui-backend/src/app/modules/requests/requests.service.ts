@@ -145,6 +145,14 @@ const updateRequestStatus = async (id: string, status: RequestStatus) => {
   ).lean();
 };
 
+const updateCommissionStatus = async (id: string, commissionStatus: string) => {
+  return Requests.findByIdAndUpdate(
+    id,
+    { commissionStatus },
+    { new: true, runValidators: true }
+  ).lean();
+};
+
 // ─── Cancel Request (Admin) ─────────────────────────────────────────────────
 const cancelRequest = async (id: string) => {
   return Requests.findByIdAndUpdate(
@@ -1001,6 +1009,7 @@ export const RequestsService = {
   getAllRequests,
   getRequestById,
   updateRequestStatus,
+  updateCommissionStatus,
   cancelRequest,
   deleteRequest,
   getMissionsForDriver,

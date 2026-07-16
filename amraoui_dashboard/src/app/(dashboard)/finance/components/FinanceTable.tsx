@@ -15,6 +15,7 @@ export interface Invoice {
   method: string;
   date: string;
   rawRequest?: any;
+  commissionStatus?: string;
 }
 
 interface FinanceTableProps {
@@ -157,7 +158,8 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
       <FinanceModal 
         isOpen={isModalOpen} 
         onClose={handleCloseModal} 
-        invoice={selectedInvoice} 
+        invoice={selectedInvoice}
+        activeTab={activeTab} 
       />
     </>
   );

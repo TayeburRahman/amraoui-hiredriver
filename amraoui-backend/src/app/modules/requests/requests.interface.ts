@@ -65,6 +65,7 @@ export type IRequest = Document & {
   assignedDriverId?: mongoose.Schema.Types.ObjectId;
   assignedDriverIds?: mongoose.Schema.Types.ObjectId[];
   invoiceUrl?: string;
+  commissionStatus?: "PENDING" | "PAID";
   createdAt?: Date;
   updatedAt?: Date;
 };

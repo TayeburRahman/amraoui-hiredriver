@@ -41,6 +41,7 @@ export interface BackendDriver {
   vehicle_carrier_status?: 'pending' | 'verified' | 'rejected';
   dealer_plate_status?: 'pending' | 'verified' | 'rejected';
   document_activity?: { message: string; by: string; date: string }[];
+  skills?: { name: string; stars: number }[];
   authId?: {
     email?: string;
     name?: string;

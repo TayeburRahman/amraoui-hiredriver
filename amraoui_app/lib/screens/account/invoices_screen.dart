@@ -63,9 +63,12 @@ class InvoicesScreen extends StatelessWidget {
                   }
                 }
 
+                String cStatus = mission['commissionStatus']?.toString().toUpperCase() ?? 'PENDING';
+                String displayStatus = cStatus == 'PAID' ? 'Paid' : 'Pending';
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: _invoiceTile('#INV-$idStr', route, '€${amount.toStringAsFixed(2)}', 'Paid'),
+                  child: _invoiceTile('#INV-$idStr', route, '€${amount.toStringAsFixed(2)}', displayStatus),
                 );
               }),
           ],

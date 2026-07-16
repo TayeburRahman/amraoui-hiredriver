@@ -9,7 +9,8 @@ import {
   adminUpdateDocumentStatus,
   adminUpdateNotes,
   adminUploadDocument,
-  getDriverById
+  getDriverById,
+  adminUpdateDriver
 } from '@/lib/drivers.api';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -39,6 +40,11 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
   const [adminNotes, setAdminNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  const [addingSkill, setAddingSkill] = useState(false);
+  const [newSkillName, setNewSkillName] = useState("");
+  const [newSkillStars, setNewSkillStars] = useState(3);
+  const [savingSkill, setSavingSkill] = useState(false);
 
   useEffect(() => {
     setDriver(initialDriver);
@@ -80,6 +86,47 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
       console.error(e);
     } finally {
       setSavingNotes(false);
+    }
+  };
+
+  const handleAddSkill = async () => {
+    if (!driver || !newSkillName.trim()) return;
+    setSavingSkill(true);
+    try {
+      const currentSkills = driver.skills || [];
+      const updatedSkills = [...currentSkills, { name: newSkillName.trim(), stars: newSkillStars }];
+      
+      const formData = new FormData();
+      formData.append('data', JSON.stringify({ skills: updatedSkills }));
+      
+      await adminUpdateDriver(driver._id, formData);
+      await reloadDriver();
+      setAddingSkill(false);
+      setNewSkillName("");
+      setNewSkillStars(3);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSavingSkill(false);
+    }
+  };
+
+  const handleDeleteSkill = async (index: number) => {
+    if (!driver) return;
+    setSavingSkill(true);
+    try {
+      const currentSkills = driver.skills || [];
+      const updatedSkills = currentSkills.filter((_, i) => i !== index);
+      
+      const formData = new FormData();
+      formData.append('data', JSON.stringify({ skills: updatedSkills }));
+      
+      await adminUpdateDriver(driver._id, formData);
+      await reloadDriver();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSavingSkill(false);
     }
   };
 
@@ -413,6 +460,74 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                   <p className="text-sm text-gray-500 py-4">No recent activity.</p>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* Skills Management */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm flex flex-col mt-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold text-gray-900">Skills & Ratings</h3>
+              {!addingSkill && (
+                <button
+                  onClick={() => setAddingSkill(true)}
+                  className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
+                >
+                  Add Skill
+                </button>
+              )}
+            </div>
+
+            {addingSkill && (
+              <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 mb-4 animate-in fade-in zoom-in-95">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Skill Name</label>
+                    <input 
+                      type="text" 
+                      value={newSkillName}
+                      onChange={e => setNewSkillName(e.target.value)}
+                      placeholder="e.g. Long Distance"
+                      className="w-full p-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-700 block mb-1">Rating</label>
+                    <div className="flex bg-white border border-gray-200 rounded-lg px-2 h-[38px] items-center">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <button key={star} onClick={() => setNewSkillStars(star)} className="p-1 cursor-pointer">
+                          <svg className={`w-5 h-5 ${star <= newSkillStars ? 'text-amber-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <button onClick={() => setAddingSkill(false)} className="px-4 py-2 border border-gray-200 text-gray-600 font-semibold rounded-lg text-xs hover:bg-gray-100 transition-colors">Cancel</button>
+                  <button onClick={handleAddSkill} disabled={savingSkill || !newSkillName.trim()} className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg text-xs hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:opacity-50">
+                    {savingSkill ? <Loader2 className="w-3 h-3 animate-spin" /> : null} Save Skill
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              {driver.skills && driver.skills.length > 0 ? (
+                driver.skills.map((skill, idx) => (
+                  <div key={idx} className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg shadow-sm">
+                    <span className="text-sm font-bold text-gray-800">{skill.name}</span>
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <svg key={i} className={`w-3.5 h-3.5 ${i < skill.stars ? 'text-amber-400' : 'text-gray-200'}`} fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                      ))}
+                    </div>
+                    <button onClick={() => handleDeleteSkill(idx)} disabled={savingSkill} className="ml-1 text-red-400 hover:text-red-600 transition-colors disabled:opacity-50">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500 py-2">No skills added yet.</p>
+              )}
             </div>
           </div>
         </div>

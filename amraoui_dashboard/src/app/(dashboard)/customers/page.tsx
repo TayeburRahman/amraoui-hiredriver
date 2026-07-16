@@ -380,7 +380,7 @@ const CustomersPage = () => {
     }
   };
 
-  const formatDate = (dateStr?: string) => {
+  const displayDate = (dateStr?: string) => {
     if (!dateStr) return '—';
     return formatDate(dateStr);
   };
@@ -509,7 +509,7 @@ const CustomersPage = () => {
                     <td className="px-5 py-4 whitespace-nowrap text-gray-500">{customer.phone_number || '—'}</td>
                     <td className="px-5 py-4 whitespace-nowrap">{getStatusBadge(customer.status)}</td>
                     <td className="px-5 py-4 whitespace-nowrap text-gray-400 text-xs">
-                      {formatDate(customer.createdAt || customer.authId?.createdAt)}
+                      {displayDate(customer.createdAt || customer.authId?.createdAt)}
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center gap-2">

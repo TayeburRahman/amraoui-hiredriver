@@ -205,7 +205,7 @@ const tabs = ["All", "Pickup", "Delivery", "Damage", "No Damage", "Missing", "Ve
                 <tr key={report.id} className="hover:bg-gray-50/50 transition-colors bg-white">
                   <td className="px-5 py-6 whitespace-nowrap font-bold text-blue-600">{report.id.substring(0, 8)}...</td>
                   <td className="px-5 py-6 whitespace-nowrap font-bold text-blue-600">
-                    <Link href={`/orders/${report.id}/report`} className="hover:underline">{report.mission}</Link>
+                    <Link href={`/inspections-reports/${report.id}`} className="hover:underline">{report.mission}</Link>
                   </td>
                   <td className="px-5 py-6 whitespace-nowrap font-bold text-gray-900">{report.vehicle}</td>
                   <td className="px-5 py-6 whitespace-nowrap">
@@ -247,7 +247,7 @@ const tabs = ["All", "Pickup", "Delivery", "Damage", "No Damage", "Missing", "Ve
                   </td>
                   <td className="px-5 py-6 whitespace-nowrap text-center">
                     <Link 
-                      href={`/orders/${report.id}/report`}
+                      href={`/inspections-reports/${report.id}`}
                       className="text-gray-900 font-bold hover:text-blue-600 transition-colors text-xs"
                     >
                       View

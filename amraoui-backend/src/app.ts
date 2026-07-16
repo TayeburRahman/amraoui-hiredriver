@@ -60,13 +60,13 @@ app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// ─── Static Files ─────────────────────────────────────
+// ─── Static Files ─────────────────────────── 
 app.use(express.static('uploads'));
 
-// ─── API Routes ───────────────────────────────────────
+// ─── API Routes ───────────────────────────── 
 app.use('/api/v1', routes);
 
-// ─── Health Check ─────────────────────────────────────
+// ─── Health Check ────────────────────────── 
 app.get('/', (_req: Request, res: Response) => {
   res.json({
     message: 'Vehiqqo HireDriver API is running ✅',

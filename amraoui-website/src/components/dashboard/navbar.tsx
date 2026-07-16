@@ -22,7 +22,7 @@ import { toast } from 'sonner';
 import api from '@/lib/axios';
 import { formatDistanceToNow } from 'date-fns';
 
-const BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace('/api/v1', '');
+const BASE = (process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1').replace('/api/v1', '');
 
 export function Navbar() {
   const { t, language } = useTranslation();

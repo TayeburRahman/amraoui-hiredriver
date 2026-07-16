@@ -26,13 +26,17 @@ export function BecomeDriver({ id }: { id?: string }) {
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link 
-            href="#" 
+            href="https://play.google.com/store"
+            target="_blank"
+            rel="noopener noreferrer"
             className="bg-white text-brand-blue px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition-all shadow-xl shadow-blue-900/20 w-full sm:w-auto text-sm md:text-base"
           >
             {t.landing.becomeDriver.howBtn}
           </Link>
           <Link 
-            href="#" 
+            href="https://play.google.com/store"
+            target="_blank"
+            rel="noopener noreferrer"
             className="border-2 border-white/30 text-white px-8 py-3 rounded-full font-bold hover:bg-white/10 transition-all w-full sm:w-auto text-sm md:text-base"
           >
             {t.landing.becomeDriver.signUpBtn}

@@ -102,7 +102,7 @@ function InvoicesPageContent() {
 
   const downloadInvoice = async (invoice: Invoice) => {
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:5000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app';
       const fileUrl = invoice.invoiceUrl.startsWith('http') ? invoice.invoiceUrl : `${baseUrl}/${invoice.invoiceUrl.replace(/\\/g, '/')}`;
       
       const response = await fetch(fileUrl);

@@ -604,7 +604,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                     const isDeleting = isDeletingDoc === doc;
                                     return (
                                         <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                            <a href={doc.startsWith('http') ? doc : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:5000'}${doc.startsWith('/') ? '' : '/'}${doc}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 overflow-hidden group">
+                                            <a href={doc.startsWith('http') ? doc : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app'}${doc.startsWith('/') ? '' : '/'}${doc}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 overflow-hidden group">
                                                 <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center shrink-0">
                                                     <FileText className="w-4 h-4 text-blue-600" />
                                                 </div>

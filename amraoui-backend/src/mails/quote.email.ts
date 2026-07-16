@@ -45,7 +45,7 @@ export const customerQuoteEmailBody = (data: {
                       ${exp.proofUrl ? `
                       <tr>
                         <td colspan="2" style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
-                          <img src="${exp.proofUrl.startsWith('http') ? exp.proofUrl : `${config.base_url || 'http://localhost:5000'}${exp.proofUrl.startsWith('/') ? '' : '/'}${exp.proofUrl}`}" alt="Proof" style="max-height: 100px; max-width: 150px; object-fit: contain; border-radius: 4px; border: 1px solid #cbd5e1;" />
+                          <img src="${exp.proofUrl.startsWith('http') ? exp.proofUrl : `${config.base_url || 'https://amraoui-hiredriver-backends.vercel.app'}${exp.proofUrl.startsWith('/') ? '' : '/'}${exp.proofUrl}`}" alt="Proof" style="max-height: 100px; max-width: 150px; object-fit: contain; border-radius: 4px; border: 1px solid #cbd5e1;" />
                         </td>
                       </tr>
                       ` : ''}

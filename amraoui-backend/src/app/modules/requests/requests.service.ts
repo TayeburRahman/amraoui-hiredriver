@@ -467,7 +467,7 @@ const submitDriverQuote = async (
     if (!details?.documents || !Array.isArray(details.documents)) return [];
     return details.documents.map((docPath: string) => ({
       filename: docPath.split('/').pop() || 'document',
-      path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'http://localhost:5000'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
+      path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
     }));
   };
 
@@ -644,7 +644,7 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
       
       return {
         filename: `${safeLabel}.${ext}`,
-        path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'http://localhost:5000'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
+        path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
       };
     });
   };

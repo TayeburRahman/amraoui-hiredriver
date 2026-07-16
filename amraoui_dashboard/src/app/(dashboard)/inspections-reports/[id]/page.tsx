@@ -5,7 +5,7 @@ import { X, Image as ImageIcon, ArrowLeft, ArrowRight, Download, CheckCircle2, C
 import Link from 'next/link';
 
 const tabs = [
-  "Front", "Front Right", "Rear Right", "Rear", "Rear Left", "Front Left", 
+  "Front", "Front Right", "Rear Right", "Rear", "Rear Left", "Front Left",
   "Dashboard", "Driver Seat", "Passenger", "Back seat", "Others"
 ];
 
@@ -44,11 +44,10 @@ const InspectionDetails = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
-                activeTab === tab
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-              }`}
+              className={`px-4 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${activeTab === tab
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                }`}
             >
               {tab}
             </button>
@@ -159,7 +158,7 @@ const InspectionDetails = () => {
                         <p className="font-bold text-gray-900 mb-1">Customer Signature</p>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Customer Name</span>
-                          <span className="font-bold text-gray-900">Amraoui</span>
+                          <span className="font-bold text-gray-900">Vehiqqo</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-400">Signature Status</span>
@@ -330,21 +329,19 @@ const InspectionDetails = () => {
         {/* Footer */}
         <div className="p-6 border-t border-gray-100 flex justify-between items-center bg-white">
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={handlePrev}
               disabled={tabs.indexOf(activeTab) === 0}
-              className={`px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-                tabs.indexOf(activeTab) === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'
-              }`}
+              className={`px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${tabs.indexOf(activeTab) === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'
+                }`}
             >
               <ArrowLeft className="w-4 h-4" /> Previous
             </button>
-            <button 
+            <button
               onClick={handleNext}
               disabled={tabs.indexOf(activeTab) === tabs.length - 1}
-              className={`px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-                tabs.indexOf(activeTab) === tabs.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'
-              }`}
+              className={`px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${tabs.indexOf(activeTab) === tabs.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'
+                }`}
             >
               Next <ArrowRight className="w-4 h-4" />
             </button>

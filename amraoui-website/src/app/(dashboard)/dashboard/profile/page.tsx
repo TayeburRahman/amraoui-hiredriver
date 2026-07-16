@@ -44,7 +44,7 @@ const Toggle = ({ checked, onChange }: { checked: boolean; onChange: () => void 
 const getImageUrl = (path: string | null | undefined): string | null => {
   if (!path) return null;
   if (path.startsWith('http')) return path;
-  const base = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1').replace('/api/v1', '');
+  const base = (process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1').replace('/api/v1', '');
   return `${base}${path}`;
 };
 

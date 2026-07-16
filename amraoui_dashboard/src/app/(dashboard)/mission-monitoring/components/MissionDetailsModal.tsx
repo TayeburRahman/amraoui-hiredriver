@@ -437,7 +437,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                   <div className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-2">
                     <span className="text-xs text-gray-500 truncate flex-1">Invoice Uploaded</span>
                     <a
-                      href={mission.raw.invoiceUrl.startsWith('http') ? mission.raw.invoiceUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1'}${mission.raw.invoiceUrl}`}
+                      href={mission.raw.invoiceUrl.startsWith('http') ? mission.raw.invoiceUrl : `${process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1'}${mission.raw.invoiceUrl}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 text-xs font-medium hover:underline flex items-center gap-1"
@@ -526,7 +526,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
             <div className="grid grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-xl border border-gray-100 text-xs">
               <div>
                 <p className="text-gray-400">Customer</p>
-                <p className="font-bold text-gray-900">{mission.customer || "Amraoui"}</p>
+                <p className="font-bold text-gray-900">{mission.customer || "Vehiqqo"}</p>
               </div>
               <div>
                 <p className="text-gray-400">Driver</p>
@@ -593,8 +593,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                     // Skip already displayed contact fields and internal execution data
                     const excludedFields = [
                       'firstName', 'lastName', 'email', 'phone', 'company',
-                      'documents', 'pickupInspection', 'deliveryInspection', 
-                      'pickupVerification', 'deliveryArrivalDeclared', 
+                      'documents', 'pickupInspection', 'deliveryInspection',
+                      'pickupVerification', 'deliveryArrivalDeclared',
                       'deliveryArrivalTime', 'deliveryArrivalLocation'
                     ];
                     if (excludedFields.includes(key)) return null;

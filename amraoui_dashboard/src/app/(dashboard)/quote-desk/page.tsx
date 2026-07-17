@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { apiFetch, getProfileImageUrl } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
+// ok
 const tabs = ["All", "Pending Quote", "Waiting for Quotes", "Quotes Received", "Pending Assignment", "Assigned", "Urgent"];
 
 const QuoteDeskPage = () => {
@@ -61,8 +62,8 @@ const QuoteDeskPage = () => {
 
             if (req.driverQuotes && req.driverQuotes.length > 0) {
               req.driverQuotes.forEach((quote: any) => {
-                let status = quote.status === 'PENDING' ? 'Pending Quote' : 
-                             quote.status === 'ACCEPTED' ? 'Assigned' : 'Rejected';
+                let status = quote.status === 'PENDING' ? 'Pending Quote' :
+                  quote.status === 'ACCEPTED' ? 'Assigned' : 'Rejected';
 
                 mapped.push({
                   id: quote._id,
@@ -96,8 +97,8 @@ const QuoteDeskPage = () => {
                 car: req.type === 'TRANSPORT' ? `${req.details?.make || ''} ${req.details?.model || ''}`.trim() : req.type,
                 licensePlate: licensePlate,
                 pickup: pickupStr,
-                quoteAmount: 0,
-                estimatedTime: 'N/A',
+                quoteAmount: req.adminQuote?.amount || 0,
+                estimatedTime: req.adminQuote?.estimatedTime || 'N/A',
                 status: status,
               });
             }
@@ -255,14 +256,13 @@ const QuoteDeskPage = () => {
             {filteredRequests.map(req => (
               <div key={req.id} className="bg-white rounded-xl border border-gray-200 p-5 hover:border-blue-300 transition-colors flex flex-col h-full">
                 <div className="flex justify-between items-start mb-1">
-                    <div className="text-blue-600 font-bold text-sm">Mission ID: {req.missionId}</div>
-                    <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        req.status === 'Pending Quote' ? 'bg-yellow-50 text-yellow-600' :
-                        req.status === 'Assigned' ? 'bg-green-50 text-green-600' :
-                        'bg-gray-100 text-gray-600'
+                  <div className="text-blue-600 font-bold text-sm">Mission ID: {req.missionId}</div>
+                  <div className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${req.status === 'Pending Quote' ? 'bg-yellow-50 text-yellow-600' :
+                    req.status === 'Assigned' ? 'bg-green-50 text-green-600' :
+                      'bg-gray-100 text-gray-600'
                     }`}>
-                        {req.status}
-                    </div>
+                    {req.status}
+                  </div>
                 </div>
                 <div className="font-bold text-gray-900 mb-4">Customer: {req.title}</div>
 
@@ -312,11 +312,11 @@ const QuoteDeskPage = () => {
                   <div className="flex flex-col items-end">
                     <div className="text-[10px] text-gray-500 font-medium">Quote Amount</div>
                     <div className="text-blue-600 font-black text-lg whitespace-nowrap">
-                        €{req.quoteAmount}
+                      {req.quoteAmount ? `€${req.quoteAmount}` : '-'}
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-2 mt-4">
                   <Link href={`/quote-desk/${req.id}?reqId=${req.reqId}`} className="flex-1 text-center py-2 bg-gray-50 text-gray-700 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors border border-gray-200">
                     View Details

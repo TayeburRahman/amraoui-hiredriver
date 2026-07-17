@@ -304,7 +304,11 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                           )}
                         </td>
                         <td className="px-3 py-2 flex items-center gap-2">
-                          <button className="text-blue-600 font-medium hover:underline">View</button>
+                          {exp.proofUrl ? (
+                            <button onClick={() => window.open(exp.proofUrl, '_blank')} className="text-blue-600 font-medium hover:underline">View</button>
+                          ) : (
+                            <button disabled className="text-gray-400 font-medium cursor-not-allowed">View</button>
+                          )}
                           <button onClick={() => handleDeleteExpense(exp._id)} disabled={isSubmitting} className="text-red-500 font-medium hover:underline disabled:opacity-50">Delete</button>
                         </td>
                       </tr>

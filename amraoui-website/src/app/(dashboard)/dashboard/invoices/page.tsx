@@ -33,8 +33,8 @@ function InvoicesPageContent() {
       try {
         const res = await api.get('/requests');
         if (res.data?.success) {
-          // Filter only requests that have an invoiceUrl
-          const withInvoices = res.data.data.filter((req: any) => req.invoiceUrl);
+          // Filter only requests that have an admin quote (priced requests)
+          const withInvoices = res.data.data.filter((req: any) => req.adminQuote?.amount);
           
           const mapped = withInvoices.map((req: any) => {
             let vehicleStr = "Vehicle";
@@ -63,7 +63,7 @@ function InvoicesPageContent() {
               plate: plateStr,
               date: formatDate(req.createdAt),
               amount: finalAmount,
-              invoiceUrl: req.invoiceUrl
+              invoiceUrl: req.invoiceUrl || ''
             };
           });
           setInitialInvoices(mapped);
@@ -103,6 +103,10 @@ function InvoicesPageContent() {
 
   const downloadInvoice = async (invoice: Invoice) => {
     try {
+      if (!invoice.invoiceUrl) {
+        alert('No invoice document available for download yet. Please contact support if you need it.');
+        return;
+      }
       const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app';
       const fileUrl = invoice.invoiceUrl.startsWith('http') ? invoice.invoiceUrl : `${baseUrl}/${invoice.invoiceUrl.replace(/\\/g, '/')}`;
       
@@ -196,12 +200,18 @@ function InvoicesPageContent() {
                       <span className="text-sm font-bold text-emerald-600">€{inv.amount}</span>
                     </td>
                     <td className="py-5 px-6 sm:px-8 align-middle text-right">
-                      <Button 
-                        onClick={() => downloadInvoice(inv)}
-                        className="bg-brand-blue hover:bg-brand-blue/90 text-white rounded-full font-bold px-4 flex items-center gap-2"
-                      >
-                        <Download className="w-4 h-4" /> Download
-                      </Button>
+                      {inv.invoiceUrl ? (
+                        <Button 
+                          onClick={() => downloadInvoice(inv)}
+                          className="bg-brand-blue hover:bg-brand-blue/90 text-white rounded-full font-bold px-4 flex items-center gap-2"
+                        >
+                          <Download className="w-4 h-4" /> Download
+                        </Button>
+                      ) : (
+                        <span className="text-sm font-medium text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full">
+                          Pending Gen.
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))

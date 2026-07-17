@@ -13,28 +13,28 @@ export function WhyChoose({ id }: { id?: string }) {
       title: t.landing.whyChoose.feat1.title,
       description: t.landing.whyChoose.feat1.desc,
       linkText: t.landing.whyChoose.feat1.link,
-      href: '#',
+      href: (t.landing.whyChoose.feat1 as any).href || '#',
     },
     {
       icon: <Truck className="size-5 text-brand-blue" />,
       title: t.landing.whyChoose.feat2.title,
       description: t.landing.whyChoose.feat2.desc,
       linkText: t.landing.whyChoose.feat2.link,
-      href: '#',
+      href: (t.landing.whyChoose.feat2 as any).href || '#',
     },
     {
       icon: <Laptop className="size-5 text-brand-blue" />,
       title: t.landing.whyChoose.feat3.title,
       description: t.landing.whyChoose.feat3.desc,
       linkText: t.landing.whyChoose.feat3.link,
-      href: '#',
+      href: (t.landing.whyChoose.feat3 as any).href || '#',
     },
     {
       icon: <Headset className="size-5 text-brand-blue" />,
       title: t.landing.whyChoose.feat4.title,
       description: t.landing.whyChoose.feat4.desc,
       linkText: t.landing.whyChoose.feat4.link,
-      href: '#',
+      href: (t.landing.whyChoose.feat4 as any).href || '#',
     },
   ];
 

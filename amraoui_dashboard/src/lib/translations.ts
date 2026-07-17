@@ -302,22 +302,26 @@ export const translations = {
         feat1: {
           title: "Choose your delivery options",
           desc: "Discover flexible delivery services tailored to your business.",
-          link: "Find out more"
+          link: "Find out more",
+          href: "https://play.google.com/store/games"
         },
         feat2: {
           title: "Track your vehicle in real time",
           desc: "Follow every step from pickup to delivery with live status updates.",
-          link: "Track delivery"
+          link: "Track delivery",
+          href: "https://play.google.com/store/games"
         },
         feat3: {
           title: "A tailor-made digital platform",
           desc: "Manage your operations with a platform customized to your workflow.",
-          link: "Explore platform"
+          link: "Explore platform",
+          href: "https://play.google.com/store/games"
         },
         feat4: {
           title: "Available equipment",
           desc: "Our support team and operational tools are always ready for your needs.",
-          link: "Why choose Vehiqqo?"
+          link: "Why choose Vehiqqo?",
+          href: "https://play.google.com/store/games"
         }
       },
       becomeDriver: {
@@ -665,22 +669,26 @@ export const translations = {
         feat1: {
           title: "Choisissez vos options de livraison",
           desc: "Découvrez des services de livraison flexibles adaptés à votre entreprise.",
-          link: "En savoir plus"
+          link: "En savoir plus",
+          href: "https://play.google.com/store/games"
         },
         feat2: {
           title: "Suivez votre véhicule en temps réel",
           desc: "Suivez chaque étape du ramassage à la livraison avec des mises à jour en direct.",
-          link: "Suivre la livraison"
+          link: "Suivre la livraison",
+          href: "https://play.google.com/store/games"
         },
         feat3: {
           title: "Une plateforme digitale sur mesure",
           desc: "Gérez vos opérations avec une plateforme personnalisée selon votre flux de travail.",
-          link: "Explorer la plateforme"
+          link: "Explorer la plateforme",
+          href: "https://play.google.com/store/games"
         },
         feat4: {
           title: "Équipement disponible",
           desc: "Notre équipe de support et nos outils opérationnels sont toujours prêts pour vos besoins.",
-          link: "Pourquoi Vehiqqo ?"
+          link: "Pourquoi Vehiqqo ?",
+          href: "https://play.google.com/store/games"
         }
       },
       becomeDriver: {
@@ -1028,22 +1036,26 @@ export const translations = {
         feat1: {
           title: "Kies uw leveringsopties",
           desc: "Ontdek flexibele leveringsdiensten op maat van uw bedrijf.",
-          link: "Meer informatie"
+          link: "Meer informatie",
+          href: "https://play.google.com/store/games"
         },
         feat2: {
           title: "Volg uw voertuig in realtime",
           desc: "Volg elke stap van ophalen tot afleveren met live statusupdates.",
-          link: "Volg levering"
+          link: "Volg levering",
+          href: "https://play.google.com/store/games"
         },
         feat3: {
           title: "Een digitaal platform op maat",
           desc: "Beheer uw activiteiten met een platform dat is aangepast aan uw workflow.",
-          link: "Verken platform"
+          link: "Verken platform",
+          href: "https://play.google.com/store/games"
         },
         feat4: {
           title: "Beschikbare apparatuur",
           desc: "Ons supportteam en onze tools staan altijd klaar voor uw behoeften.",
-          link: "Waarom Vehiqqo?"
+          link: "Waarom Vehiqqo?",
+          href: "https://play.google.com/store/games"
         }
       },
       becomeDriver: {

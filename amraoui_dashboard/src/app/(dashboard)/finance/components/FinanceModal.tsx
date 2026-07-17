@@ -1,7 +1,7 @@
 import React from 'react';
 import { Invoice } from './FinanceTable';
-
 import { apiFetch } from '@/lib/api';
+import { AddExpenseModal } from '../../mission-monitoring/components/AddExpenseModal';
 
 interface FinanceModalProps {
   invoice: Invoice | null;
@@ -11,6 +11,8 @@ interface FinanceModalProps {
 }
 
 export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onClose, activeTab }) => {
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = React.useState(false);
+
   if (!isOpen || !invoice) return null;
   // If we are looking at the Driver Commission tab, we show the driver payout logic
   const isDriverCommission = activeTab === 'Driver Commission';
@@ -24,10 +26,24 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
   const adminQuoteAmount = req.adminQuote?.amount || invoice.amount || 0;
   
   const acceptedDriverQuote = req.driverQuotes?.find((q: any) => q.status === 'ACCEPTED');
-  const servicePrice = acceptedDriverQuote?.amount || 0;
-  const fuelCost = acceptedDriverQuote?.fuelCost || 0;
-  const tollCost = acceptedDriverQuote?.tollCharges || 0;
-  const totalExpenses = fuelCost + tollCost;
+  const servicePrice = acceptedDriverQuote?.amount || req.adminQuote?.driverPrice || 0;
+  
+  let expensesList: {name: string, amount: number}[] = [];
+  
+  if (acceptedDriverQuote) {
+    if (acceptedDriverQuote.fuelCost) expensesList.push({ name: 'Fuel', amount: acceptedDriverQuote.fuelCost });
+    if (acceptedDriverQuote.tollCharges) expensesList.push({ name: 'Toll', amount: acceptedDriverQuote.tollCharges });
+    if (acceptedDriverQuote.taxiCost) expensesList.push({ name: 'Taxi', amount: acceptedDriverQuote.taxiCost });
+    if (acceptedDriverQuote.travelCost) expensesList.push({ name: 'Travel', amount: acceptedDriverQuote.travelCost });
+  }
+
+  if (req.expenses && req.expenses.length > 0) {
+    req.expenses.forEach((e: any) => {
+      expensesList.push({ name: e.type || 'Extra Expense', amount: e.amount || 0 });
+    });
+  }
+
+  const totalExpenses = expensesList.reduce((sum, item) => sum + item.amount, 0);
   const totalPayableToDriver = servicePrice + totalExpenses;
 
   const handleMarkPaid = async () => {
@@ -187,14 +203,16 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
                   
                   <div className="pt-2">
                     <span className="text-gray-500 text-xs font-medium">Expenses</span>
-                    <div className="flex justify-between items-center text-xs mt-2 pl-4">
-                      <span className="text-gray-400">Fuel</span>
-                      <span className="font-bold text-gray-900">€{fuelCost.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs mt-2 pl-4">
-                      <span className="text-gray-400">Toll</span>
-                      <span className="font-bold text-gray-900">€{tollCost.toFixed(2)}</span>
-                    </div>
+                    {expensesList.length > 0 ? (
+                      expensesList.map((exp, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-xs mt-2 pl-4">
+                          <span className="text-gray-400">{exp.name}</span>
+                          <span className="font-bold text-gray-900">€{exp.amount.toFixed(2)}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-xs mt-2 pl-4 text-gray-400 font-medium">No expenses</div>
+                    )}
                   </div>
 
                   <div className="flex justify-between items-center text-sm pt-2 border-t border-gray-50">
@@ -237,7 +255,10 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
                     Mark Paid
                   </button>
                 )}
-                <button className="px-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1">
+                <button 
+                  onClick={() => setIsExpenseModalOpen(true)}
+                  className="px-4 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1"
+                >
                   $ Adjust
                 </button>
               </div>
@@ -334,6 +355,23 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
 
         </div>
       </div>
+      
+      {/* Add Expense Modal for $ Adjust */}
+      <AddExpenseModal
+        isOpen={isExpenseModalOpen}
+        onClose={() => {
+          setIsExpenseModalOpen(false);
+          window.location.reload(); // reload to reflect the new expense in Finance page totals
+        }}
+        mission={{
+          realId: req._id,
+          id: invoice.mission,
+          raw: req,
+          driver: req.assignedDriverId?.name,
+          customer: invoice.customer,
+          route: invoice.route
+        }}
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Pagination } from '../mission-monitoring/components/Pagination';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/dateUtils';
@@ -164,10 +165,18 @@ const tabs = ["All", "Pickup", "Delivery", "Damage", "No Damage", "Missing", "Ve
               className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-100 rounded-xl bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" 
             />
           </div>
-          <button className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-colors text-sm shadow-sm">
-            <Filter className="w-4 h-4 text-gray-500" />
-            Filters
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-bold rounded-xl transition-colors text-sm shadow-sm outline-none">
+              <Filter className="w-4 h-4 text-gray-500" />
+              Filters
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem onClick={() => setActiveTab("Pickup")}>Pickup Complete</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab("Delivery")}>Delivery Complete</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab("Damage")}>Damage Found</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActiveTab("Missing")}>Missing Proof</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Table */}

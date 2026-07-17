@@ -75,8 +75,18 @@ const FinancePage = () => {
 
   const getDriverPayout = (r: any) => {
     const quote = r.driverQuotes?.find((q: any) => q.status === 'ACCEPTED');
-    if (!quote) return 0;
-    return (quote.amount || 0) + (quote.fuelCost || 0) + (quote.tollCharges || 0) + (quote.exceptionalCosts || 0);
+    const baseService = quote?.amount || r.adminQuote?.driverPrice || 0;
+    
+    let extraCosts = 0;
+    if (quote) {
+      extraCosts += (quote.fuelCost || 0) + (quote.tollCharges || 0) + (quote.travelCost || 0) + (quote.taxiCost || 0);
+    }
+    
+    if (r.expenses && r.expenses.length > 0) {
+      extraCosts += r.expenses.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+    }
+    
+    return baseService + extraCosts;
   };
 
   const payoutsPending = requests.reduce((sum, r) => sum + (r.status !== 'COMPLETED' ? getDriverPayout(r) : 0), 0);

@@ -73,6 +73,39 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
     }
   };
 
+  const [isUploading, setIsUploading] = React.useState(false);
+
+  const handleUploadInvoice = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !req._id) return;
+    
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('invoice', file);
+      
+      const res = await apiFetch(`/requests/${req._id}/invoice`, {
+        method: 'PATCH',
+        auth: true,
+        body: formData,
+        // Don't stringify formData, apiFetch might need special handling if it defaults to JSON
+        // but apiFetch typically uses FormData directly if passed
+      });
+      
+      if (res.ok) {
+        alert('Invoice uploaded successfully!');
+        window.location.reload();
+      } else {
+        alert('Failed to upload invoice');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error uploading invoice');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
@@ -268,6 +301,25 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 pt-4">
+                {req.invoiceUrl && (
+                  <button 
+                    onClick={downloadInvoice}
+                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download Invoice
+                  </button>
+                )}
+                
+                <label className={`flex-1 ${req.invoiceUrl ? 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-700' : 'bg-blue-500 hover:bg-blue-600 text-white'} text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                  {isUploading ? 'Uploading...' : (req.invoiceUrl ? 'Replace Invoice' : 'Upload Invoice')}
+                  <input type="file" accept="application/pdf" className="hidden" onChange={handleUploadInvoice} disabled={isUploading} />
+                </label>
               </div>
             </>
           )}

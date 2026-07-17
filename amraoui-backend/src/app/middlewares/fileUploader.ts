@@ -23,11 +23,13 @@ export const uploadFile = () => {
         folderName = 'amraoui/uploads';
       }
 
+      const isPdf = file.mimetype === 'application/pdf' || file.originalname?.toLowerCase().endsWith('.pdf');
+      
       return {
         folder: folderName,
         allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'pdf'],
-        resource_type: 'auto',
-        public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+        resource_type: isPdf ? 'raw' : 'auto',
+        public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}${isPdf ? '.pdf' : ''}`,
       };
     },
   });

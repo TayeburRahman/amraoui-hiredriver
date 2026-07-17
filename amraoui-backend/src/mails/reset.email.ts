@@ -11,7 +11,6 @@ const resetEmailTemplate = (data: ResetEmailTemplateData): string => `
           <!-- Logo -->
           <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
             <img src="https://amraoui-hiredriver.vercel.app/logo.png" alt="Vehiqqo  Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
-            <div style="font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px;">Vehiqqo </div>
           </div>
 
           <h3 style="color: #2563EB; font-size: 20px; margin-top: 0; margin-bottom: 16px;">Password Reset Request</h3>

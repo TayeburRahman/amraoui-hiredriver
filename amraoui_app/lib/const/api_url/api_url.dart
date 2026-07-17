@@ -17,6 +17,7 @@ class AppApiUrl {
   static const String changePasswordUrl = "/auth/change-password";
   static const String refreshTokenUrl = "/auth/refresh-token";
   static const String profileUrl = "/auth/profile";
+  static const String settingsUrl = "/settings";
 
   // Driver Endpoints
   static const String driverSubmitDocumentsUrl = "/drivers/my/documents";

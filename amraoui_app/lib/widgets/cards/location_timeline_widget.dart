@@ -134,9 +134,9 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
   void _initDistance() {
     final d = widget.mission['details'] ?? {};
     final dist = d['distance']?.toString() ?? widget.mission['distance']?.toString();
-    if (dist != null && dist.isNotEmpty && dist != 'null') {
+    if (dist != null && dist.isNotEmpty && dist.toLowerCase() != 'null' && !dist.contains('N/A')) {
       setState(() {
-        _calculatedDistance = dist;
+        _calculatedDistance = (dist.endsWith('km') || dist.endsWith('mi')) ? dist : '$dist km';
       });
     } else {
       setState(() {
@@ -160,8 +160,15 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
     final dAddress = d['dropoffAddress']?.toString() ?? '';
     final dCountry = d['dropoffCountry']?.toString() ?? '';
 
-    final origin = [pAddress, pZip, pCity, pCountry].where((e) => e.isNotEmpty).join(', ');
-    final destination = [dAddress, dZip, dCity, dCountry].where((e) => e.isNotEmpty).join(', ');
+    final originList = [pAddress, pZip, pCity, pCountry]
+        .where((e) => e.trim().isNotEmpty && e.trim().toLowerCase() != 'null')
+        .toList();
+    final destList = [dAddress, dZip, dCity, dCountry]
+        .where((e) => e.trim().isNotEmpty && e.trim().toLowerCase() != 'null')
+        .toList();
+
+    final origin = originList.join(', ');
+    final destination = destList.join(', ');
 
     if (origin.isEmpty || destination.isEmpty) {
       if (mounted) setState(() { _calculatedDistance = 'N/A km'; });

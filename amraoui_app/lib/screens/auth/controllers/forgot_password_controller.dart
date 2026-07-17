@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 class ForgotPasswordController extends GetxController {
   final _authRepo = AuthRepository();
   final contactController = TextEditingController();
+  final isLoading = false.obs;
 
   Future<void> sendCode() async {
     final email = contactController.text.trim();
@@ -18,10 +19,9 @@ class ForgotPasswordController extends GetxController {
       return;
     }
 
-    appGlobalLoading();
+    isLoading.value = true;
     try {
       final res = await _authRepo.forgotPassword(email);
-      hideGlobalLoading();
       if (res?['success'] == true) {
         await AppStorage().setValue(StorageKey.pendingEmail, email);
         await AppStorage().setValue(StorageKey.verifyMode, 'reset');
@@ -31,8 +31,11 @@ class ForgotPasswordController extends GetxController {
         AppSnackBar.error(res?['message']?.toString() ?? 'Failed to send code');
       }
     } on DioException catch (e) {
-      hideGlobalLoading();
       AppSnackBar.error(e.response?.data?['message']?.toString() ?? 'Failed to send code');
+    } catch (e) {
+      AppSnackBar.error('Failed to send code');
+    } finally {
+      isLoading.value = false;
     }
   }
 

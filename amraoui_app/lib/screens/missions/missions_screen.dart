@@ -1097,6 +1097,17 @@ class _MissionsScreenState extends State<MissionsScreen> {
   }
 
   Widget _buildMissionInfoBlock(Map<String, dynamic> m) {
+    String _formatDateString(String? dateStr) {
+      if (dateStr == null || dateStr.trim().isEmpty || dateStr == 'null') return '';
+      try {
+        final parts = dateStr.split('-');
+        if (parts.length == 3 && parts[0].length == 4) {
+          return '${parts[2]}/${parts[1]}/${parts[0]}';
+        }
+      } catch (_) {}
+      return dateStr;
+    }
+
     final type = m['type'];
     final d = m['details'] ?? {};
     if (type == 'TRANSPORT') {
@@ -1123,8 +1134,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
             'Dropoff',
             '${d['dropoffAddress'] ?? ''}, ${d['dropoffCity'] ?? ''}',
           ),
-          _buildInfoRow('Pickup Date', d['pickupDate']?.toString()),
-          _buildInfoRow('Dropoff Date', d['dropoffDate']?.toString()),
+          _buildInfoRow('Pickup Date', _formatDateString(d['pickupDate']?.toString())),
+          _buildInfoRow('Dropoff Date', _formatDateString(d['dropoffDate']?.toString())),
           _buildInfoRow('Special Info', d['specialInstructions']?.toString()),
         ],
       );
@@ -1145,7 +1156,7 @@ class _MissionsScreenState extends State<MissionsScreen> {
           _buildInfoRow('Location', d['inspectionLocation']?.toString()),
           _buildInfoRow(
             'Date & Time',
-            '${d['inspectionDate'] ?? ''} ${d['inspectionTime'] != null && d['inspectionTime'].toString() != 'null' && d['inspectionTime'].toString().isNotEmpty ? 'at ${d['inspectionTime']}' : ''}',
+            '${_formatDateString(d['inspectionDate']?.toString())} ${d['inspectionTime'] != null && d['inspectionTime'].toString() != 'null' && d['inspectionTime'].toString().isNotEmpty ? 'at ${d['inspectionTime']}' : ''}'.trim(),
           ),
           _buildInfoRow('Notes', d['inspectionNotes']?.toString()),
         ],
@@ -1158,11 +1169,11 @@ class _MissionsScreenState extends State<MissionsScreen> {
           _buildInfoRow('Location', d['driverLocation']?.toString()),
           _buildInfoRow(
             'Start',
-            '${d['driverStartDate'] ?? ''} ${d['driverStartTime'] ?? ''}',
+            '${_formatDateString(d['driverStartDate']?.toString())} ${d['driverStartTime'] ?? ''}'.trim(),
           ),
           _buildInfoRow(
             'End',
-            '${d['driverEndDate'] ?? ''} ${d['driverEndTime'] ?? ''}',
+            '${_formatDateString(d['driverEndDate']?.toString())} ${d['driverEndTime'] ?? ''}'.trim(),
           ),
           _buildInfoRow('Notes', d['driverTaskNotes']?.toString()),
         ],

@@ -35,9 +35,10 @@ void logOutDialog() {
             Row(
               children: [
                 Expanded(
-                  child: GestureDetector(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
                     onTap: () {
-                      Get.back();
+                      Get.back(); // close dialog
                     },
                     child: Container(
                       margin: EdgeInsets.all(AppSize.width(value: 5)),
@@ -62,7 +63,8 @@ void logOutDialog() {
                   ),
                 ),
                 Expanded(
-                  child: GestureDetector(
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
                     onTap: () {
                       _logoutFun();
                     },

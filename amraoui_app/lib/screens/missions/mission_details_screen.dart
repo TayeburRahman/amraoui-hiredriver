@@ -12,6 +12,7 @@ import 'multi_day_arrival_screen.dart';
 import 'pickup_inspection_screen.dart' hide Gap;
 import 'delivery_inspection_screen.dart' hide Gap;
 import 'package:intl/intl.dart';
+import 'package:amraoui_app/const/api_url/api_url.dart';
 
 class MissionDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> mission;
@@ -550,7 +551,7 @@ class MissionDetailsScreen extends StatelessWidget {
     final fileName = docUrl.split('/').last;
     final fullUrl = docUrl.startsWith('http')
         ? docUrl
-        : 'https://Vehiqqo -backend.onrender.com\$docUrl';
+        : '${AppApiUrl.domain}${docUrl.startsWith('/') ? '' : '/'}$docUrl';
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
@@ -584,8 +585,13 @@ class MissionDetailsScreen extends StatelessWidget {
             ),
             onPressed: () async {
               final uri = Uri.parse(fullUrl);
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              try {
+                final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                if (!launched) {
+                  Get.snackbar('Error', 'Could not open document link');
+                }
+              } catch (e) {
+                Get.snackbar('Error', 'Could not open document link');
               }
             },
           ),
@@ -639,9 +645,12 @@ class MissionDetailsScreen extends StatelessWidget {
             GestureDetector(
               onTap: () async {
                 final Uri url = Uri.parse('tel:${phone.replaceAll(" ", "")}');
-                if (await canLaunchUrl(url)) {
-                  await launchUrl(url);
-                } else {
+                try {
+                  final launched = await launchUrl(url);
+                  if (!launched) {
+                    Get.snackbar('Error', 'Could not launch dialer');
+                  }
+                } catch (e) {
                   Get.snackbar('Error', 'Could not launch dialer');
                 }
               },
@@ -836,45 +845,53 @@ class MissionDetailsScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF06B6D4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+            child: Obx(() {
+              final controller = Get.find<MissionsController>();
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF06B6D4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
                 ),
-                elevation: 0,
-              ),
-              onPressed: () async {
-                final controller = Get.find<MissionsController>();
-                final success = await controller.startMission(mission['_id']);
-                if (success) {
-                  Get.back();
-                  Get.snackbar(
-                    'Success',
-                    'Mission started successfully!',
-                    backgroundColor: const Color(0xFF10B981),
-                    colorText: Colors.white,
-                    snackPosition: SnackPosition.bottom,
-                    margin: const EdgeInsets.all(16),
-                  );
-                } else {
-                  Get.snackbar(
-                    'Error',
-                    'Failed to start mission',
-                    backgroundColor: const Color(0xFFEF4444),
-                    colorText: Colors.white,
-                    snackPosition: SnackPosition.bottom,
-                    margin: const EdgeInsets.all(16),
-                  );
-                }
-              },
-              child: const AppText(
-                data: 'Start Mission',
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-              ),
-            ),
+                onPressed: controller.isStartingMission.value ? null : () async {
+                  final success = await controller.startMission(mission['_id']);
+                  if (success) {
+                    Get.back();
+                    Get.snackbar(
+                      'Success',
+                      'Mission started successfully!',
+                      backgroundColor: const Color(0xFF10B981),
+                      colorText: Colors.white,
+                      snackPosition: SnackPosition.bottom,
+                      margin: const EdgeInsets.all(16),
+                    );
+                  } else {
+                    Get.snackbar(
+                      'Error',
+                      'Failed to start mission',
+                      backgroundColor: const Color(0xFFEF4444),
+                      colorText: Colors.white,
+                      snackPosition: SnackPosition.bottom,
+                      margin: const EdgeInsets.all(16),
+                    );
+                  }
+                },
+                child: controller.isStartingMission.value
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : const AppText(
+                        data: 'Start Mission',
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+              );
+            }),
           ),
           const Gap(height: 12),
           SizedBox(

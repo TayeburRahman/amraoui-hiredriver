@@ -79,11 +79,11 @@ class VerifyCodeScreen extends StatelessWidget {
 
             const Gap(height: 24),
 
-            const AppText(
-              data: 'Code expires in 02:00',
-              color: Color(0xFF64748B),
+            Obx(() => AppText(
+              data: 'Code expires in ${controller.formattedTime}',
+              color: const Color(0xFF64748B),
               fontSize: 14,
-            ),
+            )),
 
             const Gap(height: 16),
 
@@ -95,23 +95,27 @@ class VerifyCodeScreen extends StatelessWidget {
                   color: Color(0xFF64748B),
                   fontSize: 18,
                 ),
-                GestureDetector(
-                  onTap: controller.resendCode,
-                  child: const AppText(
+                Obx(() => GestureDetector(
+                  onTap: controller.remainingSeconds.value == 0
+                      ? controller.resendCode
+                      : null,
+                  child: AppText(
                     data: 'Resend',
-                    color: Color(0xFF2563EB),
+                    color: controller.remainingSeconds.value == 0
+                        ? const Color(0xFF2563EB)
+                        : const Color(0xFF94A3B8),
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
-                ),
+                )),
               ],
             ),
 
             const Spacer(),
 
             // Verify Button
-            GestureDetector(
-              onTap: controller.verify,
+            Obx(() => GestureDetector(
+              onTap: controller.isLoading.value ? null : controller.verify,
               child: Container(
                 width: double.infinity,
                 height: 56,
@@ -123,16 +127,25 @@ class VerifyCodeScreen extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Center(
-                  child: AppText(
-                    data: 'Verify Code',
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Center(
+                  child: controller.isLoading.value
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const AppText(
+                          data: 'Verify Code',
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                 ),
               ),
-            ),
+            )),
 
             const Gap(height: 40),
           ],

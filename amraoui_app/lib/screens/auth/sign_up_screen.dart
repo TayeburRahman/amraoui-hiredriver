@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/gestures.dart';
 import 'package:amraoui_app/const/images/app_asset_images.dart';
 import 'package:amraoui_app/screens/auth/controllers/sign_up_controller.dart';
 import 'package:amraoui_app/utils/app_size.dart';
@@ -415,6 +416,10 @@ class SignUpScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 decoration: TextDecoration.underline,
                               ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  controller.showTermsAndConditions();
+                                },
                             ),
                           ],
                         ),

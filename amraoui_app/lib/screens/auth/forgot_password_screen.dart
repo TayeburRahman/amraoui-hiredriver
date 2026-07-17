@@ -83,8 +83,8 @@ class ForgotPasswordScreen extends StatelessWidget {
             const Spacer(),
             
             // Send Code Button
-            GestureDetector(
-              onTap: controller.sendCode,
+            Obx(() => GestureDetector(
+              onTap: controller.isLoading.value ? null : controller.sendCode,
               child: Container(
                 width: double.infinity,
                 height: 56,
@@ -96,16 +96,25 @@ class ForgotPasswordScreen extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Center(
-                  child: const AppText(
-                    data: 'Send Code',
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Center(
+                  child: controller.isLoading.value
+                      ? const SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : const AppText(
+                          data: 'Send Code',
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                 ),
               ),
-            ),
+            )),
             
             const Gap(height: 16),
             

@@ -464,33 +464,38 @@ const resendCodeActivationAccount = async (payload: { email: string }) => {
   user.verifyExpire = expiryTime;
   await user.save();
 
-  sendResetEmail(
-    user.email,
-    `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Activation Code</title>
-        <style>
-            body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
-            .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            h1 { color: #333; }
-            p { color: #555; line-height: 1.5; }
-            .footer { margin-top: 20px; font-size: 12px; color: #999; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Hello, ${user.name}</h1>
-            <p>Your activation code is: <strong style="font-size: 24px; color: #007bff;">${activationCode}</strong></p>
-            <p>Please use this code to activate your account. If you did not request this, please ignore this email.</p>
-            <p>Thank you!</p>
-            <div class="footer"><p>&copy; ${new Date().getFullYear()} Vehiqqo </p></div>
-        </div>
-    </body>
-    </html>`
-  );
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Activate Your Account",
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Activation Code</title>
+          <style>
+              body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+              .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+              h1 { color: #333; }
+              p { color: #555; line-height: 1.5; }
+              .footer { margin-top: 20px; font-size: 12px; color: #999; }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <h1>Hello, ${user.name}</h1>
+              <p>Your activation code is: <strong style="font-size: 24px; color: #007bff;">${activationCode}</strong></p>
+              <p>Please use this code to activate your account. If you did not request this, please ignore this email.</p>
+              <p>Thank you!</p>
+              <div class="footer"><p>&copy; ${new Date().getFullYear()} Vehiqqo </p></div>
+          </div>
+      </body>
+      </html>`
+    });
+  } catch (error: any) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+  }
 };
 
 // ─────────────────────────────────────────────
@@ -512,33 +517,23 @@ const resendCodeForgotAccount = async (payload: ForgotPasswordPayload) => {
   user.verifyExpire = expiryTime;
   await user.save();
 
-  sendResetEmail(
-    user.email,
-    `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Password Reset Code</title>
-        <style>
-            body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
-            .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            h1 { color: #333; }
-            p { color: #555; line-height: 1.5; }
-            .footer { margin-top: 20px; font-size: 12px; color: #999; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Hello, ${user.name}</h1>
-            <p>Your password reset code is: <strong style="font-size: 24px; color: #007bff;">${verifyCode}</strong></p>
-            <p>This code expires in 3 minutes. If you did not request this, please ignore this email.</p>
-            <p>Thank you!</p>
-            <div class="footer"><p>&copy; ${new Date().getFullYear()} Vehiqqo </p></div>
-        </div>
-    </body>
-    </html>`
-  );
+  const data = {
+    name: user.name,
+    verifyCode,
+    verifyExpire: Math.round(
+      (expiryTime.getTime() - Date.now()) / (60 * 1000)
+    ),
+  };
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Password reset code",
+      html: resetEmailTemplate(data),
+    });
+  } catch (error: any) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+  }
 };
 
 // ─────────────────────────────────────────────

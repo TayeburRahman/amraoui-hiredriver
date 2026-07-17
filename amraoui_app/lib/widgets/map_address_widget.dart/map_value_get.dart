@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:amraoui_app/const/app_const/google_mao_key.dart';
-import 'package:amraoui_app/widgets/log_print/error_log.dart';
+import 'package:Vehiqqo/const/app_const/google_mao_key.dart';
+import 'package:Vehiqqo/widgets/log_print/error_log.dart';
 import 'package:get/get.dart';
 import 'package:map_location_picker/map_location_picker.dart';
 import 'package:permission_handler/permission_handler.dart';

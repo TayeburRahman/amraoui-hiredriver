@@ -1,6 +1,6 @@
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -27,7 +27,11 @@ class AccountSubPageLayout extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF0F172A), size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Color(0xFF0F172A),
+            size: 20,
+          ),
           onPressed: () => Get.back(),
         ),
         title: AppText(

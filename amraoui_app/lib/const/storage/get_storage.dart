@@ -1,4 +1,4 @@
-import 'package:amraoui_app/enum_types/app_user_type.dart';
+import 'package:Vehiqqo/enum_types/app_user_type.dart';
 import 'package:get_storage/get_storage.dart';
 
 class StorageKey {

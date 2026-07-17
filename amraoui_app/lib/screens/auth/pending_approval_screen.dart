@@ -1,8 +1,8 @@
-import 'package:amraoui_app/const/images/app_asset_images.dart';
-import 'package:amraoui_app/screens/auth/controllers/pending_approval_controller.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/const/images/app_asset_images.dart';
+import 'package:Vehiqqo/screens/auth/controllers/pending_approval_controller.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -37,7 +37,11 @@ class PendingApprovalScreen extends StatelessWidget {
                   color: Color(0xFFFFFBEB),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.hourglass_top, size: 48, color: Color(0xFFF59E0B)),
+                child: const Icon(
+                  Icons.hourglass_top,
+                  size: 48,
+                  color: Color(0xFFF59E0B),
+                ),
               ),
               const Gap(height: 32),
               const AppText(
@@ -48,13 +52,15 @@ class PendingApprovalScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const Gap(height: 16),
-              Obx(() => AppText(
-                    data: controller.message.value,
-                    fontSize: 15,
-                    color: const Color(0xFF64748B),
-                    textAlign: TextAlign.center,
-                    height: 1.5,
-                  )),
+              Obx(
+                () => AppText(
+                  data: controller.message.value,
+                  fontSize: 15,
+                  color: const Color(0xFF64748B),
+                  textAlign: TextAlign.center,
+                  height: 1.5,
+                ),
+              ),
               const Gap(height: 40),
               GestureDetector(
                 onTap: controller.checkStatus,

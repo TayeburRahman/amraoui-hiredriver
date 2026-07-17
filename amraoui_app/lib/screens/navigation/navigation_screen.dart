@@ -1,11 +1,11 @@
-import 'package:amraoui_app/screens/account/account_screen.dart';
-import 'package:amraoui_app/screens/home/home_screen.dart';
-import 'package:amraoui_app/screens/missions/missions_screen.dart';
-import 'package:amraoui_app/screens/navigation/controllers/navigation_controller.dart';
-import 'package:amraoui_app/screens/quotes/quotes_screen.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/auth_navigation.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/screens/account/account_screen.dart';
+import 'package:Vehiqqo/screens/home/home_screen.dart';
+import 'package:Vehiqqo/screens/missions/missions_screen.dart';
+import 'package:Vehiqqo/screens/navigation/controllers/navigation_controller.dart';
+import 'package:Vehiqqo/screens/quotes/quotes_screen.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/auth_navigation.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -135,4 +135,3 @@ class _NavigationScreenState extends State<NavigationScreen> {
     );
   }
 }
-

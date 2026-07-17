@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/widgets/app_image/app_image.dart';
+import 'package:Vehiqqo/widgets/app_image/app_image.dart';
 
 class FullImageViewer extends StatelessWidget {
   final List<String> images;

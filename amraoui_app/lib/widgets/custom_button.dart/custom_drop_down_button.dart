@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 
 class CustomDropDownButton<T> extends StatefulWidget {
   const CustomDropDownButton({

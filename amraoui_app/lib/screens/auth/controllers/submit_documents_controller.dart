@@ -1,11 +1,11 @@
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/models/driver_model.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/service/repository/auth_repository.dart';
-import 'package:amraoui_app/service/repository/driver_repository.dart';
-import 'package:amraoui_app/utils/auth_navigation.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/models/driver_model.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/service/repository/auth_repository.dart';
+import 'package:Vehiqqo/service/repository/driver_repository.dart';
+import 'package:Vehiqqo/utils/auth_navigation.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/widgets/dialog_boxes/app_global_loading.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -72,8 +72,13 @@ class SubmitDocumentsController extends GetxController {
   }
 
   Future<void> submit() async {
-    if (licenseFileFront.value == null || licenseFileBack.value == null || idFileFront.value == null || idFileBack.value == null) {
-      AppSnackBar.error('Driver license (front/back) and ID document (front/back) are required');
+    if (licenseFileFront.value == null ||
+        licenseFileBack.value == null ||
+        idFileFront.value == null ||
+        idFileBack.value == null) {
+      AppSnackBar.error(
+        'Driver license (front/back) and ID document (front/back) are required',
+      );
       return;
     }
 
@@ -107,11 +112,15 @@ class SubmitDocumentsController extends GetxController {
         );
       }
 
-      AppSnackBar.success('Documents submitted. Please wait for admin verification.');
+      AppSnackBar.success(
+        'Documents submitted. Please wait for admin verification.',
+      );
       Get.offAllNamed(AppRoutes.pendingApproval);
     } on DioException catch (e) {
       hideGlobalLoading();
-      AppSnackBar.error(e.response?.data?['message']?.toString() ?? 'Upload failed');
+      AppSnackBar.error(
+        e.response?.data?['message']?.toString() ?? 'Upload failed',
+      );
     } catch (e) {
       hideGlobalLoading();
       AppSnackBar.error('Upload failed');

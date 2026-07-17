@@ -14,7 +14,7 @@ const mockInvoices: Invoice[] = [
   {
     id: "INV-C-20458",
     mission: "#MS-20458",
-    customer: "Amraoui",
+    customer: "Vehiqqo",
     vehicle: "BMW X5",
     route: "Paris → Lyon",
     amount: 450,
@@ -81,7 +81,7 @@ const FinancePage = () => {
 
   const payoutsPending = requests.reduce((sum, r) => sum + (r.status !== 'COMPLETED' ? getDriverPayout(r) : 0), 0);
   const payoutsPaid = requests.reduce((sum, r) => sum + (r.status === 'COMPLETED' ? getDriverPayout(r) : 0), 0);
-  
+
   const cancellationFees = requests.reduce((sum, r) => sum + (r.status === 'CANCELLED' ? 50 : 0), 0); // Mock 50 per cancellation
 
   const dynamicInvoices: Invoice[] = requests.filter(r => r.adminQuote?.amount).map(r => {

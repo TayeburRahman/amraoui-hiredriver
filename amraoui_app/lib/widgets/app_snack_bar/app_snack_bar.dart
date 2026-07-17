@@ -1,5 +1,5 @@
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class AppSnackBar {

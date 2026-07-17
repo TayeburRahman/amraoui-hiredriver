@@ -1,8 +1,8 @@
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:amraoui_app/const/app_const/google_mao_key.dart';
+import 'package:Vehiqqo/const/app_const/google_mao_key.dart';
 
 String _getFlagEmoji(String? addressOrCountry) {
   if (addressOrCountry == null || addressOrCountry.isEmpty) return '🇧🇪';
@@ -133,10 +133,16 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
 
   void _initDistance() {
     final d = widget.mission['details'] ?? {};
-    final dist = d['distance']?.toString() ?? widget.mission['distance']?.toString();
-    if (dist != null && dist.isNotEmpty && dist.toLowerCase() != 'null' && !dist.contains('N/A')) {
+    final dist =
+        d['distance']?.toString() ?? widget.mission['distance']?.toString();
+    if (dist != null &&
+        dist.isNotEmpty &&
+        dist.toLowerCase() != 'null' &&
+        !dist.contains('N/A')) {
       setState(() {
-        _calculatedDistance = (dist.endsWith('km') || dist.endsWith('mi')) ? dist : '$dist km';
+        _calculatedDistance = (dist.endsWith('km') || dist.endsWith('mi'))
+            ? dist
+            : '$dist km';
       });
     } else {
       setState(() {
@@ -154,7 +160,7 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
     final pZip = d['pickupZip']?.toString() ?? '';
     final pAddress = d['pickupAddress']?.toString() ?? '';
     final pCountry = d['pickupCountry']?.toString() ?? '';
-    
+
     final dCity = d['dropoffCity']?.toString() ?? '';
     final dZip = d['dropoffZip']?.toString() ?? '';
     final dAddress = d['dropoffAddress']?.toString() ?? '';
@@ -171,16 +177,22 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
     final destination = destList.join(', ');
 
     if (origin.isEmpty || destination.isEmpty) {
-      if (mounted) setState(() { _calculatedDistance = 'N/A km'; });
+      if (mounted)
+        setState(() {
+          _calculatedDistance = 'N/A km';
+        });
       return;
     }
 
     try {
       final apiKey = AppConstMapKey.instance.googleMapApiKey;
-      final url = 'https://maps.googleapis.com/maps/api/distancematrix/json?origins=${Uri.encodeComponent(origin)}&destinations=${Uri.encodeComponent(destination)}&key=$apiKey';
+      final url =
+          'https://maps.googleapis.com/maps/api/distancematrix/json?origins=${Uri.encodeComponent(origin)}&destinations=${Uri.encodeComponent(destination)}&key=$apiKey';
       final response = await Dio().get(url);
       if (response.data != null) {
-        if (response.data['status'] == 'OK' && response.data['rows'] != null && response.data['rows'].isNotEmpty) {
+        if (response.data['status'] == 'OK' &&
+            response.data['rows'] != null &&
+            response.data['rows'].isNotEmpty) {
           var elements = response.data['rows'][0]['elements'];
           if (elements != null && elements.isNotEmpty) {
             var distance = elements[0]['distance'];
@@ -192,15 +204,21 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
             }
           }
         } else if (response.data['status'] != null) {
-          if (mounted) setState(() { _calculatedDistance = response.data['status']; });
+          if (mounted)
+            setState(() {
+              _calculatedDistance = response.data['status'];
+            });
           return;
         }
       }
     } catch (e) {
-      if (mounted) setState(() { _calculatedDistance = 'Network Err'; });
+      if (mounted)
+        setState(() {
+          _calculatedDistance = 'Network Err';
+        });
       return;
     }
-    
+
     // Fallback if failed or no distance returned
     if (mounted) {
       setState(() {
@@ -229,7 +247,9 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
 
       final pickupFullTitle = pCity.isNotEmpty
           ? '${_getFlagEmoji(pCountry)} ${pZip.isNotEmpty ? '$pZip ' : ''}$pCity'
-          : (pAddress.isNotEmpty ? '${_getFlagEmoji(pAddress)} $pAddress' : 'Pending Location');
+          : (pAddress.isNotEmpty
+                ? '${_getFlagEmoji(pAddress)} $pAddress'
+                : 'Pending Location');
 
       final dropoffDate = _formatDateDDMMYYYY(
         d['dropoffDate']?.toString() ?? '',
@@ -247,7 +267,9 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
 
       final dropoffFullTitle = dCity.isNotEmpty
           ? '${_getFlagEmoji(dCountry)} ${dZip.isNotEmpty ? '$dZip ' : ''}$dCity'
-          : (dAddress.isNotEmpty ? '${_getFlagEmoji(dAddress)} $dAddress' : 'Pending Location');
+          : (dAddress.isNotEmpty
+                ? '${_getFlagEmoji(dAddress)} $dAddress'
+                : 'Pending Location');
 
       final customerName =
           widget.mission['customerId']?['name']?.toString() ?? 'Customer';
@@ -314,7 +336,9 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
 
       final inspectionFullTitle = iCity.isNotEmpty
           ? '${_getFlagEmoji(iCountry)} ${iZip.isNotEmpty ? '$iZip ' : ''}$iCity'
-          : (locationFull.isNotEmpty ? '${_getFlagEmoji(locationFull)} $locationFull' : 'Pending Location');
+          : (locationFull.isNotEmpty
+                ? '${_getFlagEmoji(locationFull)} $locationFull'
+                : 'Pending Location');
 
       final destCity = d['destinationCity']?.toString() ?? '';
       final destZip = d['destinationZip']?.toString() ?? '';
@@ -323,11 +347,18 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
 
       final destFullTitle = destCity.isNotEmpty
           ? '${_getFlagEmoji(destCountry)} ${destZip.isNotEmpty ? '$destZip ' : ''}$destCity'
-          : (destAddress.isNotEmpty ? '${_getFlagEmoji(destAddress)} $destAddress' : '');
+          : (destAddress.isNotEmpty
+                ? '${_getFlagEmoji(destAddress)} $destAddress'
+                : '');
 
-      final destDate = _formatDateDDMMYYYY(d['destinationDate']?.toString() ?? '');
+      final destDate = _formatDateDDMMYYYY(
+        d['destinationDate']?.toString() ?? '',
+      );
       final destTime = d['destinationTime']?.toString() ?? '';
-      final destDateTime = [destDate, destTime].where((s) => s.isNotEmpty).join(' - ');
+      final destDateTime = [
+        destDate,
+        destTime,
+      ].where((s) => s.isNotEmpty).join(' - ');
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,

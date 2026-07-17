@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
-import 'package:amraoui_app/utils/app_size.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
 
 class OtpInputFieldWidget extends StatelessWidget {
   const OtpInputFieldWidget({
@@ -38,7 +38,8 @@ class OtpInputFieldWidget extends StatelessWidget {
         textAlign: TextAlign.center,
         textInputAction: textInputAction,
         onFieldSubmitted: onFieldSubmitted,
-        onChanged: onChanged ??
+        onChanged:
+            onChanged ??
             (value) {
               if (value.isNotEmpty && !isLast) {
                 FocusManager.instance.primaryFocus?.nextFocus();

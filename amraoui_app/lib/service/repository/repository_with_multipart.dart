@@ -3,7 +3,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:amraoui_app/service/api/api_post_services.dart';
+import 'package:Vehiqqo/service/api/api_post_services.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 import '../api/api_patch_services.dart';
@@ -36,7 +36,9 @@ class RepositoryWithMultipart {
               await MultipartFile.fromFile(
                 file.path,
                 filename: fileName,
-                contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+                contentType: mimeType != null
+                    ? MediaType.parse(mimeType)
+                    : null,
               ),
             ),
           );
@@ -60,7 +62,9 @@ class RepositoryWithMultipart {
                 await MultipartFile.fromFile(
                   compressedFile.path, // Use the path of the compressed file
                   filename: fileName,
-                  contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+                  contentType: mimeType != null
+                      ? MediaType.parse(mimeType)
+                      : null,
                 ),
               ),
             );
@@ -111,11 +115,14 @@ class RepositoryWithMultipart {
           // Add the file to FormData
           formData.files.add(
             MapEntry(
-              imageMapKeyNameimagePath ?? "image", // Key as per the API documentation
+              imageMapKeyNameimagePath ??
+                  "image", // Key as per the API documentation
               await MultipartFile.fromFile(
                 file.path,
                 filename: fileName,
-                contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+                contentType: mimeType != null
+                    ? MediaType.parse(mimeType)
+                    : null,
               ),
             ),
           );
@@ -132,11 +139,14 @@ class RepositoryWithMultipart {
           // Add the file to FormData
           formData.files.add(
             MapEntry(
-              imageMapKeyNameimagePath2 ?? "image", // Key as per the API documentation
+              imageMapKeyNameimagePath2 ??
+                  "image", // Key as per the API documentation
               await MultipartFile.fromFile(
                 file.path,
                 filename: fileName,
-                contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+                contentType: mimeType != null
+                    ? MediaType.parse(mimeType)
+                    : null,
               ),
             ),
           );
@@ -155,11 +165,14 @@ class RepositoryWithMultipart {
             // Add the file to FormData
             formData.files.add(
               MapEntry(
-                imageMapKeyNameForimagePathList ?? "image", // Key as per the API documentation
+                imageMapKeyNameForimagePathList ??
+                    "image", // Key as per the API documentation
                 await MultipartFile.fromFile(
                   compressedFile.path, // Use the path of the compressed file
                   filename: fileName,
-                  contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+                  contentType: mimeType != null
+                      ? MediaType.parse(mimeType)
+                      : null,
                 ),
               ),
             );
@@ -180,11 +193,14 @@ class RepositoryWithMultipart {
             // Add the file to FormData
             formData.files.add(
               MapEntry(
-                imageMapKeyNameForimagePathList2 ?? "image", // Key as per the API documentation
+                imageMapKeyNameForimagePathList2 ??
+                    "image", // Key as per the API documentation
                 await MultipartFile.fromFile(
                   compressedFile.path, // Use the path of the compressed file
                   filename: fileName,
-                  contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+                  contentType: mimeType != null
+                      ? MediaType.parse(mimeType)
+                      : null,
                 ),
               ),
             );
@@ -235,11 +251,14 @@ class RepositoryWithMultipart {
           // Add the file to FormData
           formData.files.add(
             MapEntry(
-              imageMapKeyNameimagePath ?? "image", // Key as per the API documentation
+              imageMapKeyNameimagePath ??
+                  "image", // Key as per the API documentation
               await MultipartFile.fromFile(
                 file.path,
                 filename: fileName,
-                contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+                contentType: mimeType != null
+                    ? MediaType.parse(mimeType)
+                    : null,
               ),
             ),
           );
@@ -279,11 +298,14 @@ class RepositoryWithMultipart {
             // Add the file to FormData
             formData.files.add(
               MapEntry(
-                imageMapKeyNameForimagePathList ?? "image", // Key as per the API documentation
+                imageMapKeyNameForimagePathList ??
+                    "image", // Key as per the API documentation
                 await MultipartFile.fromFile(
                   compressedFile.path, // Use the path of the compressed file
                   filename: fileName,
-                  contentType: mimeType != null ? MediaType.parse(mimeType) : null,
+                  contentType: mimeType != null
+                      ? MediaType.parse(mimeType)
+                      : null,
                 ),
               ),
             );

@@ -53,7 +53,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Info */}
           <div className="space-y-6">
-            <h2 className="text-3xl font-extrabold tracking-tight">Amraoui</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight">Vehiqqo</h2>
             <p className="text-blue-50/70 leading-relaxed max-w-xs">
               {t.landing.footer.tagline}
             </p>
@@ -128,7 +128,7 @@ export function Footer() {
         {/* Divider */}
         <div className="border-t border-white/10 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-8 text-sm text-blue-50/60">
-            <span>© {currentYear} Amraoui. {t.landing.footer.rights}</span>
+            <span>© {currentYear} Vehiqqo. {t.landing.footer.rights}</span>
             <div className="flex items-center gap-4">
               <Link href="/" className="hover:text-white transition-colors font-medium">UGC</Link>
               <Link href="/" className="hover:text-white transition-colors font-medium">GVC</Link>

@@ -681,7 +681,7 @@ export default function ProfilePage() {
                 <div>
                   <h3 className="font-bold text-brand-text text-base mb-1.5">1. Terms of Service</h3>
                   <p>
-                    Welcome to Amraoui. By accessing or using our platform, services, or website, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, you should not access or use the platform.
+                    Welcome to Vehiqqo. By accessing or using our platform, services, or website, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, you should not access or use the platform.
                   </p>
                 </div>
                 <div>

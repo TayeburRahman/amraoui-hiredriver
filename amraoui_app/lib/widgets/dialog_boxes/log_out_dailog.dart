@@ -1,12 +1,12 @@
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:amraoui_app/widgets/log_print/error_log.dart';
+import 'package:Vehiqqo/widgets/log_print/error_log.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 
 void logOutDialog() {
   Get.dialog(
@@ -36,7 +36,9 @@ void logOutDialog() {
               children: [
                 Expanded(
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
+                    borderRadius: BorderRadius.circular(
+                      AppSize.width(value: 8.0),
+                    ),
                     onTap: () {
                       Get.back(); // close dialog
                     },
@@ -64,7 +66,9 @@ void logOutDialog() {
                 ),
                 Expanded(
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
+                    borderRadius: BorderRadius.circular(
+                      AppSize.width(value: 8.0),
+                    ),
                     onTap: () {
                       _logoutFun();
                     },

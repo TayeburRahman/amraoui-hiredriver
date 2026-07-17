@@ -1,9 +1,9 @@
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/inputs/app_input_widget.dart';
-import 'package:amraoui_app/widgets/layout/account_sub_page_layout.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
-import 'package:amraoui_app/service/repository/auth_repository.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/widgets/inputs/app_input_widget.dart';
+import 'package:Vehiqqo/widgets/layout/account_sub_page_layout.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/service/repository/auth_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,10 +11,12 @@ class AccountChangePasswordScreen extends StatefulWidget {
   const AccountChangePasswordScreen({super.key});
 
   @override
-  State<AccountChangePasswordScreen> createState() => _AccountChangePasswordScreenState();
+  State<AccountChangePasswordScreen> createState() =>
+      _AccountChangePasswordScreenState();
 }
 
-class _AccountChangePasswordScreenState extends State<AccountChangePasswordScreen> {
+class _AccountChangePasswordScreenState
+    extends State<AccountChangePasswordScreen> {
   final _currentController = TextEditingController();
   final _newController = TextEditingController();
   final _confirmController = TextEditingController();
@@ -31,7 +33,9 @@ class _AccountChangePasswordScreenState extends State<AccountChangePasswordScree
   }
 
   void _submit() async {
-    if (_currentController.text.isEmpty || _newController.text.isEmpty || _confirmController.text.isEmpty) {
+    if (_currentController.text.isEmpty ||
+        _newController.text.isEmpty ||
+        _confirmController.text.isEmpty) {
       AppSnackBar.error('Please fill all fields');
       return;
     }
@@ -43,18 +47,18 @@ class _AccountChangePasswordScreenState extends State<AccountChangePasswordScree
       AppSnackBar.error('Password must be at least 6 characters');
       return;
     }
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final res = await _repository.changePassword(
         oldPassword: _currentController.text,
         newPassword: _newController.text,
         confirmPassword: _confirmController.text,
       );
-      
+
       if (res != null && res['success'] == true) {
         AppSnackBar.success('Password updated successfully');
         Get.back();

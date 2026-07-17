@@ -1,6 +1,6 @@
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/layout/account_sub_page_layout.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/layout/account_sub_page_layout.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'controllers/documents_controller.dart';
@@ -119,7 +119,9 @@ class DocumentsScreen extends StatelessWidget {
                 AppText(
                   data: hasDoc ? 'Uploaded' : 'Missing',
                   fontSize: 13,
-                  color: hasDoc ? const Color(0xFF16A34A) : const Color(0xFFEF4444),
+                  color: hasDoc
+                      ? const Color(0xFF16A34A)
+                      : const Color(0xFFEF4444),
                 ),
               ],
             ),
@@ -133,12 +135,25 @@ class DocumentsScreen extends StatelessWidget {
           ] else ...[
             ElevatedButton.icon(
               onPressed: () => controller.pickAndUploadDocument(docType),
-              icon: const Icon(Icons.upload_file, size: 16, color: Colors.white),
-              label: const AppText(data: 'Upload', fontSize: 13, color: Colors.white),
+              icon: const Icon(
+                Icons.upload_file,
+                size: 16,
+                color: Colors.white,
+              ),
+              label: const AppText(
+                data: 'Upload',
+                fontSize: 13,
+                color: Colors.white,
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2563EB),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           ],

@@ -1,5 +1,5 @@
-import 'package:amraoui_app/widgets/layout/account_sub_page_layout.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/widgets/layout/account_sub_page_layout.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -35,7 +35,9 @@ class LanguageScreen extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+                    color: isSelected
+                        ? const Color(0xFF2563EB)
+                        : const Color(0xFFE2E8F0),
                     width: isSelected ? 2 : 1,
                   ),
                 ),

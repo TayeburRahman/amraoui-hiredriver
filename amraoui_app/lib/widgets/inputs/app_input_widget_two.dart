@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:amraoui_app/const/app_const/app_const.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
-import 'package:amraoui_app/utils/app_size.dart';
+import 'package:Vehiqqo/const/app_const/app_const.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
 
 class AppInputWidgetTwo extends StatefulWidget {
   const AppInputWidgetTwo({

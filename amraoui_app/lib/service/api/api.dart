@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:amraoui_app/widgets/log_print/app_log.dart';
+import 'package:Vehiqqo/widgets/log_print/app_log.dart';
 import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../../const/api_url/api_url.dart';
@@ -51,7 +51,8 @@ class AppApi {
               // Token refresh failed, clear storage and redirect to login
               AppSnackBar.error("Sign in again!");
               await AppStorage().removeValue(StorageKey.token);
-              if (Get.currentRoute != AppRoutes.initial && Get.currentRoute != AppRoutes.signIn) {
+              if (Get.currentRoute != AppRoutes.initial &&
+                  Get.currentRoute != AppRoutes.signIn) {
                 Get.offAllNamed(AppRoutes.signIn);
               }
               return handler.next(error);

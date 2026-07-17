@@ -1,6 +1,6 @@
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/layout/account_sub_page_layout.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/layout/account_sub_page_layout.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -26,9 +26,17 @@ class InvoicesScreen extends StatelessWidget {
 
         return Column(
           children: [
-            _summaryCard('Total Earnings', '€${controller.totalEarnings.value.toStringAsFixed(2)}', const Color(0xFF2563EB)),
+            _summaryCard(
+              'Total Earnings',
+              '€${controller.totalEarnings.value.toStringAsFixed(2)}',
+              const Color(0xFF2563EB),
+            ),
             const Gap(height: 12),
-            _summaryCard('This Month', '€${controller.thisMonthEarnings.value.toStringAsFixed(2)}', const Color(0xFF10B981)),
+            _summaryCard(
+              'This Month',
+              '€${controller.thisMonthEarnings.value.toStringAsFixed(2)}',
+              const Color(0xFF10B981),
+            ),
             const Gap(height: 24),
             if (controller.completedMissions.isEmpty)
               const Padding(
@@ -42,14 +50,23 @@ class InvoicesScreen extends StatelessWidget {
             else
               ...controller.completedMissions.map((mission) {
                 // Extract mission details
-                final idStr = mission['_id'].toString().substring(0, 6).toUpperCase();
-                
+                final idStr = mission['_id']
+                    .toString()
+                    .substring(0, 6)
+                    .toUpperCase();
+
                 String route = 'Mission';
-                if (mission['type'] == 'TRANSPORT' && mission['detailsObj'] != null) {
-                  final pickupCity = mission['detailsObj']['pickupLocation']?['city'] ?? 'Unknown';
-                  final deliveryCity = mission['detailsObj']['deliveryLocation']?['city'] ?? 'Unknown';
+                if (mission['type'] == 'TRANSPORT' &&
+                    mission['detailsObj'] != null) {
+                  final pickupCity =
+                      mission['detailsObj']['pickupLocation']?['city'] ??
+                      'Unknown';
+                  final deliveryCity =
+                      mission['detailsObj']['deliveryLocation']?['city'] ??
+                      'Unknown';
                   route = '$pickupCity → $deliveryCity';
-                } else if (mission['type'] == 'INSPECTION' || mission['type'] == 'HIRE_DRIVER') {
+                } else if (mission['type'] == 'INSPECTION' ||
+                    mission['type'] == 'HIRE_DRIVER') {
                   route = mission['type'];
                 }
 
@@ -63,12 +80,19 @@ class InvoicesScreen extends StatelessWidget {
                   }
                 }
 
-                String cStatus = mission['commissionStatus']?.toString().toUpperCase() ?? 'PENDING';
+                String cStatus =
+                    mission['commissionStatus']?.toString().toUpperCase() ??
+                    'PENDING';
                 String displayStatus = cStatus == 'PAID' ? 'Paid' : 'Pending';
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: _invoiceTile('#INV-$idStr', route, '€${amount.toStringAsFixed(2)}', displayStatus),
+                  child: _invoiceTile(
+                    '#INV-$idStr',
+                    route,
+                    '€${amount.toStringAsFixed(2)}',
+                    displayStatus,
+                  ),
                 );
               }),
           ],
@@ -120,7 +144,11 @@ class InvoicesScreen extends StatelessWidget {
               children: [
                 AppText(data: id, fontSize: 13, color: const Color(0xFF94A3B8)),
                 AppText(data: route, fontSize: 16, fontWeight: FontWeight.w700),
-                AppText(data: amount, fontSize: 18, fontWeight: FontWeight.w900),
+                AppText(
+                  data: amount,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
               ],
             ),
           ),

@@ -1,9 +1,9 @@
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/screens/navigation/navigation_screen.dart';
+import 'package:Vehiqqo/screens/navigation/navigation_screen.dart';
 
 class MissionCompleteScreen extends StatelessWidget {
   final Map<String, dynamic> mission;
@@ -19,12 +19,16 @@ class MissionCompleteScreen extends StatelessWidget {
     if (type == 'TRANSPORT') {
       final pCity = detailsObj['pickupCity']?.toString().trim() ?? '';
       final pAddr = detailsObj['pickupAddress']?.toString().trim() ?? '';
-      final p = (pCity.isNotEmpty && pCity != 'null') ? pCity : ((pAddr.isNotEmpty && pAddr != 'null') ? pAddr : 'Pickup');
-      
+      final p = (pCity.isNotEmpty && pCity != 'null')
+          ? pCity
+          : ((pAddr.isNotEmpty && pAddr != 'null') ? pAddr : 'Pickup');
+
       final dCity = detailsObj['dropoffCity']?.toString().trim() ?? '';
       final dAddr = detailsObj['dropoffAddress']?.toString().trim() ?? '';
-      final d = (dCity.isNotEmpty && dCity != 'null') ? dCity : ((dAddr.isNotEmpty && dAddr != 'null') ? dAddr : 'Dropoff');
-      
+      final d = (dCity.isNotEmpty && dCity != 'null')
+          ? dCity
+          : ((dAddr.isNotEmpty && dAddr != 'null') ? dAddr : 'Dropoff');
+
       routeText = '$p → $d';
     } else if (type == 'INSPECTION') {
       final l = detailsObj['inspectionLocation']?.toString().trim() ?? '';
@@ -32,31 +36,50 @@ class MissionCompleteScreen extends StatelessWidget {
     } else if (type == 'HIRE_DRIVER') {
       final c = detailsObj['driverCity']?.toString().trim() ?? '';
       final l = detailsObj['driverLocation']?.toString().trim() ?? '';
-      routeText = (c.isNotEmpty && c != 'null') ? c : ((l.isNotEmpty && l != 'null') ? l : 'Driver Location');
+      routeText = (c.isNotEmpty && c != 'null')
+          ? c
+          : ((l.isNotEmpty && l != 'null') ? l : 'Driver Location');
     }
 
     String vehicleText = 'Unknown Vehicle';
     if (type == 'TRANSPORT') {
       final mk = (detailsObj['make'] ?? '').toString().trim();
       final md = (detailsObj['model'] ?? '').toString().trim();
-      vehicleText = [mk, md].where((p) => p.isNotEmpty && p != 'null').join(' ');
+      vehicleText = [
+        mk,
+        md,
+      ].where((p) => p.isNotEmpty && p != 'null').join(' ');
     } else if (type == 'INSPECTION') {
       final vb = (detailsObj['vehicleBrand'] ?? '').toString().trim();
       final vm = (detailsObj['vehicleModel'] ?? '').toString().trim();
-      vehicleText = [vb, vm].where((p) => p.isNotEmpty && p != 'null').join(' ');
+      vehicleText = [
+        vb,
+        vm,
+      ].where((p) => p.isNotEmpty && p != 'null').join(' ');
     }
     if (vehicleText.isEmpty) vehicleText = 'Not specified';
 
     String distanceText = detailsObj['distance']?.toString() ?? 'N/A';
     try {
-      double pMileage = double.parse(detailsObj['pickupInspection']?['mileageAndFuel']?['mileage']?.toString() ?? '0');
-      double dMileage = double.parse(detailsObj['deliveryInspection']?['mileageAndFuel']?['mileage']?.toString() ?? '0');
+      double pMileage = double.parse(
+        detailsObj['pickupInspection']?['mileageAndFuel']?['mileage']
+                ?.toString() ??
+            '0',
+      );
+      double dMileage = double.parse(
+        detailsObj['deliveryInspection']?['mileageAndFuel']?['mileage']
+                ?.toString() ??
+            '0',
+      );
       if (dMileage > 0 && dMileage >= pMileage) {
         distanceText = '${dMileage - pMileage}';
       }
     } catch (_) {}
 
-    if (!distanceText.endsWith('km') && distanceText != 'N/A' && distanceText.isNotEmpty && distanceText != 'null') {
+    if (!distanceText.endsWith('km') &&
+        distanceText != 'N/A' &&
+        distanceText.isNotEmpty &&
+        distanceText != 'null') {
       distanceText = '$distanceText km';
     } else if (distanceText.isEmpty || distanceText == 'null') {
       distanceText = 'N/A';
@@ -64,7 +87,8 @@ class MissionCompleteScreen extends StatelessWidget {
 
     String durationText = detailsObj['estimatedTime']?.toString() ?? 'N/A';
     try {
-      String? startStr = detailsObj['pickupVerification']?['verifiedAt']?.toString();
+      String? startStr = detailsObj['pickupVerification']?['verifiedAt']
+          ?.toString();
       String? endStr = detailsObj['deliveryArrivalTime']?.toString();
       if (startStr != null && endStr != null) {
         DateTime start = DateTime.parse(startStr);
@@ -85,7 +109,11 @@ class MissionCompleteScreen extends StatelessWidget {
     }
 
     final realId = mission['_id'] ?? '';
-    final String missionIdText = mission['missionId'] ?? (realId.isNotEmpty ? '#REQ-${(realId as String).substring((realId as String).length - 5).toUpperCase()}' : 'Unknown Reference');
+    final String missionIdText =
+        mission['missionId'] ??
+        (realId.isNotEmpty
+            ? '#REQ-${(realId as String).substring((realId as String).length - 5).toUpperCase()}'
+            : 'Unknown Reference');
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -98,7 +126,10 @@ class MissionCompleteScreen extends StatelessWidget {
               const Gap(height: 24),
               // Top Green Card
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 32,
+                  horizontal: 16,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF10B981),
                   borderRadius: BorderRadius.circular(16),
@@ -169,17 +200,36 @@ class MissionCompleteScreen extends StatelessWidget {
                       const Gap(height: 12),
                       _buildSummaryRow('Vehicle', vehicleText),
                       const Gap(height: 12),
-                      _buildSummaryRow('Type', detailsObj['inspectionType']?.toString() ?? 'N/A'),
+                      _buildSummaryRow(
+                        'Type',
+                        detailsObj['inspectionType']?.toString() ?? 'N/A',
+                      ),
                       const Gap(height: 12),
-                      _buildSummaryRow('Date', '${detailsObj['inspectionDate'] ?? 'N/A'} ${detailsObj['inspectionTime'] ?? ''}'),
+                      _buildSummaryRow(
+                        'Date',
+                        '${detailsObj['inspectionDate'] ?? 'N/A'} ${detailsObj['inspectionTime'] ?? ''}',
+                      ),
                     ] else if (type == 'HIRE_DRIVER') ...[
                       _buildSummaryRow('Location', routeText),
                       const Gap(height: 12),
-                      _buildSummaryRow('Start', '${detailsObj['driverStartDate'] ?? 'N/A'} ${detailsObj['driverStartTime'] ?? ''}'),
+                      _buildSummaryRow(
+                        'Start',
+                        '${detailsObj['driverStartDate'] ?? 'N/A'} ${detailsObj['driverStartTime'] ?? ''}',
+                      ),
                       const Gap(height: 12),
-                      _buildSummaryRow('End', '${detailsObj['driverEndDate'] ?? 'N/A'} ${detailsObj['driverEndTime'] ?? ''}'),
+                      _buildSummaryRow(
+                        'End',
+                        '${detailsObj['driverEndDate'] ?? 'N/A'} ${detailsObj['driverEndTime'] ?? ''}',
+                      ),
                       const Gap(height: 12),
-                      _buildSummaryRow('Tasks', (detailsObj['driverTasks'] is List) ? (detailsObj['driverTasks'] as List).join(', ').replaceAll('_', ' ') : 'N/A'),
+                      _buildSummaryRow(
+                        'Tasks',
+                        (detailsObj['driverTasks'] is List)
+                            ? (detailsObj['driverTasks'] as List)
+                                  .join(', ')
+                                  .replaceAll('_', ' ')
+                            : 'N/A',
+                      ),
                     ],
                   ],
                 ),
@@ -232,7 +282,7 @@ class MissionCompleteScreen extends StatelessWidget {
                       _buildTaskRow('Delivery inspection completed'),
                       const Gap(height: 12),
                       _buildTaskRow('Customer signature obtained'),
-                    ]
+                    ],
                   ],
                 ),
               ),
@@ -247,7 +297,8 @@ class MissionCompleteScreen extends StatelessWidget {
                   border: Border.all(color: const Color(0xFFA7F3D0)),
                 ),
                 child: const AppText(
-                  data: 'Excellent work! The mission has been completed successfully and all documentation has been submitted.',
+                  data:
+                      'Excellent work! The mission has been completed successfully and all documentation has been submitted.',
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: Color(0xFF065F46),
@@ -314,11 +365,7 @@ class MissionCompleteScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        AppText(
-          data: label,
-          fontSize: 14,
-          color: const Color(0xFF64748B),
-        ),
+        AppText(data: label, fontSize: 14, color: const Color(0xFF64748B)),
         AppText(
           data: value,
           fontSize: 14,

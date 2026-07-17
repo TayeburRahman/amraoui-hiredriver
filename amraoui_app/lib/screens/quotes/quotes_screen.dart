@@ -1,10 +1,10 @@
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
-import 'package:amraoui_app/widgets/cards/location_timeline_widget.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/widgets/cards/location_timeline_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/screens/missions/missions_screen.dart';
+import 'package:Vehiqqo/screens/missions/missions_screen.dart';
 
 class QuotesController extends GetxController {
   var activeFilter = 'All'.obs;
@@ -263,7 +263,12 @@ class QuotesScreen extends StatelessWidget {
 
       return Column(
         children: list.map((m) {
-          final id = m['missionId'] ?? m['displayId'] ?? (m['_id'] != null ? '#REQ-${m['_id'].substring(m['_id'].length - 5).toUpperCase()}' : 'ID N/A');
+          final id =
+              m['missionId'] ??
+              m['displayId'] ??
+              (m['_id'] != null
+                  ? '#REQ-${m['_id'].substring(m['_id'].length - 5).toUpperCase()}'
+                  : 'ID N/A');
           final price = m['myQuoteAmount'] != null
               ? '€${m['myQuoteAmount']}'
               : '€0';

@@ -1,7 +1,7 @@
-import 'package:amraoui_app/const/images/app_asset_images.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
-import 'package:amraoui_app/screens/onboard_screen/controllers/onboard_controller.dart';
-import 'package:amraoui_app/utils/app_size.dart';
+import 'package:Vehiqqo/const/images/app_asset_images.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
+import 'package:Vehiqqo/screens/onboard_screen/controllers/onboard_controller.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -67,66 +67,72 @@ class OnboardScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Indicators
-                      Obx(() => Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                              3,
-                              (index) => AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                margin: const EdgeInsets.symmetric(horizontal: 4),
-                                height: 6,
-                                width: controller.currentPage.value == index ? 24 : 6,
-                                decoration: BoxDecoration(
-                                  color: controller.currentPage.value == index
-                                      ? const Color(0xFF2563EB)
-                                      : const Color(0xFFE2E8F0),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
+                      Obx(
+                        () => Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            3,
+                            (index) => AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              margin: const EdgeInsets.symmetric(horizontal: 4),
+                              height: 6,
+                              width: controller.currentPage.value == index
+                                  ? 24
+                                  : 6,
+                              decoration: BoxDecoration(
+                                color: controller.currentPage.value == index
+                                    ? const Color(0xFF2563EB)
+                                    : const Color(0xFFE2E8F0),
+                                borderRadius: BorderRadius.circular(6),
                               ),
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                       SizedBox(height: AppSize.height(value: 32)),
                       // Next / Get Started button
-                      Obx(() => GestureDetector(
-                            onTap: controller.next,
-                            child: Container(
-                              width: double.infinity,
-                              height: 56, // Tall, sleek button
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
-                                ),
-                                borderRadius: BorderRadius.circular(16),
+                      Obx(
+                        () => GestureDetector(
+                          onTap: controller.next,
+                          child: Container(
+                            width: double.infinity,
+                            height: 56, // Tall, sleek button
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
                               ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      controller.currentPage.value == 2
-                                          ? 'Get Started'
-                                          : 'Next',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    controller.currentPage.value == 2
+                                        ? 'Get Started'
+                                        : 'Next',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    if (controller.currentPage.value != 2) ...[
-                                      const SizedBox(width: 8),
-                                      const Icon(
-                                        Icons.arrow_forward,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ]
+                                  ),
+                                  if (controller.currentPage.value != 2) ...[
+                                    const SizedBox(width: 8),
+                                    const Icon(
+                                      Icons.arrow_forward,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                   ],
-                                ),
+                                ],
                               ),
                             ),
-                          )),
+                          ),
+                        ),
+                      ),
                       SizedBox(height: AppSize.height(value: 16)),
                       // Skip Button
                       GestureDetector(
@@ -179,8 +185,11 @@ class OnboardScreen extends StatelessWidget {
                   imagePath,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.image_not_supported,
-                        size: 100, color: Colors.grey);
+                    return const Icon(
+                      Icons.image_not_supported,
+                      size: 100,
+                      color: Colors.grey,
+                    );
                   },
                 ),
               ),

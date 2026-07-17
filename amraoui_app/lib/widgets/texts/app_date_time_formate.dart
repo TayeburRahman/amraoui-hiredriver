@@ -1,8 +1,9 @@
-import 'package:amraoui_app/widgets/log_print/error_log.dart';
+import 'package:Vehiqqo/widgets/log_print/error_log.dart';
 
 class AppDateTimeFormate {
   AppDateTimeFormate._privateConstructor();
-  static final AppDateTimeFormate _instance = AppDateTimeFormate._privateConstructor();
+  static final AppDateTimeFormate _instance =
+      AppDateTimeFormate._privateConstructor();
   static AppDateTimeFormate get instance => _instance;
 
   String? userTimezone;
@@ -12,7 +13,20 @@ class AppDateTimeFormate {
       if (inputDateTime == null) return "";
       DateTime? dateTime = DateTime.tryParse(inputDateTime);
       if (dateTime == null) return "";
-      const List<String> monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const List<String> monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
       String month = monthNames[dateTime.month - 1];
       int year = dateTime.year;
       return "$month $year";
@@ -27,7 +41,20 @@ class AppDateTimeFormate {
       if (inputDateTime == null) return "";
       DateTime? dateTime = DateTime.tryParse(inputDateTime);
       if (dateTime == null) return "";
-      const List<String> monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const List<String> monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
       String month = monthNames[dateTime.month - 1];
       int year = dateTime.year;
       int day = dateTime.day;
@@ -43,7 +70,20 @@ class AppDateTimeFormate {
       if (inputDateTime == null) return "";
       DateTime? dateTime = DateTime.tryParse(inputDateTime);
       if (dateTime == null) return "";
-      const List<String> monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const List<String> monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
 
       String month = monthNames[dateTime.month - 1];
       int year = dateTime.year;
@@ -64,7 +104,20 @@ class AppDateTimeFormate {
 
       if (tryDate == null) return "";
 
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
       // Extract month, day, year, hour, and minute
       String month = months[tryDate.month - 1];
 
@@ -97,7 +150,20 @@ class AppDateTimeFormate {
       DateTime? tryDate = DateTime.tryParse(inputDateTime);
       if (tryDate == null) return "";
 
-      const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+      const months = [
+        "JANUARY",
+        "FEBRUARY",
+        "MARCH",
+        "APRIL",
+        "MAY",
+        "JUNE",
+        "JULY",
+        "AUGUST",
+        "SEPTEMBER",
+        "OCTOBER",
+        "NOVEMBER",
+        "DECEMBER",
+      ];
       const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
       // Get parts
@@ -220,7 +286,20 @@ class AppDateTimeFormate {
       if (inputDateTime == null) return "";
       DateTime? dateTime = DateTime.tryParse(inputDateTime);
       if (dateTime == null) return "";
-      const List<String> monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const List<String> monthNames = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
 
       String month = monthNames[dateTime.month - 1];
 

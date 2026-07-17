@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:amraoui_app/const/api_url/api_url.dart';
-import 'package:amraoui_app/models/driver_model.dart';
-import 'package:amraoui_app/service/api/api.dart';
+import 'package:Vehiqqo/const/api_url/api_url.dart';
+import 'package:Vehiqqo/models/driver_model.dart';
+import 'package:Vehiqqo/service/api/api.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -44,14 +44,20 @@ class DriverRepository {
         final fileName = (idDocumentFront is XFile)
             ? idDocumentFront.name
             : idDocumentFront.path.split('/').last;
-        map['id_document_front'] = MultipartFile.fromBytes(bytes, filename: fileName);
+        map['id_document_front'] = MultipartFile.fromBytes(
+          bytes,
+          filename: fileName,
+        );
       }
       if (idDocumentBack != null) {
         Uint8List bytes = await idDocumentBack.readAsBytes();
         final fileName = (idDocumentBack is XFile)
             ? idDocumentBack.name
             : idDocumentBack.path.split('/').last;
-        map['id_document_back'] = MultipartFile.fromBytes(bytes, filename: fileName);
+        map['id_document_back'] = MultipartFile.fromBytes(
+          bytes,
+          filename: fileName,
+        );
       }
       if (contractDocument != null) {
         Uint8List bytes = await contractDocument.readAsBytes();

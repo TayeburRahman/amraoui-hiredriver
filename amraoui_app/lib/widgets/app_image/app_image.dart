@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
 import '../../const/api_url/api_url.dart';
 import '../../utils/app_size.dart';
 import '../log_print/app_log.dart';

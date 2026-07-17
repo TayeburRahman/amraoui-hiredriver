@@ -1,14 +1,14 @@
-import 'package:amraoui_app/service/repository/notification_repository.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/service/repository/notification_repository.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class NotificationsController extends GetxController {
   final NotificationRepository _repo = NotificationRepository();
-  
+
   var isLoading = true.obs;
   var notifications = [].obs;
 
@@ -83,7 +83,9 @@ class NotificationsScreen extends StatelessWidget {
         ),
         actions: [
           Obx(() {
-            final unreadCount = controller.notifications.where((n) => !(n['isRead'] ?? false)).length;
+            final unreadCount = controller.notifications
+                .where((n) => !(n['isRead'] ?? false))
+                .length;
             if (unreadCount == 0) return const SizedBox();
             return TextButton(
               onPressed: () => controller.markAllAsRead(),
@@ -118,7 +120,10 @@ class NotificationsScreen extends StatelessWidget {
             }
 
             return ListView.separated(
-              padding: EdgeInsets.symmetric(horizontal: AppSize.width(value: 20), vertical: 16),
+              padding: EdgeInsets.symmetric(
+                horizontal: AppSize.width(value: 20),
+                vertical: 16,
+              ),
               itemCount: controller.notifications.length,
               separatorBuilder: (context, index) => const Gap(height: 12),
               itemBuilder: (context, index) {
@@ -127,7 +132,7 @@ class NotificationsScreen extends StatelessWidget {
                 final title = notif['title'] ?? '';
                 final message = notif['message'] ?? '';
                 final createdAt = notif['createdAt'];
-                
+
                 String timeText = '';
                 if (createdAt != null) {
                   try {
@@ -149,15 +154,21 @@ class NotificationsScreen extends StatelessWidget {
                       color: isRead ? Colors.white : const Color(0xFFEFF6FF),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isRead ? const Color(0xFFE2E8F0) : const Color(0xFFBFDBFE),
+                        color: isRead
+                            ? const Color(0xFFE2E8F0)
+                            : const Color(0xFFBFDBFE),
                       ),
-                      boxShadow: isRead ? [] : [
-                        BoxShadow(
-                          color: const Color(0xFF2563EB).withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      boxShadow: isRead
+                          ? []
+                          : [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF2563EB,
+                                ).withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,13 +176,17 @@ class NotificationsScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: isRead ? const Color(0xFFF1F5F9) : const Color(0xFFDBEAFE),
+                            color: isRead
+                                ? const Color(0xFFF1F5F9)
+                                : const Color(0xFFDBEAFE),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.notifications_active_outlined,
                             size: 20,
-                            color: isRead ? const Color(0xFF64748B) : const Color(0xFF2563EB),
+                            color: isRead
+                                ? const Color(0xFF64748B)
+                                : const Color(0xFF2563EB),
                           ),
                         ),
                         const Gap(width: 16),
@@ -180,14 +195,19 @@ class NotificationsScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
                                     child: AppText(
                                       data: title,
                                       fontSize: 15,
-                                      fontWeight: isRead ? FontWeight.w700 : FontWeight.w800,
-                                      color: isRead ? const Color(0xFF334155) : const Color(0xFF0F172A),
+                                      fontWeight: isRead
+                                          ? FontWeight.w700
+                                          : FontWeight.w800,
+                                      color: isRead
+                                          ? const Color(0xFF334155)
+                                          : const Color(0xFF0F172A),
                                     ),
                                   ),
                                   if (!isRead)
@@ -205,7 +225,9 @@ class NotificationsScreen extends StatelessWidget {
                               AppText(
                                 data: message,
                                 fontSize: 13,
-                                color: isRead ? const Color(0xFF64748B) : const Color(0xFF334155),
+                                color: isRead
+                                    ? const Color(0xFF64748B)
+                                    : const Color(0xFF334155),
                               ),
                               if (timeText.isNotEmpty) ...[
                                 const Gap(height: 8),

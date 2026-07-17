@@ -1,4 +1,4 @@
-Analyzing amraoui_app...                                        
+Analyzing Vehiqqo...                                        
 
    info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/account/account_screen.dart:156:37 • deprecated_member_use
    info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/account/account_screen.dart:172:35 • deprecated_member_use
@@ -12,7 +12,7 @@ warning • Unused import: 'package:intl/intl.dart'. Try removing the import dir
 warning • The declaration '_buildTextField' isn't referenced. Try removing the declaration of '_buildTextField' • lib/screens/auth/sign_up_screen.dart:468:10 • unused_element
    info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/auth/sign_up_screen.dart:545:49 • deprecated_member_use
    info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/auth/sign_up_screen.dart:579:49 • deprecated_member_use
-warning • Unused import: 'package:amraoui_app/routes/app_routes.dart'. Try removing the import directive • lib/screens/home/home_screen.dart:7:8 • unused_import
+warning • Unused import: 'package:Vehiqqo/routes/app_routes.dart'. Try removing the import directive • lib/screens/home/home_screen.dart:7:8 • unused_import
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/screens/home/home_screen.dart:86:7 • avoid_print
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/screens/home/home_screen.dart:100:7 • avoid_print
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/screens/home/home_screen.dart:109:7 • avoid_print
@@ -41,7 +41,7 @@ warning • The value of the local variable 'type' isn't used. Try removing the 
 warning • The value of the local variable 'type' isn't used. Try removing the variable or using it • lib/screens/missions/delivery_inspection_screen.dart:84:11 • unused_local_variable
    info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check. Guard a 'State.context' use with a 'mounted' check on the State, and other BuildContext use with a 'mounted' check on the BuildContext • lib/screens/missions/delivery_inspection_screen.dart:551:45 • use_build_context_synchronously
    info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check. Guard a 'State.context' use with a 'mounted' check on the State, and other BuildContext use with a 'mounted' check on the BuildContext • lib/screens/missions/delivery_inspection_screen.dart:573:45 • use_build_context_synchronously
-warning • Unused import: 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart'. Try removing the import directive • lib/screens/missions/exterior_photos_screen.dart:11:8 • unused_import
+warning • Unused import: 'package:Vehiqqo/widgets/dialog_boxes/app_global_loading.dart'. Try removing the import directive • lib/screens/missions/exterior_photos_screen.dart:11:8 • unused_import
    info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/missions/exterior_photos_screen.dart:162:47 • deprecated_member_use
    info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check. Guard a 'State.context' use with a 'mounted' check on the State, and other BuildContext use with a 'mounted' check on the BuildContext • lib/screens/missions/exterior_photos_screen.dart:223:32 • use_build_context_synchronously
    info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check. Guard a 'State.context' use with a 'mounted' check on the State, and other BuildContext use with a 'mounted' check on the BuildContext • lib/screens/missions/exterior_photos_screen.dart:235:34 • use_build_context_synchronously
@@ -61,15 +61,15 @@ warning • The '!' will have no effect because the receiver can't be null. Try 
    info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check. Guard a 'State.context' use with a 'mounted' check on the State, and other BuildContext use with a 'mounted' check on the BuildContext • lib/screens/missions/mileage_fuel_screen.dart:286:43 • use_build_context_synchronously
 warning • Unnecessary cast. Try removing the cast • lib/screens/missions/mission_complete_screen.dart:63:117 • unnecessary_cast
    info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/missions/mission_complete_screen.dart:109:43 • deprecated_member_use
-warning • The library 'package:amraoui_app/screens/missions/pickup_inspection_screen.dart' doesn't export a member with the hidden name 'Gap'. Try removing the name from the list of hidden members • lib/screens/missions/mission_details_screen.dart:11:45 • undefined_hidden_name
-warning • The library 'package:amraoui_app/screens/missions/delivery_inspection_screen.dart' doesn't export a member with the hidden name 'Gap'. Try removing the name from the list of hidden members • lib/screens/missions/mission_details_screen.dart:12:47 • undefined_hidden_name
+warning • The library 'package:Vehiqqo/screens/missions/pickup_inspection_screen.dart' doesn't export a member with the hidden name 'Gap'. Try removing the name from the list of hidden members • lib/screens/missions/mission_details_screen.dart:11:45 • undefined_hidden_name
+warning • The library 'package:Vehiqqo/screens/missions/delivery_inspection_screen.dart' doesn't export a member with the hidden name 'Gap'. Try removing the name from the list of hidden members • lib/screens/missions/mission_details_screen.dart:12:47 • undefined_hidden_name
 warning • The value of the local variable 'pLocation' isn't used. Try removing the variable or using it • lib/screens/missions/mission_details_screen.dart:94:12 • unused_local_variable
 warning • The value of the local variable 'dLocation' isn't used. Try removing the variable or using it • lib/screens/missions/mission_details_screen.dart:95:12 • unused_local_variable
-warning • Unused import: 'package:amraoui_app/routes/app_routes.dart'. Try removing the import directive • lib/screens/missions/missions_screen.dart:4:8 • unused_import
+warning • Unused import: 'package:Vehiqqo/routes/app_routes.dart'. Try removing the import directive • lib/screens/missions/missions_screen.dart:4:8 • unused_import
 warning • Unused import: 'package:url_launcher/url_launcher.dart'. Try removing the import directive • lib/screens/missions/missions_screen.dart:9:8 • unused_import
-warning • The library 'package:amraoui_app/screens/missions/pickup_inspection_screen.dart' doesn't export a member with the hidden name 'Gap'. Try removing the name from the list of hidden members • lib/screens/missions/missions_screen.dart:12:10 • undefined_hidden_name
-warning • Unused import: 'package:amraoui_app/screens/missions/delivery_inspection_screen.dart'. Try removing the import directive • lib/screens/missions/missions_screen.dart:14:8 • unused_import
-warning • The library 'package:amraoui_app/screens/missions/delivery_inspection_screen.dart' doesn't export a member with the hidden name 'Gap'. Try removing the name from the list of hidden members • lib/screens/missions/missions_screen.dart:15:10 • undefined_hidden_name
+warning • The library 'package:Vehiqqo/screens/missions/pickup_inspection_screen.dart' doesn't export a member with the hidden name 'Gap'. Try removing the name from the list of hidden members • lib/screens/missions/missions_screen.dart:12:10 • undefined_hidden_name
+warning • Unused import: 'package:Vehiqqo/screens/missions/delivery_inspection_screen.dart'. Try removing the import directive • lib/screens/missions/missions_screen.dart:14:8 • unused_import
+warning • The library 'package:Vehiqqo/screens/missions/delivery_inspection_screen.dart' doesn't export a member with the hidden name 'Gap'. Try removing the name from the list of hidden members • lib/screens/missions/missions_screen.dart:15:10 • undefined_hidden_name
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/screens/missions/missions_screen.dart:42:11 • avoid_print
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/screens/missions/missions_screen.dart:48:7 • avoid_print
    info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/screens/missions/missions_screen.dart:398:15 • curly_braces_in_flow_control_structures
@@ -102,13 +102,13 @@ warning • Unused import: 'dart:io'. Try removing the import directive • lib/
    info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check. Guard a 'State.context' use with a 'mounted' check on the State, and other BuildContext use with a 'mounted' check on the BuildContext • lib/screens/missions/upload_documents_screen.dart:249:43 • use_build_context_synchronously
    info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check. Guard a 'State.context' use with a 'mounted' check on the State, and other BuildContext use with a 'mounted' check on the BuildContext • lib/screens/missions/upload_documents_screen.dart:259:45 • use_build_context_synchronously
    info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check. Guard a 'State.context' use with a 'mounted' check on the State, and other BuildContext use with a 'mounted' check on the BuildContext • lib/screens/missions/upload_documents_screen.dart:264:43 • use_build_context_synchronously
-warning • Unused import: 'package:amraoui_app/utils/auth_navigation.dart'. Try removing the import directive • lib/screens/navigation/navigation_screen.dart:7:8 • unused_import
+warning • Unused import: 'package:Vehiqqo/utils/auth_navigation.dart'. Try removing the import directive • lib/screens/navigation/navigation_screen.dart:7:8 • unused_import
    info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/navigation/navigation_screen.dart:51:37 • deprecated_member_use
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/screens/notifications/notifications_screen.dart:29:7 • avoid_print
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/screens/notifications/notifications_screen.dart:45:7 • avoid_print
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/screens/notifications/notifications_screen.dart:58:7 • avoid_print
    info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss. Try replacing the use of the deprecated member with the replacement • lib/screens/notifications/notifications_screen.dart:156:58 • deprecated_member_use
-warning • Unused import: 'package:amraoui_app/const/utils/app_colors.dart'. Try removing the import directive • lib/screens/onboard_screen/onboard_screen.dart:2:8 • unused_import
+warning • Unused import: 'package:Vehiqqo/const/utils/app_colors.dart'. Try removing the import directive • lib/screens/onboard_screen/onboard_screen.dart:2:8 • unused_import
    info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/screens/quotes/quotes_screen.dart:28:7 • curly_braces_in_flow_control_structures
    info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/screens/quotes/quotes_screen.dart:34:7 • curly_braces_in_flow_control_structures
    info • Statements in an if should be enclosed in a block. Try wrapping the statement in a block • lib/screens/quotes/quotes_screen.dart:40:7 • curly_braces_in_flow_control_structures
@@ -118,7 +118,7 @@ warning • The exception variable 'e' isn't used, so the 'catch' clause can be 
 warning • The exception variable 'e' isn't used, so the 'catch' clause can be removed. Try removing the catch clause • lib/service/repository/auth_repository.dart:174:30 • unused_catch_clause
 warning • The exception variable 'e' isn't used, so the 'catch' clause can be removed. Try removing the catch clause • lib/service/repository/auth_repository.dart:193:30 • unused_catch_clause
 warning • Unused import: 'dart:io'. Try removing the import directive • lib/service/repository/driver_repository.dart:1:8 • unused_import
-warning • Unused import: 'package:amraoui_app/models/driver_model.dart'. Try removing the import directive • lib/service/repository/driver_repository.dart:4:8 • unused_import
+warning • Unused import: 'package:Vehiqqo/models/driver_model.dart'. Try removing the import directive • lib/service/repository/driver_repository.dart:4:8 • unused_import
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/service/repository/driver_repository.dart:100:7 • avoid_print
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/service/repository/driver_repository.dart:103:7 • avoid_print
    info • Don't invoke 'print' in production code. Try using a logging framework • lib/service/repository/driver_repository.dart:123:7 • avoid_print

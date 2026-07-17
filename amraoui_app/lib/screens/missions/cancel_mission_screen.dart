@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
-import 'package:amraoui_app/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/gap.dart';
 import 'missions_screen.dart';
 import 'cancel_success_screen.dart';
 
@@ -44,7 +44,10 @@ class _CancelMissionScreenState extends State<CancelMissionScreen> {
               fontWeight: FontWeight.bold,
             ),
             const Gap(height: 20),
-            const AppText(data: 'Reason for Cancellation', fontWeight: FontWeight.bold),
+            const AppText(
+              data: 'Reason for Cancellation',
+              fontWeight: FontWeight.bold,
+            ),
             const Gap(height: 8),
             TextField(
               controller: _reasonController,
@@ -54,7 +57,10 @@ class _CancelMissionScreenState extends State<CancelMissionScreen> {
               ),
             ),
             const Gap(height: 20),
-            const AppText(data: 'Additional Notes', fontWeight: FontWeight.bold),
+            const AppText(
+              data: 'Additional Notes',
+              fontWeight: FontWeight.bold,
+            ),
             const Gap(height: 8),
             TextField(
               controller: _noteController,
@@ -71,7 +77,9 @@ class _CancelMissionScreenState extends State<CancelMissionScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: _isLoading
                     ? null
@@ -92,7 +100,9 @@ class _CancelMissionScreenState extends State<CancelMissionScreen> {
                           );
 
                           if (success) {
-                            Get.off(() => CancelSuccessScreen(reqId: widget.reqId));
+                            Get.off(
+                              () => CancelSuccessScreen(reqId: widget.reqId),
+                            );
                           } else {
                             Get.snackbar('Error', 'Failed to cancel mission');
                           }
@@ -101,8 +111,19 @@ class _CancelMissionScreenState extends State<CancelMissionScreen> {
                         }
                       },
                 child: _isLoading
-                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const AppText(data: 'Confirm Cancellation', color: Colors.white, fontWeight: FontWeight.bold),
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const AppText(
+                        data: 'Confirm Cancellation',
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
               ),
             ),
           ],

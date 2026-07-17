@@ -1,9 +1,9 @@
-import 'package:amraoui_app/const/api_url/api_url.dart';
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/service/repository/auth_repository.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
+import 'package:Vehiqqo/const/api_url/api_url.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/service/repository/auth_repository.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/widgets/dialog_boxes/app_global_loading.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -30,7 +30,8 @@ class SignUpController extends GetxController {
     text: kDebugMode ? 'DL123456789' : '',
   );
 
-  final vehicleTypeController = TextEditingController(); // Or remove, but keeping for compatibility if needed.
+  final vehicleTypeController =
+      TextEditingController(); // Or remove, but keeping for compatibility if needed.
   final vehiclePlateController = TextEditingController();
 
   final companyNameController = TextEditingController(
@@ -137,9 +138,7 @@ class SignUpController extends GetxController {
   void showTermsAndConditions() {
     Get.dialog(
       Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           padding: const EdgeInsets.all(24),
           constraints: BoxConstraints(maxHeight: Get.height * 0.7),
@@ -169,7 +168,9 @@ class SignUpController extends GetxController {
                       );
                     } else {
                       final data = (snapshot.data as dynamic).data['data'];
-                      final terms = data?['termsCondition'] ?? 'No Terms & Conditions available at the moment.';
+                      final terms =
+                          data?['termsCondition'] ??
+                          'No Terms & Conditions available at the moment.';
                       return SingleChildScrollView(
                         child: Text(
                           terms.toString(),
@@ -240,13 +241,28 @@ class SignUpController extends GetxController {
         vehiclePlate: isDealerPlate.value ? 'Dealer Plate' : 'Standard Plate',
         companyName: companyNameController.text.trim(),
         taxNumber: taxNumberController.text.trim(),
-        profileImagePath: profileImagePath.value.isNotEmpty ? profileImagePath.value : null,
-        vehicleCarrierImagePath: isVehicleCarrier.value ? vehicleCarrierImagePath.value : null,
-        dealerPlateImagePath: isDealerPlate.value ? dealerPlateImagePath.value : null,
-        idDocumentFrontImagePath: idDocumentFrontImagePath.value.isNotEmpty ? idDocumentFrontImagePath.value : null,
-        idDocumentBackImagePath: idDocumentBackImagePath.value.isNotEmpty ? idDocumentBackImagePath.value : null,
-        driverLicenseFrontImagePath: driverLicenseFrontImagePath.value.isNotEmpty ? driverLicenseFrontImagePath.value : null,
-        driverLicenseBackImagePath: driverLicenseBackImagePath.value.isNotEmpty ? driverLicenseBackImagePath.value : null,
+        profileImagePath: profileImagePath.value.isNotEmpty
+            ? profileImagePath.value
+            : null,
+        vehicleCarrierImagePath: isVehicleCarrier.value
+            ? vehicleCarrierImagePath.value
+            : null,
+        dealerPlateImagePath: isDealerPlate.value
+            ? dealerPlateImagePath.value
+            : null,
+        idDocumentFrontImagePath: idDocumentFrontImagePath.value.isNotEmpty
+            ? idDocumentFrontImagePath.value
+            : null,
+        idDocumentBackImagePath: idDocumentBackImagePath.value.isNotEmpty
+            ? idDocumentBackImagePath.value
+            : null,
+        driverLicenseFrontImagePath:
+            driverLicenseFrontImagePath.value.isNotEmpty
+            ? driverLicenseFrontImagePath.value
+            : null,
+        driverLicenseBackImagePath: driverLicenseBackImagePath.value.isNotEmpty
+            ? driverLicenseBackImagePath.value
+            : null,
       );
       hideGlobalLoading();
 

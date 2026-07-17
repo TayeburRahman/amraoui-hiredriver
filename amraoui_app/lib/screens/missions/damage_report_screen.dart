@@ -1,14 +1,14 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:amraoui_app/service/repository/mission_repository.dart';
+import 'package:Vehiqqo/service/repository/mission_repository.dart';
 
 class DamageReportScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
@@ -39,9 +39,11 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
     super.initState();
     if (widget.existingReport != null) {
       damageStatus = widget.existingReport!['status'];
-      
+
       if (widget.existingReport!['damagesList'] != null) {
-        damagesList = List<Map<String, dynamic>>.from(widget.existingReport!['damagesList']);
+        damagesList = List<Map<String, dynamic>>.from(
+          widget.existingReport!['damagesList'],
+        );
       } else if (widget.existingReport!['component'] != null) {
         // Fallback for older single damage records
         damagesList.add({
@@ -68,7 +70,9 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
         return StatefulBuilder(
           builder: (context, setSheetState) {
             Future<void> takeSheetPhoto() async {
-              final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
+              final XFile? photo = await _picker.pickImage(
+                source: ImageSource.camera,
+              );
               if (photo != null) {
                 setSheetState(() => tempPhoto = photo.path);
               }
@@ -114,25 +118,88 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                              border: Border.all(
+                                color: const Color(0xFFE2E8F0),
+                              ),
                             ),
                             child: Column(
                               children: [
-                                _buildSheetRadio('Bumper', tempComponent, (val) => setSheetState(() => tempComponent = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Bonnet', tempComponent, (val) => setSheetState(() => tempComponent = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Right-hand light unit', tempComponent, (val) => setSheetState(() => tempComponent = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Left-hand light unit', tempComponent, (val) => setSheetState(() => tempComponent = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Door', tempComponent, (val) => setSheetState(() => tempComponent = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Windshield', tempComponent, (val) => setSheetState(() => tempComponent = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Tire', tempComponent, (val) => setSheetState(() => tempComponent = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Other', tempComponent, (val) => setSheetState(() => tempComponent = val)),
+                                _buildSheetRadio(
+                                  'Bumper',
+                                  tempComponent,
+                                  (val) =>
+                                      setSheetState(() => tempComponent = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Bonnet',
+                                  tempComponent,
+                                  (val) =>
+                                      setSheetState(() => tempComponent = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Right-hand light unit',
+                                  tempComponent,
+                                  (val) =>
+                                      setSheetState(() => tempComponent = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Left-hand light unit',
+                                  tempComponent,
+                                  (val) =>
+                                      setSheetState(() => tempComponent = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Door',
+                                  tempComponent,
+                                  (val) =>
+                                      setSheetState(() => tempComponent = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Windshield',
+                                  tempComponent,
+                                  (val) =>
+                                      setSheetState(() => tempComponent = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Tire',
+                                  tempComponent,
+                                  (val) =>
+                                      setSheetState(() => tempComponent = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Other',
+                                  tempComponent,
+                                  (val) =>
+                                      setSheetState(() => tempComponent = val),
+                                ),
                               ],
                             ),
                           ),
@@ -144,21 +211,68 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                              border: Border.all(
+                                color: const Color(0xFFE2E8F0),
+                              ),
                             ),
                             child: Column(
                               children: [
-                                _buildSheetRadio('Scratch', tempCondition, (val) => setSheetState(() => tempCondition = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Impact', tempCondition, (val) => setSheetState(() => tempCondition = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Paintwork chipped', tempCondition, (val) => setSheetState(() => tempCondition = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Broken', tempCondition, (val) => setSheetState(() => tempCondition = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Dirty', tempCondition, (val) => setSheetState(() => tempCondition = val)),
-                                const Divider(height: 1, color: Color(0xFFE2E8F0)),
-                                _buildSheetRadio('Other', tempCondition, (val) => setSheetState(() => tempCondition = val)),
+                                _buildSheetRadio(
+                                  'Scratch',
+                                  tempCondition,
+                                  (val) =>
+                                      setSheetState(() => tempCondition = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Impact',
+                                  tempCondition,
+                                  (val) =>
+                                      setSheetState(() => tempCondition = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Paintwork chipped',
+                                  tempCondition,
+                                  (val) =>
+                                      setSheetState(() => tempCondition = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Broken',
+                                  tempCondition,
+                                  (val) =>
+                                      setSheetState(() => tempCondition = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Dirty',
+                                  tempCondition,
+                                  (val) =>
+                                      setSheetState(() => tempCondition = val),
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  color: Color(0xFFE2E8F0),
+                                ),
+                                _buildSheetRadio(
+                                  'Other',
+                                  tempCondition,
+                                  (val) =>
+                                      setSheetState(() => tempCondition = val),
+                                ),
                               ],
                             ),
                           ),
@@ -170,7 +284,9 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                              border: Border.all(
+                                color: const Color(0xFFE2E8F0),
+                              ),
                             ),
                             child: TextField(
                               controller: tempCommentController,
@@ -192,24 +308,44 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                               height: 140,
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                color: tempPhoto != null ? Colors.transparent : Colors.white,
+                                color: tempPhoto != null
+                                    ? Colors.transparent
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: const Color(0xFFE2E8F0)),
-                                image: tempPhoto != null ? DecorationImage(
-                                  image: tempPhoto!.startsWith('http') || tempPhoto!.startsWith('blob:')
-                                      ? NetworkImage(tempPhoto!) as ImageProvider
-                                      : FileImage(File(tempPhoto!)),
-                                  fit: BoxFit.cover,
-                                ) : null,
+                                border: Border.all(
+                                  color: const Color(0xFFE2E8F0),
+                                ),
+                                image: tempPhoto != null
+                                    ? DecorationImage(
+                                        image:
+                                            tempPhoto!.startsWith('http') ||
+                                                tempPhoto!.startsWith('blob:')
+                                            ? NetworkImage(tempPhoto!)
+                                                  as ImageProvider
+                                            : FileImage(File(tempPhoto!)),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : null,
                               ),
-                              child: tempPhoto == null ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.camera_alt_outlined, color: Color(0xFF64748B), size: 32),
-                                  Gap(height: 8),
-                                  AppText(data: 'Take Photo', color: Color(0xFF64748B), fontSize: 14),
-                                ],
-                              ) : null,
+                              child: tempPhoto == null
+                                  ? Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: const [
+                                        Icon(
+                                          Icons.camera_alt_outlined,
+                                          color: Color(0xFF64748B),
+                                          size: 32,
+                                        ),
+                                        Gap(height: 8),
+                                        AppText(
+                                          data: 'Take Photo',
+                                          color: Color(0xFF64748B),
+                                          fontSize: 14,
+                                        ),
+                                      ],
+                                    )
+                                  : null,
                             ),
                           ),
                           const Gap(height: 40),
@@ -229,19 +365,33 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2563EB),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         onPressed: () {
                           if (tempComponent == null) {
-                            Get.snackbar('Required', 'Please select component', backgroundColor: Colors.red);
+                            Get.snackbar(
+                              'Required',
+                              'Please select component',
+                              backgroundColor: Colors.red,
+                            );
                             return;
                           }
                           if (tempCondition == null) {
-                            Get.snackbar('Required', 'Please select condition', backgroundColor: Colors.red);
+                            Get.snackbar(
+                              'Required',
+                              'Please select condition',
+                              backgroundColor: Colors.red,
+                            );
                             return;
                           }
                           if (tempPhoto == null) {
-                            Get.snackbar('Required', 'Please take a photo', backgroundColor: Colors.red);
+                            Get.snackbar(
+                              'Required',
+                              'Please take a photo',
+                              backgroundColor: Colors.red,
+                            );
                             return;
                           }
 
@@ -255,16 +405,20 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                           });
                           Navigator.pop(context);
                         },
-                        child: const AppText(data: 'Save Damage', color: Colors.white, fontWeight: FontWeight.bold),
+                        child: const AppText(
+                          data: 'Save Damage',
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             );
-          }
+          },
         );
-      }
+      },
     );
   }
 
@@ -290,7 +444,9 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               AppText(
-                data: widget.isDelivery ? 'Delivery Damage Report' : 'Damage Report',
+                data: widget.isDelivery
+                    ? 'Delivery Damage Report'
+                    : 'Damage Report',
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF0F172A),
@@ -303,7 +459,7 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                 color: Color(0xFF64748B),
               ),
               const Gap(height: 24),
-              
+
               _buildSectionTitle('Damage Status'),
               const Gap(height: 12),
               Container(
@@ -314,7 +470,9 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                 ),
                 child: Column(
                   children: [
-                    _buildRadioOption('No damage detected', damageStatus, (val) {
+                    _buildRadioOption('No damage detected', damageStatus, (
+                      val,
+                    ) {
                       setState(() {
                         damageStatus = val;
                         damagesList.clear(); // Clear all damages if no damage
@@ -327,7 +485,7 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                   ],
                 ),
               ),
-              
+
               if (hasDamage) ...[
                 const Gap(height: 24),
                 Row(
@@ -336,13 +494,21 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                     _buildSectionTitle('Reported Damages'),
                     TextButton.icon(
                       onPressed: _openAddDamageSheet,
-                      icon: const Icon(Icons.add_circle, color: Color(0xFF2563EB), size: 20),
-                      label: const AppText(data: 'Add', color: Color(0xFF2563EB), fontWeight: FontWeight.bold),
-                    )
+                      icon: const Icon(
+                        Icons.add_circle,
+                        color: Color(0xFF2563EB),
+                        size: 20,
+                      ),
+                      label: const AppText(
+                        data: 'Add',
+                        color: Color(0xFF2563EB),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 const Gap(height: 12),
-                
+
                 if (damagesList.isEmpty)
                   Container(
                     padding: const EdgeInsets.all(24),
@@ -353,7 +519,11 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                     ),
                     child: Column(
                       children: [
-                        const Icon(Icons.car_crash, color: Color(0xFFD97706), size: 48),
+                        const Icon(
+                          Icons.car_crash,
+                          color: Color(0xFFD97706),
+                          size: 48,
+                        ),
                         const Gap(height: 12),
                         const AppText(
                           data: 'No damages added yet.',
@@ -365,11 +535,13 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFD97706),
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                           onPressed: _openAddDamageSheet,
                           child: const Text('Add Damage'),
-                        )
+                        ),
                       ],
                     ),
                   )
@@ -397,8 +569,11 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                                 borderRadius: BorderRadius.circular(8),
                                 color: const Color(0xFFF1F5F9),
                                 image: DecorationImage(
-                                  image: damage['photo'].startsWith('http') || damage['photo'].startsWith('blob:')
-                                      ? NetworkImage(damage['photo']) as ImageProvider
+                                  image:
+                                      damage['photo'].startsWith('http') ||
+                                          damage['photo'].startsWith('blob:')
+                                      ? NetworkImage(damage['photo'])
+                                            as ImageProvider
                                       : FileImage(File(damage['photo'])),
                                   fit: BoxFit.cover,
                                 ),
@@ -409,32 +584,49 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  AppText(data: damage['component'] ?? '', fontWeight: FontWeight.bold, fontSize: 16),
+                                  AppText(
+                                    data: damage['component'] ?? '',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                   const Gap(height: 2),
-                                  AppText(data: damage['condition'] ?? '', color: const Color(0xFFEF4444), fontSize: 13, fontWeight: FontWeight.w600),
-                                  if (damage['comment'] != null && damage['comment'].toString().isNotEmpty)
+                                  AppText(
+                                    data: damage['condition'] ?? '',
+                                    color: const Color(0xFFEF4444),
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  if (damage['comment'] != null &&
+                                      damage['comment'].toString().isNotEmpty)
                                     Padding(
                                       padding: const EdgeInsets.only(top: 4),
-                                      child: AppText(data: damage['comment'], color: const Color(0xFF64748B), fontSize: 12),
-                                    )
+                                      child: AppText(
+                                        data: damage['comment'],
+                                        color: const Color(0xFF64748B),
+                                        fontSize: 12,
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.delete, color: Color(0xFF94A3B8)),
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Color(0xFF94A3B8),
+                              ),
                               onPressed: () {
                                 setState(() {
                                   damagesList.removeAt(index);
                                 });
                               },
-                            )
+                            ),
                           ],
                         ),
                       );
                     },
                   ),
               ],
-              
+
               const Gap(height: 100),
             ],
           ),
@@ -449,23 +641,38 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 0,
             ),
             onPressed: () async {
               if (damageStatus == null) {
-                Get.snackbar('Required', 'Please select damage status', backgroundColor: Colors.red.withOpacity(0.9), colorText: Colors.white, snackPosition: SnackPosition.bottom);
+                Get.snackbar(
+                  'Required',
+                  'Please select damage status',
+                  backgroundColor: Colors.red.withOpacity(0.9),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.bottom,
+                );
                 return;
               }
               if (hasDamage && damagesList.isEmpty) {
-                Get.snackbar('Required', 'Please add at least one damage', backgroundColor: Colors.red.withOpacity(0.9), colorText: Colors.white, snackPosition: SnackPosition.bottom);
+                Get.snackbar(
+                  'Required',
+                  'Please add at least one damage',
+                  backgroundColor: Colors.red.withOpacity(0.9),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.bottom,
+                );
                 return;
               }
 
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (BuildContext context) => const Center(child: CircularProgressIndicator()),
+                builder: (BuildContext context) =>
+                    const Center(child: CircularProgressIndicator()),
               );
 
               try {
@@ -473,7 +680,7 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                 final Map<String, dynamic> uploadData = {
                   'status': damageStatus,
                 };
-                
+
                 final List<MultipartFile> files = [];
                 final List<String> labels = [];
 
@@ -483,8 +690,10 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                   for (int i = 0; i < damagesList.length; i++) {
                     final d = damagesList[i];
                     final String photoStr = d['photo'];
-                    bool isNetwork = photoStr.startsWith('http') && !photoStr.startsWith('blob:http');
-                    
+                    bool isNetwork =
+                        photoStr.startsWith('http') &&
+                        !photoStr.startsWith('blob:http');
+
                     Map<String, dynamic> dmgCopy = {
                       'component': d['component'],
                       'condition': d['condition'],
@@ -499,7 +708,12 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                         quality: 70,
                       );
                       if (bytes != null) {
-                        files.add(MultipartFile.fromBytes(bytes, filename: 'damage_$i.jpg'));
+                        files.add(
+                          MultipartFile.fromBytes(
+                            bytes,
+                            filename: 'damage_$i.jpg',
+                          ),
+                        );
                         String photoRef = 'damagePhoto_$i';
                         labels.add(photoRef);
                         dmgCopy['photoRef'] = photoRef;
@@ -509,9 +723,9 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                     }
                     payloadDamages.add(dmgCopy);
                   }
-                  
+
                   uploadData['damagesList'] = jsonEncode(payloadDamages);
-                  
+
                   if (files.isNotEmpty) {
                     uploadData['image'] = files;
                     uploadData['imageLabels'] = labels;
@@ -521,29 +735,38 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
                 Response res;
                 if (widget.isDelivery) {
                   res = await repo.updateDeliveryInspection(
-                    widget.mission['_id'] ?? widget.reqId, 
-                    'damageReport', 
-                    uploadData
+                    widget.mission['_id'] ?? widget.reqId,
+                    'damageReport',
+                    uploadData,
                   );
                 } else {
                   res = await repo.updatePickupInspection(
-                    widget.mission['_id'] ?? widget.reqId, 
-                    'damageReport', 
-                    uploadData
+                    widget.mission['_id'] ?? widget.reqId,
+                    'damageReport',
+                    uploadData,
                   );
                 }
 
-                if (mounted) Navigator.of(context).pop(); // close loading dialog
-                
-                if (res.statusCode == 200) {
-                  final inspectionKey = widget.isDelivery ? 'deliveryInspection' : 'pickupInspection';
-                  if (widget.mission['details'][inspectionKey] == null) {
-                    widget.mission['details'][inspectionKey] = <String, dynamic>{};
-                  }
-                  final savedData = res.data['data']['details'][inspectionKey]['damageReport'];
-                  widget.mission['details'][inspectionKey]['damageReport'] = savedData;
+                if (mounted)
+                  Navigator.of(context).pop(); // close loading dialog
 
-                  if (mounted) Navigator.of(context).pop(savedData); // return to previous screen
+                if (res.statusCode == 200) {
+                  final inspectionKey = widget.isDelivery
+                      ? 'deliveryInspection'
+                      : 'pickupInspection';
+                  if (widget.mission['details'][inspectionKey] == null) {
+                    widget.mission['details'][inspectionKey] =
+                        <String, dynamic>{};
+                  }
+                  final savedData = res
+                      .data['data']['details'][inspectionKey]['damageReport'];
+                  widget.mission['details'][inspectionKey]['damageReport'] =
+                      savedData;
+
+                  if (mounted)
+                    Navigator.of(
+                      context,
+                    ).pop(savedData); // return to previous screen
                 } else {
                   Get.snackbar('Error', 'Failed to save report');
                 }
@@ -561,7 +784,12 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
               ),
               child: Container(
                 alignment: Alignment.center,
-                child: const AppText(data: 'Save', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                child: const AppText(
+                  data: 'Save',
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ),
           ),
@@ -571,20 +799,32 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return AppText(data: title, fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A));
+    return AppText(
+      data: title,
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: const Color(0xFF0F172A),
+    );
   }
 
-  Widget _buildRadioOption(String label, String? groupValue, ValueChanged<String?> onChanged, {bool isDanger = false}) {
+  Widget _buildRadioOption(
+    String label,
+    String? groupValue,
+    ValueChanged<String?> onChanged, {
+    bool isDanger = false,
+  }) {
     bool isSelected = label == groupValue;
     return InkWell(
       onTap: () => onChanged(label),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: isSelected && isDanger ? BoxDecoration(
-          color: const Color(0xFFFEF2F2),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFEF4444)),
-        ) : null,
+        decoration: isSelected && isDanger
+            ? BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFEF4444)),
+              )
+            : null,
         child: Row(
           children: [
             Container(
@@ -593,8 +833,10 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected 
-                      ? (isDanger ? const Color(0xFFEF4444) : const Color(0xFF2563EB))
+                  color: isSelected
+                      ? (isDanger
+                            ? const Color(0xFFEF4444)
+                            : const Color(0xFF2563EB))
                       : const Color(0xFFCBD5E1),
                   width: isSelected ? 6 : 1,
                 ),
@@ -602,9 +844,11 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
             ),
             const Gap(width: 12),
             AppText(
-              data: label, 
-              fontSize: 14, 
-              color: isSelected && isDanger ? const Color(0xFFB91C1C) : const Color(0xFF334155),
+              data: label,
+              fontSize: 14,
+              color: isSelected && isDanger
+                  ? const Color(0xFFB91C1C)
+                  : const Color(0xFF334155),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ],
@@ -612,8 +856,12 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
       ),
     );
   }
-  
-  Widget _buildSheetRadio(String label, String? groupValue, ValueChanged<String?> onChanged) {
+
+  Widget _buildSheetRadio(
+    String label,
+    String? groupValue,
+    ValueChanged<String?> onChanged,
+  ) {
     bool isSelected = label == groupValue;
     return InkWell(
       onTap: () => onChanged(label),
@@ -628,16 +876,20 @@ class _DamageReportScreenState extends State<DamageReportScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+                  color: isSelected
+                      ? const Color(0xFF2563EB)
+                      : const Color(0xFFCBD5E1),
                   width: isSelected ? 6 : 1,
                 ),
               ),
             ),
             const Gap(width: 12),
             AppText(
-              data: label, 
-              fontSize: 14, 
-              color: isSelected ? const Color(0xFF1E3A8A) : const Color(0xFF334155),
+              data: label,
+              fontSize: 14,
+              color: isSelected
+                  ? const Color(0xFF1E3A8A)
+                  : const Color(0xFF334155),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ],

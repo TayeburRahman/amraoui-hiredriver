@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:amraoui_app/const/utils/app_colors.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 
 Future<void> userImagePic2(
   ImageSource source,

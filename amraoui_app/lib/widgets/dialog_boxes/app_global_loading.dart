@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:get/get.dart';
 
 final _globalLoader = AppGlobalLoading();
@@ -17,10 +17,10 @@ class AppGlobalLoading {
   void showLoader() {
     if (_isLoaderOpen) return;
     _isLoaderOpen = true;
-    
+
     Future.microtask(() {
       if (!_isLoaderOpen) return; // Loading was hidden before dialog could open
-      
+
       Get.dialog(
         Center(
           child: Container(
@@ -41,7 +41,10 @@ class AppGlobalLoading {
                     color: AppColors.primary,
                   ),
                 ),
-                AppText(data: "Loading....", fontSize: AppSize.width(value: 20)),
+                AppText(
+                  data: "Loading....",
+                  fontSize: AppSize.width(value: 20),
+                ),
               ],
             ),
           ),

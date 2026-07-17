@@ -1,7 +1,7 @@
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
-import 'package:amraoui_app/widgets/cards/location_timeline_widget.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/widgets/cards/location_timeline_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,7 +12,7 @@ import 'multi_day_arrival_screen.dart';
 import 'pickup_inspection_screen.dart' hide Gap;
 import 'delivery_inspection_screen.dart' hide Gap;
 import 'package:intl/intl.dart';
-import 'package:amraoui_app/const/api_url/api_url.dart';
+import 'package:Vehiqqo/const/api_url/api_url.dart';
 
 class MissionDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> mission;
@@ -272,7 +272,8 @@ class MissionDetailsScreen extends StatelessWidget {
               ),
               _buildInfoRow(
                 'Date & Time',
-                '${_formatDate(detailsObj['pickupDate'])} ${detailsObj['pickupTime'] ?? ''}'.trim(),
+                '${_formatDate(detailsObj['pickupDate'])} ${detailsObj['pickupTime'] ?? ''}'
+                    .trim(),
               ),
               _buildInfoRow(
                 'Contact',
@@ -301,7 +302,8 @@ class MissionDetailsScreen extends StatelessWidget {
               ),
               _buildInfoRow(
                 'Date & Time',
-                '${_formatDate(detailsObj['dropoffDate'])} ${detailsObj['dropoffTime'] ?? ''}'.trim(),
+                '${_formatDate(detailsObj['dropoffDate'])} ${detailsObj['dropoffTime'] ?? ''}'
+                    .trim(),
               ),
               _buildInfoRow(
                 'Contact',
@@ -402,7 +404,8 @@ class MissionDetailsScreen extends StatelessWidget {
               _buildInfoRow('Location', detailsObj['inspectionLocation'] ?? ''),
               _buildInfoRow(
                 'Date & Time',
-                '${_formatDate(detailsObj['inspectionDate'])} ${detailsObj['inspectionTime'] ?? ''}'.trim(),
+                '${_formatDate(detailsObj['inspectionDate'])} ${detailsObj['inspectionTime'] ?? ''}'
+                    .trim(),
               ),
               if (detailsObj['inspectionNotes']?.toString().isNotEmpty == true)
                 _buildInfoRow('Notes', detailsObj['inspectionNotes']),
@@ -418,7 +421,9 @@ class MissionDetailsScreen extends StatelessWidget {
           title: 'Customer Information',
           name: detailsObj['customerName'] ?? 'Unknown Customer',
           phone: customerPhone,
-          companyName: mission['customerId']?['company_name']?.toString() ?? detailsObj['companyName']?.toString(),
+          companyName:
+              mission['customerId']?['company_name']?.toString() ??
+              detailsObj['companyName']?.toString(),
         ),
       );
     }
@@ -440,11 +445,13 @@ class MissionDetailsScreen extends StatelessWidget {
               ),
               _buildInfoRow(
                 'Start',
-                '${_formatDate(detailsObj['driverStartDate'])} ${detailsObj['driverStartTime'] ?? ''}'.trim(),
+                '${_formatDate(detailsObj['driverStartDate'])} ${detailsObj['driverStartTime'] ?? ''}'
+                    .trim(),
               ),
               _buildInfoRow(
                 'End',
-                '${_formatDate(detailsObj['driverEndDate'])} ${detailsObj['driverEndTime'] ?? ''}'.trim(),
+                '${_formatDate(detailsObj['driverEndDate'])} ${detailsObj['driverEndTime'] ?? ''}'
+                    .trim(),
               ),
               if (detailsObj['driverTasks'] != null &&
                   detailsObj['driverTasks'] is List)
@@ -471,28 +478,36 @@ class MissionDetailsScreen extends StatelessWidget {
     // Default Customer details if not inspection (Inspection already has details mapped)
     if (type != 'INSPECTION') {
       final customer = mission['customerId'] ?? {};
-      final companyName = customer['company_name']?.toString() ?? detailsObj['companyName']?.toString();
-      
-      final String fallbackName = (type == 'TRANSPORT' && detailsObj['firstName'] != null)
+      final companyName =
+          customer['company_name']?.toString() ??
+          detailsObj['companyName']?.toString();
+
+      final String fallbackName =
+          (type == 'TRANSPORT' && detailsObj['firstName'] != null)
           ? '${detailsObj['firstName']} ${detailsObj['lastName'] ?? ''}'.trim()
           : customer['name']?.toString() ?? 'Unknown Customer';
-      final String fallbackPhone = (type == 'TRANSPORT' && detailsObj['phone'] != null)
+      final String fallbackPhone =
+          (type == 'TRANSPORT' && detailsObj['phone'] != null)
           ? detailsObj['phone']
           : customer['phone_number']?.toString() ?? '';
 
       if (type == 'TRANSPORT') {
-        final pickupName = detailsObj['pickupContactName']?.toString().isNotEmpty == true 
-            ? detailsObj['pickupContactName'] 
+        final pickupName =
+            detailsObj['pickupContactName']?.toString().isNotEmpty == true
+            ? detailsObj['pickupContactName']
             : fallbackName;
-        final pickupPhone = detailsObj['pickupContactPhone']?.toString().isNotEmpty == true 
-            ? detailsObj['pickupContactPhone'] 
+        final pickupPhone =
+            detailsObj['pickupContactPhone']?.toString().isNotEmpty == true
+            ? detailsObj['pickupContactPhone']
             : fallbackPhone;
-        
-        final dropoffName = detailsObj['dropoffContactName']?.toString().isNotEmpty == true 
-            ? detailsObj['dropoffContactName'] 
+
+        final dropoffName =
+            detailsObj['dropoffContactName']?.toString().isNotEmpty == true
+            ? detailsObj['dropoffContactName']
             : fallbackName;
-        final dropoffPhone = detailsObj['dropoffContactPhone']?.toString().isNotEmpty == true 
-            ? detailsObj['dropoffContactPhone'] 
+        final dropoffPhone =
+            detailsObj['dropoffContactPhone']?.toString().isNotEmpty == true
+            ? detailsObj['dropoffContactPhone']
             : fallbackPhone;
 
         widgets.add(const Gap(height: 16));
@@ -586,7 +601,10 @@ class MissionDetailsScreen extends StatelessWidget {
             onPressed: () async {
               final uri = Uri.parse(fullUrl);
               try {
-                final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                final launched = await launchUrl(
+                  uri,
+                  mode: LaunchMode.externalApplication,
+                );
                 if (!launched) {
                   Get.snackbar('Error', 'Could not open document link');
                 }
@@ -621,7 +639,9 @@ class MissionDetailsScreen extends StatelessWidget {
                     data: companyName,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
-                    color: const Color(0xFF2563EB), // Using the blue accent color
+                    color: const Color(
+                      0xFF2563EB,
+                    ), // Using the blue accent color
                   ),
                   const Gap(height: 2),
                 ],
@@ -855,34 +875,41 @@ class MissionDetailsScreen extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                onPressed: controller.isStartingMission.value ? null : () async {
-                  final success = await controller.startMission(mission['_id']);
-                  if (success) {
-                    Get.back();
-                    Get.snackbar(
-                      'Success',
-                      'Mission started successfully!',
-                      backgroundColor: const Color(0xFF10B981),
-                      colorText: Colors.white,
-                      snackPosition: SnackPosition.bottom,
-                      margin: const EdgeInsets.all(16),
-                    );
-                  } else {
-                    Get.snackbar(
-                      'Error',
-                      'Failed to start mission',
-                      backgroundColor: const Color(0xFFEF4444),
-                      colorText: Colors.white,
-                      snackPosition: SnackPosition.bottom,
-                      margin: const EdgeInsets.all(16),
-                    );
-                  }
-                },
+                onPressed: controller.isStartingMission.value
+                    ? null
+                    : () async {
+                        final success = await controller.startMission(
+                          mission['_id'],
+                        );
+                        if (success) {
+                          Get.back();
+                          Get.snackbar(
+                            'Success',
+                            'Mission started successfully!',
+                            backgroundColor: const Color(0xFF10B981),
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.bottom,
+                            margin: const EdgeInsets.all(16),
+                          );
+                        } else {
+                          Get.snackbar(
+                            'Error',
+                            'Failed to start mission',
+                            backgroundColor: const Color(0xFFEF4444),
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.bottom,
+                            margin: const EdgeInsets.all(16),
+                          );
+                        }
+                      },
                 child: controller.isStartingMission.value
                     ? const SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
                       )
                     : const AppText(
                         data: 'Start Mission',

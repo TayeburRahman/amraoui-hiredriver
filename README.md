@@ -10,7 +10,7 @@ This monorepo is divided into four main directories, each serving a specific rol
 
 | Directory | Description | Tech Stack |
 | --- | --- | --- |
-| 📱 `amraoui_app/` | The mobile application for drivers and customers to access the platform on the go. | Flutter, Dart |
+| 📱 `Vehiqqo/` | The mobile application for drivers and customers to access the platform on the go. | Flutter, Dart |
 | ⚙️ `amraoui-backend/` | The core RESTful API and backend services powering all frontend clients. | Node.js, Express |
 | 📊 `amraoui_dashboard/` | The admin dashboard used by administrators to oversee and manage all missions, drivers, and operations. | Next.js, React, Tailwind CSS |
 | 🌐 `amraoui-website/` | The public landing page for driver recruitment and the dedicated customer portal for web access. | Next.js, React, Tailwind CSS |
@@ -47,10 +47,10 @@ npm install
 npm run dev
 ```
 
-### 4. Mobile App (`amraoui_app`)
+### 4. Mobile App (`Vehiqqo`)
 The Flutter mobile application. Make sure you have the [Flutter SDK](https://docs.flutter.dev/get-started/install) installed.
 ```bash
-cd amraoui_app
+cd Vehiqqo
 flutter pub get
 flutter run
 ```

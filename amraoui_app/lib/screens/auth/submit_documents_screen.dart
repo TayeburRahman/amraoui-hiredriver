@@ -1,7 +1,7 @@
-import 'package:amraoui_app/screens/auth/controllers/submit_documents_controller.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/screens/auth/controllers/submit_documents_controller.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -117,21 +117,29 @@ class SubmitDocumentsScreen extends StatelessWidget {
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: selected ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
+              color: selected
+                  ? const Color(0xFF2563EB)
+                  : const Color(0xFFE2E8F0),
             ),
           ),
           child: Row(
             children: [
               Icon(
                 selected ? Icons.check_circle : Icons.upload_file,
-                color: selected ? const Color(0xFF16A34A) : const Color(0xFF64748B),
+                color: selected
+                    ? const Color(0xFF16A34A)
+                    : const Color(0xFF64748B),
               ),
               const Gap(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText(data: title, fontWeight: FontWeight.w700, fontSize: 15),
+                    AppText(
+                      data: title,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
                     AppText(
                       data: selected ? file.value!.name : subtitle,
                       fontSize: 13,

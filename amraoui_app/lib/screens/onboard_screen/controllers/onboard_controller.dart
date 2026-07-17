@@ -1,5 +1,5 @@
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

@@ -1,6 +1,6 @@
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/layout/account_sub_page_layout.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/layout/account_sub_page_layout.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -32,7 +32,11 @@ class DetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppText(data: entry.key, fontSize: 13, color: const Color(0xFF64748B)),
+                  AppText(
+                    data: entry.key,
+                    fontSize: 13,
+                    color: const Color(0xFF64748B),
+                  ),
                   const Gap(height: 4),
                   AppText(
                     data: entry.value,

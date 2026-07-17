@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/service/api/api.dart';
+import 'package:Vehiqqo/service/api/api.dart';
 
 import '../../const/storage/get_storage.dart';
 import '../../routes/app_routes.dart';

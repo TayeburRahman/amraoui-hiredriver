@@ -1,25 +1,25 @@
 import 'dart:io';
 import 'dart:ui';
 import 'dart:typed_data';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:signature/signature.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:amraoui_app/service/repository/mission_repository.dart';
-import 'package:amraoui_app/screens/missions/exterior_photos_screen.dart';
-import 'package:amraoui_app/screens/missions/interior_photos_screen.dart';
-import 'package:amraoui_app/screens/missions/damage_report_screen.dart';
-import 'package:amraoui_app/screens/missions/mileage_fuel_screen.dart';
-import 'package:amraoui_app/screens/missions/upload_documents_screen.dart';
-import 'package:amraoui_app/screens/missions/customer_signature_screen.dart';
-import 'package:amraoui_app/widgets/signature/full_screen_signature.dart';
-import 'package:amraoui_app/screens/missions/receiver_id_verification_screen.dart';
-import 'package:amraoui_app/screens/missions/mission_complete_screen.dart';
+import 'package:Vehiqqo/service/repository/mission_repository.dart';
+import 'package:Vehiqqo/screens/missions/exterior_photos_screen.dart';
+import 'package:Vehiqqo/screens/missions/interior_photos_screen.dart';
+import 'package:Vehiqqo/screens/missions/damage_report_screen.dart';
+import 'package:Vehiqqo/screens/missions/mileage_fuel_screen.dart';
+import 'package:Vehiqqo/screens/missions/upload_documents_screen.dart';
+import 'package:Vehiqqo/screens/missions/customer_signature_screen.dart';
+import 'package:Vehiqqo/widgets/signature/full_screen_signature.dart';
+import 'package:Vehiqqo/screens/missions/receiver_id_verification_screen.dart';
+import 'package:Vehiqqo/screens/missions/mission_complete_screen.dart';
 
 class DeliveryInspectionScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
@@ -44,7 +44,7 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
   final ImagePicker _picker = ImagePicker();
   String? driverSelfiePath;
   String? existingDriverSelfieUrl;
-  
+
   final SignatureController _signatureController = SignatureController(
     penStrokeWidth: 3,
     penColor: Colors.black,
@@ -62,9 +62,9 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
       baseCount++;
     }
     totalCount = baseCount;
-    
+
     _calculateProgress();
-    
+
     final inspection = localMission['details']?['deliveryInspection'] ?? {};
     final driverConf = inspection['driverConfirmation'] ?? {};
     existingDriverSelfieUrl = driverConf['driverSelfiePhoto'];
@@ -83,19 +83,21 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
 
     int count = 0;
     final type = localMission['type'];
-    
+
     if (inspection['exteriorPhotos'] != null) count++;
     if (inspection['interiorPhotos'] != null) count++;
     if (inspection['damageReport'] != null) count++;
-    if (inspection['uploadDocuments'] != null && (inspection['uploadDocuments'] as List).isNotEmpty) count++;
-    
+    if (inspection['uploadDocuments'] != null &&
+        (inspection['uploadDocuments'] as List).isNotEmpty)
+      count++;
+
     if (inspection['mileageAndFuel'] != null) count++;
     if (inspection['customerSignature'] != null) count++;
-    
+
     if (details['idCheckRequired'] == true) {
       if (inspection['receiverIdVerification'] != null) count++;
     }
-    
+
     setState(() {
       completedCount = count;
     });
@@ -110,7 +112,9 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
     final bool hasInterior = inspection['interiorPhotos'] != null;
     final bool hasDamage = inspection['damageReport'] != null;
     final bool hasMileage = inspection['mileageAndFuel'] != null;
-    final bool hasDocuments = inspection['uploadDocuments'] != null && (inspection['uploadDocuments'] as List).isNotEmpty;
+    final bool hasDocuments =
+        inspection['uploadDocuments'] != null &&
+        (inspection['uploadDocuments'] as List).isNotEmpty;
     final bool hasSignature = inspection['customerSignature'] != null;
     final bool hasReceiverId = inspection['receiverIdVerification'] != null;
 
@@ -298,22 +302,23 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                   if (result != null) _calculateProgress();
                 },
               ),
-              if (details['idCheckRequired'] == true) _buildInspectionItem(
-                 Icons.badge_outlined,
-                 'Receiver ID Verification',
-                 'Verify Receiver ID',
-                 isCompleted: hasReceiverId,
-                 onTap: () async {
-                   final result = await Get.to(
-                     () => ReceiverIdVerificationScreen(
-                       mission: localMission,
-                       reqId: widget.reqId,
-                       existingData: inspection['receiverIdVerification'],
-                     ),
-                   );
-                   if (result != null) _calculateProgress();
-                 },
-               ),
+              if (details['idCheckRequired'] == true)
+                _buildInspectionItem(
+                  Icons.badge_outlined,
+                  'Receiver ID Verification',
+                  'Verify Receiver ID',
+                  isCompleted: hasReceiverId,
+                  onTap: () async {
+                    final result = await Get.to(
+                      () => ReceiverIdVerificationScreen(
+                        mission: localMission,
+                        reqId: widget.reqId,
+                        existingData: inspection['receiverIdVerification'],
+                      ),
+                    );
+                    if (result != null) _calculateProgress();
+                  },
+                ),
 
               const Gap(height: 16),
 
@@ -346,37 +351,52 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                     border: Border.all(color: const Color(0xFFCBD5E1)),
                   ),
                   child: Center(
-                    child: (driverSelfiePath != null || existingDriverSelfieUrl != null)
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: (driverSelfiePath != null)
-                              ? (driverSelfiePath!.startsWith('http') || driverSelfiePath!.startsWith('blob:'))
-                                  ? Image.network(driverSelfiePath!, height: 100, fit: BoxFit.cover)
-                                  : Image.file(File(driverSelfiePath!), height: 100, fit: BoxFit.cover)
-                              : Image.network(existingDriverSelfieUrl!, height: 100, fit: BoxFit.cover),
-                        )
-                      : Column(
-                          children: const [
-                            Icon(
-                              Icons.camera_alt_outlined,
-                              color: Color(0xFF94A3B8),
-                              size: 28,
-                            ),
-                            Gap(height: 8),
-                            AppText(
-                              data: 'Take Driver Selfie',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF334155),
-                            ),
-                            Gap(height: 4),
-                            AppText(
-                              data: 'Optional proof of delivery',
-                              fontSize: 12,
-                              color: Color(0xFF64748B),
-                            ),
-                          ],
-                        ),
+                    child:
+                        (driverSelfiePath != null ||
+                            existingDriverSelfieUrl != null)
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: (driverSelfiePath != null)
+                                ? (driverSelfiePath!.startsWith('http') ||
+                                          driverSelfiePath!.startsWith('blob:'))
+                                      ? Image.network(
+                                          driverSelfiePath!,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.file(
+                                          File(driverSelfiePath!),
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                        )
+                                : Image.network(
+                                    existingDriverSelfieUrl!,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                          )
+                        : Column(
+                            children: const [
+                              Icon(
+                                Icons.camera_alt_outlined,
+                                color: Color(0xFF94A3B8),
+                                size: 28,
+                              ),
+                              Gap(height: 8),
+                              AppText(
+                                data: 'Take Driver Selfie',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF334155),
+                              ),
+                              Gap(height: 4),
+                              AppText(
+                                data: 'Optional proof of delivery',
+                                fontSize: 12,
+                                color: Color(0xFF64748B),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
               ),
@@ -418,9 +438,9 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
               const Gap(height: 12),
               GestureDetector(
                 onTap: () async {
-                  final List<Point>? points = await Get.to(() => const FullScreenSignature(
-                    title: 'Driver Signature',
-                  ));
+                  final List<Point>? points = await Get.to(
+                    () => const FullScreenSignature(title: 'Driver Signature'),
+                  );
                   if (points != null && points.isNotEmpty) {
                     setState(() {
                       _signatureController.points = points;
@@ -434,21 +454,24 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFFCBD5E1),
-                    ),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
                   ),
                   child: existingDriverSignatureUrl != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.network(existingDriverSignatureUrl!, fit: BoxFit.contain),
+                          child: Image.network(
+                            existingDriverSignatureUrl!,
+                            fit: BoxFit.contain,
+                          ),
                         )
                       : Stack(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: CustomPaint(
-                                painter: DashedRectPainter(color: const Color(0xFF94A3B8)),
+                                painter: DashedRectPainter(
+                                  color: const Color(0xFF94A3B8),
+                                ),
                                 child: IgnorePointer(
                                   child: Signature(
                                     controller: _signatureController,
@@ -519,76 +542,94 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                  builder: (BuildContext context) => const Center(child: CircularProgressIndicator()),
+                builder: (BuildContext context) =>
+                    const Center(child: CircularProgressIndicator()),
+              );
+
+              try {
+                final repo = MissionRepository();
+                final Map<String, dynamic> uploadData = {};
+                final List<MultipartFile> files = [];
+                final List<String> labels = [];
+
+                if (driverSelfiePath != null) {
+                  final bytes = await FlutterImageCompress.compressWithFile(
+                    driverSelfiePath!,
+                    minWidth: 800,
+                    minHeight: 800,
+                    quality: 70,
+                  );
+                  if (bytes != null) {
+                    files.add(
+                      MultipartFile.fromBytes(
+                        bytes,
+                        filename: 'driver_selfie.jpg',
+                      ),
+                    );
+                    labels.add('driverSelfiePhoto');
+                  }
+                } else if (existingDriverSelfieUrl != null) {
+                  uploadData['driverSelfiePhoto'] = existingDriverSelfieUrl;
+                }
+
+                if (_signatureController.isNotEmpty) {
+                  final Uint8List? signatureBytes = await _signatureController
+                      .toPngBytes();
+                  if (signatureBytes != null) {
+                    files.add(
+                      MultipartFile.fromBytes(
+                        signatureBytes,
+                        filename: 'driver_sig.png',
+                      ),
+                    );
+                    labels.add('driverSignaturePhoto');
+                  }
+                } else if (existingDriverSignatureUrl != null) {
+                  uploadData['driverSignaturePhoto'] =
+                      existingDriverSignatureUrl;
+                }
+
+                if (files.isNotEmpty) {
+                  uploadData['image'] = files;
+                  uploadData['imageLabels'] = labels;
+                }
+
+                final res = await repo.updateDeliveryInspection(
+                  widget.mission['_id'] ?? widget.reqId,
+                  'driverConfirmation',
+                  uploadData,
                 );
 
-                try {
-                  final repo = MissionRepository();
-                  final Map<String, dynamic> uploadData = {};
-                  final List<MultipartFile> files = [];
-                  final List<String> labels = [];
+                if (mounted) Navigator.of(context).pop();
 
-                  if (driverSelfiePath != null) {
-                    final bytes = await FlutterImageCompress.compressWithFile(
-                      driverSelfiePath!,
-                      minWidth: 800,
-                      minHeight: 800,
-                      quality: 70,
-                    );
-                    if (bytes != null) {
-                      files.add(MultipartFile.fromBytes(bytes, filename: 'driver_selfie.jpg'));
-                      labels.add('driverSelfiePhoto');
-                    }
-                  } else if (existingDriverSelfieUrl != null) {
-                    uploadData['driverSelfiePhoto'] = existingDriverSelfieUrl;
+                if (res.statusCode == 200) {
+                  if (localMission['details']['deliveryInspection'] == null) {
+                    localMission['details']['deliveryInspection'] =
+                        <String, dynamic>{};
                   }
+                  localMission['details']['deliveryInspection']['driverConfirmation'] =
+                      res.data['data']['details']['deliveryInspection']['driverConfirmation'];
 
-                  if (_signatureController.isNotEmpty) {
-                    final Uint8List? signatureBytes = await _signatureController.toPngBytes();
-                    if (signatureBytes != null) {
-                      files.add(MultipartFile.fromBytes(signatureBytes, filename: 'driver_sig.png'));
-                      labels.add('driverSignaturePhoto');
-                    }
-                  } else if (existingDriverSignatureUrl != null) {
-                    uploadData['driverSignaturePhoto'] = existingDriverSignatureUrl;
-                  }
-
-                  if (files.isNotEmpty) {
-                    uploadData['image'] = files;
-                    uploadData['imageLabels'] = labels;
-                  }
-                  
-                  final res = await repo.updateDeliveryInspection(
-                    widget.mission['_id'] ?? widget.reqId, 
-                    'driverConfirmation', 
-                    uploadData
+                  Get.snackbar(
+                    'Success',
+                    'Delivery inspection completed successfully!',
+                    backgroundColor: const Color(0xFF10B981),
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.bottom,
                   );
 
-                  if (mounted) Navigator.of(context).pop();
-                  
-                  if (res.statusCode == 200) {
-                    if (localMission['details']['deliveryInspection'] == null) {
-                      localMission['details']['deliveryInspection'] = <String, dynamic>{};
-                    }
-                    localMission['details']['deliveryInspection']['driverConfirmation'] = res.data['data']['details']['deliveryInspection']['driverConfirmation'];
-                    
-                    Get.snackbar(
-                      'Success',
-                      'Delivery inspection completed successfully!',
-                      backgroundColor: const Color(0xFF10B981),
-                      colorText: Colors.white,
-                      snackPosition: SnackPosition.bottom,
-                    );
-                    
-                    // Navigate to Mission Complete Screen
-                    Get.off(() => MissionCompleteScreen(mission: localMission));
-                  } else {
-                    Get.snackbar('Error', 'Failed to complete mission');
-                  }
-                } catch (e) {
-                  if (mounted) Navigator.of(context).pop();
-                  Get.snackbar('Error', 'An error occurred while completing the mission.');
+                  // Navigate to Mission Complete Screen
+                  Get.off(() => MissionCompleteScreen(mission: localMission));
+                } else {
+                  Get.snackbar('Error', 'Failed to complete mission');
                 }
+              } catch (e) {
+                if (mounted) Navigator.of(context).pop();
+                Get.snackbar(
+                  'Error',
+                  'An error occurred while completing the mission.',
+                );
+              }
             },
             child: Ink(
               decoration: BoxDecoration(
@@ -638,10 +679,18 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isCompleted ? const Color(0xFFD1FAE5) : const Color(0xFFF8FAFC),
+                color: isCompleted
+                    ? const Color(0xFFD1FAE5)
+                    : const Color(0xFFF8FAFC),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: isCompleted ? const Color(0xFF10B981) : const Color(0xFF475569), size: 20),
+              child: Icon(
+                icon,
+                color: isCompleted
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFF475569),
+                size: 20,
+              ),
             ),
             const Gap(width: 16),
             Expanded(
@@ -697,17 +746,25 @@ class DashedRectPainter extends CustomPainter {
       ..color = color
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
-    
+
     var path = Path();
-    path.addRRect(RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height), const Radius.circular(12)));
-    
+    path.addRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        const Radius.circular(12),
+      ),
+    );
+
     const double dashWidth = 5;
     const double dashSpace = 5;
     double distance = 0;
-    
+
     for (PathMetric pathMetric in path.computeMetrics()) {
       while (distance < pathMetric.length) {
-        canvas.drawPath(pathMetric.extractPath(distance, distance + dashWidth), paint);
+        canvas.drawPath(
+          pathMetric.extractPath(distance, distance + dashWidth),
+          paint,
+        );
         distance += dashWidth + dashSpace;
       }
       distance = 0;

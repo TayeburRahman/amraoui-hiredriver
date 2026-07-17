@@ -2,16 +2,24 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:amraoui_app/widgets/log_print/error_log.dart';
+import 'package:Vehiqqo/widgets/log_print/error_log.dart';
 
 class ImageCompressServices {
   Future<Uint8List?> _compressAndTryCatch(Uint8List image) async {
     Uint8List? result;
     try {
-      result = await FlutterImageCompress.compressWithList(image, format: CompressFormat.webp, quality: 80);
+      result = await FlutterImageCompress.compressWithList(
+        image,
+        format: CompressFormat.webp,
+        quality: 80,
+      );
     } on UnsupportedError catch (e) {
       errorLog("_compressAndTryCatch", e);
-      result = await FlutterImageCompress.compressWithList(image, format: CompressFormat.jpeg, quality: 80);
+      result = await FlutterImageCompress.compressWithList(
+        image,
+        format: CompressFormat.jpeg,
+        quality: 80,
+      );
     }
     return result;
   }

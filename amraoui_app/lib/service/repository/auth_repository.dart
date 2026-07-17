@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:amraoui_app/const/api_url/api_url.dart';
-import 'package:amraoui_app/models/driver_model.dart';
-import 'package:amraoui_app/service/api/non_auth_api.dart';
-import 'package:amraoui_app/service/api/api.dart';
-import 'package:amraoui_app/widgets/log_print/app_log.dart';
+import 'package:Vehiqqo/const/api_url/api_url.dart';
+import 'package:Vehiqqo/models/driver_model.dart';
+import 'package:Vehiqqo/service/api/non_auth_api.dart';
+import 'package:Vehiqqo/service/api/api.dart';
+import 'package:Vehiqqo/widgets/log_print/app_log.dart';
 import 'package:dio/dio.dart';
 
 class AuthRepository {
@@ -45,13 +45,10 @@ class AuthRepository {
           'vehicle_plate': vehiclePlate,
         if (companyName != null && companyName.isNotEmpty)
           'company_name': companyName,
-        if (taxNumber != null && taxNumber.isNotEmpty)
-          'tax_number': taxNumber,
+        if (taxNumber != null && taxNumber.isNotEmpty) 'tax_number': taxNumber,
       };
 
-      final formData = FormData.fromMap({
-        'data': jsonEncode(jsonData),
-      });
+      final formData = FormData.fromMap({'data': jsonEncode(jsonData)});
 
       if (profileImagePath != null && profileImagePath.isNotEmpty) {
         formData.files.add(
@@ -62,7 +59,8 @@ class AuthRepository {
         );
       }
 
-      if (vehicleCarrierImagePath != null && vehicleCarrierImagePath.isNotEmpty) {
+      if (vehicleCarrierImagePath != null &&
+          vehicleCarrierImagePath.isNotEmpty) {
         formData.files.add(
           MapEntry(
             'vehicle_carrier_image',
@@ -80,7 +78,8 @@ class AuthRepository {
         );
       }
 
-      if (idDocumentFrontImagePath != null && idDocumentFrontImagePath.isNotEmpty) {
+      if (idDocumentFrontImagePath != null &&
+          idDocumentFrontImagePath.isNotEmpty) {
         formData.files.add(
           MapEntry(
             'id_document_front',
@@ -89,7 +88,8 @@ class AuthRepository {
         );
       }
 
-      if (idDocumentBackImagePath != null && idDocumentBackImagePath.isNotEmpty) {
+      if (idDocumentBackImagePath != null &&
+          idDocumentBackImagePath.isNotEmpty) {
         formData.files.add(
           MapEntry(
             'id_document_back',
@@ -98,7 +98,8 @@ class AuthRepository {
         );
       }
 
-      if (driverLicenseFrontImagePath != null && driverLicenseFrontImagePath.isNotEmpty) {
+      if (driverLicenseFrontImagePath != null &&
+          driverLicenseFrontImagePath.isNotEmpty) {
         formData.files.add(
           MapEntry(
             'license_document_front',
@@ -107,7 +108,8 @@ class AuthRepository {
         );
       }
 
-      if (driverLicenseBackImagePath != null && driverLicenseBackImagePath.isNotEmpty) {
+      if (driverLicenseBackImagePath != null &&
+          driverLicenseBackImagePath.isNotEmpty) {
         formData.files.add(
           MapEntry(
             'license_document_back',
@@ -116,10 +118,7 @@ class AuthRepository {
         );
       }
 
-      final res = await _public.post(
-        AppApiUrl.signUpUrl,
-        data: formData,
-      );
+      final res = await _public.post(AppApiUrl.signUpUrl, data: formData);
       return res.data as Map<String, dynamic>?;
     } on DioException catch (e) {
       appLog(
@@ -136,10 +135,7 @@ class AuthRepository {
     try {
       final res = await _public.post(
         AppApiUrl.activateAccountUrl,
-        data: {
-          'userEmail': email,
-          'activation_code': code,
-        },
+        data: {'userEmail': email, 'activation_code': code},
       );
       return res.data as Map<String, dynamic>?;
     } on DioException catch (e) {
@@ -224,10 +220,7 @@ class AuthRepository {
     try {
       final res = await _public.post(
         '${AppApiUrl.resetPasswordUrl}?email=$email',
-        data: {
-          'newPassword': newPassword,
-          'confirmPassword': confirmPassword,
-        },
+        data: {'newPassword': newPassword, 'confirmPassword': confirmPassword},
       );
       return res.data as Map<String, dynamic>?;
     } on DioException catch (e) {

@@ -1,10 +1,10 @@
-﻿Analyzing amraoui_app...                                        
+﻿Analyzing Vehiqqo...                                        
 
 warning - Unused import: 'dart:async' - lib\routes\Internet_check_middle_ware.dart:3:8 - unused_import
    info - 'Bindings' is deprecated and shouldn't be used. Use Binding instead - lib\routes\bindings\app_auth_binding.dart:3:30 - deprecated_member_use
    info - 'Bindings' is deprecated and shouldn't be used. Use Binding instead - lib\routes\bindings\app_initial_binding.dart:5:33 - deprecated_member_use
    info - 'Bindings' is deprecated and shouldn't be used. Use Binding instead - lib\routes\bindings\navigation_app_bindings.dart:3:37 - deprecated_member_use
-warning - Unused import: 'package:amraoui_app/enum_types/app_user_type.dart' - lib\screens\splash_screen\controllers\splash_screen_controller.dart:3:8 - unused_import
+warning - Unused import: 'package:Vehiqqo/enum_types/app_user_type.dart' - lib\screens\splash_screen\controllers\splash_screen_controller.dart:3:8 - unused_import
    info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\custom_button.dart\custom_drop_down_button.dart:121:39 - deprecated_member_use
    info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\custom_button.dart\custom_drop_down_button.dart:170:35 - deprecated_member_use
    info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\dialog_boxes\close_app_dailog.dart:76:56 - deprecated_member_use

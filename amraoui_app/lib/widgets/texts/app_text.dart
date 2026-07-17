@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/const/app_const/app_const.dart';
+import 'package:Vehiqqo/const/app_const/app_const.dart';
 
 class AppText extends StatelessWidget {
   const AppText({
@@ -48,16 +48,16 @@ class AppText extends StatelessWidget {
       softWrap: softWrap,
       textDirection: textDirection ?? TextDirection.ltr,
       style: Theme.of(context).textTheme.displaySmall?.copyWith(
-            height: height,
-            fontSize: fontSize,
-            color: color ?? Colors.black,
-            fontWeight: fontWeight,
-            fontFamily: fontFamily ?? AppConst.manrope,
-            decoration: decoration,
-            decorationColor: decorationColor,
-            letterSpacing: letterSpacing,
-            fontStyle: fontStyle,
-          ),
+        height: height,
+        fontSize: fontSize,
+        color: color ?? Colors.black,
+        fontWeight: fontWeight,
+        fontFamily: fontFamily ?? AppConst.manrope,
+        decoration: decoration,
+        decorationColor: decorationColor,
+        letterSpacing: letterSpacing,
+        fontStyle: fontStyle,
+      ),
       textScaler: TextScaler.linear(textScaleFactor),
     );
   }

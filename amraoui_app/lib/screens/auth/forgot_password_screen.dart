@@ -1,8 +1,8 @@
-import 'package:amraoui_app/screens/auth/controllers/forgot_password_controller.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/inputs/app_input_widget.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/screens/auth/controllers/forgot_password_controller.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/inputs/app_input_widget.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -37,11 +37,15 @@ class ForgotPasswordScreen extends StatelessWidget {
                 color: const Color(0xFFEFF6FF),
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(Icons.lock_outline, size: 48, color: Color(0xFF2563EB)),
+              child: const Icon(
+                Icons.lock_outline,
+                size: 48,
+                color: Color(0xFF2563EB),
+              ),
             ),
-            
+
             const Gap(height: 40),
-            
+
             const AppText(
               data: 'Forgot password?',
               fontSize: 28,
@@ -50,15 +54,16 @@ class ForgotPasswordScreen extends StatelessWidget {
             ),
             const Gap(height: 16),
             const AppText(
-              data: 'Enter your email or mobile number to receive reset instructions.',
+              data:
+                  'Enter your email or mobile number to receive reset instructions.',
               textAlign: TextAlign.center,
               fontSize: 15,
               color: Color(0xFF64748B),
               height: 1.5,
             ),
-            
+
             const Gap(height: 40),
-            
+
             // Email/Phone Field
             const Align(
               alignment: Alignment.centerLeft,
@@ -73,51 +78,57 @@ class ForgotPasswordScreen extends StatelessWidget {
             AppInputWidget(
               controller: controller.contactController,
               hintText: 'your.email@example.com',
-              prefix: const Icon(Icons.mail_outline, color: Color(0xFF64748B), size: 20),
+              prefix: const Icon(
+                Icons.mail_outline,
+                color: Color(0xFF64748B),
+                size: 20,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
               ),
             ),
-            
+
             const Spacer(),
-            
+
             // Send Code Button
-            Obx(() => GestureDetector(
-              onTap: controller.isLoading.value ? null : controller.sendCode,
-              child: Container(
-                width: double.infinity,
-                height: 56,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [Color(0xFF3B82F6), Color(0xFF06B6D4)],
+            Obx(
+              () => GestureDetector(
+                onTap: controller.isLoading.value ? null : controller.sendCode,
+                child: Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [Color(0xFF3B82F6), Color(0xFF06B6D4)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Center(
-                  child: controller.isLoading.value
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
+                  child: Center(
+                    child: controller.isLoading.value
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const AppText(
+                            data: 'Send Code',
                             color: Colors.white,
-                            strokeWidth: 2,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
-                        )
-                      : const AppText(
-                          data: 'Send Code',
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  ),
                 ),
               ),
-            )),
-            
+            ),
+
             const Gap(height: 16),
-            
+
             // Back to Login
             GestureDetector(
               onTap: controller.backToLogin,
@@ -132,7 +143,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const Gap(height: 30),
           ],
         ),

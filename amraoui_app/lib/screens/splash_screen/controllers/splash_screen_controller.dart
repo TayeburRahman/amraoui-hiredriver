@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/utils/auth_navigation.dart';
-import 'package:amraoui_app/service/repository/auth_repository.dart';
-import 'package:amraoui_app/widgets/log_print/error_log.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/utils/auth_navigation.dart';
+import 'package:Vehiqqo/service/repository/auth_repository.dart';
+import 'package:Vehiqqo/widgets/log_print/error_log.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 

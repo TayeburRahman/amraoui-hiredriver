@@ -1,4 +1,4 @@
-import 'package:amraoui_app/service/api/api.dart';
+import 'package:Vehiqqo/service/api/api.dart';
 import 'package:dio/dio.dart';
 
 class NotificationRepository {

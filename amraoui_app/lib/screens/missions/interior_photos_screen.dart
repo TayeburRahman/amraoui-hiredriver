@@ -1,13 +1,13 @@
 import 'dart:io';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:amraoui_app/service/repository/mission_repository.dart';
+import 'package:Vehiqqo/service/repository/mission_repository.dart';
 
 class InteriorPhotosScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
@@ -74,7 +74,9 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               AppText(
-                data: widget.isDelivery ? 'Interior Photos at Delivery' : 'Interior Photos',
+                data: widget.isDelivery
+                    ? 'Interior Photos at Delivery'
+                    : 'Interior Photos',
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF0F172A),
@@ -87,7 +89,7 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
                 color: const Color(0xFF64748B),
               ),
               const Gap(height: 24),
-              
+
               Row(
                 children: [
                   Expanded(child: _buildPhotoGridItem('Front')),
@@ -103,7 +105,7 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
                   Expanded(child: _buildPhotoGridItem('Rear')),
                 ],
               ),
-              
+
               if (allDone) ...[
                 const Gap(height: 24),
                 Container(
@@ -137,13 +139,15 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 0,
             ),
             onPressed: () async {
               if (!allDone) {
                 Get.snackbar(
-                  'Required', 
+                  'Required',
                   'Please capture all 4 interior photos to continue.',
                   backgroundColor: Colors.red.withOpacity(0.9),
                   colorText: Colors.white,
@@ -156,7 +160,8 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (BuildContext context) => const Center(child: CircularProgressIndicator()),
+                builder: (BuildContext context) =>
+                    const Center(child: CircularProgressIndicator()),
               );
 
               try {
@@ -164,10 +169,11 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
                 final Map<String, dynamic> uploadData = {};
                 final List<MultipartFile> files = [];
                 final List<String> labels = [];
-                
+
                 for (var entry in capturedImages.entries) {
                   if (entry.value != null) {
-                    if (entry.value!.startsWith('http') && !entry.value!.startsWith('blob:http')) {
+                    if (entry.value!.startsWith('http') &&
+                        !entry.value!.startsWith('blob:http')) {
                       uploadData[entry.key] = entry.value;
                     } else {
                       final bytes = await FlutterImageCompress.compressWithFile(
@@ -177,44 +183,51 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
                         quality: 70,
                       );
                       if (bytes != null) {
-                        files.add(MultipartFile.fromBytes(bytes, filename: 'photo.jpg'));
+                        files.add(
+                          MultipartFile.fromBytes(bytes, filename: 'photo.jpg'),
+                        );
                         labels.add(entry.key);
                       }
                     }
                   }
                 }
-                
+
                 if (files.isNotEmpty) {
                   uploadData['image'] = files;
                   uploadData['imageLabels'] = labels;
                 }
-                
+
                 Response res;
                 if (widget.isDelivery) {
                   res = await repo.updateDeliveryInspection(
-                    widget.mission['_id'] ?? widget.reqId, 
-                    'interiorPhotos', 
-                    uploadData
+                    widget.mission['_id'] ?? widget.reqId,
+                    'interiorPhotos',
+                    uploadData,
                   );
                 } else {
                   res = await repo.updatePickupInspection(
-                    widget.mission['_id'] ?? widget.reqId, 
-                    'interiorPhotos', 
-                    uploadData
+                    widget.mission['_id'] ?? widget.reqId,
+                    'interiorPhotos',
+                    uploadData,
                   );
                 }
 
                 if (mounted) {
                   Navigator.of(context).pop(); // close dialog
                 }
-                
+
                 if (res.statusCode == 200) {
                   // Keep local state in sync
-                  final inspectionKey = widget.isDelivery ? 'deliveryInspection' : 'pickupInspection';
+                  final inspectionKey = widget.isDelivery
+                      ? 'deliveryInspection'
+                      : 'pickupInspection';
                   if (widget.mission['details'][inspectionKey] == null) {
-                    widget.mission['details'][inspectionKey] = <String, dynamic>{};
+                    widget.mission['details'][inspectionKey] =
+                        <String, dynamic>{};
                   }
-                  widget.mission['details'][inspectionKey]['interiorPhotos'] = res.data['data']['details'][inspectionKey]['interiorPhotos'];
+                  widget
+                      .mission['details'][inspectionKey]['interiorPhotos'] = res
+                      .data['data']['details'][inspectionKey]['interiorPhotos'];
 
                   if (mounted) Navigator.of(context).pop(capturedImages);
                 } else {
@@ -234,7 +247,12 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
               ),
               child: Container(
                 alignment: Alignment.center,
-                child: const AppText(data: 'Done - Return to Overview', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                child: const AppText(
+                  data: 'Done - Return to Overview',
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ),
           ),
@@ -262,18 +280,32 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: hasImage ? Colors.transparent : const Color(0xFFE2E8F0),
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(11)),
-                  image: hasImage ? DecorationImage(
-                    image: imagePath!.startsWith('http') || imagePath.startsWith('blob:') 
-                        ? NetworkImage(imagePath) as ImageProvider
-                        : FileImage(File(imagePath)),
-                    fit: BoxFit.cover,
-                  ) : null,
+                  color: hasImage
+                      ? Colors.transparent
+                      : const Color(0xFFE2E8F0),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(11),
+                  ),
+                  image: hasImage
+                      ? DecorationImage(
+                          image:
+                              imagePath!.startsWith('http') ||
+                                  imagePath.startsWith('blob:')
+                              ? NetworkImage(imagePath) as ImageProvider
+                              : FileImage(File(imagePath)),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
-                child: hasImage ? null : const Center(
-                  child: Icon(Icons.camera_alt_outlined, color: Color(0xFF94A3B8), size: 32),
-                ),
+                child: hasImage
+                    ? null
+                    : const Center(
+                        child: Icon(
+                          Icons.camera_alt_outlined,
+                          color: Color(0xFF94A3B8),
+                          size: 32,
+                        ),
+                      ),
               ),
             ),
             Container(
@@ -284,7 +316,12 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  AppText(data: title, fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+                  AppText(
+                    data: title,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF0F172A),
+                  ),
                   const Icon(Icons.refresh, size: 16, color: Color(0xFF06B6D4)),
                 ],
               ),

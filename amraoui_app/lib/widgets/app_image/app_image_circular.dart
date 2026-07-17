@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
-import 'package:amraoui_app/const/api_url/api_url.dart';
+import 'package:Vehiqqo/const/api_url/api_url.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -21,7 +21,7 @@ class AppImageCircular extends StatelessWidget {
   final String? url;
   final BoxFit? fit;
   final double?
-      width; // >>>>>>>>>>>>>>>>>>>>>> width and height provide by default size when parameter not provide <<<<<<<<<<<<<<<<<<<<<<
+  width; // >>>>>>>>>>>>>>>>>>>>>> width and height provide by default size when parameter not provide <<<<<<<<<<<<<<<<<<<<<<
   final double? height;
   final double borderRadius;
   final Color color;
@@ -88,9 +88,7 @@ class AppImageCircular extends StatelessWidget {
                 child: const SizedBox(
                   width: 50,
                   height: 50,
-                  child: CupertinoActivityIndicator(
-                    color: Colors.black,
-                  ),
+                  child: CupertinoActivityIndicator(color: Colors.black),
                 ),
               ),
             );
@@ -98,7 +96,7 @@ class AppImageCircular extends StatelessWidget {
         ),
       );
     }
-// >>>>>>>>>>>>>>>>>>>>>> thread local image or assets <<<<<<<<<<<<<<<<<<<<<<
+    // >>>>>>>>>>>>>>>>>>>>>> thread local image or assets <<<<<<<<<<<<<<<<<<<<<<
     if (path != null) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
@@ -125,11 +123,7 @@ class AppImageCircular extends StatelessWidget {
     // >>>>>>>>>>>>>>>>>>>>>>by default widget return  <<<<<<<<<<<<<<<<<<<<<<
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: Container(
-        width: width,
-        height: height,
-        color: color,
-      ),
+      child: Container(width: width, height: height, color: color),
     );
   }
 }

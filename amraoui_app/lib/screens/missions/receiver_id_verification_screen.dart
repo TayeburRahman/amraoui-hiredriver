@@ -1,13 +1,13 @@
 import 'dart:io';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:amraoui_app/service/repository/mission_repository.dart';
+import 'package:Vehiqqo/service/repository/mission_repository.dart';
 
 class ReceiverIdVerificationScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
@@ -22,12 +22,14 @@ class ReceiverIdVerificationScreen extends StatefulWidget {
   });
 
   @override
-  State<ReceiverIdVerificationScreen> createState() => _ReceiverIdVerificationScreenState();
+  State<ReceiverIdVerificationScreen> createState() =>
+      _ReceiverIdVerificationScreenState();
 }
 
-class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScreen> {
+class _ReceiverIdVerificationScreenState
+    extends State<ReceiverIdVerificationScreen> {
   final ImagePicker _picker = ImagePicker();
-  
+
   String? idFrontPath;
   String? existingIdFrontUrl;
 
@@ -128,7 +130,10 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
               Align(
                 alignment: Alignment.centerLeft,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF7ED),
                     borderRadius: BorderRadius.circular(16),
@@ -142,10 +147,13 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                 ),
               ),
               const Gap(height: 24),
-              
+
               // Mission Reference Card
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -159,7 +167,11 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                         color: const Color(0xFFEFF6FF),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(Icons.assignment_outlined, color: Color(0xFF3B82F6), size: 20),
+                      child: const Icon(
+                        Icons.assignment_outlined,
+                        color: Color(0xFF3B82F6),
+                        size: 20,
+                      ),
                     ),
                     const Gap(width: 12),
                     Expanded(
@@ -172,7 +184,9 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                             color: Color(0xFF64748B),
                           ),
                           AppText(
-                            data: widget.mission['missionReference'] ?? '#MS-Unknown',
+                            data:
+                                widget.mission['missionReference'] ??
+                                '#MS-Unknown',
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: const Color(0xFF0F172A),
@@ -181,7 +195,10 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFEF3C7),
                         borderRadius: BorderRadius.circular(16),
@@ -207,7 +224,8 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
               ),
               const Gap(height: 4),
               const AppText(
-                data: 'Scan the ID card of the person receiving the car. Make sure the document is clear and readable.',
+                data:
+                    'Scan the ID card of the person receiving the car. Make sure the document is clear and readable.',
                 fontSize: 13,
                 color: Color(0xFF64748B),
               ),
@@ -218,44 +236,60 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                 decoration: BoxDecoration(
                   color: const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFCBD5E1)), // Dashed normally
+                  border: Border.all(
+                    color: const Color(0xFFCBD5E1),
+                  ), // Dashed normally
                 ),
-                child: hasAnyId ? Row(
-                  children: [
-                    if (hasFront) Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: _buildImagePreview(idFrontPath, existingIdFrontUrl),
+                child: hasAnyId
+                    ? Row(
+                        children: [
+                          if (hasFront)
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: _buildImagePreview(
+                                  idFrontPath,
+                                  existingIdFrontUrl,
+                                ),
+                              ),
+                            ),
+                          if (hasFront && hasBack) const Gap(width: 12),
+                          if (hasBack)
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: _buildImagePreview(
+                                  idBackPath,
+                                  existingIdBackUrl,
+                                ),
+                              ),
+                            ),
+                        ],
+                      )
+                    : Center(
+                        child: Column(
+                          children: const [
+                            Icon(
+                              Icons.badge_outlined,
+                              color: Color(0xFF94A3B8),
+                              size: 32,
+                            ),
+                            Gap(height: 8),
+                            AppText(
+                              data: 'No ID scanned yet',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF0F172A),
+                            ),
+                            Gap(height: 4),
+                            AppText(
+                              data: 'Take a photo or scan the ID document',
+                              fontSize: 12,
+                              color: Color(0xFF64748B),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    if (hasFront && hasBack) const Gap(width: 12),
-                    if (hasBack) Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: _buildImagePreview(idBackPath, existingIdBackUrl),
-                      ),
-                    ),
-                  ],
-                ) : Center(
-                  child: Column(
-                    children: const [
-                      Icon(Icons.badge_outlined, color: Color(0xFF94A3B8), size: 32),
-                      Gap(height: 8),
-                      AppText(
-                        data: 'No ID scanned yet',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF0F172A),
-                      ),
-                      Gap(height: 4),
-                      AppText(
-                        data: 'Take a photo or scan the ID document',
-                        fontSize: 12,
-                        color: Color(0xFF64748B),
-                      ),
-                    ],
-                  ),
-                ),
               ),
               const Gap(height: 16),
 
@@ -294,7 +328,10 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                 controller: _nameController,
                 decoration: InputDecoration(
                   hintText: 'Enter receiver name',
-                  hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                  hintStyle: const TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontSize: 14,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -309,7 +346,10 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Color(0xFF3B82F6)),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
               ),
               const Gap(height: 16),
@@ -324,7 +364,10 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                 controller: _idNumberController,
                 decoration: InputDecoration(
                   hintText: 'Enter ID number',
-                  hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                  hintStyle: const TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontSize: 14,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -339,11 +382,14 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Color(0xFF3B82F6)),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
               ),
               const Gap(height: 16),
-              
+
               // Info Box
               Container(
                 padding: const EdgeInsets.all(12),
@@ -354,11 +400,16 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                 ),
                 child: Row(
                   children: const [
-                    Icon(Icons.shield_outlined, color: Color(0xFF16A34A), size: 20),
+                    Icon(
+                      Icons.shield_outlined,
+                      color: Color(0xFF16A34A),
+                      size: 20,
+                    ),
                     Gap(width: 12),
                     Expanded(
                       child: AppText(
-                        data: 'This ID will be saved with the mission record for verification.',
+                        data:
+                            'This ID will be saved with the mission record for verification.',
                         fontSize: 13,
                         color: Color(0xFF16A34A),
                       ),
@@ -387,15 +438,20 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
               elevation: 0,
             ),
             onPressed: () async {
-              if (_nameController.text.trim().isEmpty || _idNumberController.text.trim().isEmpty) {
-                Get.snackbar('Required', 'Please enter both receiver name and ID number');
+              if (_nameController.text.trim().isEmpty ||
+                  _idNumberController.text.trim().isEmpty) {
+                Get.snackbar(
+                  'Required',
+                  'Please enter both receiver name and ID number',
+                );
                 return;
               }
 
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (BuildContext context) => const Center(child: CircularProgressIndicator()),
+                builder: (BuildContext context) =>
+                    const Center(child: CircularProgressIndicator()),
               );
 
               try {
@@ -404,7 +460,7 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                   'receiverFullName': _nameController.text.trim(),
                   'idNumber': _idNumberController.text.trim(),
                 };
-                
+
                 final List<MultipartFile> files = [];
                 final List<String> labels = [];
 
@@ -416,7 +472,9 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                     quality: 70,
                   );
                   if (bytes != null) {
-                    files.add(MultipartFile.fromBytes(bytes, filename: 'id_front.jpg'));
+                    files.add(
+                      MultipartFile.fromBytes(bytes, filename: 'id_front.jpg'),
+                    );
                     labels.add('idFront');
                   }
                 } else if (existingIdFrontUrl != null) {
@@ -431,7 +489,9 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                     quality: 70,
                   );
                   if (bytes != null) {
-                    files.add(MultipartFile.fromBytes(bytes, filename: 'id_back.jpg'));
+                    files.add(
+                      MultipartFile.fromBytes(bytes, filename: 'id_back.jpg'),
+                    );
                     labels.add('idBack');
                   }
                 } else if (existingIdBackUrl != null) {
@@ -442,26 +502,31 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                   uploadData['image'] = files;
                   uploadData['imageLabels'] = labels;
                 }
-                
+
                 final res = await repo.updateDeliveryInspection(
-                  widget.mission['_id'] ?? widget.reqId, 
-                  'receiverIdVerification', 
-                  uploadData
+                  widget.mission['_id'] ?? widget.reqId,
+                  'receiverIdVerification',
+                  uploadData,
                 );
 
                 if (mounted) {
                   Navigator.of(context).pop();
                 }
-                
+
                 if (res.statusCode == 200) {
                   final inspectionKey = 'deliveryInspection';
                   if (widget.mission['details'][inspectionKey] == null) {
-                    widget.mission['details'][inspectionKey] = <String, dynamic>{};
+                    widget.mission['details'][inspectionKey] =
+                        <String, dynamic>{};
                   }
-                  widget.mission['details'][inspectionKey]['receiverIdVerification'] = res.data['data']['details'][inspectionKey]['receiverIdVerification'];
+                  widget
+                      .mission['details'][inspectionKey]['receiverIdVerification'] = res
+                      .data['data']['details'][inspectionKey]['receiverIdVerification'];
 
                   if (mounted) {
-                    Navigator.of(context).pop(res.data['data']['details'][inspectionKey]['receiverIdVerification']);
+                    Navigator.of(context).pop(
+                      res.data['data']['details'][inspectionKey]['receiverIdVerification'],
+                    );
                   }
                 } else {
                   Get.snackbar('Error', 'Failed to save verification data');
@@ -517,9 +582,13 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isDone ? const Color(0xFFF0FDF4) : const Color(0xFFEFF6FF), // Light blue vs light green
+          color: isDone
+              ? const Color(0xFFF0FDF4)
+              : const Color(0xFFEFF6FF), // Light blue vs light green
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isDone ? const Color(0xFF10B981) : const Color(0xFFBFDBFE)),
+          border: Border.all(
+            color: isDone ? const Color(0xFF10B981) : const Color(0xFFBFDBFE),
+          ),
         ),
         child: Row(
           children: [
@@ -530,9 +599,11 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                isDone ? Icons.check : Icons.camera_alt_outlined, 
-                color: isDone ? const Color(0xFF10B981) : const Color(0xFF3B82F6), 
-                size: 20
+                isDone ? Icons.check : Icons.camera_alt_outlined,
+                color: isDone
+                    ? const Color(0xFF10B981)
+                    : const Color(0xFF3B82F6),
+                size: 20,
               ),
             ),
             const Gap(width: 12),
@@ -544,7 +615,9 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                     data: title,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: isDone ? const Color(0xFF0F172A) : const Color(0xFF1D4ED8),
+                    color: isDone
+                        ? const Color(0xFF0F172A)
+                        : const Color(0xFF1D4ED8),
                   ),
                   const Gap(height: 2),
                   AppText(
@@ -555,7 +628,10 @@ class _ReceiverIdVerificationScreenState extends State<ReceiverIdVerificationScr
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: isDone ? const Color(0xFF10B981) : const Color(0xFF3B82F6)),
+            Icon(
+              Icons.chevron_right,
+              color: isDone ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
+            ),
           ],
         ),
       ),

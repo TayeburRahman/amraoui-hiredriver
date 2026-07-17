@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/models/driver_model.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/models/driver_model.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
 import 'package:get/get.dart';
 
 class AuthNavigation {

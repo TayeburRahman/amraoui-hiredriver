@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:amraoui_app/service/api/api.dart';
+import 'package:Vehiqqo/service/api/api.dart';
 
 import '../../widgets/app_snack_bar/app_snack_bar.dart';
 

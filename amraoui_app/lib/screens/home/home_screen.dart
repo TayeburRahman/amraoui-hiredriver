@@ -1,14 +1,14 @@
-import 'package:amraoui_app/models/driver_model.dart';
-import 'package:amraoui_app/service/repository/auth_repository.dart';
-import 'package:amraoui_app/service/repository/mission_repository.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/screens/navigation/controllers/navigation_controller.dart';
-import 'package:amraoui_app/screens/notifications/notifications_screen.dart';
-import 'package:amraoui_app/service/repository/notification_repository.dart';
-import 'package:amraoui_app/widgets/cards/location_timeline_widget.dart';
+import 'package:Vehiqqo/models/driver_model.dart';
+import 'package:Vehiqqo/service/repository/auth_repository.dart';
+import 'package:Vehiqqo/service/repository/mission_repository.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/screens/navigation/controllers/navigation_controller.dart';
+import 'package:Vehiqqo/screens/notifications/notifications_screen.dart';
+import 'package:Vehiqqo/service/repository/notification_repository.dart';
+import 'package:Vehiqqo/widgets/cards/location_timeline_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

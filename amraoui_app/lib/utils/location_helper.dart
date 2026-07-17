@@ -1,7 +1,7 @@
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:dio/dio.dart';
-import 'package:amraoui_app/const/app_const/google_mao_key.dart';
+import 'package:Vehiqqo/const/app_const/google_mao_key.dart';
 
 class LocationHelper {
   /// Geocodes an address string using Google Maps Geocoding API and returns a LatLng object.
@@ -9,11 +9,14 @@ class LocationHelper {
     if (address.trim().isEmpty) return null;
     try {
       final apiKey = AppConstMapKey.instance.googleMapApiKey;
-      final url = 'https://maps.googleapis.com/maps/api/geocode/json?address=${Uri.encodeComponent(address)}&key=$apiKey';
+      final url =
+          'https://maps.googleapis.com/maps/api/geocode/json?address=${Uri.encodeComponent(address)}&key=$apiKey';
       final response = await Dio().get(url);
 
       if (response.statusCode == 200 && response.data != null) {
-        if (response.data['status'] == 'OK' && response.data['results'] != null && response.data['results'].isNotEmpty) {
+        if (response.data['status'] == 'OK' &&
+            response.data['results'] != null &&
+            response.data['results'].isNotEmpty) {
           final location = response.data['results'][0]['geometry']['location'];
           if (location != null) {
             return LatLng(location['lat'], location['lng']);

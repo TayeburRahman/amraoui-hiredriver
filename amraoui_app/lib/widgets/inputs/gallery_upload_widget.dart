@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 
 class GalleryUploadWidget extends StatefulWidget {
   final int maxImages;

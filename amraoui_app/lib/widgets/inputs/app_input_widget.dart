@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/const/app_const/app_const.dart';
-import 'package:amraoui_app/utils/app_size.dart';
+import 'package:Vehiqqo/const/app_const/app_const.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
 
 class AppInputWidget extends StatefulWidget {
   const AppInputWidget({
@@ -74,14 +74,16 @@ class _AppInputWidgetState extends State<AppInputWidget> {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: widget.borderRadius ??
+      borderRadius:
+          widget.borderRadius ??
           BorderRadius.circular(AppSize.width(value: 8.0)),
       child: Material(
         elevation: widget.elevation,
         shadowColor: widget.elevationColor,
         borderOnForeground: false,
         color: Colors.transparent,
-        borderRadius: widget.borderRadius ??
+        borderRadius:
+            widget.borderRadius ??
             BorderRadius.circular(AppSize.width(value: 8.0)),
         child: TextFormField(
           focusNode: widget.focusNode,
@@ -115,13 +117,16 @@ class _AppInputWidgetState extends State<AppInputWidget> {
           obscureText: widget.isPassWord && isShowPassWord,
           obscuringCharacter: "*",
           textAlignVertical: widget.textAlignVertical,
-          style: widget.style ??
+          style:
+              widget.style ??
               const TextStyle(
-                  height: 1.5,
-                  fontFamily: AppConst.manrope,
-                  fontWeight: FontWeight.w500),
+                height: 1.5,
+                fontFamily: AppConst.manrope,
+                fontWeight: FontWeight.w500,
+              ),
           decoration: InputDecoration(
-            contentPadding: widget.contentPadding ??
+            contentPadding:
+                widget.contentPadding ??
                 EdgeInsets.symmetric(
                   vertical: AppSize.height(value: 16),
                   horizontal: AppSize.width(value: 12),
@@ -149,30 +154,35 @@ class _AppInputWidgetState extends State<AppInputWidget> {
                 : widget.suffixIcon,
             hintText: widget.hintText?.tr ?? "",
             hintStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: const Color(0xFF94A3B8),
-                  fontSize: 14,
-                ),
-            border: widget.border ??
+              color: const Color(0xFF94A3B8),
+              fontSize: 14,
+            ),
+            border:
+                widget.border ??
                 OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                 ),
-            enabledBorder: widget.border ??
+            enabledBorder:
+                widget.border ??
                 OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
                 ),
-            focusedBorder: widget.border ??
+            focusedBorder:
+                widget.border ??
                 OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: Color(0xFF2563EB)),
                 ),
-            errorBorder: widget.errBorder ??
+            errorBorder:
+                widget.errBorder ??
                 OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: Colors.red),
                 ),
-            focusedErrorBorder: widget.errBorder ??
+            focusedErrorBorder:
+                widget.errBorder ??
                 OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(color: Colors.red),

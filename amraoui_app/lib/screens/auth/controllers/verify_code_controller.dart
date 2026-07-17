@@ -1,17 +1,19 @@
 import 'dart:async';
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/service/repository/auth_repository.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/service/repository/auth_repository.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/widgets/dialog_boxes/app_global_loading.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class VerifyCodeController extends GetxController {
   final _authRepo = AuthRepository();
-  final List<TextEditingController> otpControllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> otpControllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> focusNodes = List.generate(6, (_) => FocusNode());
 
   late String email;
@@ -61,7 +63,9 @@ class VerifyCodeController extends GetxController {
         AppSnackBar.error(res?['message']?.toString() ?? 'Invalid code');
       }
     } on DioException catch (e) {
-      AppSnackBar.error(e.response?.data?['message']?.toString() ?? 'Verification failed');
+      AppSnackBar.error(
+        e.response?.data?['message']?.toString() ?? 'Verification failed',
+      );
     } catch (e) {
       AppSnackBar.error('Verification failed');
     } finally {
@@ -75,7 +79,9 @@ class VerifyCodeController extends GetxController {
       AppSnackBar.success(res?['message']?.toString() ?? 'Code resent');
       startTimer();
     } on DioException catch (e) {
-      AppSnackBar.error(e.response?.data?['message']?.toString() ?? 'Failed to resend');
+      AppSnackBar.error(
+        e.response?.data?['message']?.toString() ?? 'Failed to resend',
+      );
     }
   }
 

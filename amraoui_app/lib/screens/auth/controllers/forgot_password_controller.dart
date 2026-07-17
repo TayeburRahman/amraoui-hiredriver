@@ -1,8 +1,8 @@
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/service/repository/auth_repository.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/service/repository/auth_repository.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/widgets/dialog_boxes/app_global_loading.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,13 +25,17 @@ class ForgotPasswordController extends GetxController {
       if (res?['success'] == true) {
         await AppStorage().setValue(StorageKey.pendingEmail, email);
         await AppStorage().setValue(StorageKey.verifyMode, 'reset');
-        AppSnackBar.success(res?['message']?.toString() ?? 'Code sent to your email');
+        AppSnackBar.success(
+          res?['message']?.toString() ?? 'Code sent to your email',
+        );
         Get.toNamed(AppRoutes.verifyCode);
       } else {
         AppSnackBar.error(res?['message']?.toString() ?? 'Failed to send code');
       }
     } on DioException catch (e) {
-      AppSnackBar.error(e.response?.data?['message']?.toString() ?? 'Failed to send code');
+      AppSnackBar.error(
+        e.response?.data?['message']?.toString() ?? 'Failed to send code',
+      );
     } catch (e) {
       AppSnackBar.error('Failed to send code');
     } finally {

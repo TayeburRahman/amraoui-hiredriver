@@ -1,9 +1,9 @@
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/models/driver_model.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/service/repository/auth_repository.dart';
-import 'package:amraoui_app/utils/auth_navigation.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/models/driver_model.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/service/repository/auth_repository.dart';
+import 'package:Vehiqqo/utils/auth_navigation.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -46,7 +46,8 @@ class SignInController extends GetxController {
     }
   }
 
-  void togglePasswordVisibility() => isPasswordVisible.value = !isPasswordVisible.value;
+  void togglePasswordVisibility() =>
+      isPasswordVisible.value = !isPasswordVisible.value;
   void toggleRememberMe(bool? value) {
     if (value != null) rememberMe.value = value;
   }
@@ -54,7 +55,8 @@ class SignInController extends GetxController {
   var isLoading = false.obs;
 
   Future<void> login() async {
-    if (emailController.text.trim().isEmpty || passwordController.text.isEmpty) {
+    if (emailController.text.trim().isEmpty ||
+        passwordController.text.isEmpty) {
       AppSnackBar.error('Email and password are required');
       return;
     }
@@ -90,8 +92,14 @@ class SignInController extends GetxController {
 
       if (rememberMe.value) {
         AppStorage().setValue(StorageKey.rememberMe, true);
-        AppStorage().setValue(StorageKey.savedEmail, emailController.text.trim().toLowerCase());
-        AppStorage().setValue(StorageKey.savedPassword, passwordController.text);
+        AppStorage().setValue(
+          StorageKey.savedEmail,
+          emailController.text.trim().toLowerCase(),
+        );
+        AppStorage().setValue(
+          StorageKey.savedPassword,
+          passwordController.text,
+        );
       } else {
         AppStorage().setValue(StorageKey.rememberMe, false);
         AppStorage().removeValue(StorageKey.savedEmail);
@@ -102,7 +110,8 @@ class SignInController extends GetxController {
     } on DioException catch (e) {
       isLoading.value = false;
       String errorMsg = 'Login failed';
-      if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
         errorMsg = 'Connection timed out. Server might be offline.';
       } else if (e.response?.data is Map<String, dynamic>) {
         errorMsg = e.response?.data['message']?.toString() ?? 'Login failed';

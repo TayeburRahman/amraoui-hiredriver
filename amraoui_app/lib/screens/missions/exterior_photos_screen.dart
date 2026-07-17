@@ -1,14 +1,15 @@
 import 'dart:io';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:amraoui_app/service/repository/mission_repository.dart';
-import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
+import 'package:Vehiqqo/service/repository/mission_repository.dart';
+import 'package:Vehiqqo/widgets/dialog_boxes/app_global_loading.dart';
+
 class ExteriorPhotosScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
   final String reqId;
@@ -29,7 +30,7 @@ class ExteriorPhotosScreen extends StatefulWidget {
 
 class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
   final ImagePicker _picker = ImagePicker();
-  
+
   late Map<String, String?> capturedImages;
 
   @override
@@ -72,7 +73,8 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF0F172A)),
-          onPressed: () => Get.back(result: capturedImages), // return data on back
+          onPressed: () =>
+              Get.back(result: capturedImages), // return data on back
         ),
       ),
       body: SafeArea(
@@ -82,20 +84,24 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               AppText(
-                data: widget.isDelivery ? 'Exterior Photos at Delivery' : 'Exterior Photos',
+                data: widget.isDelivery
+                    ? 'Exterior Photos at Delivery'
+                    : 'Exterior Photos',
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF0F172A),
               ),
               const Gap(height: 4),
               AppText(
-                data: widget.isDelivery ? 'Take final exterior photos' : 'Take exterior photos of the vehicle',
+                data: widget.isDelivery
+                    ? 'Take final exterior photos'
+                    : 'Take exterior photos of the vehicle',
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: const Color(0xFF64748B),
               ),
               const Gap(height: 24),
-              
+
               // Diagram Card
               Container(
                 padding: const EdgeInsets.all(8),
@@ -104,7 +110,10 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
-                child: Image.asset('assets/images/exterior_diagram.jpg', fit: BoxFit.contain),
+                child: Image.asset(
+                  'assets/images/exterior_diagram.jpg',
+                  fit: BoxFit.contain,
+                ),
               ),
               const Gap(height: 24),
 
@@ -135,7 +144,7 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
                   ],
                 ),
               ),
-              
+
               const Gap(height: 100),
             ],
           ),
@@ -150,14 +159,16 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 0,
             ),
             onPressed: () async {
               // Upload photos to backend
               if (capturedImages.values.where((v) => v != null).length < 6) {
                 Get.snackbar(
-                  'Required', 
+                  'Required',
                   'Please capture all 6 exterior photos to continue.',
                   backgroundColor: Colors.red.withOpacity(0.9),
                   colorText: Colors.white,
@@ -170,7 +181,8 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
               showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (BuildContext context) => const Center(child: CircularProgressIndicator()),
+                builder: (BuildContext context) =>
+                    const Center(child: CircularProgressIndicator()),
               );
 
               try {
@@ -178,10 +190,11 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
                 final Map<String, dynamic> uploadData = {};
                 final List<MultipartFile> files = [];
                 final List<String> labels = [];
-                
+
                 for (var entry in capturedImages.entries) {
                   if (entry.value != null) {
-                    if (entry.value!.startsWith('http') && !entry.value!.startsWith('blob:http')) {
+                    if (entry.value!.startsWith('http') &&
+                        !entry.value!.startsWith('blob:http')) {
                       // Already uploaded to server (not a web blob)
                       uploadData[entry.key] = entry.value;
                     } else {
@@ -192,47 +205,56 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
                         quality: 70,
                       );
                       if (bytes != null) {
-                        files.add(MultipartFile.fromBytes(bytes, filename: 'photo.jpg'));
+                        files.add(
+                          MultipartFile.fromBytes(bytes, filename: 'photo.jpg'),
+                        );
                         labels.add(entry.key);
                       }
                     }
                   }
                 }
-                
+
                 if (files.isNotEmpty) {
                   uploadData['image'] = files;
                   uploadData['imageLabels'] = labels;
                 }
-                
+
                 Response res;
                 if (widget.isDelivery) {
                   res = await repo.updateDeliveryInspection(
-                    widget.mission['_id'] ?? widget.reqId, 
-                    'exteriorPhotos', 
-                    uploadData
+                    widget.mission['_id'] ?? widget.reqId,
+                    'exteriorPhotos',
+                    uploadData,
                   );
                 } else {
                   res = await repo.updatePickupInspection(
-                    widget.mission['_id'] ?? widget.reqId, 
-                    'exteriorPhotos', 
-                    uploadData
+                    widget.mission['_id'] ?? widget.reqId,
+                    'exteriorPhotos',
+                    uploadData,
                   );
                 }
 
                 if (mounted) {
                   Navigator.of(context).pop(); // close dialog
                 }
-                
+
                 if (res.statusCode == 200) {
                   // Keep local state in sync
-                  final inspectionKey = widget.isDelivery ? 'deliveryInspection' : 'pickupInspection';
+                  final inspectionKey = widget.isDelivery
+                      ? 'deliveryInspection'
+                      : 'pickupInspection';
                   if (widget.mission['details'][inspectionKey] == null) {
-                    widget.mission['details'][inspectionKey] = <String, dynamic>{};
+                    widget.mission['details'][inspectionKey] =
+                        <String, dynamic>{};
                   }
-                  widget.mission['details'][inspectionKey]['exteriorPhotos'] = res.data['data']['details'][inspectionKey]['exteriorPhotos'];
+                  widget
+                      .mission['details'][inspectionKey]['exteriorPhotos'] = res
+                      .data['data']['details'][inspectionKey]['exteriorPhotos'];
 
                   if (mounted) {
-                    Navigator.of(context).pop(capturedImages); // close screen and return data
+                    Navigator.of(
+                      context,
+                    ).pop(capturedImages); // close screen and return data
                   }
                 } else {
                   Get.snackbar('Error', 'Failed to save photos');
@@ -253,7 +275,12 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
               ),
               child: Container(
                 alignment: Alignment.center,
-                child: const AppText(data: 'Save Photos', color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                child: const AppText(
+                  data: 'Save Photos',
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
               ),
             ),
           ),
@@ -284,16 +311,24 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
               decoration: BoxDecoration(
                 color: hasImage ? Colors.transparent : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(8),
-                image: hasImage ? DecorationImage(
-                  image: imagePath!.startsWith('http') || imagePath.startsWith('blob:') 
-                      ? NetworkImage(imagePath) as ImageProvider
-                      : FileImage(File(imagePath)),
-                  fit: BoxFit.cover,
-                ) : null,
+                image: hasImage
+                    ? DecorationImage(
+                        image:
+                            imagePath!.startsWith('http') ||
+                                imagePath.startsWith('blob:')
+                            ? NetworkImage(imagePath) as ImageProvider
+                            : FileImage(File(imagePath)),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
-              child: hasImage 
-                  ? null 
-                  : const Icon(Icons.camera_alt_outlined, color: Color(0xFF94A3B8), size: 24),
+              child: hasImage
+                  ? null
+                  : const Icon(
+                      Icons.camera_alt_outlined,
+                      color: Color(0xFF94A3B8),
+                      size: 24,
+                    ),
             ),
             const Gap(width: 16),
             Expanded(
@@ -311,11 +346,13 @@ class _ExteriorPhotosScreenState extends State<ExteriorPhotosScreen> {
                 shape: BoxShape.circle,
                 color: hasImage ? const Color(0xFF10B981) : Colors.transparent,
                 border: Border.all(
-                  color: hasImage ? const Color(0xFF10B981) : const Color(0xFFCBD5E1),
+                  color: hasImage
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFFCBD5E1),
                   width: 2,
                 ),
               ),
-              child: hasImage 
+              child: hasImage
                   ? const Icon(Icons.check, size: 14, color: Colors.white)
                   : null,
             ),

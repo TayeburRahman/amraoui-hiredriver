@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:amraoui_app/service/repository/driver_repository.dart';
+import 'package:Vehiqqo/service/repository/driver_repository.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -20,7 +20,7 @@ class AccountController extends GetxController {
   var completedJobs = 0.obs;
   var rating = 0.0.obs;
   var isVerified = false.obs;
-  
+
   var isUpdatingProfile = false.obs;
 
   // RxList to hold dynamic skills map
@@ -43,9 +43,11 @@ class AccountController extends GetxController {
       dateOfBirth.value = data['dateOfBirth'] ?? '';
       profileImage.value = data['profile_image'] ?? '';
       completedJobs.value = data['totalDeliveries'] ?? 0;
-      rating.value = (data['rating'] != null) ? (data['rating'] as num).toDouble() : 0.0;
+      rating.value = (data['rating'] != null)
+          ? (data['rating'] as num).toDouble()
+          : 0.0;
       isVerified.value = data['status'] == 'approved';
-      
+
       if (data['skills'] != null && data['skills'] is List) {
         skills.value = List<Map<String, dynamic>>.from(data['skills']);
       }
@@ -64,9 +66,9 @@ class AccountController extends GetxController {
       if (image != null) {
         isUploading.value = true;
         Get.snackbar('Uploading', 'Uploading profile image...');
-        
+
         final updatedData = await _repository.updateProfileImage(image);
-        
+
         if (updatedData != null) {
           profileImage.value = updatedData['profile_image'] ?? '';
           Get.snackbar('Success', 'Profile image updated');
@@ -83,12 +85,14 @@ class AccountController extends GetxController {
 
   Future<void> addSkill(String skillName, int stars) async {
     final newSkill = {'name': skillName, 'stars': stars};
-    final updatedSkills = List<Map<String, dynamic>>.from(skills)..add(newSkill);
+    final updatedSkills = List<Map<String, dynamic>>.from(skills)
+      ..add(newSkill);
     await _syncSkills(updatedSkills);
   }
 
   Future<void> deleteSkill(int index) async {
-    final updatedSkills = List<Map<String, dynamic>>.from(skills)..removeAt(index);
+    final updatedSkills = List<Map<String, dynamic>>.from(skills)
+      ..removeAt(index);
     await _syncSkills(updatedSkills);
   }
 
@@ -112,7 +116,7 @@ class AccountController extends GetxController {
         phone.value = updatedData['phone_number'] ?? phone.value;
         address.value = updatedData['address'] ?? address.value;
         dateOfBirth.value = updatedData['dateOfBirth'] ?? dateOfBirth.value;
-        
+
         Get.snackbar('Success', 'Profile updated successfully');
         return true;
       }

@@ -1,10 +1,10 @@
-import 'package:amraoui_app/const/storage/get_storage.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/service/repository/auth_repository.dart';
-import 'package:amraoui_app/utils/auth_navigation.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/dialog_boxes/app_global_loading.dart';
-import 'package:amraoui_app/widgets/dialog_boxes/log_out_dailog.dart';
+import 'package:Vehiqqo/const/storage/get_storage.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/service/repository/auth_repository.dart';
+import 'package:Vehiqqo/utils/auth_navigation.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/widgets/dialog_boxes/app_global_loading.dart';
+import 'package:Vehiqqo/widgets/dialog_boxes/log_out_dailog.dart';
 import 'package:get/get.dart';
 
 class PendingApprovalController extends GetxController {
@@ -43,7 +43,8 @@ class PendingApprovalController extends GetxController {
         AppSnackBar.error('Your application was declined');
         message.value = driver.declineReason ?? 'Application declined';
       } else {
-        final pendingMsg = 'Admin approval has not been completed yet. You will be notified via email once the admin reviews your application.';
+        final pendingMsg =
+            'Admin approval has not been completed yet. You will be notified via email once the admin reviews your application.';
         message.value = pendingMsg;
         AppSnackBar.message(pendingMsg);
       }

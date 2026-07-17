@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/const/app_const/app_const.dart';
-import 'package:amraoui_app/const/utils/app_colors.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/const/app_const/app_const.dart';
+import 'package:Vehiqqo/const/utils/app_colors.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 
 class AppInputWidgetFive extends StatefulWidget {
   const AppInputWidgetFive({
@@ -85,7 +85,9 @@ class _AppInputWidgetTwoState extends State<AppInputWidgetFive> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: widget.padding ?? EdgeInsets.symmetric(horizontal: AppSize.width(value: 20.0)),
+      padding:
+          widget.padding ??
+          EdgeInsets.symmetric(horizontal: AppSize.width(value: 20.0)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -140,7 +142,9 @@ class _AppInputWidgetTwoState extends State<AppInputWidgetFive> {
                 }
                 if (widget.isPassWord && widget.isPassWordSecondValidation) {
                   if (widget.isPassWordSecondValidationController != null) {
-                    if (value.toLowerCase() != widget.isPassWordSecondValidationController!.text.toLowerCase()) {
+                    if (value.toLowerCase() !=
+                        widget.isPassWordSecondValidationController!.text
+                            .toLowerCase()) {
                       return "Both passwords most match";
                     } else {
                       return null;
@@ -156,16 +160,19 @@ class _AppInputWidgetTwoState extends State<AppInputWidgetFive> {
               obscureText: widget.isPassWord && isShowPassWord,
               obscuringCharacter: "*",
               textAlignVertical: TextAlignVertical.top,
-              style: widget.style ??
+              style:
+                  widget.style ??
                   Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                      ),
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 16,
+                  ),
               textAlign: widget.textAlign,
               decoration: InputDecoration(
                 filled: true,
-                contentPadding: widget.contentPadding ?? EdgeInsets.all(AppSize.width(value: 15.0)),
+                contentPadding:
+                    widget.contentPadding ??
+                    EdgeInsets.all(AppSize.width(value: 15.0)),
                 fillColor: widget.fillColor ?? Colors.white60,
                 prefixIcon: widget.prefix,
                 suffixIcon: widget.isPassWord
@@ -174,54 +181,73 @@ class _AppInputWidgetTwoState extends State<AppInputWidgetFive> {
                         width: AppSize.width(value: 10),
                         height: AppSize.width(value: 10),
                         child: IconButton(
-                            color: Colors.white60,
-                            padding: EdgeInsets.zero,
-                            highlightColor: Colors.white60,
-                            onPressed: () {
-                              setState(() {
-                                isShowPassWord = !isShowPassWord;
-                              });
-                            },
-                            icon: isShowPassWord ? const Icon(Icons.visibility_off) : const Icon(Icons.visibility)),
+                          color: Colors.white60,
+                          padding: EdgeInsets.zero,
+                          highlightColor: Colors.white60,
+                          onPressed: () {
+                            setState(() {
+                              isShowPassWord = !isShowPassWord;
+                            });
+                          },
+                          icon: isShowPassWord
+                              ? const Icon(Icons.visibility_off)
+                              : const Icon(Icons.visibility),
+                        ),
                       )
                     : widget.suffixIcon,
                 suffixIconConstraints: widget.suffixIconConstraints,
                 hintText: widget.hintText,
-                hintStyle: widget.hintStyle ??
+                hintStyle:
+                    widget.hintStyle ??
                     Theme.of(context).textTheme.titleSmall?.copyWith(
-                          color: Colors.white60,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                        ),
+                      color: Colors.white60,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
                 errorStyle: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.w500,
                   fontFamily: AppConst.manrope,
                   fontSize: 14,
                 ),
-                border: widget.border ??
+                border:
+                    widget.border ??
                     OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
+                      borderRadius: BorderRadius.circular(
+                        AppSize.width(value: 8.0),
+                      ),
                       borderSide: const BorderSide(color: Colors.white60),
                     ),
-                enabledBorder: widget.border ??
+                enabledBorder:
+                    widget.border ??
                     OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
+                      borderRadius: BorderRadius.circular(
+                        AppSize.width(value: 8.0),
+                      ),
                       borderSide: const BorderSide(color: Colors.white60),
                     ),
-                focusedBorder: widget.border ??
+                focusedBorder:
+                    widget.border ??
                     OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
+                      borderRadius: BorderRadius.circular(
+                        AppSize.width(value: 8.0),
+                      ),
                       borderSide: const BorderSide(color: Colors.white60),
                     ),
-                errorBorder: widget.errBorder ??
+                errorBorder:
+                    widget.errBorder ??
                     OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
+                      borderRadius: BorderRadius.circular(
+                        AppSize.width(value: 8.0),
+                      ),
                       borderSide: const BorderSide(color: Colors.white60),
                     ),
-                focusedErrorBorder: widget.errBorder ??
+                focusedErrorBorder:
+                    widget.errBorder ??
                     OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
+                      borderRadius: BorderRadius.circular(
+                        AppSize.width(value: 8.0),
+                      ),
                       borderSide: const BorderSide(color: Colors.white60),
                     ),
               ),

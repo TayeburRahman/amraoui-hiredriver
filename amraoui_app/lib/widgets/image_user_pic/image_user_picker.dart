@@ -1,14 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-Future<void> userImagePicker({required Function(List<String> images) callBack}) async {
+Future<void> userImagePicker({
+  required Function(List<String> images) callBack,
+}) async {
   try {
     List<XFile> pickedMedia = [];
     List<String> localImagePaths = [];
@@ -110,7 +112,9 @@ Your data is never shared and stays on your device unless you choose to upload i
         return;
       }
 
-      localImagePaths = pickedMedia.map((xfile) => File(xfile.path).path).toList();
+      localImagePaths = pickedMedia
+          .map((xfile) => File(xfile.path).path)
+          .toList();
 
       callBack(localImagePaths);
     }
@@ -121,7 +125,8 @@ Your data is never shared and stays on your device unless you choose to upload i
 
 Future<bool> askFirst({
   String title = "Gallery",
-  String content = "This permission is required to continue. Please enable it from settings.",
+  String content =
+      "This permission is required to continue. Please enable it from settings.",
   String acceptButton = "Open Settings",
   String cancelButton = "Cancel",
 }) async {
@@ -167,7 +172,8 @@ Future<bool> askFirst({
 
 Future<bool> getCallAgainPermission({
   String title = "Gallery",
-  String content = "This permission is required to continue. Please enable it from settings.",
+  String content =
+      "This permission is required to continue. Please enable it from settings.",
   String acceptButton = "",
   String cancelButton = "Cancel",
 }) async {

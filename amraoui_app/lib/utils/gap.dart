@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:amraoui_app/utils/app_size.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
 
 class Gap extends StatelessWidget {
-  const Gap({
-    super.key,
-    this.height,
-    this.width,
-  });
+  const Gap({super.key, this.height, this.width});
 
   final double? height;
   final double? width;

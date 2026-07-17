@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
-import 'package:amraoui_app/service/api/api.dart';
-import 'package:amraoui_app/service/api/non_auth_api.dart';
-import 'package:amraoui_app/widgets/log_print/app_log.dart';
+import 'package:Vehiqqo/service/api/api.dart';
+import 'package:Vehiqqo/service/api/non_auth_api.dart';
+import 'package:Vehiqqo/widgets/log_print/app_log.dart';
 import '../../widgets/app_snack_bar/app_snack_bar.dart';
 
 class ApiPostServices {

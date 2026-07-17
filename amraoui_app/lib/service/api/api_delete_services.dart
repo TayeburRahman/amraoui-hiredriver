@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/service/api/api.dart';
+import 'package:Vehiqqo/service/api/api.dart';
 
 import '../../const/storage/get_storage.dart';
 import '../../routes/app_routes.dart';
@@ -31,7 +31,9 @@ class ApiDeleteServices {
         return response.data;
       } else {
         // Handle cases where status code is different
-        AppSnackBar.error("Unexpected response: ${response.statusCode} ${response.statusMessage}");
+        AppSnackBar.error(
+          "Unexpected response: ${response.statusCode} ${response.statusMessage}",
+        );
         return null;
       }
     } on SocketException catch (e) {

@@ -1,5 +1,5 @@
-import 'package:amraoui_app/main_app_entry.dart';
-import 'package:amraoui_app/service/connectivity_service/connectivity_service.dart';
+import 'package:Vehiqqo/main_app_entry.dart';
+import 'package:Vehiqqo/service/connectivity_service/connectivity_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';

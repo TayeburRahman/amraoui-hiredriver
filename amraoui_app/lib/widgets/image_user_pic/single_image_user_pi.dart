@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/app_snack_bar/app_snack_bar.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/app_snack_bar/app_snack_bar.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 
 Future<void> userImagePic(ImageSource source, RxString localImagePath) async {
   try {
@@ -25,11 +25,11 @@ Future<void> userImagePic(ImageSource source, RxString localImagePath) async {
         var cameraStatus2 = await Permission.camera.request();
         if (cameraStatus2.isGranted) {
           pickedField = await ImagePicker().pickImage(
-          source: source,
-          imageQuality: 50,
-          maxWidth: 1080,
-          maxHeight: 1080,
-        );
+            source: source,
+            imageQuality: 50,
+            maxWidth: 1080,
+            maxHeight: 1080,
+          );
         } else {
           AppSnackBar.error("Camera Permission Needed");
           return;
@@ -56,11 +56,11 @@ Future<void> userImagePic(ImageSource source, RxString localImagePath) async {
 
         if (mediaLibraryStatus2.isGranted || mediaStorageStatus2.isGranted) {
           pickedField = await ImagePicker().pickImage(
-          source: source,
-          imageQuality: 50,
-          maxWidth: 1080,
-          maxHeight: 1080,
-        );
+            source: source,
+            imageQuality: 50,
+            maxWidth: 1080,
+            maxHeight: 1080,
+          );
         } else {
           AppSnackBar.error("Media Permission Needed");
           return;

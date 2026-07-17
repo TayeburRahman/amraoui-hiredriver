@@ -2,9 +2,9 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/screens/error_screen/error_screen.dart';
-import 'package:amraoui_app/service/connectivity_service/connectivity_service.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/screens/error_screen/error_screen.dart';
+import 'package:Vehiqqo/service/connectivity_service/connectivity_service.dart';
 
 class InternetCheckMiddleWare extends GetMiddleware {
   final ConnectivityService connectivityService =

@@ -1,6 +1,6 @@
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/layout/account_sub_page_layout.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/layout/account_sub_page_layout.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'controllers/account_controller.dart';
@@ -15,7 +15,8 @@ class SkillsOverviewScreen extends StatelessWidget {
     return Scaffold(
       body: AccountSubPageLayout(
         title: 'Skills Overview',
-        subtitle: 'This function can only be managed and modified by the admin, driver can only see.',
+        subtitle:
+            'This function can only be managed and modified by the admin, driver can only see.',
         child: Obx(() {
           if (controller.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
@@ -25,7 +26,8 @@ class SkillsOverviewScreen extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.all(32.0),
                 child: AppText(
-                  data: 'No skills added yet. Admin can assign skills to your profile.',
+                  data:
+                      'No skills added yet. Admin can assign skills to your profile.',
                   fontSize: 16,
                   color: Color(0xFF64748B),
                   textAlign: TextAlign.center,
@@ -57,10 +59,7 @@ class SkillsOverviewScreen extends StatelessWidget {
     );
   }
 
-  Widget _skillChip({
-    required String name,
-    required int stars,
-  }) {
+  Widget _skillChip({required String name, required int stars}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(

@@ -1,19 +1,19 @@
-import 'package:amraoui_app/utils/app_size.dart';
-import 'package:amraoui_app/utils/gap.dart';
-import 'package:amraoui_app/widgets/texts/app_text.dart';
-import 'package:amraoui_app/routes/app_routes.dart';
-import 'package:amraoui_app/service/repository/mission_repository.dart';
-import 'package:amraoui_app/widgets/cards/location_timeline_widget.dart';
+import 'package:Vehiqqo/utils/app_size.dart';
+import 'package:Vehiqqo/utils/gap.dart';
+import 'package:Vehiqqo/widgets/texts/app_text.dart';
+import 'package:Vehiqqo/routes/app_routes.dart';
+import 'package:Vehiqqo/service/repository/mission_repository.dart';
+import 'package:Vehiqqo/widgets/cards/location_timeline_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'mission_details_screen.dart';
-import 'package:amraoui_app/screens/missions/pickup_inspection_screen.dart'
+import 'package:Vehiqqo/screens/missions/pickup_inspection_screen.dart'
     hide Gap;
-import 'package:amraoui_app/screens/missions/pickup_verification_screen.dart';
-import 'package:amraoui_app/screens/missions/delivery_inspection_screen.dart'
+import 'package:Vehiqqo/screens/missions/pickup_verification_screen.dart';
+import 'package:Vehiqqo/screens/missions/delivery_inspection_screen.dart'
     hide Gap;
-import 'package:amraoui_app/screens/missions/multi_day_arrival_screen.dart';
+import 'package:Vehiqqo/screens/missions/multi_day_arrival_screen.dart';
 
 class MissionsController extends GetxController {
   var activeMainTab = 0.obs; // 0: Open List, 1: My Missions
@@ -377,8 +377,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
           final mStatus = (m['status'] ?? '').toString();
           if (myFilter == 'All') {
             return mStatus == 'ASSIGNED' ||
-                   mStatus == 'IN_PROGRESS' ||
-                   mStatus == 'COMPLETED';
+                mStatus == 'IN_PROGRESS' ||
+                mStatus == 'COMPLETED';
           } else if (myFilter == 'Assigned') {
             return mStatus == 'ASSIGNED';
           } else if (myFilter == 'Active') {
@@ -484,7 +484,9 @@ class _MissionsScreenState extends State<MissionsScreen> {
               const Gap(height: 16),
               AppText(
                 data: isMyMissions
-                    ? (myFilter == 'All' ? 'No missions found' : 'No $myFilter missions')
+                    ? (myFilter == 'All'
+                          ? 'No missions found'
+                          : 'No $myFilter missions')
                     : 'No open missions found',
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -929,30 +931,29 @@ class _MissionsScreenState extends State<MissionsScreen> {
                 AppText(data: title, fontSize: 18, fontWeight: FontWeight.w800),
                 Row(
                   children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B), // Orange pill
-                      borderRadius: BorderRadius.circular(20),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF59E0B), // Orange pill
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.bolt, color: Colors.white, size: 16),
+                          const Gap(width: 4),
+                          AppText(
+                            data: price,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.bolt,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        const Gap(width: 4),
-                        AppText(
-                          data: price,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
-                  ),
                   ],
                 ),
               ],
@@ -990,66 +991,73 @@ class _MissionsScreenState extends State<MissionsScreen> {
               fontWeight: FontWeight.w600,
               color: const Color(0xFF334155),
             ),
-            Builder(builder: (context) {
-              String _formatCardDate(String? dateStr) {
-                if (dateStr == null || dateStr.trim().isEmpty) return '';
-                try {
-                  final parts = dateStr.split('-');
-                  if (parts.length == 3 && parts[0].length == 4) {
-                    return '${parts[2]}/${parts[1]}/${parts[0]}';
-                  }
-                } catch (_) {}
-                return dateStr;
-              }
+            Builder(
+              builder: (context) {
+                String _formatCardDate(String? dateStr) {
+                  if (dateStr == null || dateStr.trim().isEmpty) return '';
+                  try {
+                    final parts = dateStr.split('-');
+                    if (parts.length == 3 && parts[0].length == 4) {
+                      return '${parts[2]}/${parts[1]}/${parts[0]}';
+                    }
+                  } catch (_) {}
+                  return dateStr;
+                }
 
-              if (mission['type'] == 'TRANSPORT') {
-                return Wrap(
-                  children: [
-                    _buildCardInfoChip(
-                      Icons.calendar_today,
-                      'Pickup: ',
-                      _formatCardDate(mission['details']?['pickupDate']?.toString()),
-                    ),
-                    _buildCardInfoChip(
-                      Icons.event_available,
-                      'Dropoff: ',
-                      _formatCardDate(mission['details']?['dropoffDate']?.toString()),
-                    ),
-                    _buildCardInfoChip(
-                      Icons.monitor_weight_outlined,
-                      'Weight: ',
-                      mission['details']?['vehicleWeight']?.toString(),
-                    ),
-                  ],
-                );
-              } else if (mission['type'] == 'INSPECTION') {
-                return Wrap(
-                  children: [
-                    _buildCardInfoChip(
-                      Icons.calendar_today,
-                      '',
-                      '${_formatCardDate(mission['details']?['inspectionDate']?.toString())} ${mission['details']?['inspectionTime'] ?? ''}'.trim(),
-                    ),
-                  ],
-                );
-              } else if (mission['type'] == 'HIRE_DRIVER') {
-                final tasksList = mission['details']?['driverTasks'];
-                final tasks = tasksList is List ? tasksList.join(', ') : '';
-                final reqList = mission['details']?['driverRequirements'];
-                final reqs = reqList is List ? reqList.join(', ') : '';
-                return Wrap(
-                  children: [
-                    _buildCardInfoChip(Icons.task_alt, 'Tasks: ', tasks),
-                    _buildCardInfoChip(
-                      Icons.verified_user_outlined,
-                      'Reqs: ',
-                      reqs,
-                    ),
-                  ],
-                );
-              }
-              return const SizedBox.shrink();
-            }),
+                if (mission['type'] == 'TRANSPORT') {
+                  return Wrap(
+                    children: [
+                      _buildCardInfoChip(
+                        Icons.calendar_today,
+                        'Pickup: ',
+                        _formatCardDate(
+                          mission['details']?['pickupDate']?.toString(),
+                        ),
+                      ),
+                      _buildCardInfoChip(
+                        Icons.event_available,
+                        'Dropoff: ',
+                        _formatCardDate(
+                          mission['details']?['dropoffDate']?.toString(),
+                        ),
+                      ),
+                      _buildCardInfoChip(
+                        Icons.monitor_weight_outlined,
+                        'Weight: ',
+                        mission['details']?['vehicleWeight']?.toString(),
+                      ),
+                    ],
+                  );
+                } else if (mission['type'] == 'INSPECTION') {
+                  return Wrap(
+                    children: [
+                      _buildCardInfoChip(
+                        Icons.calendar_today,
+                        '',
+                        '${_formatCardDate(mission['details']?['inspectionDate']?.toString())} ${mission['details']?['inspectionTime'] ?? ''}'
+                            .trim(),
+                      ),
+                    ],
+                  );
+                } else if (mission['type'] == 'HIRE_DRIVER') {
+                  final tasksList = mission['details']?['driverTasks'];
+                  final tasks = tasksList is List ? tasksList.join(', ') : '';
+                  final reqList = mission['details']?['driverRequirements'];
+                  final reqs = reqList is List ? reqList.join(', ') : '';
+                  return Wrap(
+                    children: [
+                      _buildCardInfoChip(Icons.task_alt, 'Tasks: ', tasks),
+                      _buildCardInfoChip(
+                        Icons.verified_user_outlined,
+                        'Reqs: ',
+                        reqs,
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ],
         ),
       ),
@@ -1098,7 +1106,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
 
   Widget _buildMissionInfoBlock(Map<String, dynamic> m) {
     String _formatDateString(String? dateStr) {
-      if (dateStr == null || dateStr.trim().isEmpty || dateStr == 'null') return '';
+      if (dateStr == null || dateStr.trim().isEmpty || dateStr == 'null')
+        return '';
       try {
         final parts = dateStr.split('-');
         if (parts.length == 3 && parts[0].length == 4) {
@@ -1134,8 +1143,14 @@ class _MissionsScreenState extends State<MissionsScreen> {
             'Dropoff',
             '${d['dropoffAddress'] ?? ''}, ${d['dropoffCity'] ?? ''}',
           ),
-          _buildInfoRow('Pickup Date', _formatDateString(d['pickupDate']?.toString())),
-          _buildInfoRow('Dropoff Date', _formatDateString(d['dropoffDate']?.toString())),
+          _buildInfoRow(
+            'Pickup Date',
+            _formatDateString(d['pickupDate']?.toString()),
+          ),
+          _buildInfoRow(
+            'Dropoff Date',
+            _formatDateString(d['dropoffDate']?.toString()),
+          ),
           _buildInfoRow('Special Info', d['specialInstructions']?.toString()),
         ],
       );
@@ -1156,7 +1171,8 @@ class _MissionsScreenState extends State<MissionsScreen> {
           _buildInfoRow('Location', d['inspectionLocation']?.toString()),
           _buildInfoRow(
             'Date & Time',
-            '${_formatDateString(d['inspectionDate']?.toString())} ${d['inspectionTime'] != null && d['inspectionTime'].toString() != 'null' && d['inspectionTime'].toString().isNotEmpty ? 'at ${d['inspectionTime']}' : ''}'.trim(),
+            '${_formatDateString(d['inspectionDate']?.toString())} ${d['inspectionTime'] != null && d['inspectionTime'].toString() != 'null' && d['inspectionTime'].toString().isNotEmpty ? 'at ${d['inspectionTime']}' : ''}'
+                .trim(),
           ),
           _buildInfoRow('Notes', d['inspectionNotes']?.toString()),
         ],
@@ -1169,11 +1185,13 @@ class _MissionsScreenState extends State<MissionsScreen> {
           _buildInfoRow('Location', d['driverLocation']?.toString()),
           _buildInfoRow(
             'Start',
-            '${_formatDateString(d['driverStartDate']?.toString())} ${d['driverStartTime'] ?? ''}'.trim(),
+            '${_formatDateString(d['driverStartDate']?.toString())} ${d['driverStartTime'] ?? ''}'
+                .trim(),
           ),
           _buildInfoRow(
             'End',
-            '${_formatDateString(d['driverEndDate']?.toString())} ${d['driverEndTime'] ?? ''}'.trim(),
+            '${_formatDateString(d['driverEndDate']?.toString())} ${d['driverEndTime'] ?? ''}'
+                .trim(),
           ),
           _buildInfoRow('Notes', d['driverTaskNotes']?.toString()),
         ],
@@ -1244,16 +1262,26 @@ class _MissionsScreenState extends State<MissionsScreen> {
     DateTime? _parseCustomerDate(String? dateStr) {
       if (dateStr == null || dateStr.trim().isEmpty) return null;
       dateStr = dateStr.trim();
-      try { return _stripTime(DateTime.parse(dateStr)); } catch (_) {}
-      
+      try {
+        return _stripTime(DateTime.parse(dateStr));
+      } catch (_) {}
+
       try {
         final parts = dateStr.split(RegExp(r'[/.-]'));
         if (parts.length == 3) {
           if (parts[0].length <= 2 && parts[2].length == 4) {
-            return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+            return DateTime(
+              int.parse(parts[2]),
+              int.parse(parts[1]),
+              int.parse(parts[0]),
+            );
           }
           if (parts[0].length == 4 && parts[2].length <= 2) {
-            return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+            return DateTime(
+              int.parse(parts[0]),
+              int.parse(parts[1]),
+              int.parse(parts[2]),
+            );
           }
         }
       } catch (_) {}
@@ -1269,10 +1297,18 @@ class _MissionsScreenState extends State<MissionsScreen> {
       return dateStr;
     }
 
-    final RxString pickupDate = _formatDisplayDate(_sanitize(mission['myQuotePickupDate']?.toString())).obs;
-    final RxString pickupTime = _sanitize(mission['myQuotePickupTime']?.toString()).obs;
-    final RxString dropoffDate = _formatDisplayDate(_sanitize(mission['myQuoteDropoffDate']?.toString())).obs;
-    final RxString dropoffTime = _sanitize(mission['myQuoteDropoffTime']?.toString()).obs;
+    final RxString pickupDate = _formatDisplayDate(
+      _sanitize(mission['myQuotePickupDate']?.toString()),
+    ).obs;
+    final RxString pickupTime = _sanitize(
+      mission['myQuotePickupTime']?.toString(),
+    ).obs;
+    final RxString dropoffDate = _formatDisplayDate(
+      _sanitize(mission['myQuoteDropoffDate']?.toString()),
+    ).obs;
+    final RxString dropoffTime = _sanitize(
+      mission['myQuoteDropoffTime']?.toString(),
+    ).obs;
 
     final qStatus = mission['myQuoteStatus']?.toString().toUpperCase();
     final isUpdate =
@@ -1308,8 +1344,13 @@ class _MissionsScreenState extends State<MissionsScreen> {
           double.tryParse(mission['myQuoteAmount'].toString()) ?? 0.0;
     }
 
-    Widget buildDatePicker(String label, RxString dateObs, String? customerDateStr) {
-      final customerDate = _parseCustomerDate(customerDateStr) ?? _stripTime(DateTime.now());
+    Widget buildDatePicker(
+      String label,
+      RxString dateObs,
+      String? customerDateStr,
+    ) {
+      final customerDate =
+          _parseCustomerDate(customerDateStr) ?? _stripTime(DateTime.now());
       return GestureDetector(
         onTap: () async {
           final picked = await showDatePicker(
@@ -1321,14 +1362,17 @@ class _MissionsScreenState extends State<MissionsScreen> {
               return Theme(
                 data: ThemeData.light().copyWith(
                   primaryColor: const Color(0xFF2563EB),
-                  colorScheme: const ColorScheme.light(primary: Color(0xFF2563EB)),
+                  colorScheme: const ColorScheme.light(
+                    primary: Color(0xFF2563EB),
+                  ),
                 ),
                 child: child!,
               );
             },
           );
           if (picked != null) {
-            dateObs.value = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+            dateObs.value =
+                "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
           }
         },
         child: Container(
@@ -1338,11 +1382,15 @@ class _MissionsScreenState extends State<MissionsScreen> {
             color: const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Obx(() => AppText(
-            data: dateObs.value.isEmpty ? label : dateObs.value,
-            color: dateObs.value.isEmpty ? const Color(0xFF64748B) : const Color(0xFF0F172A),
-            fontSize: 14,
-          )),
+          child: Obx(
+            () => AppText(
+              data: dateObs.value.isEmpty ? label : dateObs.value,
+              color: dateObs.value.isEmpty
+                  ? const Color(0xFF64748B)
+                  : const Color(0xFF0F172A),
+              fontSize: 14,
+            ),
+          ),
         ),
       );
     }
@@ -1355,13 +1403,16 @@ class _MissionsScreenState extends State<MissionsScreen> {
             initialTime: TimeOfDay.now(),
             builder: (context, child) {
               return MediaQuery(
-                data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(alwaysUse24HourFormat: true),
                 child: child!,
               );
             },
           );
           if (picked != null) {
-            timeObs.value = "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+            timeObs.value =
+                "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
           }
         },
         child: Container(
@@ -1371,11 +1422,15 @@ class _MissionsScreenState extends State<MissionsScreen> {
             color: const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Obx(() => AppText(
-            data: timeObs.value.isEmpty ? label : timeObs.value,
-            color: timeObs.value.isEmpty ? const Color(0xFF64748B) : const Color(0xFF0F172A),
-            fontSize: 14,
-          )),
+          child: Obx(
+            () => AppText(
+              data: timeObs.value.isEmpty ? label : timeObs.value,
+              color: timeObs.value.isEmpty
+                  ? const Color(0xFF64748B)
+                  : const Color(0xFF0F172A),
+              fontSize: 14,
+            ),
+          ),
         ),
       );
     }
@@ -1514,17 +1569,33 @@ class _MissionsScreenState extends State<MissionsScreen> {
                   const Gap(height: 12),
                   Row(
                     children: [
-                      Expanded(child: buildDatePicker('Pickup Date', pickupDate, mission['details']?['pickupDate']?.toString())),
+                      Expanded(
+                        child: buildDatePicker(
+                          'Pickup Date',
+                          pickupDate,
+                          mission['details']?['pickupDate']?.toString(),
+                        ),
+                      ),
                       const Gap(width: 10),
-                      Expanded(child: buildTimePicker('Pickup Time', pickupTime)),
+                      Expanded(
+                        child: buildTimePicker('Pickup Time', pickupTime),
+                      ),
                     ],
                   ),
                   const Gap(height: 12),
                   Row(
                     children: [
-                      Expanded(child: buildDatePicker('Dropoff Date', dropoffDate, mission['details']?['dropoffDate']?.toString())),
+                      Expanded(
+                        child: buildDatePicker(
+                          'Dropoff Date',
+                          dropoffDate,
+                          mission['details']?['dropoffDate']?.toString(),
+                        ),
+                      ),
                       const Gap(width: 10),
-                      Expanded(child: buildTimePicker('Dropoff Time', dropoffTime)),
+                      Expanded(
+                        child: buildTimePicker('Dropoff Time', dropoffTime),
+                      ),
                     ],
                   ),
                   const Gap(height: 16),
@@ -1581,13 +1652,19 @@ class _MissionsScreenState extends State<MissionsScreen> {
 
                         List<String> missingFields = [];
                         if (totalAmount.value == 0) {
-                          missingFields.add('Costs/Service Price (Total cannot be €0.00)');
+                          missingFields.add(
+                            'Costs/Service Price (Total cannot be €0.00)',
+                          );
                         }
 
-                        if (pickupDate.value.isEmpty) missingFields.add('Pickup Date');
-                        if (pickupTime.value.isEmpty) missingFields.add('Pickup Time');
-                        if (dropoffDate.value.isEmpty) missingFields.add('Dropoff Date');
-                        if (dropoffTime.value.isEmpty) missingFields.add('Dropoff Time');
+                        if (pickupDate.value.isEmpty)
+                          missingFields.add('Pickup Date');
+                        if (pickupTime.value.isEmpty)
+                          missingFields.add('Pickup Time');
+                        if (dropoffDate.value.isEmpty)
+                          missingFields.add('Dropoff Date');
+                        if (dropoffTime.value.isEmpty)
+                          missingFields.add('Dropoff Time');
 
                         if (missingFields.isNotEmpty) {
                           Get.snackbar(
@@ -1598,7 +1675,10 @@ class _MissionsScreenState extends State<MissionsScreen> {
                             colorText: Colors.white,
                             borderRadius: 12,
                             margin: const EdgeInsets.all(16),
-                            icon: const Icon(Icons.warning_amber_rounded, color: Colors.white),
+                            icon: const Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.white,
+                            ),
                           );
                           return;
                         }
@@ -1609,16 +1689,27 @@ class _MissionsScreenState extends State<MissionsScreen> {
                           final res = await repo.submitQuote(
                             mission['_id'],
                             totalAmount.value,
-                            servicePrice: double.tryParse(servicePriceCtrl.text) ?? 0,
+                            servicePrice:
+                                double.tryParse(servicePriceCtrl.text) ?? 0,
                             fuelCost: double.tryParse(fuelCtrl.text) ?? 0,
                             tollCharges: double.tryParse(tollCtrl.text) ?? 0,
                             travelCost: double.tryParse(travelCtrl.text) ?? 0,
                             taxiCost: double.tryParse(taxiCtrl.text) ?? 0,
-                            message: notesCtrl.text.isEmpty ? null : notesCtrl.text,
-                            pickupDate: pickupDate.value.isEmpty ? null : pickupDate.value,
-                            pickupTime: pickupTime.value.isEmpty ? null : pickupTime.value,
-                            dropoffDate: dropoffDate.value.isEmpty ? null : dropoffDate.value,
-                            dropoffTime: dropoffTime.value.isEmpty ? null : dropoffTime.value,
+                            message: notesCtrl.text.isEmpty
+                                ? null
+                                : notesCtrl.text,
+                            pickupDate: pickupDate.value.isEmpty
+                                ? null
+                                : pickupDate.value,
+                            pickupTime: pickupTime.value.isEmpty
+                                ? null
+                                : pickupTime.value,
+                            dropoffDate: dropoffDate.value.isEmpty
+                                ? null
+                                : dropoffDate.value,
+                            dropoffTime: dropoffTime.value.isEmpty
+                                ? null
+                                : dropoffTime.value,
                           );
                           FocusManager.instance.primaryFocus?.unfocus();
 
@@ -1717,9 +1808,13 @@ class _MissionsScreenState extends State<MissionsScreen> {
 
       if (type == 'INSPECTION') {
         if (isVerified) {
-          Get.to(() => DeliveryInspectionScreen(mission: mission, reqId: reqId));
+          Get.to(
+            () => DeliveryInspectionScreen(mission: mission, reqId: reqId),
+          );
         } else {
-          Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+          Get.to(
+            () => PickupVerificationScreen(mission: mission, reqId: reqId),
+          );
         }
       } else if (type == 'HIRE_DRIVER') {
         Get.to(() => MultiDayArrivalScreen(mission: mission, reqId: reqId));
@@ -1728,7 +1823,9 @@ class _MissionsScreenState extends State<MissionsScreen> {
         if (isVerified && verification['vehicleMatchConfirmed'] == true) {
           Get.to(() => PickupInspectionScreen(mission: mission, reqId: reqId));
         } else {
-          Get.to(() => PickupVerificationScreen(mission: mission, reqId: reqId));
+          Get.to(
+            () => PickupVerificationScreen(mission: mission, reqId: reqId),
+          );
         }
       }
       return;

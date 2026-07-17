@@ -200,6 +200,32 @@ function HireDriverContent() {
     }
   };
 
+  const handleSaveDraft = async () => {
+    try {
+      setIsSubmitting(true);
+      const payload = {
+        type: 'HIRE_DRIVER',
+        details: { ...formData, status: 'draft' },
+      };
+
+      let res;
+      if (editId) {
+        res = await api.put(`/requests/${editId}`, payload);
+      } else {
+        res = await api.post('/requests', payload);
+      }
+      
+      if (res.data?.success) {
+        router.push('/dashboard/orders');
+      }
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      alert('Failed to save draft. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className={`min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="mx-auto w-full max-w-5xl">
@@ -530,8 +556,9 @@ function HireDriverContent() {
           <div className={`flex flex-col sm:flex-row gap-4 justify-end ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
             <button
               type="button"
-              onClick={() => updateForm("status", "draft")}
-              className="h-14 w-full sm:w-auto sm:px-10 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+              disabled={isSubmitting}
+              onClick={handleSaveDraft}
+              className="h-14 w-full sm:w-auto sm:px-10 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 disabled:opacity-50"
             >
               {t.common.saveDraft}
             </button>

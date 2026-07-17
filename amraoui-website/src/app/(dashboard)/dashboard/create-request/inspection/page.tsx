@@ -102,7 +102,7 @@ function TechnicalInspectionContent() {
   const handleSubmit = async () => {
     const newErrors: Record<string, string> = {};
     const reqMsg = language === 'ar' ? 'هذا الحقل مطلوب' : 'This field is required';
-    
+
     if (!formData.customerName) newErrors.customerName = reqMsg;
     if (!formData.customerPhone) newErrors.customerPhone = reqMsg;
     if (!formData.vehicleBrand) newErrors.vehicleBrand = reqMsg;
@@ -119,7 +119,7 @@ function TechnicalInspectionContent() {
       setErrors(newErrors);
       return;
     }
-    
+
     setErrors({});
     try {
       setIsSubmitting(true);
@@ -127,14 +127,14 @@ function TechnicalInspectionContent() {
         type: 'INSPECTION',
         details: formData,
       };
-      
+
       let res;
       if (editId) {
         res = await api.put(`/requests/${editId}`, payload);
       } else {
         res = await api.post('/requests', payload);
       }
-      
+
       if (res.data?.success) {
         router.push('/dashboard/orders');
       }
@@ -146,10 +146,36 @@ function TechnicalInspectionContent() {
     }
   };
 
+  const handleSaveDraft = async () => {
+    try {
+      setIsSubmitting(true);
+      const payload = {
+        type: 'INSPECTION',
+        details: { ...formData, status: 'draft' },
+      };
+
+      let res;
+      if (editId) {
+        res = await api.put(`/requests/${editId}`, payload);
+      } else {
+        res = await api.post('/requests', payload);
+      }
+
+      if (res.data?.success) {
+        router.push('/dashboard/orders');
+      }
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      alert('Failed to save draft. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className={`min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8 ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       <div className="mx-auto w-full max-w-5xl">
-        
+
         {/* Back Button */}
         <button
           type="button"
@@ -171,7 +197,7 @@ function TechnicalInspectionContent() {
         </div>
 
         <div className="grid grid-cols-1 gap-8">
-          
+
           {/* Customer Information */}
           <section>
             <div className={cardClass}>
@@ -288,11 +314,10 @@ function TechnicalInspectionContent() {
                     key={type.id}
                     type="button"
                     onClick={() => updateForm("inspectionType", type.id)}
-                    className={`flex flex-col items-center justify-center gap-4 rounded-[1.5rem] border p-6 transition-all duration-300 min-h-[140px] ${
-                      isSelected
-                        ? "border-brand-blue bg-brand-blue-light/30 text-brand-blue ring-4 ring-brand-blue-light/50 shadow-lg -translate-y-1"
-                        : "border-slate-100 bg-slate-50/50 text-slate-600 hover:border-brand-blue-light hover:bg-white hover:shadow-md"
-                    }`}
+                    className={`flex flex-col items-center justify-center gap-4 rounded-[1.5rem] border p-6 transition-all duration-300 min-h-[140px] ${isSelected
+                      ? "border-brand-blue bg-brand-blue-light/30 text-brand-blue ring-4 ring-brand-blue-light/50 shadow-lg -translate-y-1"
+                      : "border-slate-100 bg-slate-50/50 text-slate-600 hover:border-brand-blue-light hover:bg-white hover:shadow-md"
+                      }`}
                   >
                     <type.icon className={`h-10 w-10 transition-all duration-300 ${isSelected ? 'text-brand-blue scale-110 drop-shadow-md' : 'text-slate-400'}`} strokeWidth={isSelected ? 2.5 : 1.5} />
                     <span className="text-sm font-bold text-center leading-tight">{type.label}</span>
@@ -501,7 +526,7 @@ function TechnicalInspectionContent() {
                   {language === 'ar' ? 'يجب على السائق مسح هوية الشخص الذي يستلم السيارة.' : 'Driver must scan the ID of the person receiving the car.'}
                 </p>
               </div>
-              <div 
+              <div
                 onClick={() => updateForm('idCheckRequired', !formData.idCheckRequired)}
                 className={`flex h-7 w-12 cursor-pointer items-center rounded-full p-1 transition-colors duration-300 ${formData.idCheckRequired ? 'bg-blue-600' : 'bg-slate-200'}`}
               >
@@ -514,8 +539,9 @@ function TechnicalInspectionContent() {
           <div className={`flex flex-col sm:flex-row gap-4 mb-16 justify-end ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
             <button
               type="button"
-              onClick={() => updateForm("status", "draft")}
-              className="h-14 w-full sm:w-auto sm:px-10 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
+              disabled={isSubmitting}
+              onClick={handleSaveDraft}
+              className="h-14 w-full sm:w-auto sm:px-10 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-600 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 disabled:opacity-50"
             >
               {t.common.saveDraft}
             </button>
@@ -524,11 +550,10 @@ function TechnicalInspectionContent() {
               type="button"
               disabled={isSubmitting}
               onClick={handleSubmit}
-              className={`h-14 w-full sm:w-auto sm:px-14 rounded-2xl text-sm font-bold transition ${
-                !isSubmitting
-                  ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
-                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
-              }`}
+              className={`h-14 w-full sm:w-auto sm:px-14 rounded-2xl text-sm font-bold transition ${!isSubmitting
+                ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25 hover:opacity-90"
+                : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                }`}
             >
               {isSubmitting ? 'Submitting...' : t.common.submit}
             </button>

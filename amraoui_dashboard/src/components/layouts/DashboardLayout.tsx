@@ -41,12 +41,16 @@ const DashboardLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <div className="relative min-h-screen">
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      <div className="print:hidden">
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      </div>
 
-      <div className="lg:pl-64">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+      <div className="lg:pl-64 print:pl-0">
+        <div className="print:hidden">
+          <Header onMenuClick={() => setSidebarOpen(true)} />
+        </div>
 
-        <main className="min-h-[calc(100vh-4rem)] bg-muted/40 p-4 lg:p-6">
+        <main className="min-h-[calc(100vh-4rem)] bg-muted/40 p-4 lg:p-6 print:min-h-0 print:p-0 print:bg-transparent">
           {children}
         </main>
       </div>

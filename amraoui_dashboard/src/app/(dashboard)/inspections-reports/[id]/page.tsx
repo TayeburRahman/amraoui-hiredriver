@@ -414,7 +414,17 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
               Next <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-1">
+          <button
+            onClick={() => {
+              const originalTitle = document.title;
+              document.title = `Vehiqqo_${request.type || 'Mission'}_${request.missionId || id}`;
+              window.print();
+              setTimeout(() => {
+                document.title = originalTitle;
+              }, 1000);
+            }}
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-1 print:hidden"
+          >
             <Download className="w-4 h-4" /> Download Report
           </button>
         </div>

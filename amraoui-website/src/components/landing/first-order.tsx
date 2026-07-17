@@ -25,13 +25,13 @@ export function FirstOrder({ id }: { id?: string }) {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link
-                href="#"
+                href="https://play.google.com/store/games"
                 className="bg-white text-brand-blue px-8 py-4 rounded-full font-bold hover:bg-blue-50 transition-all text-center shadow-lg"
               >
                 {t.landing.firstOrder.discoverBtn}
               </Link>
               <Link
-                href="#"
+                href="https://play.google.com/store/games"
                 className="border-gradient px-8 py-4 rounded-full font-bold text-white transition-all text-center"
               >
                 {t.landing.firstOrder.contactSalesBtn}

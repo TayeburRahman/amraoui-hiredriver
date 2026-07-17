@@ -29,6 +29,8 @@ const tabs = ["Overview", "Customer Payments", "Driver Commission", "Failed", "C
 export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab, onTabChange }) => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
 
   const handleOpenModal = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
@@ -48,6 +50,25 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const filteredInvoices = invoices.filter(inv => {
+    if (statusFilter !== "All") {
+       if (statusFilter === "Paid" && inv.status !== 'Paid') return false;
+       if (statusFilter === "Pending" && inv.status !== 'Pending') return false;
+       if (statusFilter === "Failed" && inv.status !== 'Failed') return false;
+    }
+    
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      return (
+        inv.id.toLowerCase().includes(q) ||
+        inv.mission.toLowerCase().includes(q) ||
+        inv.customer.toLowerCase().includes(q) ||
+        inv.vehicle.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
 
   return (
     <>
@@ -79,6 +100,8 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
             <input 
               type="text" 
               placeholder="Search invoice, mission, customer..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" 
             />
           </div>
@@ -92,16 +115,16 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 p-2">
                 <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</div>
-                <DropdownMenuItem className="cursor-pointer">Paid Invoices</DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">Pending Invoices</DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">Failed Invoices</DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setStatusFilter("Paid")}>Paid Invoices</DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setStatusFilter("Pending")}>Pending Invoices</DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setStatusFilter("Failed")}>Failed Invoices</DropdownMenuItem>
                 <div className="h-px bg-gray-100 my-1"></div>
                 <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Timeframe</div>
                 <DropdownMenuItem className="cursor-pointer">Today</DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">Last 7 Days</DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer">This Month</DropdownMenuItem>
                 <div className="h-px bg-gray-100 my-1"></div>
-                <DropdownMenuItem className="cursor-pointer text-blue-600 font-medium">Clear Filters</DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer text-blue-600 font-medium" onClick={() => setStatusFilter("All")}>Clear Filters</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -125,9 +148,10 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {invoices.map((invoice) => (
-                <tr key={invoice.id} className="hover:bg-gray-50/80 transition-colors bg-white">
-                  <td className="px-5 py-4 whitespace-nowrap font-semibold text-blue-600">{invoice.id}</td>
+              {filteredInvoices.length > 0 ? (
+                filteredInvoices.map((invoice) => (
+                  <tr key={invoice.id} className="hover:bg-gray-50/80 transition-colors bg-white">
+                    <td className="px-5 py-4 whitespace-nowrap font-semibold text-blue-600">{invoice.id}</td>
                   <td className="px-5 py-4 whitespace-nowrap font-semibold text-blue-600">{invoice.mission}</td>
                   <td className="px-5 py-4 whitespace-nowrap font-bold text-gray-900">{invoice.customer}</td>
                   <td className="px-5 py-4 whitespace-nowrap">{invoice.vehicle}</td>
@@ -149,7 +173,13 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
                     </button>
                   </td>
                 </tr>
-              ))}
+              ))) : (
+                <tr>
+                  <td colSpan={10} className="px-5 py-10 text-center text-gray-500">
+                    No invoices found matching your criteria.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -113,17 +113,26 @@ function InvoicesPageContent() {
       const response = await fetch(fileUrl);
       const blob = await response.blob();
       
+      if (blob.size === 0) {
+        throw new Error('Downloaded blob is 0 bytes');
+      }
+      
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `Vehiqqo_${invoice.missionId}.pdf`;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 1000);
     } catch (error) {
-      console.error("Failed to download invoice", error);
-      alert("Failed to download invoice");
+      console.error("Failed to download invoice using fetch, falling back to new tab", error);
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app';
+      const fileUrl = invoice.invoiceUrl.startsWith('http') ? invoice.invoiceUrl : `${baseUrl}/${invoice.invoiceUrl.replace(/\\/g, '/')}`;
+      window.open(fileUrl, '_blank');
     }
   };
 

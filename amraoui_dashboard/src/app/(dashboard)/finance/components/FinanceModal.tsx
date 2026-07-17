@@ -56,14 +56,22 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
         const fileUrl = req.invoiceUrl.startsWith('http') ? req.invoiceUrl : `${baseUrl}/${req.invoiceUrl.replace(/\\/g, '/')}`;
         const response = await fetch(fileUrl);
         const blob = await response.blob();
+        
+        if (blob.size === 0) {
+          throw new Error('Downloaded blob is 0 bytes');
+        }
+
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `Vehiqqo_${invoice.mission}.pdf`;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }, 1000);
       } catch (error) {
         console.error("Failed to download invoice", error);
         window.open(req.invoiceUrl, '_blank');

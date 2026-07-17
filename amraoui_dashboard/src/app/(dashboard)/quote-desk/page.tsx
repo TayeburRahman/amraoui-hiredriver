@@ -65,6 +65,24 @@ const QuoteDeskPage = () => {
                 let status = quote.status === 'PENDING' ? 'Pending Quote' :
                   quote.status === 'ACCEPTED' ? 'Assigned' : 'Rejected';
 
+                let estimatedTime = 'N/A';
+                if (quote.pickupDate && quote.dropoffDate) {
+                  const start = new Date(`${quote.pickupDate}T${quote.pickupTime || '00:00'}`);
+                  const end = new Date(`${quote.dropoffDate}T${quote.dropoffTime || '00:00'}`);
+                  if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+                    const diffMs = end.getTime() - start.getTime();
+                    if (diffMs > 0) {
+                      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                      const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                      if (days > 0) {
+                        estimatedTime = hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+                      } else {
+                        estimatedTime = `${hours}h`;
+                      }
+                    }
+                  }
+                }
+
                 mapped.push({
                   id: quote._id,
                   reqId: req._id,
@@ -77,7 +95,7 @@ const QuoteDeskPage = () => {
                   licensePlate: licensePlate,
                   pickup: pickupStr,
                   quoteAmount: quote.amount,
-                  estimatedTime: quote.estimatedTime,
+                  estimatedTime: estimatedTime,
                   status: status,
                 });
               });

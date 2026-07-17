@@ -232,6 +232,23 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                     <div className="flex flex-col gap-6">
                         {quotesToDisplay.map((quote: any, index: number) => {
                             const driver = quote.driverId || {};
+                            let estimatedTime = quote.estimatedTime || 'N/A';
+                            if (!quote.estimatedTime && quote.pickupDate && quote.dropoffDate) {
+                                const start = new Date(`${quote.pickupDate}T${quote.pickupTime || '00:00'}`);
+                                const end = new Date(`${quote.dropoffDate}T${quote.dropoffTime || '00:00'}`);
+                                if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+                                    const diffMs = end.getTime() - start.getTime();
+                                    if (diffMs > 0) {
+                                        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                                        const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                        if (days > 0) {
+                                            estimatedTime = hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+                                        } else {
+                                            estimatedTime = `${hours}h`;
+                                        }
+                                    }
+                                }
+                            }
                             return (
                                 <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                                     <div className="flex flex-col lg:flex-row gap-6">
@@ -286,7 +303,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                                     </div>
                                                     <div>
                                                         <p className="text-xs text-gray-500 font-medium">Est. Time</p>
-                                                        <p className="text-lg font-bold text-gray-900">{quote.estimatedTime || 'N/A'}</p>
+                                                        <p className="text-lg font-bold text-gray-900">{estimatedTime}</p>
                                                     </div>
                                                 </div>
                                             </div>

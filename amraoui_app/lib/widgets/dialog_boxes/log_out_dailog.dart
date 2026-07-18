@@ -34,62 +34,32 @@ void logOutDialog() {
             const Gap(height: 30),
             Row(
               children: [
+
                 Expanded(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(
-                      AppSize.width(value: 8.0),
+                  child: Container(
+                    margin: EdgeInsets.all(AppSize.width(value: 5)),
+                    height: AppSize.height(value: 50),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xffEE4747)),
+                      color: const Color(0xffEE4747).withOpacity(.1),
+                      borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
                     ),
-                    onTap: () {
-                      Get.back(); // close dialog
-                    },
-                    child: Container(
-                      margin: EdgeInsets.all(AppSize.width(value: 5)),
-                      padding: EdgeInsets.all(AppSize.width(value: 5)),
-                      width: Get.width,
-                      height: AppSize.height(value: 50),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.primary),
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(
-                          AppSize.width(value: 8.0),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(AppSize.width(value: 8.0)),
+                        onTap: () {
+                          _logoutFun();
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: const AppText(
+                            data: "LogOut",
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xffEE4747),
+                          ),
                         ),
-                      ),
-                      child: const AppText(
-                        data: "Cancel",
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(
-                      AppSize.width(value: 8.0),
-                    ),
-                    onTap: () {
-                      _logoutFun();
-                    },
-                    child: Container(
-                      margin: EdgeInsets.all(AppSize.width(value: 5)),
-                      padding: EdgeInsets.all(AppSize.width(value: 5)),
-                      width: Get.width,
-                      height: AppSize.height(value: 50),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: const Color(0xffEE4747)),
-                        color: const Color(0xffEE4747).withOpacity(.1),
-                        borderRadius: BorderRadius.circular(
-                          AppSize.width(value: 8.0),
-                        ),
-                      ),
-                      child: const AppText(
-                        data: "LogOut",
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xffEE4747),
                       ),
                     ),
                   ),

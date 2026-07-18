@@ -136,79 +136,84 @@ class SignUpController extends GetxController {
   }
 
   void showTermsAndConditions() {
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          constraints: BoxConstraints(maxHeight: Get.height * 0.7),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Terms & Conditions',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF0F172A),
+    showDialog(
+      context: Get.context!,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            constraints: BoxConstraints(maxHeight: Get.height * 0.7),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Terms & Conditions',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Flexible(
-                child: FutureBuilder(
-                  future: Dio().get(AppApiUrl.baseUrl + AppApiUrl.settingsUrl),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return const Text(
-                        'Failed to load Terms & Conditions',
-                        style: TextStyle(color: Colors.red),
-                      );
-                    } else {
-                      final data = (snapshot.data as dynamic).data['data'];
-                      final terms =
-                          data?['termsCondition'] ??
-                          'No Terms & Conditions available at the moment.';
-                      return SingleChildScrollView(
-                        child: Text(
-                          terms.toString(),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF334155),
+                const SizedBox(height: 16),
+                Flexible(
+                  child: FutureBuilder(
+                    future: Dio().get(AppApiUrl.baseUrl + AppApiUrl.settingsUrl),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return const Text(
+                          'Failed to load Terms & Conditions',
+                          style: TextStyle(color: Colors.red),
+                        );
+                      } else {
+                        final data = (snapshot.data as dynamic).data['data'];
+                        final terms =
+                            data?['termsCondition'] ??
+                            'No Terms & Conditions available at the moment.';
+                        return SingleChildScrollView(
+                          child: Text(
+                            terms.toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF334155),
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Get.back(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: const Text(
-                    'Close',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
+                        );
+                      }
+                    },
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(dialogContext).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2563EB),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(
+                      'Close',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

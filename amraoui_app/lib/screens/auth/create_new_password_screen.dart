@@ -110,10 +110,10 @@ class CreateNewPasswordScreen extends StatelessWidget {
 
                   const Gap(height: 24),
 
-                  _buildRequirementItem('At least 8 characters', true),
-                  _buildRequirementItem('One uppercase letter', false),
-                  _buildRequirementItem('One number', false),
-                  _buildRequirementItem('One special character', false),
+                  Obx(() => _buildRequirementItem('At least 8 characters', controller.hasMinLength.value)),
+                  Obx(() => _buildRequirementItem('One uppercase letter', controller.hasUppercase.value)),
+                  Obx(() => _buildRequirementItem('One number', controller.hasNumber.value)),
+                  Obx(() => _buildRequirementItem('One special character', controller.hasSpecialChar.value)),
                 ],
               ),
             ),
@@ -134,11 +134,13 @@ class CreateNewPasswordScreen extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const AppText(
-                  data: 'Reset Password',
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                child: const Center(
+                  child: AppText(
+                    data: 'Reset Password',
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

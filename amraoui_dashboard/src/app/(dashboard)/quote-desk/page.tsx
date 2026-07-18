@@ -10,7 +10,7 @@ import img5 from "../../asstes/img5.png";
 import img6 from "../../asstes/img6.png";
 import Image from 'next/image';
 import { Search, Filter, ArrowUpDown, MapPin, Car, Calendar, Loader2 } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuPortal } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { apiFetch, getProfileImageUrl } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/dateUtils';
@@ -22,6 +22,10 @@ const QuoteDeskPage = () => {
   const [activeTab, setActiveTab] = useState("All");
   const [requests, setRequests] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("Newest First");
+  const [filterDate, setFilterDate] = useState("All Dates");
+  const [filterRoute, setFilterRoute] = useState("All Routes");
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -134,15 +138,15 @@ const QuoteDeskPage = () => {
 
   const metrics = [
     {
-      title: "New Quotes",
-      description: "New driver submissions",
-      value: requests.length.toString(),
+      title: "New Customer Requests",
+      description: "Waiting for admin quote",
+      value: requests.filter(r => r.status === 'Pending Quote' && !r.driver).length.toString(),
       icon: img1,
     },
     {
-      title: "Pending Review",
+      title: "Pending Driver Quotes",
       description: "Waiting for admin decision",
-      value: requests.filter(r => r.status === 'Pending Quote').length.toString(),
+      value: requests.filter(r => r.status === 'Pending Quote' && !!r.driver).length.toString(),
       icon: img2,
     },
     {
@@ -171,9 +175,52 @@ const QuoteDeskPage = () => {
     },
   ];
 
-  const filteredRequests = activeTab === "All"
+  let filteredRequests = activeTab === "All"
     ? requests.filter(req => req.status !== "Assigned")
     : requests.filter(req => req.status === activeTab);
+
+  if (searchQuery.trim()) {
+    const q = searchQuery.toLowerCase();
+    filteredRequests = filteredRequests.filter(r => 
+      (r.missionId || '').toLowerCase().includes(q) ||
+      (r.title || '').toLowerCase().includes(q) ||
+      (r.route || '').toLowerCase().includes(q) ||
+      (r.car || '').toLowerCase().includes(q) ||
+      (r.licensePlate || '').toLowerCase().includes(q)
+    );
+  }
+
+  if (filterDate === "Today") {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    const todayStr = `${dd}/${mm}/${yyyy}`;
+    filteredRequests = filteredRequests.filter(r => r.pickup?.includes(todayStr));
+  }
+
+  if (filterRoute !== "All Routes") {
+    filteredRequests = filteredRequests.filter(r => r.route === filterRoute);
+  }
+
+  if (sortBy === "Price: Low to High") {
+    filteredRequests.sort((a, b) => (a.quoteAmount || 0) - (b.quoteAmount || 0));
+  } else if (sortBy === "Price: High to Low") {
+    filteredRequests.sort((a, b) => (b.quoteAmount || 0) - (a.quoteAmount || 0));
+  } else if (sortBy === "Oldest First") {
+    filteredRequests.sort((a, b) => {
+      const aTime = a.id?.toString().substring(0,8) || "";
+      const bTime = b.id?.toString().substring(0,8) || "";
+      return aTime.localeCompare(bTime);
+    });
+  } else {
+    // Newest First (default)
+    filteredRequests.sort((a, b) => {
+      const aTime = a.id?.toString().substring(0,8) || "";
+      const bTime = b.id?.toString().substring(0,8) || "";
+      return bTime.localeCompare(aTime);
+    });
+  }
 
   return (
     <div className="overflow-auto pb-8">
@@ -217,6 +264,8 @@ const QuoteDeskPage = () => {
               type="text"
               placeholder="Search request, customer, route..."
               className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
@@ -224,23 +273,53 @@ const QuoteDeskPage = () => {
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:bg-gray-50 bg-white transition-colors outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
                 <Filter className="w-4 h-4 text-gray-500" /> Filter
+                {(filterDate !== "All Dates" || filterRoute !== "All Routes") && (
+                  <span className="w-2 h-2 rounded-full bg-blue-500 ml-1"></span>
+                )}
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem>Status</DropdownMenuItem>
-                <DropdownMenuItem>Date</DropdownMenuItem>
-                <DropdownMenuItem>Route</DropdownMenuItem>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={() => setActiveTab("All")}>All</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setActiveTab("Pending Quote")}>Pending Quote</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setActiveTab("Assigned")}>Assigned</DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Date</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={() => setFilterDate("All Dates")}>All Dates</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setFilterDate("Today")}>Today</DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Route</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent className="max-h-60 overflow-y-auto">
+                      <DropdownMenuItem onClick={() => setFilterRoute("All Routes")}>All Routes</DropdownMenuItem>
+                      {Array.from(new Set(requests.map(r => r.route))).filter(r => r && r !== 'N/A').slice(0, 10).map(r => (
+                        <DropdownMenuItem key={r} onClick={() => setFilterRoute(r)}>{r}</DropdownMenuItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
 
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:bg-gray-50 bg-white transition-colors outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">
-                <ArrowUpDown className="w-4 h-4 text-gray-500" /> Sort
+                <ArrowUpDown className="w-4 h-4 text-gray-500" /> Sort: {sortBy}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem>Newest First</DropdownMenuItem>
-                <DropdownMenuItem>Oldest First</DropdownMenuItem>
-                <DropdownMenuItem>Price: Low to High</DropdownMenuItem>
-                <DropdownMenuItem>Price: High to Low</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("Newest First")}>Newest First</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("Oldest First")}>Oldest First</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("Price: Low to High")}>Price: Low to High</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortBy("Price: High to Low")}>Price: High to Low</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

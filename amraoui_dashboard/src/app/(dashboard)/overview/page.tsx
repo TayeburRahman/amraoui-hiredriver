@@ -39,10 +39,10 @@ export default function Overview() {
   const countStatus = (status: string) => requests.filter((r) => r.status === status).length;
 
   const newCustomerRequests = countStatus("PENDING_ADMIN_QUOTE");
-  const pendingDriverQuotes = countStatus("PENDING_DRIVER_QUOTE");
+  const pendingDriverQuotes = countStatus("ADMIN_REVIEWING_DRIVERS");
   const completedMissions = countStatus("COMPLETED");
   const cancelledMissions = countStatus("CANCELLED");
-  const inTransitCount = countStatus("IN_TRANSIT");
+  const inTransitCount = countStatus("IN_PROGRESS");
 
   const todayStr = new Date().toISOString().split("T")[0];
   let pickupDueToday = 0;

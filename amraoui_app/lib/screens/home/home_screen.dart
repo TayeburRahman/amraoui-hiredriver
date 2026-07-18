@@ -9,6 +9,7 @@ import 'package:Vehiqqo/screens/navigation/controllers/navigation_controller.dar
 import 'package:Vehiqqo/screens/notifications/notifications_screen.dart';
 import 'package:Vehiqqo/service/repository/notification_repository.dart';
 import 'package:Vehiqqo/widgets/cards/location_timeline_widget.dart';
+import 'package:Vehiqqo/screens/missions/missions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -363,7 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.assignment_outlined,
             iconColor: const Color(0xFF2563EB),
             bgColor: const Color(0xFFEFF6FF),
-            onTap: () => _switchTab(1),
+            onTap: _navigateToAvailableMissions,
           ),
           _buildSummaryCard(
             title: 'Assigned missions',
@@ -372,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.account_tree_outlined,
             iconColor: const Color(0xFF10B981),
             bgColor: const Color(0xFFECFDF5),
-            onTap: () => _switchTab(1),
+            onTap: _navigateToAssignedMissions,
           ),
           _buildSummaryCard(
             title: 'Pending quotes',
@@ -381,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.description_outlined,
             iconColor: const Color(0xFFF59E0B),
             bgColor: const Color(0xFFFFFBEB),
-            onTap: () => _switchTab(2),
+            onTap: _navigateToPendingQuotes,
           ),
           _buildSummaryCard(
             title: 'Completed jobs',
@@ -390,7 +391,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.check_circle_outline,
             iconColor: const Color(0xFF22C55E),
             bgColor: const Color(0xFFF0FDF4),
-            onTap: () => _switchTab(1),
+            onTap: _navigateToCompletedJobs,
           ),
         ],
       ),
@@ -779,10 +780,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
-  void _switchTab(int index) {
+  void _navigateToAvailableMissions() {
     if (Get.isRegistered<NavigationController>()) {
-      Get.find<NavigationController>().changeIndex(index);
+      Get.find<NavigationController>().changeIndex(1);
     }
+    final missionsCtrl = Get.put(MissionsController());
+    missionsCtrl.setMainTab(0);
+    missionsCtrl.setFilter('All');
+  }
+
+  void _navigateToAssignedMissions() {
+    if (Get.isRegistered<NavigationController>()) {
+      Get.find<NavigationController>().changeIndex(1);
+    }
+    final missionsCtrl = Get.put(MissionsController());
+    missionsCtrl.setMainTab(1);
+    missionsCtrl.setMyMissionsFilter('Assigned');
+  }
+
+  void _navigateToPendingQuotes() {
+    if (Get.isRegistered<NavigationController>()) {
+      Get.find<NavigationController>().changeIndex(2);
+    }
+  }
+
+  void _navigateToCompletedJobs() {
+    if (Get.isRegistered<NavigationController>()) {
+      Get.find<NavigationController>().changeIndex(1);
+    }
+    final missionsCtrl = Get.put(MissionsController());
+    missionsCtrl.setMainTab(1);
+    missionsCtrl.setMyMissionsFilter('Completed');
   }
 
   Widget _buildSummaryCard({

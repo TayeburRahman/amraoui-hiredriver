@@ -33,6 +33,15 @@ const timeOptions = Array.from({ length: 48 }).map((_, i) => {
   return `${hours}:${minutes}`;
 });
 
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return dateStr;
+};
+
 const initialFormData = {
   make: '',
   model: '',
@@ -1260,12 +1269,12 @@ function TransportRequestContent() {
                           <div>
                             <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Pickup</p>
                             <p className="text-sm text-slate-600">{formData.pickupAddress}, {formData.pickupCity}</p>
-                            <p className="text-xs text-slate-400 mt-1">{formData.pickupDate}</p>
+                            <p className="text-xs text-slate-400 mt-1">{formatDate(formData.pickupDate)}</p>
                           </div>
                           <div>
                             <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Dropoff</p>
                             <p className="text-sm text-slate-600">{formData.dropoffAddress}, {formData.dropoffCity}</p>
-                            <p className="text-xs text-slate-400 mt-1">{formData.dropoffDate}</p>
+                            <p className="text-xs text-slate-400 mt-1">{formatDate(formData.dropoffDate)}</p>
                           </div>
                         </div>
                       </Card>
@@ -1299,8 +1308,8 @@ function TransportRequestContent() {
                           <h3 className="font-bold text-brand-text">{t.createRequest.steps.schedule}</h3>
                         </div>
                         <div className="space-y-2">
-                          <p className="text-sm text-slate-600"><span className="font-bold">Pickup:</span> {formData.pickupDate} {formData.pickupTime}</p>
-                          <p className="text-sm text-slate-600"><span className="font-bold">Delivery:</span> {formData.dropoffDate} {formData.dropoffTime}</p>
+                          <p className="text-sm text-slate-600"><span className="font-bold">Pickup:</span> {formatDate(formData.pickupDate)} {formData.pickupTime}</p>
+                          <p className="text-sm text-slate-600"><span className="font-bold">Delivery:</span> {formatDate(formData.dropoffDate)} {formData.dropoffTime}</p>
                           <p className="text-sm text-slate-600"><span className="font-bold">Method:</span> <span className="capitalize">{formData.paymentMethod.replace('_', ' ')}</span></p>
                         </div>
                       </Card>
@@ -1432,11 +1441,11 @@ function TransportRequestContent() {
                         <div className="flex flex-col justify-between h-14 min-w-0 flex-1">
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm font-bold text-brand-text break-all line-clamp-2">{formData.pickupAddress ? `${formData.pickupAddress}` : 'Pickup location not set'}</span>
-                            {formData.pickupDate && <span className="text-xs text-slate-500">{formData.pickupDate}</span>}
+                            {formData.pickupDate && <span className="text-xs text-slate-500">{formatDate(formData.pickupDate)}</span>}
                           </div>
                           <div className="flex flex-col min-w-0">
                             <span className="text-sm font-bold text-brand-text break-all line-clamp-2">{formData.dropoffAddress ? `${formData.dropoffAddress}` : 'Dropoff location not set'}</span>
-                            {formData.dropoffDate && <span className="text-xs text-slate-500">{formData.dropoffDate}</span>}
+                            {formData.dropoffDate && <span className="text-xs text-slate-500">{formatDate(formData.dropoffDate)}</span>}
                           </div>
                         </div>
                       </div>
@@ -1529,13 +1538,13 @@ function TransportRequestContent() {
                       <div className="flex justify-between items-center gap-4">
                         <span className="text-sm font-medium text-slate-500 shrink-0">Pickup</span>
                         <span className="text-sm font-bold text-brand-text truncate min-w-0 text-right flex-1">
-                          {formData.pickupDate ? `${formData.pickupDate} ${formData.pickupTime}` : '-'}
+                          {formData.pickupDate ? `${formatDate(formData.pickupDate)} ${formData.pickupTime}` : '-'}
                         </span>
                       </div>
                       <div className="flex justify-between items-center gap-4">
                         <span className="text-sm font-medium text-slate-500 shrink-0">Delivery</span>
                         <span className="text-sm font-bold text-brand-text truncate min-w-0 text-right flex-1">
-                          {formData.dropoffDate ? `${formData.dropoffDate} ${formData.dropoffTime}` : '-'}
+                          {formData.dropoffDate ? `${formatDate(formData.dropoffDate)} ${formData.dropoffTime}` : '-'}
                         </span>
                       </div>
                       <div className="flex justify-between items-center gap-4">

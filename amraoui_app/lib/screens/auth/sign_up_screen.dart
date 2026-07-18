@@ -435,32 +435,43 @@ class SignUpScreen extends StatelessWidget {
                 const Gap(height: 40),
 
                 // Create Account Button
-                GestureDetector(
-                  onTap: controller.createAccount,
-                  child: Container(
-                    width: double.infinity,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF2563EB).withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                Obx(
+                  () => GestureDetector(
+                    onTap: controller.isLoading.value ? null : controller.createAccount,
+                    child: Container(
+                      width: double.infinity,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
                         ),
-                      ],
-                    ),
-                    child: const Center(
-                      child: AppText(
-                        data: 'Create Account',
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF2563EB).withOpacity(0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: controller.isLoading.value
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2.5,
+                                ),
+                              )
+                            : const AppText(
+                                data: 'Create Account',
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                       ),
                     ),
                   ),

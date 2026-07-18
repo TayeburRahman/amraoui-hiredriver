@@ -312,6 +312,8 @@ class MissionDetailsScreen extends StatelessWidget {
               if (detailsObj['dropoffContactPhone']?.toString().isNotEmpty ==
                   true)
                 _buildInfoRow('Phone', detailsObj['dropoffContactPhone']),
+              if (detailsObj['dropoffCompany']?.toString().isNotEmpty == true)
+                _buildInfoRow('Company', detailsObj['dropoffCompany']),
               if (detailsObj['dropoffInstructions']?.toString().isNotEmpty ==
                   true)
                 _buildInfoRow(

@@ -26,7 +26,7 @@ import { getSession } from "@/lib/auth";
 import { connectSocket } from "@/lib/socket";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Overview", href: "overview" },
+  { icon: LayoutDashboard, label: "Overview", href: "/overview" },
   { icon: Users, label: "Create Request", href: "/create-request" },
   { icon: FileText, label: "Quote Desk", href: "/quote-desk" },
   { icon: MapPin, label: "Mission Monitoring", href: "/mission-monitoring" },

@@ -212,6 +212,8 @@ class SignUpController extends GetxController {
     );
   }
 
+  var isLoading = false.obs;
+
   Future<void> createAccount() async {
     if (!agreeToTerms.value) {
       AppSnackBar.error('Please agree to Terms & Conditions');
@@ -226,7 +228,7 @@ class SignUpController extends GetxController {
       return;
     }
 
-    appGlobalLoading();
+    isLoading.value = true;
     try {
       final phone =
           '+${selectedCountry.value.phoneCode} ${phoneController.text.trim()}';
@@ -264,7 +266,6 @@ class SignUpController extends GetxController {
             ? driverLicenseBackImagePath.value
             : null,
       );
-      hideGlobalLoading();
 
       if (res?['success'] == true) {
         await AppStorage().setValue(
@@ -293,7 +294,7 @@ class SignUpController extends GetxController {
     } catch (e) {
       AppSnackBar.error('Registration failed');
     } finally {
-      hideGlobalLoading();
+      isLoading.value = false;
     }
   }
 

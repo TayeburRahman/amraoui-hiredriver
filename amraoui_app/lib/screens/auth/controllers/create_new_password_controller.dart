@@ -14,6 +14,25 @@ class CreateNewPasswordController extends GetxController {
   var isNewPasswordVisible = false.obs;
   var isConfirmPasswordVisible = false.obs;
 
+  var hasMinLength = false.obs;
+  var hasUppercase = false.obs;
+  var hasNumber = false.obs;
+  var hasSpecialChar = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    newPasswordController.addListener(_validatePassword);
+  }
+
+  void _validatePassword() {
+    final text = newPasswordController.text;
+    hasMinLength.value = text.length >= 8;
+    hasUppercase.value = text.contains(RegExp(r'[A-Z]'));
+    hasNumber.value = text.contains(RegExp(r'[0-9]'));
+    hasSpecialChar.value = text.contains(RegExp(r'[!@#\$&*~`%\^()_+={}\[\]|\\:;"<>,.?/-]'));
+  }
+
   void toggleNewPasswordVisibility() =>
       isNewPasswordVisible.value = !isNewPasswordVisible.value;
   void toggleConfirmPasswordVisibility() =>

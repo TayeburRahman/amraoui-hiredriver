@@ -543,9 +543,9 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
       {/* Cancel Warning Modal */}
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-          <Card className="w-full max-w-md p-6 sm:p-8 rounded-[2rem] border-none shadow-2xl bg-white animate-in fade-in zoom-in-95 duration-200">
+          <Card className="w-full max-w-sm p-6 sm:p-8 rounded-[2rem] border-none shadow-2xl bg-white animate-in fade-in zoom-in-95 duration-200">
             <h3 className="text-xl font-black text-brand-text mb-2">Cancel Order?</h3>
-            <p className="text-slate-500 mb-6 font-medium">
+            <p className="text-slate-500 mb-6 font-medium text-sm">
               Are you sure you want to cancel this mission? This action cannot be undone and drivers will be notified.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
@@ -553,14 +553,14 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
                 onClick={() => setShowCancelModal(false)}
                 disabled={isCancelling}
                 variant="outline"
-                className="w-full h-12 rounded-2xl border-slate-200 text-slate-600 font-bold"
+                className="w-full sm:w-auto flex-1 h-12 rounded-2xl border-slate-200 text-slate-600 font-bold"
               >
                 No, keep it
               </Button>
               <Button 
                 onClick={handleCancelOrder}
                 disabled={isCancelling}
-                className="w-full h-12 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-bold"
+                className="w-full sm:w-auto flex-1 h-12 rounded-2xl bg-red-500 hover:bg-red-600 text-white font-bold"
               >
                 {isCancelling ? 'Cancelling...' : 'Yes, Cancel Order'}
               </Button>

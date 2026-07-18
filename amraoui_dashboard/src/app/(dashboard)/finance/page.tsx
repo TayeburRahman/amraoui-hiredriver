@@ -48,7 +48,6 @@ const mockInvoices: Invoice[] = [
 
 const FinancePage = () => {
   const [activeTab, setActiveTab] = useState("Customer Payments");
-  const [currentPage, setCurrentPage] = useState(1);
   const [requests, setRequests] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -70,8 +69,9 @@ const FinancePage = () => {
   }, []);
 
   const totalRevenue = requests.reduce((sum, r) => sum + (r.adminQuote?.amount || 0), 0);
-  const pendingPayments = requests.reduce((sum, r) => sum + (r.status !== 'COMPLETED' ? (r.adminQuote?.amount || 0) : 0), 0);
+  const pendingPayments = requests.reduce((sum, r) => sum + (r.status !== 'COMPLETED' && r.status !== 'CANCELLED' ? (r.adminQuote?.amount || 0) : 0), 0);
   const paidPayments = requests.reduce((sum, r) => sum + (r.status === 'COMPLETED' ? (r.adminQuote?.amount || 0) : 0), 0);
+  const failedPayments = requests.reduce((sum, r) => sum + (r.status === 'CANCELLED' ? (r.adminQuote?.amount || 0) : 0), 0);
 
   const getDriverPayout = (r: any) => {
     const quote = r.driverQuotes?.find((q: any) => q.status === 'ACCEPTED');
@@ -93,6 +93,39 @@ const FinancePage = () => {
   const payoutsPaid = requests.reduce((sum, r) => sum + (r.status === 'COMPLETED' ? getDriverPayout(r) : 0), 0);
 
   const cancellationFees = requests.reduce((sum, r) => sum + (r.status === 'CANCELLED' ? 50 : 0), 0); // Mock 50 per cancellation
+
+  const paymentStatusData = [
+    { name: `Paid: €${(paidPayments/1000).toFixed(1)}k`, value: paidPayments, color: '#10B981' },
+    { name: `Pending: €${(pendingPayments/1000).toFixed(1)}k`, value: pendingPayments, color: '#F59E0B' },
+    { name: `Failed: €${(failedPayments/1000).toFixed(1)}k`, value: failedPayments, color: '#EF4444' },
+  ].filter(d => d.value > 0);
+
+  const driverPayoutData = [
+    { name: 'Paid', value: payoutsPaid },
+    { name: 'Pending', value: payoutsPending },
+  ];
+
+  const revenueByDate: Record<string, { Revenue: number, Payouts: number, Margin: number }> = {};
+  [...requests]
+    .sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime())
+    .forEach(r => {
+      if (!r.createdAt) return;
+      const d = new Date(r.createdAt);
+      const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (!revenueByDate[dateStr]) {
+        revenueByDate[dateStr] = { Revenue: 0, Payouts: 0, Margin: 0 };
+      }
+      const rev = r.adminQuote?.amount || 0;
+      const payout = getDriverPayout(r);
+      revenueByDate[dateStr].Revenue += rev;
+      revenueByDate[dateStr].Payouts += payout;
+      revenueByDate[dateStr].Margin += (rev - payout);
+    });
+
+  const revenueChartData = Object.keys(revenueByDate).slice(-6).map(name => ({
+    name,
+    ...revenueByDate[name]
+  }));
 
   const dynamicInvoices: Invoice[] = requests.filter(r => r.adminQuote?.amount).map(r => {
     let vehicle = 'N/A';
@@ -117,7 +150,7 @@ const FinancePage = () => {
       vehicle,
       route,
       amount: r.adminQuote?.amount || 0,
-      status: r.status === 'COMPLETED' ? 'Paid' : (r.status === 'CANCELLED' ? 'Failed' : 'Pending'),
+      status: r.status === 'COMPLETED' ? 'Paid' : (r.status === 'CANCELLED' ? 'Cancelled' : (r.status === 'FAILED' ? 'Failed' : 'Pending')),
       method: r.details?.paymentMethod || 'Invoice',
       date: formatDate(r.updatedAt),
       rawRequest: r,
@@ -172,26 +205,19 @@ const FinancePage = () => {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <RevenueChart />
-        <PaymentStatusChart />
+        <RevenueChart data={revenueChartData} />
+        <PaymentStatusChart data={paymentStatusData} />
       </div>
 
       {/* Driver Payout Chart */}
-      <DriverPayoutChart />
+      <DriverPayoutChart data={driverPayoutData} />
 
       {/* Data Table */}
       <FinanceTable
-        invoices={dynamicInvoices.slice((currentPage - 1) * 10, currentPage * 10)}
+        invoices={dynamicInvoices}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-      <div className="rounded-b-2xl overflow-hidden border-x border-b border-gray-200">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(dynamicInvoices.length / 10) || 1}
-          onPageChange={setCurrentPage}
-        />
-      </div>
     </div>
   );
 };

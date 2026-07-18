@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { FinanceModal } from './FinanceModal';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Pagination } from "../../mission-monitoring/components/Pagination";
 
 export interface Invoice {
   id: string;
@@ -31,6 +32,13 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [timeframeFilter, setTimeframeFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset page when tab or filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery, statusFilter, timeframeFilter]);
 
   const handleOpenModal = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
@@ -47,15 +55,35 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
       case 'Paid': return 'bg-green-100 text-green-600';
       case 'Pending': return 'bg-orange-100 text-orange-600';
       case 'Failed': return 'bg-red-100 text-red-600';
+      case 'Cancelled': return 'bg-gray-200 text-gray-700';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
   const filteredInvoices = invoices.filter(inv => {
+    if (activeTab === "Customer Payments" && (!inv.amount || inv.amount <= 0)) return false;
+    if (activeTab === "Driver Commission" && !inv.rawRequest?.driverQuotes?.length && !inv.rawRequest?.expenses?.length && inv.commissionStatus === 'PENDING') return false; // Basic heuristic for driver comms
+    if (activeTab === "Failed" && inv.status !== 'Failed') return false;
+    if (activeTab === "Cancellations" && inv.status !== 'Cancelled' && inv.rawRequest?.status !== 'CANCELLED') return false;
+
     if (statusFilter !== "All") {
       if (statusFilter === "Paid" && inv.status !== 'Paid') return false;
       if (statusFilter === "Pending" && inv.status !== 'Pending') return false;
       if (statusFilter === "Failed" && inv.status !== 'Failed') return false;
+    }
+
+    if (timeframeFilter !== "All" && inv.rawRequest?.createdAt) {
+      const invDate = new Date(inv.rawRequest.createdAt);
+      const today = new Date();
+      if (timeframeFilter === "Today") {
+        if (invDate.toDateString() !== today.toDateString()) return false;
+      } else if (timeframeFilter === "Last 7 Days") {
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
+        if (invDate < sevenDaysAgo) return false;
+      } else if (timeframeFilter === "This Month") {
+        if (invDate.getMonth() !== today.getMonth() || invDate.getFullYear() !== today.getFullYear()) return false;
+      }
     }
 
     if (searchQuery) {
@@ -69,6 +97,9 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
     }
     return true;
   });
+
+  const paginatedInvoices = filteredInvoices.slice((currentPage - 1) * 10, currentPage * 10);
+  const totalPages = Math.ceil(filteredInvoices.length / 10) || 1;
 
   return (
     <>
@@ -119,11 +150,17 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
                 <DropdownMenuItem className="cursor-pointer" onClick={() => setStatusFilter("Failed")}>Failed Invoices</DropdownMenuItem>
                 <div className="h-px bg-gray-100 my-1"></div>
                 <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Timeframe</div>
-                <DropdownMenuItem className="cursor-pointer">Today</DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">Last 7 Days</DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">This Month</DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setTimeframeFilter("Today")}>
+                  <span className={timeframeFilter === "Today" ? "font-bold text-blue-600" : ""}>Today</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setTimeframeFilter("Last 7 Days")}>
+                  <span className={timeframeFilter === "Last 7 Days" ? "font-bold text-blue-600" : ""}>Last 7 Days</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setTimeframeFilter("This Month")}>
+                  <span className={timeframeFilter === "This Month" ? "font-bold text-blue-600" : ""}>This Month</span>
+                </DropdownMenuItem>
                 <div className="h-px bg-gray-100 my-1"></div>
-                <DropdownMenuItem className="cursor-pointer text-blue-600 font-medium" onClick={() => setStatusFilter("All")}>Clear Filters</DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer text-blue-600 font-medium" onClick={() => { setStatusFilter("All"); setTimeframeFilter("All"); }}>Clear Filters</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -147,8 +184,8 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {filteredInvoices.length > 0 ? (
-                filteredInvoices.map((invoice) => (
+              {paginatedInvoices.length > 0 ? (
+                paginatedInvoices.map((invoice) => (
                   <tr key={invoice.id} className="hover:bg-gray-50/80 transition-colors bg-white">
                     <td className="px-5 py-4 whitespace-nowrap font-semibold text-blue-600">{invoice.id}</td>
                     <td className="px-5 py-4 whitespace-nowrap font-semibold text-blue-600">{invoice.mission}</td>
@@ -181,6 +218,13 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
               )}
             </tbody>
           </table>
+        </div>
+        <div className="border-t border-gray-200">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
 

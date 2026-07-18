@@ -3,16 +3,7 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { name: 'Apr 5', Revenue: 3100, Payouts: 2000, Margin: 1100 },
-  { name: 'Apr 10', Revenue: 4000, Payouts: 2400, Margin: 1600 },
-  { name: 'Apr 15', Revenue: 3800, Payouts: 2200, Margin: 1600 },
-  { name: 'Apr 20', Revenue: 4500, Payouts: 2800, Margin: 1700 },
-  { name: 'Apr 25', Revenue: 5200, Payouts: 3100, Margin: 2100 },
-  { name: 'May 1', Revenue: 4800, Payouts: 2900, Margin: 1900 },
-];
-
-export const RevenueChart = () => {
+export const RevenueChart = ({ data = [] }: { data?: any[] }) => {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 h-[350px]">
       <h3 className="font-bold text-gray-900 mb-6">Revenue Trend (Last 30 Days)</h3>
@@ -24,7 +15,7 @@ export const RevenueChart = () => {
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
             <XAxis dataKey="name" axisLine={true} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
-            <YAxis axisLine={true} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dx={-10} ticks={[0, 1500, 3000, 4500, 6000]} />
+            <YAxis axisLine={true} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dx={-10} />
             <Tooltip 
               contentStyle={{ borderRadius: '8px', border: '1px solid #E5E7EB', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
             />

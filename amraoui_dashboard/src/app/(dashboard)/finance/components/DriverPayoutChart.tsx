@@ -3,13 +3,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-const data = [
-  { name: 'Paid', value: 75000 },
-  { name: 'Pending', value: 18000 },
-  { name: 'Processing', value: 8000 },
-];
-
-export const DriverPayoutChart = () => {
+export const DriverPayoutChart = ({ data = [] }: { data?: any[] }) => {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 mt-6">
       <h3 className="font-bold text-gray-900 mb-6">Driver Payout Status</h3>

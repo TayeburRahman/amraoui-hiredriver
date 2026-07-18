@@ -12,6 +12,7 @@ interface FinanceModalProps {
 
 export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onClose, activeTab }) => {
   const [isExpenseModalOpen, setIsExpenseModalOpen] = React.useState(false);
+  const [isUploading, setIsUploading] = React.useState(false);
 
   if (!isOpen || !invoice) return null;
   // If we are looking at the Driver Commission tab, we show the driver payout logic
@@ -97,7 +98,6 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
     }
   };
 
-  const [isUploading, setIsUploading] = React.useState(false);
 
   const handleUploadInvoice = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

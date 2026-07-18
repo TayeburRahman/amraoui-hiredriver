@@ -4,14 +4,7 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-const data = [
-  { name: 'Paid: €90.3k', value: 90300, color: '#10B981' },
-  { name: 'Pending: €12.8k', value: 12800, color: '#F59E0B' },
-  { name: 'Refunded: €3.4k', value: 3400, color: '#3B82F6' },
-  { name: 'Failed: €2.4k', value: 2400, color: '#EF4444' },
-];
-
-export const PaymentStatusChart = () => {
+export const PaymentStatusChart = ({ data = [] }: { data?: any[] }) => {
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 h-[350px]">
       <h3 className="font-bold text-gray-900 mb-2">Payment Status Distribution</h3>

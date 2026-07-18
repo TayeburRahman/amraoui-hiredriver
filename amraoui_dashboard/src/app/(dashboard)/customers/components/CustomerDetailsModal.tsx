@@ -13,6 +13,7 @@ import {
   ShieldOff,
   ShieldCheck,
   User,
+  Briefcase,
 } from 'lucide-react';
 import type { ICustomerRecord } from '../page';
 import { formatDate, formatDateTime } from '@/lib/dateUtils';
@@ -154,7 +155,7 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
   const isBlocked = customer.authId?.is_block ?? customer.status === 'deactivate';
   const email = customer.authId?.email || customer.email;
 
-  const formatDate = (dateStr?: string) => {
+  const getSafeDate = (dateStr?: string) => {
     if (!dateStr) return '—';
     return formatDate(dateStr);
   };
@@ -222,18 +223,35 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
             <InfoRow icon={<MapPin className="w-4 h-4" />} label="Address" value={customer.address} />
           </div>
 
+          {/* Business Info */}
+          {(customer.company || customer.tax_number) && (
+            <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 space-y-4">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Business</p>
+              {customer.company && <InfoRow icon={<Briefcase className="w-4 h-4" />} label="Company" value={customer.company} />}
+              {customer.tax_number && <InfoRow icon={<Briefcase className="w-4 h-4" />} label="Tax Number" value={customer.tax_number} />}
+            </div>
+          )}
+
+          {/* Notes */}
+          {customer.message && (
+            <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 space-y-2">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Notes</p>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap">{customer.message}</p>
+            </div>
+          )}
+
           {/* Account Info */}
           <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 space-y-4">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Account</p>
             <InfoRow
               icon={<Calendar className="w-4 h-4" />}
               label="Date of Birth"
-              value={formatDate(customer.date_of_birth)}
+              value={getSafeDate(customer.date_of_birth)}
             />
             <InfoRow
               icon={<Calendar className="w-4 h-4" />}
               label="Joined"
-              value={formatDate(customer.createdAt || customer.authId?.createdAt)}
+              value={getSafeDate(customer.createdAt || customer.authId?.createdAt)}
             />
             <InfoRow
               icon={<Globe className="w-4 h-4" />}
@@ -265,7 +283,7 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
                   <p className="text-xs font-semibold text-gray-800">{customer.authId?.name || customer.name} <span className="ml-1 text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase">Primary</span></p>
                   <p className="text-[11px] text-gray-500">{email}</p>
                 </div>
-                <div className="text-[10px] text-gray-400">Created: {formatDate(customer.authId?.createdAt)}</div>
+                <div className="text-[10px] text-gray-400">Created: {getSafeDate(customer.authId?.createdAt)}</div>
               </div>
 
               {(customer as any).linkedAuthIds?.map((auth: any) => (
@@ -305,7 +323,7 @@ export const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
                         <p className="text-[11px] text-gray-500">{auth.email}</p>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <div className="text-[10px] text-gray-400">Created: {formatDate(auth.createdAt)}</div>
+                        <div className="text-[10px] text-gray-400">Created: {getSafeDate(auth.createdAt)}</div>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => {

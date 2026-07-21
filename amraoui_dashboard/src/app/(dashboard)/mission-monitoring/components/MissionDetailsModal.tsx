@@ -604,6 +604,42 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                     ];
                     if (excludedFields.includes(key)) return null;
 
+                    // Render document fields as clickable open/download links
+                    const docFields = ['vehiclePhotos', 'registrationDocumentName', 'referenceDocumentName'];
+                    if (docFields.includes(key) && value) {
+                      const strVal = String(value);
+                      const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1').replace('/api/v1', '');
+                      const fileUrl = strVal.startsWith('http') ? strVal : `${baseUrl}${strVal.startsWith('/') ? '' : '/'}${strVal}`;
+                      const filename = strVal.split('/').pop() || strVal;
+                      const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+                      return (
+                        <div key={key} className="col-span-1 sm:col-span-2 md:col-span-3 min-w-0">
+                          <p className="text-gray-400 mb-1">{formattedKey}</p>
+                          <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg p-2">
+                            <FileText className="w-4 h-4 text-blue-500 shrink-0" />
+                            <span className="flex-1 text-gray-700 font-medium truncate" title={filename}>{filename}</span>
+                            <a
+                              href={fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px] font-bold hover:bg-blue-100 transition-colors shrink-0"
+                              title="Open in new tab"
+                            >
+                              <Eye className="w-3 h-3" /> Open
+                            </a>
+                            <a
+                              href={fileUrl}
+                              download={filename}
+                              className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-md text-[10px] font-bold hover:bg-green-100 transition-colors shrink-0"
+                              title="Download file"
+                            >
+                              <Download className="w-3 h-3" /> Download
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    }
+
                     let displayValue = value;
                     if (typeof displayValue === 'boolean') displayValue = displayValue ? 'Yes' : 'No';
                     if (Array.isArray(displayValue)) displayValue = displayValue.join(', ');

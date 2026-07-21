@@ -27,16 +27,32 @@ export const uploadFile = () => {
         file.mimetype === 'application/pdf' ||
         file.originalname?.toLowerCase().endsWith('.pdf');
 
-      // Non-image files (docs, pdfs, etc.) must use resource_type 'raw' on Cloudinary
-      const isRaw =
-        file.fieldname === 'document' ||
-        file.fieldname === 'invoice' ||
-        isPdf ||
-        file.mimetype.startsWith('application/') ||
+      // Office docs (docx, xlsx, etc.) must use 'raw' — they can't be rendered inline.
+      // PDFs should use 'image' so Cloudinary serves them with Content-Type: application/pdf,
+      // enabling the browser's built-in PDF viewer. Using 'raw' for PDFs breaks browser rendering.
+      const isOfficeDoc =
+        file.mimetype === 'application/msword' ||
+        file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+        file.mimetype === 'application/vnd.ms-excel' ||
+        file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
         file.mimetype === 'text/plain' ||
-        file.mimetype === 'text/csv';
+        file.mimetype === 'text/csv' ||
+        file.mimetype === 'application/octet-stream';
 
-      // Preserve the original file extension for documents so downloads work correctly
+      // Determine Cloudinary resource_type:
+      //   'image'  → PDF (viewable in browser)
+      //   'raw'    → Word/Excel/other office docs (download only)
+      //   'auto'   → images & videos (Cloudinary auto-detects)
+      let resourceType: string;
+      if (isPdf) {
+        resourceType = 'image';
+      } else if (isOfficeDoc) {
+        resourceType = 'raw';
+      } else {
+        resourceType = 'auto';
+      }
+
+      // Preserve the original file extension for office docs so downloads work correctly
       const originalExt = file.originalname
         ? '.' + file.originalname.split('.').pop()
         : '';
@@ -47,8 +63,8 @@ export const uploadFile = () => {
           'jpg', 'jpeg', 'png', 'webp', 'mp4',
           'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv',
         ],
-        resource_type: isRaw ? 'raw' : 'auto',
-        public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}${isRaw ? originalExt : ''}`,
+        resource_type: resourceType,
+        public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}${isOfficeDoc ? originalExt : ''}`,
         use_filename: false,
       };
     },

@@ -617,6 +617,12 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                         ? (matchedDoc.startsWith('http') ? matchedDoc : `${baseUrl}${matchedDoc.startsWith('/') ? '' : '/'}${matchedDoc}`)
                         : null; // No URL found — file may not have been uploaded yet
                       const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+                      // Use Google Docs Viewer for PDFs so they render in-browser regardless
+                      // of Cloudinary resource_type (raw vs image). Word/Excel docs open directly (download).
+                      const isPdfFile = filename.toLowerCase().endsWith('.pdf');
+                      const openUrl = isPdfFile && fileUrl
+                        ? `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=false`
+                        : fileUrl;
                       return (
                         <div key={key} className="col-span-1 sm:col-span-2 md:col-span-3 min-w-0">
                           <p className="text-gray-400 mb-1">{formattedKey}</p>
@@ -626,11 +632,11 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                             {fileUrl ? (
                               <>
                                 <a
-                                  href={fileUrl}
+                                  href={openUrl!}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px] font-bold hover:bg-blue-100 transition-colors shrink-0"
-                                  title="Open in new tab"
+                                  title={isPdfFile ? 'Open PDF viewer' : 'Open in new tab'}
                                 >
                                   <Eye className="w-3 h-3" /> Open
                                 </a>

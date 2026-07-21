@@ -617,12 +617,17 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                 <p className="text-sm text-gray-500 text-center py-4">No documents attached.</p>
                             ) : (
                                 request.details.documents.map((doc: string, idx: number) => {
+                                    const rawUrl = doc.startsWith('http') ? doc : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app'}${doc.startsWith('/') ? '' : '/'}${doc}`;
                                     const filename = doc.split('/').pop() || `Document ${idx + 1}`;
                                     const docLabel = getDocumentLabel(doc, request.details, idx);
                                     const isDeleting = isDeletingDoc === doc;
+                                    const isPdf = filename.toLowerCase().endsWith('.pdf');
+                                    const openUrl = isPdf
+                                        ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=false`
+                                        : rawUrl;
                                     return (
                                         <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
-                                            <a href={doc.startsWith('http') ? doc : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app'}${doc.startsWith('/') ? '' : '/'}${doc}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 overflow-hidden group">
+                                            <a href={openUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 overflow-hidden group">
                                                 <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center shrink-0">
                                                     <FileText className="w-4 h-4 text-blue-600" />
                                                 </div>

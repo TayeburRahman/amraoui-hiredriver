@@ -248,7 +248,7 @@ export default function TransportRequestPage() {
         const reqId = res.data.data?._id;
 
         // Upload files directly to Cloudinary from the browser
-        const cloudName = 'diyvmcpiu';
+        const cloudName = 'da1uxchgo';
         const uploadPreset = 'ml_default';
         const token = localStorage.getItem('token');
 

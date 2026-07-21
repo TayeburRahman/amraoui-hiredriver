@@ -77,7 +77,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
 
         try {
             // ── Step 1: Upload directly to Cloudinary from the browser ──────────
-            const cloudName = 'diyvmcpiu';
+            const cloudName = 'da1uxchgo';
             const uploadPreset = 'ml_default';
 
             const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');

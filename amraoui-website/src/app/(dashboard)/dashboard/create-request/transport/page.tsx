@@ -276,24 +276,58 @@ function TransportRequestContent() {
       if (res.data?.success) {
         const reqId = res.data.data?._id;
 
-        // Upload files sequentially using native fetch to avoid Axios boundary issues
+        // Upload files directly to Cloudinary from the browser
+        const cloudName = 'diyvmcpiu';
+        const uploadPreset = 'ml_default';
         const token = localStorage.getItem('token');
-        const uploadDoc = async (file: File, type: string) => {
-          const form = new FormData();
-          form.append('document', file);
-          form.append('documentType', type);
-          await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1'}/requests/${reqId}/documents`, {
-            method: 'PATCH',
-            headers: {
-              'Authorization': `Bearer ${token}`
-            },
-            body: form
-          });
+
+        const uploadToCloudinary = async (file: File): Promise<string> => {
+          const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+          const isOfficeDoc =
+            file.type === 'application/msword' ||
+            file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+            file.type === 'application/vnd.ms-excel' ||
+            file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+            file.type === 'text/plain' ||
+            file.type === 'text/csv' ||
+            file.type === 'application/octet-stream';
+          const resourceType = isPdf ? 'image' : isOfficeDoc ? 'raw' : 'auto';
+
+          const cloudForm = new FormData();
+          cloudForm.append('file', file);
+          cloudForm.append('upload_preset', uploadPreset);
+          cloudForm.append('folder', 'amraoui/uploads');
+
+          const cloudRes = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+            { method: 'POST', body: cloudForm }
+          );
+          if (!cloudRes.ok) {
+            const err = await cloudRes.json();
+            throw new Error(err?.error?.message || 'Cloudinary upload failed');
+          }
+          const cloudData = await cloudRes.json();
+          return cloudData.secure_url as string;
+        };
+
+        const saveDocUrl = async (fileUrl: string, documentType: string) => {
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1'}/requests/${reqId}/documents`,
+            {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ fileUrl, documentType }),
+            }
+          );
         };
 
         if (reqId && vehiclePhotoFile) {
           try {
-            await uploadDoc(vehiclePhotoFile, 'vehiclePhotos');
+            const url = await uploadToCloudinary(vehiclePhotoFile);
+            await saveDocUrl(url, 'vehiclePhotos');
           } catch (e) {
             console.error('Failed to upload vehicle photo:', e);
           }
@@ -301,7 +335,8 @@ function TransportRequestContent() {
 
         if (reqId && registrationFile) {
           try {
-            await uploadDoc(registrationFile, 'registrationDocumentName');
+            const url = await uploadToCloudinary(registrationFile);
+            await saveDocUrl(url, 'registrationDocumentName');
           } catch (e) {
             console.error('Failed to upload registration document:', e);
           }
@@ -309,7 +344,8 @@ function TransportRequestContent() {
 
         if (reqId && referenceFile) {
           try {
-            await uploadDoc(referenceFile, 'referenceDocumentName');
+            const url = await uploadToCloudinary(referenceFile);
+            await saveDocUrl(url, 'referenceDocumentName');
           } catch (e) {
             console.error('Failed to upload reference document:', e);
           }

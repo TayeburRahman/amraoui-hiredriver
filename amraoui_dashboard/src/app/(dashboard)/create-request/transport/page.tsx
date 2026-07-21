@@ -231,6 +231,10 @@ export default function TransportRequestPage() {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
+  const [vehiclePhotoFile, setVehiclePhotoFile] = useState<File | null>(null);
+  const [registrationFile, setRegistrationFile] = useState<File | null>(null);
+  const [referenceFile, setReferenceFile] = useState<File | null>(null);
+
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);
@@ -241,6 +245,83 @@ export default function TransportRequestPage() {
 
       const res = await api.post('/requests', payload);
       if (res.data?.success) {
+        const reqId = res.data.data?._id;
+
+        // Upload files directly to Cloudinary from the browser
+        const cloudName = 'diyvmcpiu';
+        const uploadPreset = 'ml_default';
+        const token = localStorage.getItem('token');
+
+        const uploadToCloudinary = async (file: File): Promise<string> => {
+          const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+          const isOfficeDoc =
+            file.type === 'application/msword' ||
+            file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+            file.type === 'application/vnd.ms-excel' ||
+            file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+            file.type === 'text/plain' ||
+            file.type === 'text/csv' ||
+            file.type === 'application/octet-stream';
+          const resourceType = isPdf ? 'image' : isOfficeDoc ? 'raw' : 'auto';
+
+          const cloudForm = new FormData();
+          cloudForm.append('file', file);
+          cloudForm.append('upload_preset', uploadPreset);
+          cloudForm.append('folder', 'amraoui/uploads');
+
+          const cloudRes = await fetch(
+            `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+            { method: 'POST', body: cloudForm }
+          );
+          if (!cloudRes.ok) {
+            const err = await cloudRes.json();
+            throw new Error(err?.error?.message || 'Cloudinary upload failed');
+          }
+          const cloudData = await cloudRes.json();
+          return cloudData.secure_url as string;
+        };
+
+        const saveDocUrl = async (fileUrl: string, documentType: string) => {
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1'}/requests/${reqId}/documents`,
+            {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ fileUrl, documentType }),
+            }
+          );
+        };
+
+        if (reqId && vehiclePhotoFile) {
+          try {
+            const url = await uploadToCloudinary(vehiclePhotoFile);
+            await saveDocUrl(url, 'vehiclePhotos');
+          } catch (e) {
+            console.error('Failed to upload vehicle photo:', e);
+          }
+        }
+
+        if (reqId && registrationFile) {
+          try {
+            const url = await uploadToCloudinary(registrationFile);
+            await saveDocUrl(url, 'registrationDocumentName');
+          } catch (e) {
+            console.error('Failed to upload registration document:', e);
+          }
+        }
+
+        if (reqId && referenceFile) {
+          try {
+            const url = await uploadToCloudinary(referenceFile);
+            await saveDocUrl(url, 'referenceDocumentName');
+          } catch (e) {
+            console.error('Failed to upload reference document:', e);
+          }
+        }
+
         setIsSuccess(true);
         // Clear saved state on successful submission
         localStorage.removeItem('transport_currentStep');
@@ -879,7 +960,13 @@ export default function TransportRequestPage() {
                         <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.vehiclePhotos ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
                           {formData.vehiclePhotos ? 'Change Photo' : 'Add Photo'}
                         </div>
-                        <input type="file" className="hidden" onChange={(e) => updateForm('vehiclePhotos', e.target.files?.[0]?.name || '')} />
+                        <input type="file" className="hidden" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setVehiclePhotoFile(file);
+                            updateForm('vehiclePhotos', file.name);
+                          }
+                        }} />
                       </label>
 
                       {/* Registration */}
@@ -896,7 +983,13 @@ export default function TransportRequestPage() {
                         <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.registrationDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
                           {formData.registrationDocumentName ? 'Change Document' : 'Add Document'}
                         </div>
-                        <input type="file" className="hidden" onChange={(e) => updateForm('registrationDocumentName', e.target.files?.[0]?.name || '')} />
+                        <input type="file" className="hidden" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setRegistrationFile(file);
+                            updateForm('registrationDocumentName', file.name);
+                          }
+                        }} />
                       </label>
 
                       {/* Reference */}
@@ -913,7 +1006,13 @@ export default function TransportRequestPage() {
                         <div className={`rounded-full px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 ${formData.referenceDocumentName ? 'bg-emerald-500' : 'bg-brand-blue hover:bg-brand-blue-hover'}`}>
                           {formData.referenceDocumentName ? 'Change File' : 'Add File'}
                         </div>
-                        <input type="file" className="hidden" onChange={(e) => updateForm('referenceDocumentName', e.target.files?.[0]?.name || '')} />
+                        <input type="file" className="hidden" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setReferenceFile(file);
+                            updateForm('referenceDocumentName', file.name);
+                          }
+                        }} />
                       </label>
                     </div>
                   </div>

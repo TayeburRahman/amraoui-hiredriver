@@ -608,10 +608,17 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                     const docFields = ['vehiclePhotos', 'registrationDocumentName', 'referenceDocumentName'];
                     if (docFields.includes(key) && value) {
                       const strVal = String(value);
-                      const filename = strVal.split('/').pop() || strVal;
+                      const filename = decodeURIComponent(strVal.split('/').pop() || strVal);
                       // The field stores only the raw filename; look up the full URL in details.documents[]
                       const docsArray: string[] = Array.isArray(mission.raw.details.documents) ? mission.raw.details.documents : [];
-                      const matchedDoc = docsArray.find((d: string) => d.includes(strVal));
+                      const matchedDoc = docsArray.find((d: string) => {
+                        if (d.includes(strVal)) return true;
+                        try {
+                          return decodeURIComponent(d).includes(strVal);
+                        } catch (e) {
+                          return false;
+                        }
+                      });
                       const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1').replace('/api/v1', '');
                       const fileUrl = matchedDoc
                         ? (matchedDoc.startsWith('http') ? matchedDoc : `${baseUrl}${matchedDoc.startsWith('/') ? '' : '/'}${matchedDoc}`)
@@ -619,8 +626,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                       const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
                       // Use Google Docs Viewer for PDFs so they render in-browser regardless
                       // of Cloudinary resource_type (raw vs image). Word/Excel docs open directly (download).
-                      const isPdfFile = filename.toLowerCase().endsWith('.pdf');
-                      const openUrl = isPdfFile && fileUrl
+                      const isDocument = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i.test(filename);
+                      const openUrl = isDocument && fileUrl
                         ? `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=false`
                         : fileUrl;
                       return (
@@ -636,7 +643,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px] font-bold hover:bg-blue-100 transition-colors shrink-0"
-                                  title={isPdfFile ? 'Open PDF viewer' : 'Open in new tab'}
+                                  title={isDocument ? 'Open document viewer' : 'Open in new tab'}
                                 >
                                   <Eye className="w-3 h-3" /> Open
                                 </a>

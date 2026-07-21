@@ -23,13 +23,33 @@ export const uploadFile = () => {
         folderName = 'amraoui/uploads';
       }
 
-      const isPdf = file.mimetype === 'application/pdf' || file.originalname?.toLowerCase().endsWith('.pdf');
-      
+      const isPdf =
+        file.mimetype === 'application/pdf' ||
+        file.originalname?.toLowerCase().endsWith('.pdf');
+
+      // Non-image files (docs, pdfs, etc.) must use resource_type 'raw' on Cloudinary
+      const isRaw =
+        file.fieldname === 'document' ||
+        file.fieldname === 'invoice' ||
+        isPdf ||
+        file.mimetype.startsWith('application/') ||
+        file.mimetype === 'text/plain' ||
+        file.mimetype === 'text/csv';
+
+      // Preserve the original file extension for documents so downloads work correctly
+      const originalExt = file.originalname
+        ? '.' + file.originalname.split('.').pop()
+        : '';
+
       return {
         folder: folderName,
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'pdf'],
-        resource_type: isPdf ? 'raw' : 'auto',
-        public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}${isPdf ? '.pdf' : ''}`,
+        allowed_formats: [
+          'jpg', 'jpeg', 'png', 'webp', 'mp4',
+          'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv',
+        ],
+        resource_type: isRaw ? 'raw' : 'auto',
+        public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}${isRaw ? originalExt : ''}`,
+        use_filename: false,
       };
     },
   });
@@ -50,20 +70,34 @@ export const uploadFile = () => {
       'license_document_back',
     ];
 
+    // All MIME types we accept
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/jpg',
+      'image/webp',
+      'video/mp4',
+      'application/pdf',
+      // Word documents
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      // Excel documents
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      // Plain text & CSV
+      'text/plain',
+      'text/csv',
+      // Some OS/browsers send this generic type for office files
+      'application/octet-stream',
+    ];
+
     if (file.fieldname === undefined) {
       cb(null, true);
     } else if (allowedFieldnames.includes(file.fieldname)) {
-      if (
-        file.mimetype === 'image/jpeg' ||
-        file.mimetype === 'image/png' ||
-        file.mimetype === 'image/jpg' ||
-        file.mimetype === 'image/webp' ||
-        file.mimetype === 'video/mp4' ||
-        file.mimetype === 'application/pdf'
-      ) {
+      if (allowedMimeTypes.includes(file.mimetype)) {
         cb(null, true);
       } else {
-        cb(new Error('Invalid file type'));
+        cb(new Error(`Invalid file type: ${file.mimetype}`));
       }
     } else {
       cb(new Error('Invalid fieldname'));

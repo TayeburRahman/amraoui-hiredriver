@@ -16,6 +16,7 @@ import Image from "next/image";
 
 export default function Overview() {
   const [requests, setRequests] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState("All Missions");
 
@@ -33,7 +34,21 @@ export default function Overview() {
         setIsLoading(false);
       }
     };
+    
+    const fetchDrivers = async () => {
+      try {
+        const res = await apiFetch<any>('/drivers?limit=1000', { auth: true });
+        if (res.ok && res.data?.success) {
+          const driversData = res.data.data.data || res.data.data || [];
+          setDrivers(Array.isArray(driversData) ? driversData : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch drivers", err);
+      }
+    };
+
     fetchRequests();
+    fetchDrivers();
   }, []);
 
   const countStatus = (status: string) => requests.filter((r) => r.status === status).length;
@@ -43,6 +58,8 @@ export default function Overview() {
   const completedMissions = countStatus("COMPLETED");
   const cancelledMissions = countStatus("CANCELLED");
   const inTransitCount = countStatus("IN_PROGRESS");
+  
+  const newDriverRegistration = drivers.filter(d => d.status === 'pending').length;
 
   const todayStr = new Date().toISOString().split("T")[0];
   let pickupDueToday = 0;
@@ -65,6 +82,13 @@ export default function Overview() {
       change: "Action Needed",
       changeType: "warning",
       icon: img2,
+    },
+    {
+      title: "New Driver Registration",
+      value: newDriverRegistration.toString(),
+      change: newDriverRegistration > 0 ? "Review Needed" : "All set",
+      changeType: newDriverRegistration > 0 ? "warning" : "positive",
+      icon: img1, // Reusing generic icon
     },
     {
       title: "Pickup Due Today",
@@ -262,7 +286,7 @@ export default function Overview() {
       />
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-8">
         {metrics.map((metric) => (
           <div
             key={metric.title}
@@ -282,7 +306,7 @@ export default function Overview() {
               </span>
             </div>
             <div className="text-2xl font-bold text-gray-900">{metric.value}</div>
-            <div className="font-semibold text-gray-500 mt-1">{metric.title}</div>
+            <div className="font-semibold text-gray-500 mt-1 text-sm">{metric.title}</div>
           </div>
         ))}
       </div>

@@ -73,28 +73,67 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         if (!e.target.files || e.target.files.length === 0) return;
         
         const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('document', file);
-        formData.append('documentType', documentType);
-
         setIsUploadingDoc(true);
+
         try {
+            // ── Step 1: Upload directly to Cloudinary from the browser ──────────
+            const cloudName = 'diyvmcpiu';
+            const uploadPreset = 'ml_default';
+
+            const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+            const isOfficeDoc =
+                file.type === 'application/msword' ||
+                file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+                file.type === 'application/vnd.ms-excel' ||
+                file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+                file.type === 'text/plain' ||
+                file.type === 'text/csv' ||
+                file.type === 'application/octet-stream';
+
+            // PDFs → resource_type 'image' (Cloudinary serves with correct Content-Type for browser viewing)
+            // Office docs → resource_type 'raw' (download only)
+            // Other (images) → resource_type 'auto'
+            const resourceType = isPdf ? 'image' : isOfficeDoc ? 'raw' : 'auto';
+
+            const cloudFormData = new FormData();
+            cloudFormData.append('file', file);
+            cloudFormData.append('upload_preset', uploadPreset);
+            cloudFormData.append('folder', 'amraoui/uploads');
+
+            const cloudRes = await fetch(
+                `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+                { method: 'POST', body: cloudFormData }
+            );
+
+            if (!cloudRes.ok) {
+                const err = await cloudRes.json();
+                throw new Error(err?.error?.message || 'Cloudinary upload failed');
+            }
+
+            const cloudData = await cloudRes.json();
+            const fileUrl: string = cloudData.secure_url;
+
+            // ── Step 2: Save the Cloudinary URL to the backend database ─────────
             const res = await apiFetch<any>(`/requests/${reqId}/documents`, {
                 method: 'PATCH',
                 auth: true,
-                body: formData,
+                body: JSON.stringify({ fileUrl, documentType }),
             });
+
             if (res.data?.success) {
                 setRequest(res.data.data);
+            } else {
+                throw new Error('Failed to save document reference');
             }
-        } catch (error) {
-            console.error("Error uploading document:", error);
-            alert("Failed to upload document");
+        } catch (error: any) {
+            console.error('Error uploading document:', error);
+            alert(`Failed to upload document: ${error?.message || 'Unknown error'}`);
         } finally {
             setIsUploadingDoc(false);
-            e.target.value = ''; // Reset input
+            e.target.value = '';
         }
     };
+
 
     const handleDeleteDocument = async (fileUrl: string) => {
         if (!confirm("Are you sure you want to delete this document?")) return;

@@ -616,14 +616,23 @@ const uploadInvoice = catchAsync(async (req: Request, res: Response) => {
 
 const addDocument = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-  const { documentType } = req.body;
+  const { documentType, fileUrl: bodyFileUrl } = req.body;
 
-  if (!files || !files['document']) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Document file is required');
+  // Accept a Cloudinary URL sent directly from the frontend (preferred),
+  // OR fall back to a multer-uploaded file for backward compatibility.
+  let fileUrl: string | undefined = bodyFileUrl;
+
+  if (!fileUrl) {
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    if (files && files['document'] && files['document'].length > 0) {
+      fileUrl = files['document'][0].path;
+    }
   }
 
-  const fileUrl = files['document'][0].path;
+  if (!fileUrl) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Document file or URL is required');
+  }
+
   const result = await RequestsService.addDocument(id, fileUrl, documentType);
 
   sendResponse(res, {

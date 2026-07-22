@@ -140,26 +140,9 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
   const isPickupStarted = ['IN_PROGRESS', 'COMPLETED'].includes(mission.status);
   const isCompleted = mission.status === 'COMPLETED';
 
-  let baseTransportFee = mission.adminQuote?.amount || 0;
-  let driverTollCharges = 0;
-  let driverExceptionalCosts = 0;
-  let driverFuelCost = 0;
-
-  if (mission.driverQuotes && mission.driverQuotes.length > 0) {
-    const acceptedQuote = mission.driverQuotes.find((q: any) => 
-      q.status === 'ACCEPTED' || 
-      (driver && ((q.driverId && q.driverId._id === driver._id) || q.driverId === driver._id || q.driverId === driver))
-    );
-    if (acceptedQuote) {
-      baseTransportFee = acceptedQuote.amount || 0;
-      driverTollCharges = acceptedQuote.tollCharges || 0;
-      driverExceptionalCosts = acceptedQuote.exceptionalCosts || 0;
-      driverFuelCost = acceptedQuote.fuelCost || 0;
-    }
-  }
-
+  const baseTransportFee = mission.adminQuote?.amount || 0;
   const extraExpenses = (mission.expenses || []).reduce((acc: number, cur: any) => acc + (cur.amount || 0), 0);
-  const totalAmount = baseTransportFee + driverTollCharges + driverExceptionalCosts + driverFuelCost + extraExpenses;
+  const totalAmount = baseTransportFee + extraExpenses;
 
   return (
     <div className="max-w-[1400px] mx-auto min-h-screen pb-12 px-4 sm:px-6 lg:px-8 space-y-4 sm:space-y-6">
@@ -336,7 +319,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
 
             {/* Payment Status */}
             <Card className="p-6 sm:p-8 rounded-[2rem] border-none shadow-sm bg-white space-y-6 flex flex-col md:col-span-2 lg:col-span-1">
-              <h3 className="font-bold text-brand-text text-lg">Payment Summary</h3>
+              <h3 className="font-bold text-brand-text text-lg">Final Invoice Summary</h3>
               <div className="space-y-4 pt-2 flex-1">
                 <div className="flex justify-between items-center pb-3 border-b border-slate-50">
                   <span className="text-sm font-medium text-slate-400">Status</span>
@@ -345,33 +328,15 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b border-slate-50">
-                  <span className="text-sm font-medium text-slate-400">Driver Quote (Base)</span>
+                  <span className="text-sm font-medium text-slate-400">Base Transport Fee</span>
                   <span className="text-sm font-bold text-brand-text">€ {baseTransportFee.toFixed(2)}</span>
                 </div>
-                {driverTollCharges > 0 && (
-                  <div className="flex justify-between items-center pb-3 border-b border-slate-50">
-                    <span className="text-sm font-medium text-slate-400">Toll Charges</span>
-                    <span className="text-sm font-bold text-brand-text">€ {driverTollCharges.toFixed(2)}</span>
-                  </div>
-                )}
-                {driverExceptionalCosts > 0 && (
-                  <div className="flex justify-between items-center pb-3 border-b border-slate-50">
-                    <span className="text-sm font-medium text-slate-400">Exceptional Costs</span>
-                    <span className="text-sm font-bold text-brand-text">€ {driverExceptionalCosts.toFixed(2)}</span>
-                  </div>
-                )}
-                {driverFuelCost > 0 && (
-                  <div className="flex justify-between items-center pb-3 border-b border-slate-50">
-                    <span className="text-sm font-medium text-slate-400">Fuel Cost</span>
-                    <span className="text-sm font-bold text-brand-text">€ {driverFuelCost.toFixed(2)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between items-center pb-3 border-b border-slate-50">
-                  <span className="text-sm font-medium text-slate-400">Added Expenses</span>
+                  <span className="text-sm font-medium text-slate-400">Extra Expenses</span>
                   <span className="text-sm font-bold text-brand-text">€ {extraExpenses.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-slate-400">Total Amount</span>
+                  <span className="text-sm font-medium text-slate-400">Final Total</span>
                   <span className="text-lg font-black text-brand-blue">€ {totalAmount.toFixed(2)}</span>
                 </div>
               </div>

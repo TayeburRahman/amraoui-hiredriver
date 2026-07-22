@@ -72,11 +72,13 @@ export const ProofViewerModal: React.FC<ProofViewerModalProps> = ({ isOpen, onCl
       const sigImgs: ProofImage[] = [];
       if (d.pickupInspection?.customerSignature?.signaturePhoto) sigImgs.push({ url: d.pickupInspection.customerSignature.signaturePhoto, label: "Customer (Pickup)" });
       if (d.deliveryInspection?.customerSignature?.signaturePhoto) sigImgs.push({ url: d.deliveryInspection.customerSignature.signaturePhoto, label: "Customer (Delivery)" });
+      if (d.pickupInspection?.driverConfirmation?.driverSignaturePhoto) sigImgs.push({ url: d.pickupInspection.driverConfirmation.driverSignaturePhoto, label: "Driver (Pickup)" });
       if (d.deliveryInspection?.driverConfirmation?.driverSignaturePhoto) sigImgs.push({ url: d.deliveryInspection.driverConfirmation.driverSignaturePhoto, label: "Driver (Delivery)" });
       addTab("Signatures", sigImgs);
 
       const selfieImgs: ProofImage[] = [];
-      if (d.deliveryInspection?.driverConfirmation?.driverSelfiePhoto) selfieImgs.push({ url: d.deliveryInspection.driverConfirmation.driverSelfiePhoto, label: "Driver Selfie" });
+      if (d.pickupInspection?.driverConfirmation?.driverSelfiePhoto) selfieImgs.push({ url: d.pickupInspection.driverConfirmation.driverSelfiePhoto, label: "Driver Selfie (Pickup)" });
+      if (d.deliveryInspection?.driverConfirmation?.driverSelfiePhoto) selfieImgs.push({ url: d.deliveryInspection.driverConfirmation.driverSelfiePhoto, label: "Driver Selfie (Delivery)" });
       addTab("Driver Selfie", selfieImgs);
 
       const docImgs: ProofImage[] = [];

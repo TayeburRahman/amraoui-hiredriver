@@ -324,7 +324,7 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
 
               // Driver Selfie (Optional)
               const AppText(
-                data: 'Driver Selfie (Optional)',
+                data: 'Driver Selfie',
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF0F172A),
@@ -408,7 +408,7 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const AppText(
-                    data: 'Driver Signature (Optional)',
+                    data: 'Driver Signature',
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF0F172A),

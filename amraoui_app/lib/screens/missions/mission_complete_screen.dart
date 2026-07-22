@@ -102,7 +102,7 @@ class MissionCompleteScreen extends StatelessWidget {
       String? endStr = detailsObj['completedAt']?.toString() ?? 
           detailsObj['deliveryArrivalTime']?.toString();
 
-      if (startStr != null) {
+      if (startStr != null && endStr != null) {
         DateTime start = DateTime.parse(startStr).toLocal();
         DateTime end = DateTime.parse(endStr).toLocal();
         

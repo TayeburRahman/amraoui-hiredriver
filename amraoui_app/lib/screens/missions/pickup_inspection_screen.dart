@@ -1,15 +1,24 @@
+import 'dart:io';
+import 'dart:ui';
+import 'dart:typed_data';
 import 'package:Vehiqqo/utils/app_size.dart';
 import 'package:Vehiqqo/utils/gap.dart';
 import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
+import 'package:get/get.dart' hide MultipartFile, FormData, Response;
+import 'package:image_picker/image_picker.dart';
+import 'package:signature/signature.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:Vehiqqo/service/repository/mission_repository.dart';
 import 'package:Vehiqqo/screens/missions/exterior_photos_screen.dart';
 import 'package:Vehiqqo/screens/missions/interior_photos_screen.dart';
 import 'package:Vehiqqo/screens/missions/damage_report_screen.dart';
 import 'package:Vehiqqo/screens/missions/mileage_fuel_screen.dart';
 import 'package:Vehiqqo/screens/missions/upload_documents_screen.dart';
 import 'package:Vehiqqo/screens/missions/customer_signature_screen.dart';
+import 'package:Vehiqqo/widgets/signature/full_screen_signature.dart';
+import 'package:Vehiqqo/screens/missions/receiver_id_verification_screen.dart';
 import 'package:Vehiqqo/screens/missions/delivery_arrival_screen.dart';
 
 class PickupInspectionScreen extends StatefulWidget {
@@ -29,79 +38,64 @@ class PickupInspectionScreen extends StatefulWidget {
 class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
   int completedCount = 0;
   late final int totalCount;
+  late Map<String, dynamic> localMission;
 
-  Map<String, String?> exteriorPhotos = {};
-  Map<String, String?> interiorPhotos = {};
-  Map<String, dynamic>? damageReport;
-  Map<String, dynamic>? mileageAndFuel;
-  List<dynamic> uploadDocuments = [];
-  Map<String, dynamic>? customerSignature;
+  final ImagePicker _picker = ImagePicker();
+  String? driverSelfiePath;
+  String? existingDriverSelfieUrl;
+
+  final SignatureController _signatureController = SignatureController(
+    penStrokeWidth: 3,
+    penColor: Colors.black,
+    exportBackgroundColor: Colors.white,
+  );
+  String? existingDriverSignatureUrl;
 
   @override
   void initState() {
     super.initState();
-    totalCount = 6;
-    final inspection = widget.mission['details']?['pickupInspection'];
-    if (inspection != null) {
-      if (inspection['exteriorPhotos'] != null) {
-        final photos = inspection['exteriorPhotos'] as Map<String, dynamic>;
-        exteriorPhotos = photos.map(
-          (key, value) => MapEntry(key, value?.toString()),
-        );
-      }
-      if (inspection['interiorPhotos'] != null) {
-        final photos = inspection['interiorPhotos'] as Map<String, dynamic>;
-        interiorPhotos = photos.map(
-          (key, value) => MapEntry(key, value?.toString()),
-        );
-      }
-      if (inspection['damageReport'] != null) {
-        damageReport = inspection['damageReport'] as Map<String, dynamic>;
-      }
-      if (inspection['mileageAndFuel'] != null) {
-        mileageAndFuel = inspection['mileageAndFuel'] as Map<String, dynamic>;
-      }
-      if (inspection['uploadDocuments'] != null) {
-        uploadDocuments = inspection['uploadDocuments'] as List<dynamic>;
-      }
-      if (inspection['customerSignature'] != null) {
-        customerSignature =
-            inspection['customerSignature'] as Map<String, dynamic>;
-      }
+    localMission = Map.from(widget.mission);
+    final type = localMission['type'];
+    int baseCount = 6;
+    if (localMission['details']?['idCheckRequired'] == true) {
+      baseCount++;
     }
-    _checkProgress();
+    totalCount = baseCount;
+
+    _calculateProgress();
+
+    final inspection = localMission['details']?['pickupInspection'] ?? {};
+    final driverConf = inspection['driverConfirmation'] ?? {};
+    existingDriverSelfieUrl = driverConf['driverSelfiePhoto'];
+    existingDriverSignatureUrl = driverConf['driverSignaturePhoto'];
   }
 
-  void _checkProgress() {
+  @override
+  void dispose() {
+    _signatureController.dispose();
+    super.dispose();
+  }
+
+  void _calculateProgress() {
+    final details = localMission['details'] ?? {};
+    final inspection = details['pickupInspection'] ?? {};
+
     int count = 0;
-    final type = widget.mission['type'];
+    final type = localMission['type'];
 
-    int extCount = 0;
-    for (String key in [
-      'Front',
-      'Front Right',
-      'Rear Right',
-      'Rear',
-      'Rear Left',
-      'Front Left',
-    ]) {
-      if (exteriorPhotos[key] != null && exteriorPhotos[key]!.isNotEmpty)
-        extCount++;
+    if (inspection['exteriorPhotos'] != null) count++;
+    if (inspection['interiorPhotos'] != null) count++;
+    if (inspection['damageReport'] != null) count++;
+    if (inspection['uploadDocuments'] != null &&
+        (inspection['uploadDocuments'] as List).isNotEmpty)
+      count++;
+
+    if (inspection['mileageAndFuel'] != null) count++;
+    if (inspection['customerSignature'] != null) count++;
+
+    if (details['idCheckRequired'] == true) {
+      if (inspection['receiverIdVerification'] != null) count++;
     }
-    if (extCount == 6) count++;
-
-    int intCount = 0;
-    for (String key in ['Front', 'Front Right', 'Rear Right', 'Rear']) {
-      if (interiorPhotos[key] != null && interiorPhotos[key]!.isNotEmpty)
-        intCount++;
-    }
-    if (intCount == 4) count++;
-
-    if (uploadDocuments.isNotEmpty) count++;
-
-    if (damageReport != null && damageReport!.isNotEmpty) count++;
-    if (mileageAndFuel != null && mileageAndFuel!.isNotEmpty) count++;
-    if (customerSignature != null && customerSignature!.isNotEmpty) count++;
 
     setState(() {
       completedCount = count;
@@ -110,31 +104,23 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    int extCount = 0;
-    for (String key in [
-      'Front',
-      'Front Right',
-      'Rear Right',
-      'Rear',
-      'Rear Left',
-      'Front Left',
-    ]) {
-      if (exteriorPhotos[key] != null && exteriorPhotos[key]!.isNotEmpty)
-        extCount++;
-    }
-    bool isExteriorDone = extCount == 6;
+    final details = localMission['details'] ?? {};
+    final inspection = details['pickupInspection'] ?? {};
 
-    int intCount = 0;
-    for (String key in ['Front', 'Front Right', 'Rear Right', 'Rear']) {
-      if (interiorPhotos[key] != null && interiorPhotos[key]!.isNotEmpty)
-        intCount++;
-    }
-    bool isInteriorDone = intCount == 4;
+    final bool hasExterior = inspection['exteriorPhotos'] != null;
+    final bool hasInterior = inspection['interiorPhotos'] != null;
+    final bool hasDamage = inspection['damageReport'] != null;
+    final bool hasMileage = inspection['mileageAndFuel'] != null;
+    final bool hasDocuments =
+        inspection['uploadDocuments'] != null &&
+        (inspection['uploadDocuments'] as List).isNotEmpty;
+    final bool hasSignature = inspection['customerSignature'] != null;
+    final bool hasReceiverId = inspection['receiverIdVerification'] != null;
 
-    final type = widget.mission['type'];
-    final String titleStr = type == 'HIRE_DRIVER'
-        ? 'Pre-Trip Walkaround'
-        : 'Pickup Inspection';
+    final type = localMission['type'];
+    String titleStr = 'Pickup Inspection';
+    if (type == 'INSPECTION') titleStr = 'Technical Inspection Report';
+    if (type == 'HIRE_DRIVER') titleStr = 'Pre-Trip Walkaround';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -199,8 +185,8 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
                       value: completedCount / totalCount,
                       backgroundColor: const Color(0xFFE2E8F0),
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                        Color(0xFF60A5FA),
-                      ),
+                        Color(0xFFC4B5FD),
+                      ), // Light purple progress bar
                       borderRadius: BorderRadius.circular(4),
                       minHeight: 6,
                     ),
@@ -211,129 +197,314 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
 
               _buildInspectionItem(
                 Icons.camera_alt_outlined,
-                'Exterior Photos',
-                '6 photos required',
-                isCompleted: isExteriorDone,
+                'Exterior Photos at Pickup',
+                'Take final exterior photos',
+                isCompleted: hasExterior,
                 onTap: () async {
                   final result = await Get.to(
                     () => ExteriorPhotosScreen(
-                      mission: widget.mission,
+                      mission: localMission,
                       reqId: widget.reqId,
-                      existingPhotos: exteriorPhotos,
+                      existingPhotos: Map<String, String>.from(
+                        inspection['exteriorPhotos'] ?? {},
+                      ),
+                      isDelivery: false,
                     ),
                   );
-                  if (result != null) {
-                    setState(() {
-                      exteriorPhotos = result as Map<String, String?>;
-                      _checkProgress();
-                    });
-                  }
+                  if (result != null) _calculateProgress();
                 },
               ),
               _buildInspectionItem(
                 Icons.camera_alt_outlined,
-                'Interior Photos',
-                '4 photos required',
-                isCompleted: isInteriorDone,
+                'Interior Photos at Pickup',
+                'Take final interior photos',
+                isCompleted: hasInterior,
                 onTap: () async {
                   final result = await Get.to(
                     () => InteriorPhotosScreen(
-                      mission: widget.mission,
+                      mission: localMission,
                       reqId: widget.reqId,
-                      existingPhotos: interiorPhotos,
+                      existingPhotos: Map<String, String>.from(
+                        inspection['interiorPhotos'] ?? {},
+                      ),
+                      isDelivery: false,
                     ),
                   );
-                  if (result != null) {
-                    setState(() {
-                      interiorPhotos = result as Map<String, String?>;
-                      _checkProgress();
-                    });
-                  }
+                  if (result != null) _calculateProgress();
                 },
               ),
               _buildInspectionItem(
                 Icons.description_outlined,
-                'Damage Report',
-                'Document any damage',
-                isCompleted: damageReport != null,
+                'Pickup Damage Report',
+                'Report any new damage at pickup',
+                isCompleted: hasDamage,
                 onTap: () async {
                   final result = await Get.to(
                     () => DamageReportScreen(
-                      mission: widget.mission,
+                      mission: localMission,
                       reqId: widget.reqId,
-                      existingReport: damageReport,
+                      existingReport: inspection['damageReport'],
+                      isDelivery: false,
                     ),
                   );
-                  if (result != null) {
-                    setState(() {
-                      damageReport = result as Map<String, dynamic>;
-                      _checkProgress();
-                    });
-                  }
+                  if (result != null) _calculateProgress();
                 },
               ),
               _buildInspectionItem(
                 Icons.speed_outlined,
-                'Mileage & Fuel Proof',
-                'Capture odometer & fuel level',
-                isCompleted: mileageAndFuel != null,
+                'Final Mileage & Fuel',
+                'Enter final mileage and fuel level',
+                isCompleted: hasMileage,
                 onTap: () async {
                   final result = await Get.to(
                     () => MileageFuelScreen(
-                      mission: widget.mission,
+                      mission: localMission,
                       reqId: widget.reqId,
-                      existingData: mileageAndFuel,
+                      existingData: inspection['mileageAndFuel'],
+                      isDelivery: false,
                     ),
                   );
-                  if (result != null) {
-                    setState(() {
-                      mileageAndFuel = result as Map<String, dynamic>;
-                      _checkProgress();
-                    });
-                  }
+                  if (result != null) _calculateProgress();
                 },
               ),
               _buildInspectionItem(
-                Icons.upload_file_outlined,
+                Icons.description_outlined,
                 'Upload Documents',
                 'Upload PV or other documents here',
-                isCompleted: uploadDocuments.isNotEmpty,
+                isCompleted: hasDocuments,
                 onTap: () async {
                   final result = await Get.to(
                     () => UploadDocumentsScreen(
-                      mission: widget.mission,
+                      mission: localMission,
                       reqId: widget.reqId,
-                      existingDocuments: uploadDocuments,
+                      existingDocuments: inspection['uploadDocuments'] ?? [],
+                      isDelivery: false,
                     ),
                   );
-                  if (result != null) {
-                    setState(() {
-                      uploadDocuments = result as List<dynamic>;
-                      _checkProgress();
-                    });
-                  }
+                  if (result != null) _calculateProgress();
                 },
               ),
               _buildInspectionItem(
                 Icons.draw_outlined,
-                'Customer Signature',
-                'Get customer confirmation',
-                isCompleted: customerSignature != null,
+                'Receiver Signature',
+                'Receiver confirms pickup condition',
+                isCompleted: hasSignature,
                 onTap: () async {
                   final result = await Get.to(
                     () => CustomerSignatureScreen(
-                      mission: widget.mission,
+                      mission: localMission,
                       reqId: widget.reqId,
-                      existingSignature: customerSignature,
+                      existingSignature: inspection['customerSignature'],
+                      isDelivery: false,
                     ),
                   );
-                  if (result != null) {
+                  if (result != null) _calculateProgress();
+                },
+              ),
+              if (details['idCheckRequired'] == true)
+                _buildInspectionItem(
+                  Icons.badge_outlined,
+                  'Receiver ID Verification',
+                  'Verify Receiver ID',
+                  isCompleted: hasReceiverId,
+                  onTap: () async {
+                    final result = await Get.to(
+                      () => ReceiverIdVerificationScreen(
+                        mission: localMission,
+                        reqId: widget.reqId,
+                        existingData: inspection['receiverIdVerification'],
+                      ),
+                    );
+                    if (result != null) _calculateProgress();
+                  },
+                ),
+
+              const Gap(height: 16),
+
+              // Driver Selfie (Required)
+              const AppText(
+                data: 'Driver Selfie',
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A),
+              ),
+              const Gap(height: 12),
+              GestureDetector(
+                onTap: () async {
+                  final XFile? photo = await _picker.pickImage(
+                    source: ImageSource.camera,
+                    imageQuality: 80,
+                  );
+                  if (photo != null) {
                     setState(() {
-                      customerSignature = result as Map<String, dynamic>;
-                      _checkProgress();
+                      driverSelfiePath = photo.path;
+                      existingDriverSelfieUrl = null;
                     });
                   }
                 },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                  ),
+                  child: Center(
+                    child:
+                        (driverSelfiePath != null ||
+                            existingDriverSelfieUrl != null)
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: (driverSelfiePath != null)
+                                ? (driverSelfiePath!.startsWith('http') ||
+                                          driverSelfiePath!.startsWith('blob:'))
+                                      ? Image.network(
+                                          driverSelfiePath!,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.file(
+                                          File(driverSelfiePath!),
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                        )
+                                : Image.network(
+                                    existingDriverSelfieUrl!,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                          )
+                        : Column(
+                            children: const [
+                              Icon(
+                                Icons.camera_alt_outlined,
+                                color: Color(0xFF94A3B8),
+                                size: 28,
+                              ),
+                              Gap(height: 8),
+                              AppText(
+                                data: 'Take Driver Selfie',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF334155),
+                              ),
+                              Gap(height: 4),
+                              AppText(
+                                data: 'Required proof of pickup',
+                                fontSize: 12,
+                                color: Color(0xFF64748B),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ),
+
+              const Gap(height: 24),
+
+              // Signature
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const AppText(
+                    data: 'Driver Signature',
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      _signatureController.clear();
+                      setState(() {
+                        existingDriverSignatureUrl = null;
+                      });
+                    },
+                    child: Row(
+                      children: const [
+                        Icon(Icons.refresh, size: 14, color: Color(0xFF0EA5E9)),
+                        Gap(width: 4),
+                        AppText(
+                          data: 'Clear',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0EA5E9),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(height: 12),
+              GestureDetector(
+                onTap: () async {
+                  final List<Point>? points = await Get.to(
+                    () => const FullScreenSignature(title: 'Driver Signature'),
+                  );
+                  if (points != null && points.isNotEmpty) {
+                    setState(() {
+                      _signatureController.points = points;
+                      existingDriverSignatureUrl = null;
+                    });
+                  }
+                },
+                child: Container(
+                  height: 150,
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                  ),
+                  child: existingDriverSignatureUrl != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            existingDriverSignatureUrl!,
+                            fit: BoxFit.contain,
+                          ),
+                        )
+                      : Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CustomPaint(
+                                painter: DashedRectPainter(
+                                  color: const Color(0xFF94A3B8),
+                                ),
+                                child: IgnorePointer(
+                                  child: Signature(
+                                    controller: _signatureController,
+                                    height: 150,
+                                    backgroundColor: Colors.transparent,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (_signatureController.isEmpty)
+                              IgnorePointer(
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      AppText(
+                                        data: 'Tap to sign',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                      Gap(height: 4),
+                                      AppText(
+                                        data: 'Driver draws signature here',
+                                        fontSize: 12,
+                                        color: Color(0xFF94A3B8),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                ),
               ),
 
               const Gap(height: 100),
@@ -355,41 +526,151 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
               ),
               elevation: 0,
             ),
-            onPressed: completedCount == totalCount
-                ? () {
-                    Get.to(
-                      () => DeliveryArrivalScreen(
-                        mission: widget.mission,
-                        reqId: widget.reqId,
+            onPressed: () async {
+              if (completedCount < totalCount) {
+                Get.snackbar(
+                  'Incomplete',
+                  'Please complete all $totalCount required sections before finishing.',
+                  backgroundColor: const Color(0xFFF59E0B),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.bottom,
+                );
+                return;
+              }
+
+              if (driverSelfiePath == null && existingDriverSelfieUrl == null) {
+                Get.snackbar(
+                  'Required',
+                  'Please take a driver selfie.',
+                  backgroundColor: const Color(0xFFF59E0B),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.bottom,
+                );
+                return;
+              }
+
+              if (_signatureController.isEmpty &&
+                  existingDriverSignatureUrl == null) {
+                Get.snackbar(
+                  'Required',
+                  'Please provide your driver signature.',
+                  backgroundColor: const Color(0xFFF59E0B),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.bottom,
+                );
+                return;
+              }
+
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) =>
+                    const Center(child: CircularProgressIndicator()),
+              );
+
+              try {
+                final repo = MissionRepository();
+                final Map<String, dynamic> uploadData = {};
+                final List<MultipartFile> files = [];
+                final List<String> labels = [];
+
+                if (driverSelfiePath != null) {
+                  final bytes = await FlutterImageCompress.compressWithFile(
+                    driverSelfiePath!,
+                    minWidth: 800,
+                    minHeight: 800,
+                    quality: 70,
+                  );
+                  if (bytes != null) {
+                    files.add(
+                      MultipartFile.fromBytes(
+                        bytes,
+                        filename: 'driver_selfie.jpg',
                       ),
                     );
+                    labels.add('driverSelfiePhoto');
                   }
-                : () {
-                    Get.snackbar(
-                      'Incomplete',
-                      'Please complete all $totalCount inspection steps first.',
-                      backgroundColor: const Color(0xFFEF4444),
-                      colorText: Colors.white,
-                      snackPosition: SnackPosition.bottom,
-                      margin: const EdgeInsets.all(16),
+                } else if (existingDriverSelfieUrl != null) {
+                  uploadData['driverSelfiePhoto'] = existingDriverSelfieUrl;
+                }
+
+                if (_signatureController.isNotEmpty) {
+                  final Uint8List? signatureBytes = await _signatureController
+                      .toPngBytes();
+                  if (signatureBytes != null) {
+                    files.add(
+                      MultipartFile.fromBytes(
+                        signatureBytes,
+                        filename: 'driver_sig.png',
+                      ),
                     );
-                  },
+                    labels.add('driverSignaturePhoto');
+                  }
+                } else if (existingDriverSignatureUrl != null) {
+                  uploadData['driverSignaturePhoto'] =
+                      existingDriverSignatureUrl;
+                }
+
+                if (files.isNotEmpty) {
+                  uploadData['image'] = files;
+                  uploadData['imageLabels'] = labels;
+                }
+
+                final res = await repo.updatePickupInspection(
+                  widget.mission['_id'] ?? widget.reqId,
+                  'driverConfirmation',
+                  uploadData,
+                );
+
+                if (mounted) Navigator.of(context).pop();
+
+                if (res.statusCode == 200) {
+                  if (localMission['details']['pickupInspection'] == null) {
+                    localMission['details']['pickupInspection'] =
+                        <String, dynamic>{};
+                  }
+                  localMission['details']['pickupInspection']['driverConfirmation'] =
+                      res.data['data']['details']['pickupInspection']['driverConfirmation'];
+
+                  Get.snackbar(
+                    'Success',
+                    'Pickup inspection completed successfully!',
+                    backgroundColor: const Color(0xFF10B981),
+                    colorText: Colors.white,
+                    snackPosition: SnackPosition.bottom,
+                  );
+
+                  Get.to(
+                    () => DeliveryArrivalScreen(
+                      mission: localMission,
+                      reqId: widget.reqId,
+                    ),
+                  );
+                } else {
+                  Get.snackbar('Error', 'Failed to complete mission');
+                }
+              } catch (e) {
+                if (mounted) Navigator.of(context).pop();
+                Get.snackbar(
+                  'Error',
+                  'An error occurred while completing the mission.',
+                );
+              }
+            },
             child: Ink(
               decoration: BoxDecoration(
-                gradient: completedCount == totalCount
-                    ? const LinearGradient(
-                        colors: [Color(0xFF3B82F6), Color(0xFF06B6D4)],
-                      )
-                    : null,
-                color: completedCount == totalCount
-                    ? null
-                    : const Color(0xFF93C5FD),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF3B82F6),
+                    Color(0xFFA855F7),
+                  ], // Blue to purple gradient
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Container(
                 alignment: Alignment.center,
                 child: const AppText(
-                  data: 'Complete Pickup Inspection',
+                  data: 'Complete Mission',
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
@@ -479,4 +760,43 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
       ),
     );
   }
+}
+
+class DashedRectPainter extends CustomPainter {
+  final Color color;
+  DashedRectPainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = color
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    var path = Path();
+    path.addRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        const Radius.circular(12),
+      ),
+    );
+
+    const double dashWidth = 5;
+    const double dashSpace = 5;
+    double distance = 0;
+
+    for (PathMetric pathMetric in path.computeMetrics()) {
+      while (distance < pathMetric.length) {
+        canvas.drawPath(
+          pathMetric.extractPath(distance, distance + dashWidth),
+          paint,
+        );
+        distance += dashWidth + dashSpace;
+      }
+      distance = 0;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

@@ -575,6 +575,8 @@ const startMission = async (missionId: string, driverId: string) => {
   if (!mission) throw new Error('Mission not found or not assigned to you');
 
   mission.status = RequestStatus.IN_PROGRESS;
+  mission.details = { ...mission.details, startedAt: new Date().toISOString() };
+  mission.markModified('details');
   await mission.save();
   return mission;
 };
@@ -836,6 +838,8 @@ const updateDeliveryInspection = async (missionId: string, driverId: string, sec
 
   if (section === 'driverConfirmation') {
     mission.status = RequestStatus.COMPLETED;
+    mission.details = { ...mission.details, completedAt: new Date().toISOString() };
+    mission.markModified('details');
     await mission.save();
 
     try {

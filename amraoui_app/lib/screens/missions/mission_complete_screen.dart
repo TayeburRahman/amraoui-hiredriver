@@ -87,22 +87,20 @@ class MissionCompleteScreen extends StatelessWidget {
 
     String durationText = detailsObj['estimatedTime']?.toString() ?? 'N/A';
     try {
-      String? startStr;
-      if (type == 'HIRE_DRIVER') {
-        final arr = detailsObj['driverArrivals'];
-        if (arr != null && arr is List && arr.isNotEmpty) {
-          startStr = arr.first['verifiedAt']?.toString();
+      String? startStr = detailsObj['startedAt']?.toString();
+      if (startStr == null) {
+        if (type == 'HIRE_DRIVER') {
+          final arr = detailsObj['driverArrivals'];
+          if (arr != null && arr is List && arr.isNotEmpty) {
+            startStr = arr.first['verifiedAt']?.toString();
+          }
+        } else {
+          startStr = detailsObj['pickupVerification']?['verifiedAt']?.toString();
         }
-      } else {
-        startStr = detailsObj['pickupVerification']?['verifiedAt']?.toString();
       }
 
-      // Fallback for startStr if verification wasn't available
-      startStr ??= mission['createdAt']?.toString();
-      
-      String? endStr = detailsObj['deliveryArrivalTime']?.toString() ??
-          mission['updatedAt']?.toString() ??
-          DateTime.now().toIso8601String();
+      String? endStr = detailsObj['completedAt']?.toString() ?? 
+          detailsObj['deliveryArrivalTime']?.toString();
 
       if (startStr != null) {
         DateTime start = DateTime.parse(startStr).toLocal();

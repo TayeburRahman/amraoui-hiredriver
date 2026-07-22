@@ -13,7 +13,7 @@ import { Search, Filter, ArrowUpDown, MapPin, Car, Calendar, Loader2 } from 'luc
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuPortal } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { apiFetch, getProfileImageUrl } from '@/lib/api';
-import { formatDate, formatDateTime } from '@/lib/dateUtils';
+import { formatDate, formatDateTime, parseDateString } from '@/lib/dateUtils';
 
 // ok
 const tabs = ["All", "Pending Quote", "Waiting for Quotes", "Quotes Received", "Pending Assignment", "Assigned", "Urgent"];
@@ -71,8 +71,8 @@ const QuoteDeskPage = () => {
 
                 let estimatedTime = 'N/A';
                 if (quote.pickupDate && quote.dropoffDate) {
-                  const start = new Date(`${quote.pickupDate}T${quote.pickupTime || '00:00'}`);
-                  const end = new Date(`${quote.dropoffDate}T${quote.dropoffTime || '00:00'}`);
+                  const start = parseDateString(quote.pickupDate, quote.pickupTime);
+                  const end = parseDateString(quote.dropoffDate, quote.dropoffTime);
                   if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
                     const diffMs = end.getTime() - start.getTime();
                     if (diffMs > 0) {

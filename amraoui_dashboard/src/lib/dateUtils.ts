@@ -27,3 +27,14 @@ export function formatDateTime(dateStr: string | Date | number): string {
     return 'Invalid Date';
   }
 }
+
+export function parseDateString(dateStr: string, timeStr?: string): Date {
+  let timePart = timeStr || '00:00';
+  if (dateStr.includes('/')) {
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      return new Date(`${parts[2]}-${parts[1]}-${parts[0]}T${timePart}`);
+    }
+  }
+  return new Date(`${dateStr}T${timePart}`);
+}

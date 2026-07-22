@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { ViewDetailsModal } from '@/app/(dashboard)/customer-request/components/ViewDetailsModal';
 import { apiFetch, getProfileImageUrl } from '@/lib/api';
-import { formatDate, formatDateTime } from '@/lib/dateUtils';
+import { formatDate, formatDateTime, parseDateString } from '@/lib/dateUtils';
 
 const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     const { id } = use(params);
@@ -273,8 +273,8 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                             const driver = quote.driverId || {};
                             let estimatedTime = quote.estimatedTime || 'N/A';
                             if (!quote.estimatedTime && quote.pickupDate && quote.dropoffDate) {
-                                const start = new Date(`${quote.pickupDate}T${quote.pickupTime || '00:00'}`);
-                                const end = new Date(`${quote.dropoffDate}T${quote.dropoffTime || '00:00'}`);
+                                const start = parseDateString(quote.pickupDate, quote.pickupTime);
+                                const end = parseDateString(quote.dropoffDate, quote.dropoffTime);
                                 if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
                                     const diffMs = end.getTime() - start.getTime();
                                     if (diffMs > 0) {

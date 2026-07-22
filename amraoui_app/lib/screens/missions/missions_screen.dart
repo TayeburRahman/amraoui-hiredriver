@@ -1349,15 +1349,27 @@ class _MissionsScreenState extends State<MissionsScreen> {
       RxString dateObs,
       String? customerDateStr,
     ) {
-      final customerDate =
-          _parseCustomerDate(customerDateStr) ?? _stripTime(DateTime.now());
       return GestureDetector(
         onTap: () async {
+          final String dateStrToParse = dateObs.value.isNotEmpty ? dateObs.value : (customerDateStr ?? '');
+          final customerDate =
+              _parseCustomerDate(dateStrToParse) ?? _stripTime(DateTime.now());
+
+          final firstAllowedDate = DateTime.now().subtract(const Duration(days: 365 * 5));
+          final lastAllowedDate = DateTime.now().add(const Duration(days: 365 * 10));
+          
+          final actualFirstDate = customerDate.isBefore(firstAllowedDate) 
+              ? customerDate.subtract(const Duration(days: 365)) 
+              : firstAllowedDate;
+          final actualLastDate = customerDate.isAfter(lastAllowedDate) 
+              ? customerDate.add(const Duration(days: 365)) 
+              : lastAllowedDate;
+
           final picked = await showDatePicker(
             context: Get.context!,
             initialDate: customerDate,
-            firstDate: DateTime.now().subtract(const Duration(days: 30)),
-            lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
+            firstDate: actualFirstDate,
+            lastDate: actualLastDate,
             builder: (context, child) {
               return Theme(
                 data: ThemeData.light().copyWith(

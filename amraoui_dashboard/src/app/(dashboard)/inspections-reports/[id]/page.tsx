@@ -383,9 +383,8 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
                 {/* Proof Overview */}
                 <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 flex flex-col justify-center items-center gap-2">
                   <p className="font-bold text-gray-900">Overall Status</p>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    request.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                  }`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${request.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                    }`}>
                     {request.status}
                   </span>
                 </div>

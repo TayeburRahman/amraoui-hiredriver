@@ -6,7 +6,7 @@ import api from '@/lib/axios';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
+import {
   ArrowLeft,
   Download,
   Image as ImageIcon,
@@ -33,7 +33,7 @@ const PhotosModalContent = ({ type, data }: { type: 'pickup' | 'delivery', data:
   const inspection = type === 'pickup' ? data?.pickupInspection : data?.deliveryInspection;
   const exterior = inspection?.exteriorPhotos || {};
   const interior = inspection?.interiorPhotos || {};
-  
+
   const allPhotos = [
     ...Object.entries(exterior).filter(([k]) => k !== 'updatedAt').map(([k, v]) => ({ label: `Exterior: ${k}`, url: v as string })),
     ...Object.entries(interior).filter(([k]) => k !== 'updatedAt').map(([k, v]) => ({ label: `Interior: ${k}`, url: v as string }))
@@ -97,21 +97,21 @@ const DamageModalContent = ({ data }: { data: any }) => {
               </div>
             </div>
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-2">
-               <p className="text-sm font-bold text-slate-400">Component Affected</p>
-               <p className="font-bold text-brand-text">{report.component || 'N/A'}</p>
+              <p className="text-sm font-bold text-slate-400">Component Affected</p>
+              <p className="font-bold text-brand-text">{report.component || 'N/A'}</p>
             </div>
             {report.comment && (
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-2">
-                 <p className="text-sm font-bold text-slate-400">Inspector Notes</p>
-                 <p className="font-medium text-slate-600">{report.comment}</p>
+                <p className="text-sm font-bold text-slate-400">Inspector Notes</p>
+                <p className="font-medium text-slate-600">{report.comment}</p>
               </div>
             )}
             {report.photo && (
-             <div className="aspect-video rounded-2xl border border-slate-200 overflow-hidden mt-4 group">
-                 <a href={report.photo} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                   <img src={report.photo} alt="Damage proof" className="w-full h-full object-cover" />
-                 </a>
-             </div>
+              <div className="aspect-video rounded-2xl border border-slate-200 overflow-hidden mt-4 group">
+                <a href={report.photo} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                  <img src={report.photo} alt="Damage proof" className="w-full h-full object-cover" />
+                </a>
+              </div>
             )}
           </div>
         )}
@@ -259,7 +259,7 @@ const MileageModalContent = ({ data }: { data: any }) => {
         <div className="rounded-[2rem] p-6 sm:p-8 bg-white border border-slate-100 shadow-sm space-y-6">
           <div className="flex items-center gap-3">
             <div className="text-brand-blue">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4"/><path d="M3.34 16A10 10 0 1 1 20.66 16"/></svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 14 4-4" /><path d="M3.34 16A10 10 0 1 1 20.66 16" /></svg>
             </div>
             <h3 className="text-lg sm:text-xl font-bold text-brand-text">Mileage Data</h3>
           </div>
@@ -275,7 +275,7 @@ const MileageModalContent = ({ data }: { data: any }) => {
           </div>
           <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4 flex items-center gap-4">
             <div className="h-10 w-10 rounded-full bg-blue-100 text-brand-blue flex items-center justify-center flex-shrink-0">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" /></svg>
             </div>
             <div>
               <p className="text-xs font-bold text-slate-500">Distance traveled</p>
@@ -292,60 +292,60 @@ const MileageModalContent = ({ data }: { data: any }) => {
           </div>
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div className="bg-slate-50 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center min-h-[120px]">
-               <div className="text-center mb-2">
-                 <p className="text-xs font-bold text-slate-400 mb-2">At pickup</p>
-                 <span className="text-2xl font-black text-brand-blue">{pickup.fuelLevel || 'N/A'}</span>
-               </div>
-               {pickup.fuelGaugePhoto && (
-                 <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
-                   <a href={pickup.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                     <img src={pickup.fuelGaugePhoto} alt="Pickup fuel gauge" className="w-full h-full object-cover" />
-                   </a>
-                 </div>
-               )}
+              <div className="text-center mb-2">
+                <p className="text-xs font-bold text-slate-400 mb-2">At pickup</p>
+                <span className="text-2xl font-black text-brand-blue">{pickup.fuelLevel || 'N/A'}</span>
+              </div>
+              {pickup.fuelGaugePhoto && (
+                <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
+                  <a href={pickup.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                    <img src={pickup.fuelGaugePhoto} alt="Pickup fuel gauge" className="w-full h-full object-cover" />
+                  </a>
+                </div>
+              )}
             </div>
             <div className="bg-slate-50 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center min-h-[120px]">
-               <div className="text-center mb-2">
-                 <p className="text-xs font-bold text-slate-400 mb-2">At delivery</p>
-                 <span className="text-2xl font-black text-brand-text">{delivery.fuelLevel || 'N/A'}</span>
-               </div>
-               {delivery.fuelGaugePhoto && (
-                 <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
-                   <a href={delivery.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                     <img src={delivery.fuelGaugePhoto} alt="Delivery fuel gauge" className="w-full h-full object-cover" />
-                   </a>
-                 </div>
-               )}
+              <div className="text-center mb-2">
+                <p className="text-xs font-bold text-slate-400 mb-2">At delivery</p>
+                <span className="text-2xl font-black text-brand-text">{delivery.fuelLevel || 'N/A'}</span>
+              </div>
+              {delivery.fuelGaugePhoto && (
+                <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
+                  <a href={delivery.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                    <img src={delivery.fuelGaugePhoto} alt="Delivery fuel gauge" className="w-full h-full object-cover" />
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
-        
+
         {/* Odometer Proof Photos */}
         {(pickup.odometerPhoto || delivery.odometerPhoto) && (
           <div className="rounded-[2rem] p-6 sm:p-8 bg-white border border-slate-100 shadow-sm md:col-span-2">
-             <h3 className="text-lg font-bold text-brand-text mb-4">Odometer Proof Photos</h3>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-               {pickup.odometerPhoto && (
-                 <div>
-                   <p className="text-xs font-bold text-slate-400 mb-2">Pickup Odometer</p>
-                   <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden group">
-                     <a href={pickup.odometerPhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                       <img src={pickup.odometerPhoto} alt="Pickup Odometer" className="w-full h-full object-cover" />
-                     </a>
-                   </div>
-                 </div>
-               )}
-               {delivery.odometerPhoto && (
-                 <div>
-                   <p className="text-xs font-bold text-slate-400 mb-2">Delivery Odometer</p>
-                   <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden group">
-                     <a href={delivery.odometerPhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                       <img src={delivery.odometerPhoto} alt="Delivery Odometer" className="w-full h-full object-cover" />
-                     </a>
-                   </div>
-                 </div>
-               )}
-             </div>
+            <h3 className="text-lg font-bold text-brand-text mb-4">Odometer Proof Photos</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {pickup.odometerPhoto && (
+                <div>
+                  <p className="text-xs font-bold text-slate-400 mb-2">Pickup Odometer</p>
+                  <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden group">
+                    <a href={pickup.odometerPhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                      <img src={pickup.odometerPhoto} alt="Pickup Odometer" className="w-full h-full object-cover" />
+                    </a>
+                  </div>
+                </div>
+              )}
+              {delivery.odometerPhoto && (
+                <div>
+                  <p className="text-xs font-bold text-slate-400 mb-2">Delivery Odometer</p>
+                  <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden group">
+                    <a href={delivery.odometerPhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
+                      <img src={delivery.odometerPhoto} alt="Delivery Odometer" className="w-full h-full object-cover" />
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -363,7 +363,7 @@ const DocumentsModalContent = ({ data }: { data: any }) => {
       <DialogHeader className="mb-8 text-center sm:text-center">
         <DialogTitle className="text-3xl font-black text-brand-text">Documents & Proof</DialogTitle>
       </DialogHeader>
-      
+
       {hasNoDocs ? (
         <div className="text-center p-8 text-slate-500 font-medium">No documents uploaded</div>
       ) : (
@@ -372,27 +372,27 @@ const DocumentsModalContent = ({ data }: { data: any }) => {
             <div className="space-y-4">
               <h4 className="font-bold text-brand-text">Pickup Documents</h4>
               {pDocs.map((doc: string, i: number) => (
-                 <div key={`pickup-${i}`} className="border border-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                   <div className="flex items-center gap-4 w-full sm:w-auto">
-                     <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0">
-                       <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-slate-400" />
-                     </div>
-                     <div className="flex-1 min-w-0">
-                       <div className="flex items-center gap-2 mb-0.5 sm:mb-1">
-                         <p className="font-bold text-brand-text truncate text-sm sm:text-base">Pickup Document {i + 1}</p>
-                         <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                       </div>
-                     </div>
-                   </div>
-                   
-                   <div className="w-full sm:w-auto">
-                      <a href={doc} target="_blank" rel="noreferrer">
-                        <Button variant="outline" className="w-full h-9 rounded-xl border-brand-blue/30 text-brand-blue text-sm font-bold hover:bg-blue-50">
-                          View Document
-                        </Button>
-                      </a>
-                   </div>
-                 </div>
+                <div key={`pickup-${i}`} className="border border-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0">
+                      <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-slate-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5 sm:mb-1">
+                        <p className="font-bold text-brand-text truncate text-sm sm:text-base">Pickup Document {i + 1}</p>
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full sm:w-auto">
+                    <a href={doc} target="_blank" rel="noreferrer">
+                      <Button variant="outline" className="w-full h-9 rounded-xl border-brand-blue/30 text-brand-blue text-sm font-bold hover:bg-blue-50">
+                        View Document
+                      </Button>
+                    </a>
+                  </div>
+                </div>
               ))}
             </div>
           )}
@@ -401,27 +401,27 @@ const DocumentsModalContent = ({ data }: { data: any }) => {
             <div className="space-y-4">
               <h4 className="font-bold text-brand-text">Delivery Documents</h4>
               {dDocs.map((doc: string, i: number) => (
-                 <div key={`delivery-${i}`} className="border border-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                   <div className="flex items-center gap-4 w-full sm:w-auto">
-                     <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0">
-                       <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-slate-400" />
-                     </div>
-                     <div className="flex-1 min-w-0">
-                       <div className="flex items-center gap-2 mb-0.5 sm:mb-1">
-                         <p className="font-bold text-brand-text truncate text-sm sm:text-base">Delivery Document {i + 1}</p>
-                         <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                       </div>
-                     </div>
-                   </div>
-                   
-                   <div className="w-full sm:w-auto">
-                      <a href={doc} target="_blank" rel="noreferrer">
-                        <Button variant="outline" className="w-full h-9 rounded-xl border-brand-blue/30 text-brand-blue text-sm font-bold hover:bg-blue-50">
-                          View Document
-                        </Button>
-                      </a>
-                   </div>
-                 </div>
+                <div key={`delivery-${i}`} className="border border-slate-100 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-slate-50 flex items-center justify-center flex-shrink-0">
+                      <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-slate-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5 sm:mb-1">
+                        <p className="font-bold text-brand-text truncate text-sm sm:text-base">Delivery Document {i + 1}</p>
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full sm:w-auto">
+                    <a href={doc} target="_blank" rel="noreferrer">
+                      <Button variant="outline" className="w-full h-9 rounded-xl border-brand-blue/30 text-brand-blue text-sm font-bold hover:bg-blue-50">
+                        View Document
+                      </Button>
+                    </a>
+                  </div>
+                </div>
               ))}
             </div>
           )}
@@ -436,7 +436,7 @@ const DocumentsModalContent = ({ data }: { data: any }) => {
 export default function DeliveryReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { t } = useTranslation();
-  
+
   const [mission, setMission] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -486,7 +486,7 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
   const isHireDriver = mission.type === 'HIRE_DRIVER';
 
   let routeText = 'Single Location';
-  if (isTransport) routeText = `${(d.pickupAddress||'').split(',')[0]} → ${(d.dropoffAddress||'').split(',')[0]}`;
+  if (isTransport) routeText = `${(d.pickupAddress || '').split(',')[0]} → ${(d.dropoffAddress || '').split(',')[0]}`;
   if (isInspection) routeText = d.inspectionLocation?.split(',')[0] || 'N/A';
   if (isHireDriver) routeText = d.driverLocation?.split(',')[0] || 'N/A';
 
@@ -520,17 +520,17 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
             </div>
             <p className="text-sm font-medium text-slate-400 mt-2">Order {orderId}</p>
           </div>
-          <Button className="bg-brand-blue hover:bg-brand-blue-hover text-white font-bold rounded-2xl h-11 px-6 shadow-md shadow-blue-100 w-full sm:w-auto" onClick={() => window.print()}>
+          {/* <Button className="bg-brand-blue hover:bg-brand-blue-hover text-white font-bold rounded-2xl h-11 px-6 shadow-md shadow-blue-100 w-full sm:w-auto" onClick={() => window.print()}>
             <Download className="mr-2 h-4 w-4" />
             {t.orders.deliveryReport?.downloadReport || 'Print / Save Report'}
-          </Button>
+          </Button> */}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-slate-50 p-4 rounded-2xl">
             <p className="text-xs font-bold text-slate-400 mb-1">{isHireDriver ? 'Tasks' : (t.orders.deliveryReport?.vehicle || 'Vehicle')}</p>
             <p className="font-bold text-brand-text truncate">
-               {isHireDriver ? (d.driverTasks || []).join(', ') : `${d.make || d.vehicleBrand || 'N/A'} ${d.model || d.vehicleModel || ''}`}
+              {isHireDriver ? (d.driverTasks || []).join(', ') : `${d.make || d.vehicleBrand || 'N/A'} ${d.model || d.vehicleModel || ''}`}
             </p>
             {!isHireDriver && <p className="text-xs font-medium text-slate-400">{d.plate || d.licensePlate}</p>}
           </div>
@@ -566,7 +566,7 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
         <h2 className="text-xl font-black text-brand-text">
           {isHireDriver ? 'Daily Driver Check-ins' : (t.orders.deliveryReport?.reportDetails || 'Report Details')}
         </h2>
-        
+
         {isHireDriver ? (
           <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white">
             <div className="space-y-4">
@@ -597,110 +597,110 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            
+
             {/* Card 1 */}
             <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
-            <div className="flex items-start gap-4">
-              <div className={`h-12 w-12 rounded-2xl ${pickupPhotosCount > 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400'} flex items-center justify-center flex-shrink-0`}>
-                <ImageIcon className="h-5 w-5" />
+              <div className="flex items-start gap-4">
+                <div className={`h-12 w-12 rounded-2xl ${pickupPhotosCount > 0 ? 'bg-emerald-50 text-emerald-500' : 'bg-slate-50 text-slate-400'} flex items-center justify-center flex-shrink-0`}>
+                  <ImageIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.pickupPhotos || 'Pickup Inspection Photos'}</p>
+                  <p className={`font-black text-lg mt-1 ${pickupPhotosCount > 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                    {pickupPhotosCount} {t.orders.deliveryReport?.photos || 'photos'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.pickupPhotos || 'Pickup Inspection Photos'}</p>
-                <p className={`font-black text-lg mt-1 ${pickupPhotosCount > 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
-                  {pickupPhotosCount} {t.orders.deliveryReport?.photos || 'photos'}
-                </p>
-              </div>
-            </div>
-            <Button onClick={() => setActiveModal('pickupPhotos')} disabled={pickupPhotosCount === 0} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:hover:bg-transparent">
-              {t.orders.deliveryReport?.viewDetails || 'View Details'}
-            </Button>
-          </Card>
+              <Button onClick={() => setActiveModal('pickupPhotos')} disabled={pickupPhotosCount === 0} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:hover:bg-transparent">
+                {t.orders.deliveryReport?.viewDetails || 'View Details'}
+              </Button>
+            </Card>
 
-          {/* Card 2 */}
-          <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
-            <div className="flex items-start gap-4">
-              <div className={`h-12 w-12 rounded-2xl ${deliveryPhotosCount > 0 ? 'bg-blue-50 text-brand-blue' : 'bg-slate-50 text-slate-400'} flex items-center justify-center flex-shrink-0`}>
-                <ImageIcon className="h-5 w-5" />
+            {/* Card 2 */}
+            <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
+              <div className="flex items-start gap-4">
+                <div className={`h-12 w-12 rounded-2xl ${deliveryPhotosCount > 0 ? 'bg-blue-50 text-brand-blue' : 'bg-slate-50 text-slate-400'} flex items-center justify-center flex-shrink-0`}>
+                  <ImageIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.deliveryPhotos || 'Delivery Inspection Photos'}</p>
+                  <p className={`font-black text-lg mt-1 ${deliveryPhotosCount > 0 ? 'text-brand-blue' : 'text-slate-400'}`}>
+                    {deliveryPhotosCount} {t.orders.deliveryReport?.photos || 'photos'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.deliveryPhotos || 'Delivery Inspection Photos'}</p>
-                <p className={`font-black text-lg mt-1 ${deliveryPhotosCount > 0 ? 'text-brand-blue' : 'text-slate-400'}`}>
-                  {deliveryPhotosCount} {t.orders.deliveryReport?.photos || 'photos'}
-                </p>
-              </div>
-            </div>
-            <Button onClick={() => setActiveModal('deliveryPhotos')} disabled={deliveryPhotosCount === 0} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:hover:bg-transparent">
-              {t.orders.deliveryReport?.viewDetails || 'View Details'}
-            </Button>
-          </Card>
+              <Button onClick={() => setActiveModal('deliveryPhotos')} disabled={deliveryPhotosCount === 0} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:hover:bg-transparent">
+                {t.orders.deliveryReport?.viewDetails || 'View Details'}
+              </Button>
+            </Card>
 
-          {/* Card 3 */}
-          <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
-            <div className="flex items-start gap-4">
-              <div className={`h-12 w-12 rounded-2xl ${hasDamage ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500'} flex items-center justify-center flex-shrink-0`}>
-                <AlertCircle className="h-5 w-5" />
+            {/* Card 3 */}
+            <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
+              <div className="flex items-start gap-4">
+                <div className={`h-12 w-12 rounded-2xl ${hasDamage ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500'} flex items-center justify-center flex-shrink-0`}>
+                  <AlertCircle className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.damageReport || 'Damage Report'}</p>
+                  <p className={`font-black text-lg mt-1 ${hasDamage ? 'text-red-500' : 'text-emerald-500'}`}>{hasDamage ? 'Damage Found' : (t.orders.deliveryReport?.noDamage || 'No damage')}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.damageReport || 'Damage Report'}</p>
-                <p className={`font-black text-lg mt-1 ${hasDamage ? 'text-red-500' : 'text-emerald-500'}`}>{hasDamage ? 'Damage Found' : (t.orders.deliveryReport?.noDamage || 'No damage')}</p>
-              </div>
-            </div>
-            <Button onClick={() => setActiveModal('damage')} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors">
-              {t.orders.deliveryReport?.viewDetails || 'View Details'}
-            </Button>
-          </Card>
+              <Button onClick={() => setActiveModal('damage')} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors">
+                {t.orders.deliveryReport?.viewDetails || 'View Details'}
+              </Button>
+            </Card>
 
-          {/* Card 4 */}
-          <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-blue-50 text-brand-blue flex items-center justify-center flex-shrink-0">
-                <FileSignature className="h-5 w-5" />
+            {/* Card 4 */}
+            <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 rounded-2xl bg-blue-50 text-brand-blue flex items-center justify-center flex-shrink-0">
+                  <FileSignature className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.signature || 'Customer Signatures'}</p>
+                  <p className="font-black text-brand-blue text-lg mt-1">{d.deliveryInspection?.customerSignature ? 'Signed' : 'Pending'}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.signature || 'Customer Signatures'}</p>
-                <p className="font-black text-brand-blue text-lg mt-1">{d.deliveryInspection?.customerSignature ? 'Signed' : 'Pending'}</p>
-              </div>
-            </div>
-            <Button onClick={() => setActiveModal('signature')} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors">
-              {t.orders.deliveryReport?.viewDetails || 'View Details'}
-            </Button>
-          </Card>
+              <Button onClick={() => setActiveModal('signature')} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors">
+                {t.orders.deliveryReport?.viewDetails || 'View Details'}
+              </Button>
+            </Card>
 
-          {/* Card 5 */}
-          <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
-            <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center flex-shrink-0">
-                <Fuel className="h-5 w-5" />
+            {/* Card 5 */}
+            <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center flex-shrink-0">
+                  <Fuel className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.mileage || 'Mileage & Fuel Proof'}</p>
+                  <p className="font-black text-amber-500 text-lg mt-1">Data Logged</p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.mileage || 'Mileage & Fuel Proof'}</p>
-                <p className="font-black text-amber-500 text-lg mt-1">Data Logged</p>
-              </div>
-            </div>
-            <Button onClick={() => setActiveModal('mileage')} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors">
-              {t.orders.deliveryReport?.viewDetails || 'View Details'}
-            </Button>
-          </Card>
+              <Button onClick={() => setActiveModal('mileage')} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors">
+                {t.orders.deliveryReport?.viewDetails || 'View Details'}
+              </Button>
+            </Card>
 
-          {/* Card 6 */}
-          <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
-            <div className="flex items-start gap-4">
-              <div className={`h-12 w-12 rounded-2xl ${documentsCount > 0 ? 'bg-orange-50 text-orange-500' : 'bg-slate-50 text-slate-400'} flex items-center justify-center flex-shrink-0`}>
-                <FileText className="h-5 w-5" />
+            {/* Card 6 */}
+            <Card className="p-5 sm:p-6 rounded-3xl border border-slate-100 shadow-sm bg-white space-y-6">
+              <div className="flex items-start gap-4">
+                <div className={`h-12 w-12 rounded-2xl ${documentsCount > 0 ? 'bg-orange-50 text-orange-500' : 'bg-slate-50 text-slate-400'} flex items-center justify-center flex-shrink-0`}>
+                  <FileText className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.documents || 'Documents'}</p>
+                  <p className={`font-black text-lg mt-1 ${documentsCount > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
+                    {documentsCount} Files
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-brand-text text-sm leading-tight">{t.orders.deliveryReport?.documents || 'Documents'}</p>
-                <p className={`font-black text-lg mt-1 ${documentsCount > 0 ? 'text-orange-500' : 'text-slate-400'}`}>
-                   {documentsCount} Files
-                </p>
-              </div>
-            </div>
-            <Button onClick={() => setActiveModal('documents')} disabled={documentsCount === 0} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:hover:bg-transparent">
-              {t.orders.deliveryReport?.viewDetails || 'View Details'}
-            </Button>
-          </Card>
+              <Button onClick={() => setActiveModal('documents')} disabled={documentsCount === 0} variant="outline" className="w-full h-11 rounded-2xl border-slate-200 text-brand-blue font-bold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:hover:bg-transparent">
+                {t.orders.deliveryReport?.viewDetails || 'View Details'}
+              </Button>
+            </Card>
 
-        </div>
+          </div>
         )}
       </div>
 
@@ -708,49 +708,49 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
       {!isHireDriver && (
         <Card className="p-6 sm:p-8 rounded-[2rem] border border-slate-100 shadow-sm bg-white space-y-6">
           <h2 className="text-xl font-black text-brand-text">{t.orders.deliveryReport?.transportTimeline || 'Transport Timeline'}</h2>
-          
+
           <div className="space-y-3">
-          <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 flex items-center gap-4 border border-slate-100">
-            <div className="h-8 w-8 rounded-full border-2 border-emerald-500 text-emerald-500 flex items-center justify-center flex-shrink-0 bg-white">
-              <CheckCircle2 className="h-5 w-5" />
+            <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 flex items-center gap-4 border border-slate-100">
+              <div className="h-8 w-8 rounded-full border-2 border-emerald-500 text-emerald-500 flex items-center justify-center flex-shrink-0 bg-white">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-bold text-brand-text text-sm sm:text-base">{t.orders.deliveryReport?.requestSubmitted || 'Request Submitted'}</p>
+                <p className="text-xs font-medium text-slate-500 mt-0.5">{formatDateTime(mission.createdAt)}</p>
+              </div>
             </div>
-            <div>
-              <p className="font-bold text-brand-text text-sm sm:text-base">{t.orders.deliveryReport?.requestSubmitted || 'Request Submitted'}</p>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">{formatDateTime(mission.createdAt)}</p>
-            </div>
-          </div>
 
-          <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 flex items-center gap-4 border border-slate-100">
-            <div className={`h-8 w-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${d.pickupVerification?.verifiedAt ? 'border-emerald-500 text-emerald-500 bg-white' : 'border-slate-200 text-slate-300 bg-white'}`}>
-              <CheckCircle2 className="h-5 w-5" />
+            <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 flex items-center gap-4 border border-slate-100">
+              <div className={`h-8 w-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${d.pickupVerification?.verifiedAt ? 'border-emerald-500 text-emerald-500 bg-white' : 'border-slate-200 text-slate-300 bg-white'}`}>
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <div>
+                <p className={`font-bold text-sm sm:text-base ${d.pickupVerification?.verifiedAt ? 'text-brand-text' : 'text-slate-400'}`}>
+                  {t.orders.deliveryReport?.vehiclePickedUp || 'Vehicle Picked Up'}
+                </p>
+                <p className="text-xs font-medium text-slate-500 mt-0.5">
+                  {d.pickupVerification?.verifiedAt ? `${formatDateTime(d.pickupVerification.verifiedAt)}` : 'Pending'}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className={`font-bold text-sm sm:text-base ${d.pickupVerification?.verifiedAt ? 'text-brand-text' : 'text-slate-400'}`}>
-                {t.orders.deliveryReport?.vehiclePickedUp || 'Vehicle Picked Up'}
-              </p>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">
-                {d.pickupVerification?.verifiedAt ? `${formatDateTime(d.pickupVerification.verifiedAt)}` : 'Pending'}
-              </p>
-            </div>
-          </div>
 
-          <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 flex items-center gap-4 border border-slate-100">
-            <div className={`h-8 w-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${deliveryDate ? 'border-emerald-500 text-emerald-500 bg-white' : 'border-slate-200 text-slate-300 bg-white'}`}>
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
-            <div>
-              <p className={`font-bold text-sm sm:text-base ${deliveryDate ? 'text-brand-text' : 'text-slate-400'}`}>
-                {t.orders.deliveryReport?.deliveredSuccessfully || 'Delivered Successfully'}
-              </p>
-              <p className="text-xs font-medium text-slate-500 mt-0.5">
-                {deliveryDate ? `${formatDateTime(deliveryDate)}` : 'Pending'}
-              </p>
+            <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 flex items-center gap-4 border border-slate-100">
+              <div className={`h-8 w-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${deliveryDate ? 'border-emerald-500 text-emerald-500 bg-white' : 'border-slate-200 text-slate-300 bg-white'}`}>
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <div>
+                <p className={`font-bold text-sm sm:text-base ${deliveryDate ? 'text-brand-text' : 'text-slate-400'}`}>
+                  {t.orders.deliveryReport?.deliveredSuccessfully || 'Delivered Successfully'}
+                </p>
+                <p className="text-xs font-medium text-slate-500 mt-0.5">
+                  {deliveryDate ? `${formatDateTime(deliveryDate)}` : 'Pending'}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
       )}
-      
+
       {/* Dialog for Modals */}
       <Dialog open={!!activeModal} onOpenChange={(open) => !open && setActiveModal(null)}>
         <DialogContent className="w-[95vw] md:w-full max-w-[95vw] md:max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl sm:rounded-[2rem] border-none shadow-2xl bg-white p-5 sm:p-8 md:p-10 hide-scrollbar">

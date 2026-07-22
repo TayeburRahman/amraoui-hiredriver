@@ -87,22 +87,48 @@ class MissionCompleteScreen extends StatelessWidget {
 
     String durationText = detailsObj['estimatedTime']?.toString() ?? 'N/A';
     try {
-      String? startStr = detailsObj['pickupVerification']?['verifiedAt']
-          ?.toString();
-      String? endStr = detailsObj['deliveryArrivalTime']?.toString();
-      if (startStr != null && endStr != null) {
-        DateTime start = DateTime.parse(startStr);
-        DateTime end = DateTime.parse(endStr);
+      String? startStr;
+      if (type == 'HIRE_DRIVER') {
+        final arr = detailsObj['driverArrivals'];
+        if (arr != null && arr is List && arr.isNotEmpty) {
+          startStr = arr.first['verifiedAt']?.toString();
+        }
+      } else {
+        startStr = detailsObj['pickupVerification']?['verifiedAt']?.toString();
+      }
+
+      // Fallback for startStr if verification wasn't available
+      startStr ??= mission['createdAt']?.toString();
+      
+      String? endStr = detailsObj['deliveryArrivalTime']?.toString() ??
+          mission['updatedAt']?.toString() ??
+          DateTime.now().toIso8601String();
+
+      if (startStr != null) {
+        DateTime start = DateTime.parse(startStr).toLocal();
+        DateTime end = DateTime.parse(endStr).toLocal();
+        
+        // Ensure end is not before start
+        if (end.isBefore(start)) {
+          end = start;
+        }
+
         Duration diff = end.difference(start);
-        int hours = diff.inHours;
+        int days = diff.inDays;
+        int hours = diff.inHours.remainder(24);
         int mins = diff.inMinutes.remainder(60);
-        if (hours > 0) {
+        
+        if (days > 0) {
+          durationText = '$days d $hours h';
+        } else if (hours > 0) {
           durationText = '$hours h $mins m';
         } else {
           durationText = '$mins min';
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Error calculating duration: $e');
+    }
 
     if (durationText.isEmpty || durationText == 'null') {
       durationText = 'N/A';

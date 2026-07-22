@@ -394,8 +394,19 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Customer</span>
-                                <span className="font-bold text-gray-900">{request.customerId?.name || request.details?.customerName || request.details?.firstName || 'Anonymous'}</span>
+                                <span className="font-bold text-gray-900">
+                                    {(request.customerId?.name ? `${request.customerId.name} ${request.customerId.family_name || ''}`.trim() : null) || 
+                                     (request.details?.firstName ? `${request.details.firstName} ${request.details.lastName || ''}`.trim() : null) || 
+                                     request.details?.customerName || 
+                                     'Anonymous'}
+                                </span>
                             </div>
+                            {(request.customerId?.company || request.customerId?.company_name || request.details?.companyName || (request.details?.company && !request.details.company.includes(','))) && (
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Company</span>
+                                    <span className="font-bold text-gray-900">{request.customerId?.company || request.customerId?.company_name || request.details?.companyName || request.details?.company}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between">
                                 <span className="text-gray-400">Submitted</span>
                                 <span className="font-bold text-gray-900">{formatDateTime(date)}</span>

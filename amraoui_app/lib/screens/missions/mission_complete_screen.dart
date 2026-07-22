@@ -231,19 +231,19 @@ class MissionCompleteScreen extends StatelessWidget {
                       const Gap(height: 12),
                       _buildSummaryRow(
                         'Date',
-                        '${detailsObj['inspectionDate'] ?? 'N/A'} ${detailsObj['inspectionTime'] ?? ''}',
+                        '${_formatDate(detailsObj['inspectionDate'])} ${detailsObj['inspectionTime'] ?? ''}'.trim(),
                       ),
                     ] else if (type == 'HIRE_DRIVER') ...[
                       _buildSummaryRow('Location', routeText),
                       const Gap(height: 12),
                       _buildSummaryRow(
                         'Start',
-                        '${detailsObj['driverStartDate'] ?? 'N/A'} ${detailsObj['driverStartTime'] ?? ''}',
+                        '${_formatDate(detailsObj['driverStartDate'])} ${detailsObj['driverStartTime'] ?? ''}'.trim(),
                       ),
                       const Gap(height: 12),
                       _buildSummaryRow(
                         'End',
-                        '${detailsObj['driverEndDate'] ?? 'N/A'} ${detailsObj['driverEndTime'] ?? ''}',
+                        '${_formatDate(detailsObj['driverEndDate'])} ${detailsObj['driverEndTime'] ?? ''}'.trim(),
                       ),
                       const Gap(height: 12),
                       _buildSummaryRow(
@@ -418,5 +418,22 @@ class MissionCompleteScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _formatDate(dynamic dateStr) {
+    if (dateStr == null || dateStr.toString().trim().isEmpty || dateStr == 'N/A' || dateStr == 'null') {
+      return 'N/A';
+    }
+    String dStr = dateStr.toString().trim();
+    if (dStr.contains('-')) {
+      final parts = dStr.split('-');
+      if (parts.length == 3) {
+        if (parts[0].length == 4) {
+          // YYYY-MM-DD
+          return '${parts[2]}/${parts[1]}/${parts[0]}';
+        }
+      }
+    }
+    return dStr;
   }
 }

@@ -424,8 +424,10 @@ class MissionDetailsScreen extends StatelessWidget {
           name: detailsObj['customerName'] ?? 'Unknown Customer',
           phone: customerPhone,
           companyName:
+              mission['customerId']?['company']?.toString() ??
               mission['customerId']?['company_name']?.toString() ??
-              detailsObj['companyName']?.toString(),
+              detailsObj['companyName']?.toString() ??
+              (detailsObj['company']?.toString().contains(',') == true ? null : detailsObj['company']?.toString()),
         ),
       );
     }
@@ -481,8 +483,10 @@ class MissionDetailsScreen extends StatelessWidget {
     if (type != 'INSPECTION') {
       final customer = mission['customerId'] ?? {};
       final companyName =
+          customer['company']?.toString() ??
           customer['company_name']?.toString() ??
-          detailsObj['companyName']?.toString();
+          detailsObj['companyName']?.toString() ??
+          (detailsObj['company']?.toString().contains(',') == true ? null : detailsObj['company']?.toString());
 
       final String fallbackName =
           (type == 'TRANSPORT' && detailsObj['firstName'] != null)

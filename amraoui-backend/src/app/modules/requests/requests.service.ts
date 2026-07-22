@@ -126,7 +126,7 @@ const getRequestById = async (id: string) => {
   const query = isObjectId ? { _id: id } : { missionId: id };
 
   return Requests.findOne(query)
-    .populate({ path: 'customerId', select: 'name email phone profileImage' })
+    .populate({ path: 'customerId', select: 'name family_name company email phone profileImage' })
     .populate({ path: 'assignedDriverId', select: 'name email phone' })
     .populate({ path: 'assignedDriverIds', select: 'name email phone' })
     .populate({
@@ -253,7 +253,7 @@ const sendAdminQuote = async (id: string, quoteData: any) => {
       status: 'CUSTOMER_REVIEWING_QUOTE'
     },
     { new: true }
-  ).populate({ path: 'customerId', select: 'name email authId' });
+  ).populate({ path: 'customerId', select: 'name family_name company email authId' });
 
   if (!result) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
 
@@ -330,7 +330,7 @@ const customerReply = async (id: string, action: 'ACCEPT' | 'REJECT') => {
     id,
     { status },
     { new: true }
-  ).populate({ path: 'customerId', select: 'name email' });
+  ).populate({ path: 'customerId', select: 'name family_name company email' });
   if (!result) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
 
   if (action === 'ACCEPT') {
@@ -482,7 +482,7 @@ const submitDriverQuote = async (
   if (isAutoAssigned) {
     try {
       await mission.populate([
-        { path: 'customerId', select: 'name email authId phone' },
+        { path: 'customerId', select: 'name family_name company email authId phone' },
         { path: 'assignedDriverId', select: 'name email phone phone_number authId' }
       ]);
 
@@ -697,7 +697,7 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
   }
 
   return Requests.findById(missionId).populate([
-    { path: 'customerId', select: 'name email phone profileImage' },
+    { path: 'customerId', select: 'name family_name company email phone profileImage' },
     { path: 'assignedDriverId', select: 'name email phone' },
   ]).lean();
 };
@@ -844,7 +844,7 @@ const updateDeliveryInspection = async (missionId: string, driverId: string, sec
 
     try {
       await mission.populate([
-        { path: 'customerId', select: 'name email authId' },
+        { path: 'customerId', select: 'name family_name company email authId' },
         { path: 'assignedDriverId', select: 'name email authId' }
       ]);
 

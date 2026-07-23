@@ -98,6 +98,32 @@ String _formatDateDDMMYYYY(String dateStr) {
   return dateStr;
 }
 
+String _getDisplayCreatorName(Map<String, dynamic> mission) {
+  final customer = mission['customerId'] as Map<String, dynamic>?;
+  final details = mission['details'] as Map<String, dynamic>? ?? {};
+
+  final company = customer?['company']?.toString() ??
+      customer?['company_name']?.toString() ??
+      details['companyName']?.toString() ??
+      (details['company']?.toString().contains(',') == true ? null : details['company']?.toString());
+
+  if (company != null && company.trim().isNotEmpty && company.trim().toLowerCase() != 'null') {
+    return company.trim();
+  }
+
+  final name = customer?['name']?.toString() ??
+      details['customerName']?.toString() ??
+      (details['firstName'] != null
+          ? '${details['firstName']} ${details['lastName'] ?? ''}'.trim()
+          : null);
+
+  if (name != null && name.trim().isNotEmpty && name.trim().toLowerCase() != 'null') {
+    return name.trim();
+  }
+
+  return 'Customer';
+}
+
 class LocationTimelineWidget extends StatefulWidget {
   final Map<String, dynamic> mission;
   final Color textColor;
@@ -271,8 +297,7 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
                 ? '${_getFlagEmoji(dAddress)} $dAddress'
                 : 'Pending Location');
 
-      final customerName =
-          widget.mission['customerId']?['name']?.toString() ?? 'Customer';
+      final customerName = _getDisplayCreatorName(widget.mission);
       final distance = _calculatedDistance;
 
       return Column(
@@ -360,6 +385,8 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
         destTime,
       ].where((s) => s.isNotEmpty).join(' - ');
 
+      final customerName = _getDisplayCreatorName(widget.mission);
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -369,6 +396,36 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
             title: inspectionFullTitle,
             subtitle: iDateTime.isNotEmpty ? iDateTime : 'Inspection',
             iconColor: const Color(0xFF2563EB),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 2,
+                  height: 24,
+                  color: const Color(0xFFE2E8F0),
+                  margin: const EdgeInsets.only(left: 3, right: 26),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: AppText(
+                    data: customerName,
+                    fontSize: 12,
+                    color: const Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
           if (destFullTitle.isNotEmpty)
             _buildTimelineItem(
@@ -416,17 +473,49 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
           ? '${_getFlagEmoji(locationFull)} $city'
           : '${_getFlagEmoji(locationFull)} $locationFull';
 
+      final customerName = _getDisplayCreatorName(widget.mission);
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTimelineItem(
             isFirst: true,
-            isLast: true,
+            isLast: false,
             title: title.isNotEmpty && title != '🇧🇪 '
                 ? title
                 : 'Pending Location',
             subtitle: combinedTime.isNotEmpty ? combinedTime : 'Hire Driver',
             iconColor: const Color(0xFF2563EB),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, top: 4.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 2,
+                  height: 20,
+                  color: const Color(0xFFE2E8F0),
+                  margin: const EdgeInsets.only(left: 3, right: 26),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: AppText(
+                    data: customerName,
+                    fontSize: 12,
+                    color: const Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       );

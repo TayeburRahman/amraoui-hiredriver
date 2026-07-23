@@ -19,6 +19,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
   const [isProofModalOpen, setIsProofModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isNotifyingCustomer, setIsNotifyingCustomer] = useState(false);
+  const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
+  const [selectedExpenseForNotify, setSelectedExpenseForNotify] = useState<any>(null);
 
   const [quoteMessage, setQuoteMessage] = useState('Here is your final quote.');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -298,14 +300,6 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
           <div>
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-sm font-bold text-gray-900">Extra Expenses & Final Invoice</h3>
-              <button
-                onClick={handleNotifyCustomerExpenses}
-                disabled={isNotifyingCustomer}
-                className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center gap-1.5 shadow-sm disabled:opacity-50"
-              >
-                <Bell className="w-3.5 h-3.5" />
-                {isNotifyingCustomer ? 'Notifying...' : 'Notify Customer'}
-              </button>
             </div>
             <p className="text-xs text-gray-400 mb-3">Review driver-submitted receipts, approve extra charges, and update the customer's final invoice.</p>
 
@@ -342,6 +336,15 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                             <button disabled className="text-gray-400 font-medium cursor-not-allowed">View</button>
                           )}
                           <button onClick={() => handleDeleteExpense(exp._id)} disabled={isSubmitting} className="text-red-500 font-medium hover:underline disabled:opacity-50">Delete</button>
+                          <button
+                            onClick={() => {
+                              setSelectedExpenseForNotify(exp);
+                              setIsNotifyModalOpen(true);
+                            }}
+                            className="text-emerald-600 font-medium hover:underline flex items-center gap-1"
+                          >
+                            Notify
+                          </button>
                         </td>
                       </tr>
                     ))
@@ -354,19 +357,12 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               </table>
             </div>
 
-            <div className="flex gap-2 mt-3">
+            <div className="mt-3">
               <button
                 onClick={() => setIsExpenseModalOpen(true)}
-                className="flex-1 py-2 border border-blue-200 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
+                className="w-full py-2 border border-blue-200 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Extra Expense
-              </button>
-              <button
-                onClick={handleNotifyCustomerExpenses}
-                disabled={isNotifyingCustomer}
-                className="flex-1 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-1 disabled:opacity-50"
-              >
-                <Bell className="w-3.5 h-3.5" /> {isNotifyingCustomer ? 'Notifying...' : 'Notify Customer'}
               </button>
             </div>
 
@@ -953,6 +949,128 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
         mission={mission}
       />
 
+      {isNotifyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col p-6 space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                <Bell className="w-4 h-4 text-emerald-600" /> Notify Customer
+              </h3>
+              <button onClick={() => setIsNotifyModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-gray-600">
+              {/* Customer Details */}
+              <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-1">
+                <p className="font-semibold text-gray-800 text-xs uppercase tracking-wider">Customer Details</p>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Name:</span>
+                  <span className="font-medium text-gray-900">
+                    {(mission.raw?.customerId?.name ? `${mission.raw.customerId.name} ${mission.raw.customerId.family_name || ''}`.trim() : null) ||
+                     (mission.raw?.details?.firstName ? `${mission.raw.details.firstName} ${mission.raw.details.lastName || ''}`.trim() : null) ||
+                     mission.raw?.details?.customerName ||
+                     mission.customer ||
+                     "Unknown Customer"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Email:</span>
+                  <span className="font-medium text-gray-900">
+                    {mission.raw?.customerId?.email ||
+                     mission.raw?.details?.customerEmail ||
+                     mission.raw?.details?.email ||
+                     mission.raw?.email ||
+                     "N/A"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Phone:</span>
+                  <span className="font-medium text-gray-900">
+                    {mission.raw?.customerId?.phone_number ||
+                     mission.raw?.customerId?.phone ||
+                     mission.raw?.customerId?.phoneNumber ||
+                     mission.raw?.details?.customerPhone ||
+                     mission.raw?.details?.phone ||
+                     mission.raw?.details?.pickupContactPhone ||
+                     mission.raw?.phone ||
+                     mission.raw?.phone_number ||
+                     "N/A"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Selected Expense Info if available */}
+              {selectedExpenseForNotify && (
+                <div className="bg-emerald-50/60 p-3 rounded-lg border border-emerald-100 space-y-1">
+                  <p className="font-semibold text-emerald-900 text-xs uppercase tracking-wider">Selected Expense</p>
+                  <div className="flex justify-between">
+                    <span className="text-emerald-700">Type:</span>
+                    <span className="font-bold text-emerald-900">{selectedExpenseForNotify.type}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-emerald-700">Amount:</span>
+                    <span className="font-bold text-emerald-900">€{selectedExpenseForNotify.amount}</span>
+                  </div>
+                  {selectedExpenseForNotify.driverNote && (
+                    <div className="flex justify-between">
+                      <span className="text-emerald-700">Note:</span>
+                      <span className="font-medium text-emerald-900 italic">{selectedExpenseForNotify.driverNote}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Previous Payment & Invoice Details */}
+              <div className="bg-blue-50/50 p-3 rounded-lg border border-blue-100 space-y-1.5">
+                <p className="font-semibold text-blue-900 text-xs uppercase tracking-wider">Previous Payment & Invoice Summary</p>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Base Transport Fee:</span>
+                  <span className="font-medium text-gray-900">€{mission.raw?.adminQuote?.amount || 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Payment Status:</span>
+                  <span className={`font-semibold uppercase text-[10px] px-2 py-0.5 rounded ${
+                    mission.raw?.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                  }`}>
+                    {mission.raw?.paymentStatus || 'UNPAID'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total Extra Expenses:</span>
+                  <span className="font-medium text-gray-900">
+                    €{mission.raw?.expenses?.reduce((acc: number, cur: any) => acc + (cur.amount || 0), 0) || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between pt-1.5 border-t border-blue-200 font-bold">
+                  <span className="text-blue-900">Updated Final Total:</span>
+                  <span className="text-blue-700 text-sm">
+                    €{(mission.raw?.adminQuote?.amount || 0) + (mission.raw?.expenses?.reduce((acc: number, cur: any) => acc + (cur.amount || 0), 0) || 0)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                onClick={() => setIsNotifyModalOpen(false)}
+                className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-xs font-medium hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleNotifyCustomerExpenses}
+                disabled={isNotifyingCustomer}
+                className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <Bell className="w-3.5 h-3.5" />
+                {isNotifyingCustomer ? 'Sending...' : 'Confirm & Send Notification'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

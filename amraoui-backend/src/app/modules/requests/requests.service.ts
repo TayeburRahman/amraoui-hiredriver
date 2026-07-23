@@ -441,6 +441,73 @@ const deleteExpense = async (id: string, expenseId: string) => {
   return result;
 };
 
+const notifyExpensesToCustomer = async (id: string) => {
+  const mission = await Requests.findById(id).populate([
+    { path: 'customerId', select: 'name family_name company email authId' }
+  ]);
+  if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
+
+  const customer: any = mission.customerId;
+  if (!customer) throw new ApiError(httpStatus.BAD_REQUEST, 'Customer not found for this request');
+
+  const expenses = mission.expenses || [];
+  const totalExtra = expenses.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
+
+  const custAuthId = customer.authId || customer._id;
+  if (custAuthId) {
+    await NotificationService.createNotification({
+      recipientId: custAuthId,
+      title: 'Extra Expenses Updated',
+      message: `Your mission (${mission.missionId || 'Request'}) extra expenses have been updated. Total extra: €${totalExtra}.`,
+      type: 'SYSTEM',
+      link: `/dashboard/orders/${mission._id}`,
+      metadata: { requestId: mission._id.toString() }
+    }).catch(console.error);
+  }
+
+  if (customer.email) {
+    const baseUrl = process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
+    const expensesListHtml = expenses.length > 0
+      ? expenses.map((exp: any) => {
+          const proofLink = exp.proofUrl
+            ? (exp.proofUrl.startsWith('http')
+              ? exp.proofUrl
+              : `${baseUrl}/${exp.proofUrl.replace(/\\/g, '/')}`)
+            : null;
+          return `
+            <div style="border-bottom: 1px solid #e2e8f0; padding: 8px 0;">
+              <p style="margin: 0; font-size: 14px;"><strong>${exp.type || 'Expense'}:</strong> €${exp.amount}</p>
+              ${exp.driverNote ? `<p style="margin: 2px 0; font-style: italic; color: #64748b; font-size: 12px;">${exp.driverNote}</p>` : ''}
+              ${proofLink ? `<p style="margin: 4px 0;"><a href="${proofLink}" target="_blank" style="color: #2563eb; font-weight: bold; font-size: 12px;">View Proof Attachment</a></p>` : ''}
+            </div>
+          `;
+        }).join('')
+      : '<p style="color: #64748b;">No extra expenses listed.</p>';
+
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 20px;">
+        <h2 style="color: #2563eb; margin-bottom: 8px;">Extra Expenses & Final Invoice Notification</h2>
+        <p>Hello <strong>${customer.name || 'Customer'}</strong>,</p>
+        <p>The extra expenses for your mission <strong>${mission.missionId || 'Request'}</strong> have been updated by admin.</p>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; margin: 20px 0;">
+          <h3 style="margin-top: 0; font-size: 14px; color: #0f172a;">Itemized Extra Expenses</h3>
+          ${expensesListHtml}
+          <p style="margin-top: 16px; font-size: 16px; font-weight: bold; color: #2563eb;">Total Extra Expenses: €${totalExtra}</p>
+        </div>
+        <p>Log in to your account to review the updated invoice summary.</p>
+      </div>
+    `;
+
+    await sendEmail({
+      email: customer.email,
+      subject: `Extra Expenses Updated - Mission ${mission.missionId || 'Request'}`,
+      html: emailHtml
+    }).catch(console.error);
+  }
+
+  return mission;
+};
+
 // ─── Submit / Update Driver Quote ───────────────────────────────────────────
 const submitDriverQuote = async (
   missionId: string,
@@ -1102,6 +1169,7 @@ export const RequestsService = {
   updateDriverPrice,
   addExpense,
   deleteExpense,
+  notifyExpensesToCustomer,
   sendAdminQuote,
   customerReply,
   uploadInvoice,

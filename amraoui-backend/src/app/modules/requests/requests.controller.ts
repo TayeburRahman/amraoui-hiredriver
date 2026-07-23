@@ -720,6 +720,17 @@ const updatePaymentStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const notifyExpensesToCustomer = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await RequestsService.notifyExpensesToCustomer(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Customer notified of extra expenses successfully',
+    data: result,
+  });
+});
+
 export const RequestsController = {
   createRequest,
   getAllRequests,
@@ -742,6 +753,7 @@ export const RequestsController = {
   updateDeliveryInspection,
   addExpense,
   deleteExpense,
+  notifyExpensesToCustomer,
   sendAdminQuote,
   customerReply,
   uploadInvoice,

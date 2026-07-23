@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
-import { X, User, Mail, Phone, MapPin, Car, FileText, CheckCircle2, Clock, Plus, Eye, Download, Send, Play } from 'lucide-react';
+import { X, User, Mail, Phone, MapPin, Car, FileText, CheckCircle2, Clock, Plus, Eye, Download, Send, Play, Bell } from 'lucide-react';
 import { ProofViewerModal } from './ProofViewerModal';
 import { AddExpenseModal } from './AddExpenseModal';
 import Link from 'next/link';
@@ -18,6 +18,7 @@ interface MissionDetailsModalProps {
 export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen, onClose, mission }) => {
   const [isProofModalOpen, setIsProofModalOpen] = useState(false);
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [isNotifyingCustomer, setIsNotifyingCustomer] = useState(false);
 
   const [quoteMessage, setQuoteMessage] = useState('Here is your final quote.');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -243,6 +244,27 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
     }
   };
 
+  const handleNotifyCustomerExpenses = async () => {
+    if (!mission.realId) return;
+    try {
+      setIsNotifyingCustomer(true);
+      const res = await apiFetch(`/requests/${mission.realId}/notify-expenses`, {
+        method: 'POST',
+        auth: true
+      });
+      if (res.ok) {
+        alert('Customer notified about extra expenses successfully via email & notification!');
+      } else {
+        alert('Failed to send notification to customer.');
+      }
+    } catch (err) {
+      console.error('Error notifying customer:', err);
+      alert('Error notifying customer.');
+    } finally {
+      setIsNotifyingCustomer(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 max-h-[90vh]">
@@ -274,7 +296,17 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
 
           {/* Extra Expenses & Final Invoice */}
           <div>
-            <h3 className="text-sm font-bold text-gray-900 mb-1">Extra Expenses & Final Invoice</h3>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-sm font-bold text-gray-900">Extra Expenses & Final Invoice</h3>
+              <button
+                onClick={handleNotifyCustomerExpenses}
+                disabled={isNotifyingCustomer}
+                className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+              >
+                <Bell className="w-3.5 h-3.5" />
+                {isNotifyingCustomer ? 'Notifying...' : 'Notify Customer'}
+              </button>
+            </div>
             <p className="text-xs text-gray-400 mb-3">Review driver-submitted receipts, approve extra charges, and update the customer's final invoice.</p>
 
             {/* Expenses Table */}
@@ -322,12 +354,21 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               </table>
             </div>
 
-            <button
-              onClick={() => setIsExpenseModalOpen(true)}
-              className="w-full mt-3 py-2 border border-blue-200 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Extra Expense
-            </button>
+            <div className="flex gap-2 mt-3">
+              <button
+                onClick={() => setIsExpenseModalOpen(true)}
+                className="flex-1 py-2 border border-blue-200 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-50 transition-colors flex items-center justify-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Extra Expense
+              </button>
+              <button
+                onClick={handleNotifyCustomerExpenses}
+                disabled={isNotifyingCustomer}
+                className="flex-1 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-1 disabled:opacity-50"
+              >
+                <Bell className="w-3.5 h-3.5" /> {isNotifyingCustomer ? 'Notifying...' : 'Notify Customer'}
+              </button>
+            </div>
 
           </div>
 

@@ -89,6 +89,13 @@ router.patch(
   RequestsController.updatePaymentStatus
 );
 
+// POST /api/v1/requests/:id/notify-expenses
+router.post(
+  '/:id/notify-expenses',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  RequestsController.notifyExpensesToCustomer
+);
+
 // PATCH /api/v1/requests/:id/base-fee
 router.patch(
   '/:id/base-fee',

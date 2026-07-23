@@ -404,8 +404,11 @@ const addExpense = async (id: string, expenseData: any) => {
         : null;
 
       const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 20px;">
-          <h2 style="color: #2563eb; margin-bottom: 8px;">New Extra Expense Added</h2>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 24px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+            <img src="https://amraoui-hiredriver.vercel.app/logo.png" alt="Vehiqqo Logo" style="height: 44px; width: auto; display: block; margin: 0 auto;" />
+          </div>
+          <h2 style="color: #2563eb; margin-bottom: 8px; font-size: 20px;">New Extra Expense Added</h2>
           <p>Hello <strong>${customer.name || 'Customer'}</strong>,</p>
           <p>An extra expense has been added to your mission <strong>${result.missionId || 'Request'}</strong>.</p>
           <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; margin: 20px 0;">
@@ -494,12 +497,15 @@ const notifyExpensesToCustomer = async (id: string) => {
       : '<p style="color: #64748b;">No extra expenses listed.</p>';
 
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 20px;">
-        <h2 style="color: #2563eb; margin-bottom: 8px;">Extra Expenses & Final Invoice Notification</h2>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 24px; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+          <img src="https://amraoui-hiredriver.vercel.app/logo.png" alt="Vehiqqo Logo" style="height: 44px; width: auto; display: block; margin: 0 auto;" />
+        </div>
+        <h2 style="color: #2563eb; margin-bottom: 8px; font-size: 20px;">Extra Expenses & Final Invoice Notification</h2>
         <p>Hello <strong>${customerName}</strong>,</p>
         <p>The extra expenses for your mission <strong>${mission.missionId || 'Request'}</strong> have been updated by admin.</p>
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; margin: 20px 0;">
-          <h3 style="margin-top: 0; font-size: 14px; color: #0f172a;">Itemized Extra Expenses</h3>
+          <h3 style="margin-top: 0; font-size: 14px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Itemized Extra Expenses</h3>
           ${expensesListHtml}
           <p style="margin-top: 16px; font-size: 16px; font-weight: bold; color: #2563eb;">Total Extra Expenses: €${totalExtra}</p>
         </div>

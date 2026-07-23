@@ -95,6 +95,11 @@ const RequestsSchema = new Schema<IRequest>(
       type: String,
       default: null,
     },
+    paymentStatus: {
+      type: String,
+      enum: ["NOT_PAID", "PAID"],
+      default: "NOT_PAID",
+    },
     commissionStatus: {
       type: String,
       enum: ["PENDING", "PAID"],

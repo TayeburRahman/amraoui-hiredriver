@@ -703,12 +703,25 @@ const cancelCustomerRequest = catchAsync(async (req: Request, res: Response) => 
   });
 });
 
+const updatePaymentStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { paymentStatus } = req.body;
+  const result = await RequestsService.updatePaymentStatus(id, paymentStatus);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Payment status updated successfully',
+    data: result,
+  });
+});
+
 export const RequestsController = {
   createRequest,
   getAllRequests,
   getRequestById,
   updateRequestStatus,
   updateCommissionStatus,
+  updatePaymentStatus,
   updateBaseFee,
   updateDriverPrice,
   cancelRequest,

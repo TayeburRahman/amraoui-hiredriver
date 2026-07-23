@@ -82,6 +82,13 @@ router.patch(
   RequestsController.updateCommissionStatus
 );
 
+// PATCH /api/v1/requests/:id/payment-status
+router.patch(
+  '/:id/payment-status',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.CUSTOMERS),
+  RequestsController.updatePaymentStatus
+);
+
 // PATCH /api/v1/requests/:id/base-fee
 router.patch(
   '/:id/base-fee',

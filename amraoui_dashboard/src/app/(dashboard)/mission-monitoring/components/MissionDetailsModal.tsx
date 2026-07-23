@@ -556,15 +556,37 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">{mission.customer || "Unknown Customer"}</span>
+                  <span className="text-gray-600">
+                    {(mission.raw?.customerId?.name ? `${mission.raw.customerId.name} ${mission.raw.customerId.family_name || ''}`.trim() : null) ||
+                     (mission.raw?.details?.firstName ? `${mission.raw.details.firstName} ${mission.raw.details.lastName || ''}`.trim() : null) ||
+                     mission.raw?.details?.customerName ||
+                     mission.customer ||
+                     "Unknown Customer"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">{mission.raw?.customerId?.email || mission.raw?.details?.email || "N/A"}</span>
+                  <span className="text-gray-600">
+                    {mission.raw?.customerId?.email ||
+                     mission.raw?.details?.customerEmail ||
+                     mission.raw?.details?.email ||
+                     mission.raw?.email ||
+                     "N/A"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">{mission.raw?.customerId?.phone_number || mission.raw?.details?.phone || "N/A"}</span>
+                  <span className="text-gray-600">
+                    {mission.raw?.customerId?.phone_number ||
+                     mission.raw?.customerId?.phone ||
+                     mission.raw?.customerId?.phoneNumber ||
+                     mission.raw?.details?.customerPhone ||
+                     mission.raw?.details?.phone ||
+                     mission.raw?.details?.pickupContactPhone ||
+                     mission.raw?.phone ||
+                     mission.raw?.phone_number ||
+                     "N/A"}
+                  </span>
                 </div>
               </div>
             </div>

@@ -1018,12 +1018,25 @@ const cancelCustomerRequest = async (id: string, customerId: string, role: strin
   return mission;
 };
 
+const updatePaymentStatus = async (id: string, paymentStatus: string) => {
+  const result = await Requests.findByIdAndUpdate(
+    id,
+    { paymentStatus },
+    { new: true }
+  );
+  if (!result) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
+  }
+  return result;
+};
+
 export const RequestsService = {
   createRequest,
   getAllRequests,
   getRequestById,
   updateRequestStatus,
   updateCommissionStatus,
+  updatePaymentStatus,
   cancelRequest,
   deleteRequest,
   getMissionsForDriver,

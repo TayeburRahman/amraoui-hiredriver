@@ -574,15 +574,33 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">{mission.raw?.assignedDriverId?.name || "Unassigned"}</span>
+                  <span className="text-gray-600">
+                    {mission.raw?.assignedDriverId?.name ||
+                     (mission.raw?.assignedDriverId?.firstName ? `${mission.raw.assignedDriverId.firstName} ${mission.raw.assignedDriverId.lastName || ''}`.trim() : null) ||
+                     mission.raw?.assignedDriverIds?.[0]?.name ||
+                     "Unassigned"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">{mission.raw?.assignedDriverId?.email || "N/A"}</span>
+                  <span className="text-gray-600">
+                    {mission.raw?.assignedDriverId?.email ||
+                     mission.raw?.assignedDriverIds?.[0]?.email ||
+                     "N/A"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-gray-400" />
-                  <span className="text-gray-600">{mission.raw?.assignedDriverId?.phone_number || "N/A"}</span>
+                  <span className="text-gray-600">
+                    {mission.raw?.assignedDriverId?.phone_number ||
+                     mission.raw?.assignedDriverId?.phone ||
+                     mission.raw?.assignedDriverId?.phoneNumber ||
+                     mission.raw?.assignedDriverIds?.[0]?.phone_number ||
+                     mission.raw?.assignedDriverIds?.[0]?.phone ||
+                     mission.raw?.assignedDriverIds?.[0]?.phoneNumber ||
+                     mission.raw?.details?.driverPhone ||
+                     "N/A"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -610,18 +628,38 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                       const strVal = String(value);
                       const filename = decodeURIComponent(strVal.split('/').pop() || strVal);
                       // The field stores only the raw filename; look up the full URL in details.documents[]
-                      const docsArray: string[] = Array.isArray(mission.raw.details.documents) ? mission.raw.details.documents : [];
-                      const matchedDoc = docsArray.find((d: string) => {
-                        if (d.includes(strVal)) return true;
+                      const docsArray: any[] = Array.isArray(mission.raw.details.documents) ? mission.raw.details.documents : [];
+                      
+                      // Match by documentType, originalName, URL substring, or position
+                      let matchedDoc = docsArray.find((d: any) => {
+                        const docUrl = typeof d === 'string' ? d : d?.url || '';
+                        const docOrig = typeof d === 'object' ? d?.originalName || '' : '';
+                        const docType = typeof d === 'object' ? d?.documentType || '' : '';
+
+                        if (docType && docType === key) return true;
+                        if (docOrig && (docOrig === strVal || docOrig.includes(strVal) || strVal.includes(docOrig))) return true;
+                        if (docUrl && (docUrl.includes(strVal) || docUrl.toLowerCase().endsWith(strVal.toLowerCase()))) return true;
                         try {
-                          return decodeURIComponent(d).includes(strVal);
-                        } catch (e) {
-                          return false;
-                        }
+                          if (docUrl && decodeURIComponent(docUrl).includes(strVal)) return true;
+                        } catch (e) {}
+                        return false;
                       });
+
+                      // Fallback matching by position if docs exist in details.documents[]
+                      if (!matchedDoc && docsArray.length > 0) {
+                        if (key === 'vehiclePhotos' && docsArray[0]) {
+                          matchedDoc = docsArray[0];
+                        } else if (key === 'registrationDocumentName') {
+                          matchedDoc = docsArray.length > 1 ? docsArray[1] : docsArray[0];
+                        } else if (key === 'referenceDocumentName') {
+                          matchedDoc = docsArray.length > 2 ? docsArray[2] : (docsArray.length > 1 ? docsArray[1] : docsArray[0]);
+                        }
+                      }
+
+                      const matchedDocUrl = typeof matchedDoc === 'string' ? matchedDoc : matchedDoc?.url || null;
                       const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1').replace('/api/v1', '');
-                      const fileUrl = matchedDoc
-                        ? (matchedDoc.startsWith('http') ? matchedDoc : `${baseUrl}${matchedDoc.startsWith('/') ? '' : '/'}${matchedDoc}`)
+                      const fileUrl = matchedDocUrl
+                        ? (matchedDocUrl.startsWith('http') ? matchedDocUrl : `${baseUrl}${matchedDocUrl.startsWith('/') ? '' : '/'}${matchedDocUrl}`)
                         : null; // No URL found — file may not have been uploaded yet
                       const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
                       // Use Google Docs Viewer for PDFs so they render in-browser regardless

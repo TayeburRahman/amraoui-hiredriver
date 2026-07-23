@@ -29,10 +29,10 @@ const getAllRequests = async (filters: {
   if (customerId) query.customerId = customerId;
 
   const populate = [
-    { path: 'customerId', select: 'name email phone profileImage' },
-    { path: 'assignedDriverId', select: 'name email phone' },
-    { path: 'assignedDriverIds', select: 'name email phone' },
-    { path: 'driverQuotes.driverId', select: 'name email phone_number profile_image license_number vehicle_type vehicle_plate status' },
+    { path: 'customerId', select: 'name family_name company company_name email phone phone_number profileImage' },
+    { path: 'assignedDriverId', select: 'name family_name email phone phone_number phoneNumber profile_image' },
+    { path: 'assignedDriverIds', select: 'name family_name email phone phone_number phoneNumber profile_image' },
+    { path: 'driverQuotes.driverId', select: 'name family_name email phone phone_number phoneNumber profile_image license_number vehicle_type vehicle_plate status' },
   ];
 
   const [data, total] = await Promise.all([

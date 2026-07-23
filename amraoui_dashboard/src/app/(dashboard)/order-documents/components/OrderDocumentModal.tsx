@@ -28,7 +28,8 @@ export const OrderDocumentModal: React.FC<OrderDocumentModalProps> = ({ vehicle,
       return;
     }
 
-    vehicle.documents.forEach((url: string, index: number) => {
+    vehicle.documents.forEach((docItem: any) => {
+      const url = typeof docItem === 'string' ? docItem : docItem?.url || '';
       const fullUrl = getProfileImageUrl(url);
       if (fullUrl) {
         window.open(fullUrl, '_blank');

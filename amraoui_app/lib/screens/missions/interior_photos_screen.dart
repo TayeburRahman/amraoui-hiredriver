@@ -30,16 +30,31 @@ class InteriorPhotosScreen extends StatefulWidget {
 class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
   final ImagePicker _picker = ImagePicker();
   Map<String, String?> capturedImages = {
-    'Front': null,
-    'Front Right': null,
-    'Rear Right': null,
-    'Rear': null,
+    'Driver seat - front': null,
+    'Passenger seat': null,
+    'Back seat right': null,
+    'Back seat left': null,
+    'Trunk': null,
   };
 
   @override
   void initState() {
     super.initState();
-    capturedImages.addAll(widget.existingPhotos);
+    widget.existingPhotos.forEach((key, value) {
+      if (value != null && value.toString().isNotEmpty) {
+        if (key == 'Front') {
+          capturedImages['Driver seat - front'] = value;
+        } else if (key == 'Front Right') {
+          capturedImages['Passenger seat'] = value;
+        } else if (key == 'Rear Right') {
+          capturedImages['Back seat right'] = value;
+        } else if (key == 'Rear') {
+          capturedImages['Back seat left'] = value;
+        } else {
+          capturedImages[key] = value;
+        }
+      }
+    });
   }
 
   Future<void> _takePhoto(String title) async {
@@ -54,7 +69,7 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
   @override
   Widget build(BuildContext context) {
     int count = capturedImages.values.where((v) => v != null).length;
-    bool allDone = count == 4;
+    bool allDone = count == 5;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -92,17 +107,25 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
 
               Row(
                 children: [
-                  Expanded(child: _buildPhotoGridItem('Front')),
+                  Expanded(child: _buildPhotoGridItem('Driver seat - front')),
                   const Gap(width: 16),
-                  Expanded(child: _buildPhotoGridItem('Front Right')),
+                  Expanded(child: _buildPhotoGridItem('Passenger seat')),
                 ],
               ),
               const Gap(height: 16),
               Row(
                 children: [
-                  Expanded(child: _buildPhotoGridItem('Rear Right')),
+                  Expanded(child: _buildPhotoGridItem('Back seat right')),
                   const Gap(width: 16),
-                  Expanded(child: _buildPhotoGridItem('Rear')),
+                  Expanded(child: _buildPhotoGridItem('Back seat left')),
+                ],
+              ),
+              const Gap(height: 16),
+              Row(
+                children: [
+                  Expanded(child: _buildPhotoGridItem('Trunk')),
+                  const Gap(width: 16),
+                  const Expanded(child: SizedBox.shrink()),
                 ],
               ),
 
@@ -148,7 +171,7 @@ class _InteriorPhotosScreenState extends State<InteriorPhotosScreen> {
               if (!allDone) {
                 Get.snackbar(
                   'Required',
-                  'Please capture all 4 interior photos to continue.',
+                  'Please capture all 5 interior photos to continue.',
                   backgroundColor: Colors.red.withOpacity(0.9),
                   colorText: Colors.white,
                   snackPosition: SnackPosition.bottom,

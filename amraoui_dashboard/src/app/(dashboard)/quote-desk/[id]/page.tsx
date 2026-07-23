@@ -666,11 +666,13 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                             {(!request.details?.documents || request.details.documents.length === 0) ? (
                                 <p className="text-sm text-gray-500 text-center py-4">No documents attached.</p>
                             ) : (
-                                request.details.documents.map((doc: string, idx: number) => {
-                                    const rawUrl = doc.startsWith('http') ? doc : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app'}${doc.startsWith('/') ? '' : '/'}${doc}`;
-                                    const filename = doc.split('/').pop() || `Document ${idx + 1}`;
-                                    const docLabel = getDocumentLabel(doc, request.details, idx);
-                                    const isDeleting = isDeletingDoc === doc;
+                                request.details.documents.map((doc: any, idx: number) => {
+                                    const docUrl = typeof doc === 'string' ? doc : doc?.url || '';
+                                    const docOrig = typeof doc === 'object' ? doc?.originalName : '';
+                                    const rawUrl = docUrl.startsWith('http') ? docUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app'}${docUrl.startsWith('/') ? '' : '/'}${docUrl}`;
+                                    const filename = docOrig || decodeURIComponent(docUrl.split('/').pop() || `Document ${idx + 1}`);
+                                    const docLabel = getDocumentLabel(docUrl, request.details, idx);
+                                    const isDeleting = isDeletingDoc === docUrl || isDeletingDoc === doc;
                                     const isPdf = filename.toLowerCase().endsWith('.pdf');
                                     const openUrl = isPdf
                                         ? `https://docs.google.com/viewer?url=${encodeURIComponent(rawUrl)}&embedded=false`

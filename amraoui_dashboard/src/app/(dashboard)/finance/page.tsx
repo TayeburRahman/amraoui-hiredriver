@@ -150,7 +150,7 @@ const FinancePage = () => {
       vehicle,
       route,
       amount: r.adminQuote?.amount || 0,
-      status: r.status === 'COMPLETED' ? 'Paid' : (r.status === 'CANCELLED' ? 'Cancelled' : (r.status === 'FAILED' ? 'Failed' : 'Pending')),
+      status: r.paymentStatus === 'PAID' ? 'Paid' : (r.status === 'COMPLETED' ? 'Paid' : (r.status === 'CANCELLED' ? 'Cancelled' : (r.status === 'FAILED' ? 'Failed' : 'Pending'))),
       method: r.details?.paymentMethod || 'Invoice',
       date: formatDate(r.updatedAt),
       rawRequest: r,

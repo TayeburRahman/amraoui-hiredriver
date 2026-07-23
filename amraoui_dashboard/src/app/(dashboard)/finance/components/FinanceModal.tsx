@@ -66,6 +66,25 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
     }
   };
 
+  const handleMarkCustomerPayment = async (status: 'PAID' | 'NOT_PAID') => {
+    if (!req._id) return;
+    try {
+      const res = await apiFetch(`/requests/${req._id}/payment-status`, {
+        method: 'PATCH',
+        auth: true,
+        body: JSON.stringify({ paymentStatus: status })
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert('Failed to update payment status');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating payment status');
+    }
+  };
+
   const downloadInvoice = async () => {
     if (req.invoiceUrl) {
       try {
@@ -340,15 +359,31 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
                     className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Download Invoice
+                    Download
                   </button>
                 )}
                 
                 <label className={`flex-1 ${req.invoiceUrl ? 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-700' : 'bg-blue-500 hover:bg-blue-600 text-white'} text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                   {isUploading ? 'Uploading...' : (req.invoiceUrl ? 'Replace Invoice' : 'Upload Invoice')}
-                  <input type="file" accept="application/pdf" className="hidden" onChange={handleUploadInvoice} disabled={isUploading} />
+                  <input type="file" accept="application/pdf,image/*" className="hidden" onChange={handleUploadInvoice} disabled={isUploading} />
                 </label>
+
+                {req.paymentStatus === 'PAID' || invoice.status === 'Paid' ? (
+                  <button 
+                    onClick={() => handleMarkCustomerPayment('NOT_PAID')}
+                    className="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    Mark Unpaid
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => handleMarkCustomerPayment('PAID')}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    Mark Paid
+                  </button>
+                )}
               </div>
             </>
           )}

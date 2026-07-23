@@ -376,8 +376,58 @@ const addExpense = async (id: string, expenseData: any) => {
     id,
     { $push: { expenses: expenseData } },
     { new: true }
-  );
+  ).populate({ path: 'customerId', select: 'name family_name company email authId' });
+
   if (!result) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
+
+  // Notify customer about the newly added expense
+  try {
+    const customer: any = result.customerId;
+    const custAuthId = customer?.authId || customer?._id;
+    if (custAuthId) {
+      NotificationService.createNotification({
+        recipientId: custAuthId,
+        title: 'New Extra Expense Added',
+        message: `An extra expense (${expenseData.type || 'Expense'}: €${expenseData.amount}) was added to mission ${result.missionId || 'Request'}.`,
+        type: 'SYSTEM',
+        link: `/dashboard/orders/${result._id}`,
+        metadata: { requestId: result._id.toString() }
+      }).catch(console.error);
+    }
+
+    if (customer?.email) {
+      const baseUrl = process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
+      const proofLink = expenseData.proofUrl
+        ? (expenseData.proofUrl.startsWith('http')
+          ? expenseData.proofUrl
+          : `${baseUrl}/${expenseData.proofUrl.replace(/\\/g, '/')}`)
+        : null;
+
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 20px;">
+          <h2 style="color: #2563eb; margin-bottom: 8px;">New Extra Expense Added</h2>
+          <p>Hello <strong>${customer.name || 'Customer'}</strong>,</p>
+          <p>An extra expense has been added to your mission <strong>${result.missionId || 'Request'}</strong>.</p>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; margin: 20px 0;">
+            <p style="margin: 4px 0;"><strong>Type:</strong> ${expenseData.type || 'Extra Expense'}</p>
+            <p style="margin: 4px 0;"><strong>Amount:</strong> €${expenseData.amount}</p>
+            ${expenseData.driverNote ? `<p style="margin: 4px 0;"><strong>Note:</strong> ${expenseData.driverNote}</p>` : ''}
+            ${proofLink ? `<p style="margin: 12px 0 4px 0;"><a href="${proofLink}" target="_blank" style="background: #2563eb; color: #ffffff; text-decoration: none; padding: 10px 18px; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 13px;">View Proof Attachment</a></p>` : ''}
+          </div>
+          <p>Log in to your account to review the updated order details and payment summary.</p>
+        </div>
+      `;
+
+      sendEmail({
+        email: customer.email,
+        subject: `Extra Expense Added - Mission ${result.missionId || 'Request'}`,
+        html: emailHtml
+      }).catch(console.error);
+    }
+  } catch (err) {
+    console.error('Error notifying customer of added expense:', err);
+  }
+
   return result;
 };
 

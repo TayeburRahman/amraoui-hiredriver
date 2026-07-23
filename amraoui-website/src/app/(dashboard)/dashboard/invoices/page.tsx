@@ -114,96 +114,21 @@ function InvoicesPageContent() {
     setCurrentPage(1);
   };
 
-  const downloadInvoice = async (invoice: Invoice) => {
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app';
-
-      if (invoice.invoiceUrl) {
-        const fileUrl = invoice.invoiceUrl.startsWith('http')
-          ? invoice.invoiceUrl
-          : `${baseUrl}/${invoice.invoiceUrl.replace(/\\/g, '/')}`;
-        
-        const win = window.open(fileUrl, '_blank');
-        if (win) {
-          win.focus();
-        } else {
-          window.location.href = fileUrl;
-        }
-        return;
-      }
-
-      // Generate clean printable invoice PDF window if fileUrl doesn't exist yet
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <title>Invoice - ${invoice.missionId}</title>
-              <style>
-                body { font-family: 'Helvetica Neue', Arial, sans-serif; padding: 40px; color: #1e293b; background: #fff; }
-                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px; }
-                .brand { font-size: 28px; font-weight: 900; color: #2563eb; letter-spacing: -0.5px; }
-                .inv-title { font-size: 20px; font-weight: 700; color: #64748b; }
-                .details { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-                .label { font-size: 11px; text-transform: uppercase; font-weight: 800; color: #94a3b8; margin-bottom: 4px; }
-                .val { font-size: 15px; font-weight: 700; color: #0f172a; }
-                .status-badge { display: inline-block; padding: 6px 16px; border-radius: 9999px; font-weight: 800; font-size: 13px; margin-top: 10px; }
-                .paid { background: #dcfce7; color: #15803d; }
-                .unpaid { background: #ffedd5; color: #c2410c; }
-                .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                .table th { background: #f8fafc; padding: 12px; text-align: left; font-size: 12px; font-weight: 800; color: #64748b; border-bottom: 1px solid #e2e8f0; }
-                .table td { padding: 16px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; font-weight: 600; }
-                .total { text-align: right; margin-top: 30px; font-size: 18px; font-weight: 800; color: #0f172a; }
-              </style>
-            </head>
-            <body>
-              <div class="header">
-                <div class="brand">AMRAOUI</div>
-                <div class="inv-title">INVOICE ${invoice.missionId}</div>
-              </div>
-              <div class="details">
-                <div>
-                  <div class="label">Date</div>
-                  <div class="val">${invoice.date}</div>
-                  <div class="label" style="margin-top:15px;">Vehicle / Mission</div>
-                  <div class="val">${invoice.vehicle}</div>
-                  <div class="val" style="font-size:12px; color:#64748b;">${invoice.plate}</div>
-                </div>
-                <div style="text-align: right;">
-                  <div class="label">Payment Status</div>
-                  <div class="status-badge ${invoice.paymentStatus === 'PAID' ? 'paid' : 'unpaid'}">
-                    ${invoice.paymentStatus === 'PAID' ? 'PAID' : 'NOT PAID'}
-                  </div>
-                </div>
-              </div>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Description</th>
-                    <th style="text-align: right;">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Mission Service Fee (${invoice.missionId}) - ${invoice.vehicle}</td>
-                    <td style="text-align: right;">€${invoice.amount}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div class="total">
-                Total Amount: <span style="color:${invoice.paymentStatus === 'PAID' ? '#059669' : '#f97316'};">€${invoice.amount}</span>
-              </div>
-              <script>
-                window.onload = function() { window.print(); }
-              </script>
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-      }
-    } catch (error) {
-      console.error("Failed to process download invoice:", error);
+  const downloadInvoice = (invoice: Invoice) => {
+    if (!invoice.invoiceUrl) {
+      alert('No invoice document available for download yet. Please contact support if you need it.');
+      return;
+    }
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app';
+    const fileUrl = invoice.invoiceUrl.startsWith('http')
+      ? invoice.invoiceUrl
+      : `${baseUrl}/${invoice.invoiceUrl.replace(/\\/g, '/')}`;
+    
+    const win = window.open(fileUrl, '_blank');
+    if (win) {
+      win.focus();
+    } else {
+      window.location.href = fileUrl;
     }
   };
 
@@ -285,27 +210,30 @@ function InvoicesPageContent() {
                       </span>
                     </td>
                     <td className="py-5 px-6 sm:px-8 align-middle">
-                      <select
-                        value={inv.paymentStatus}
-                        onChange={(e) => handleStatusChange(inv.id, e.target.value as 'PAID' | 'NOT_PAID')}
-                        className={`text-xs font-bold px-3 py-1.5 rounded-full border outline-none cursor-pointer transition-colors ${
-                          inv.paymentStatus === 'PAID'
-                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200 focus:ring-2 focus:ring-emerald-100'
-                            : 'bg-orange-50 text-orange-500 border-orange-200 focus:ring-2 focus:ring-orange-100'
-                        }`}
-                      >
-                        <option value="NOT_PAID" className="bg-white text-orange-500 font-bold">Not Paid</option>
-                        <option value="PAID" className="bg-white text-emerald-600 font-bold">Paid</option>
-                      </select>
+                      {inv.paymentStatus === 'PAID' ? (
+                        <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                          Paid
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-orange-50 text-orange-500 border border-orange-200">
+                          Not Paid
+                        </span>
+                      )}
                     </td>
                     <td className="py-5 px-6 sm:px-8 align-middle text-right">
                       <div className="flex items-center justify-end">
-                        <Button
-                          onClick={() => downloadInvoice(inv)}
-                          className="bg-brand-blue hover:bg-brand-blue/90 text-white rounded-full font-bold px-4 h-9 flex items-center gap-2 text-xs shadow-sm"
-                        >
-                          <Download className="w-3.5 h-3.5" /> Download
-                        </Button>
+                        {inv.invoiceUrl ? (
+                          <Button
+                            onClick={() => downloadInvoice(inv)}
+                            className="bg-brand-blue hover:bg-brand-blue/90 text-white rounded-full font-bold px-4 h-9 flex items-center gap-2 text-xs shadow-sm"
+                          >
+                            <Download className="w-3.5 h-3.5" /> Download
+                          </Button>
+                        ) : (
+                          <span className="text-xs font-medium text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full">
+                            Pending Gen.
+                          </span>
+                        )}
                       </div>
                     </td>
                   </tr>

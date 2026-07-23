@@ -317,25 +317,68 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
               </Card>
             )}
 
-            {/* Payment Status */}
+            {/* Payment Summary */}
             <Card className="p-6 sm:p-8 rounded-[2rem] border-none shadow-sm bg-white space-y-6 flex flex-col md:col-span-2 lg:col-span-1">
               <h3 className="font-bold text-brand-text text-lg">Final Invoice Summary</h3>
               <div className="space-y-4 pt-2 flex-1">
                 <div className="flex justify-between items-center pb-3 border-b border-slate-50">
                   <span className="text-sm font-medium text-slate-400">Status</span>
-                  <Badge className={`px-3 py-1 rounded-full text-[10px] font-bold border-none tracking-wider ${isCompleted ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-                    {isCompleted ? 'Paid / Settled' : 'Pending'}
+                  <Badge className={`px-3 py-1 rounded-full text-xs font-bold border-none tracking-wider ${mission.paymentStatus === 'PAID' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                    {mission.paymentStatus === 'PAID' ? 'Paid / Settled' : 'Pending Payment'}
                   </Badge>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b border-slate-50">
                   <span className="text-sm font-medium text-slate-400">Base Transport Fee</span>
                   <span className="text-sm font-bold text-brand-text">€ {baseTransportFee.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between items-center pb-3 border-b border-slate-50">
-                  <span className="text-sm font-medium text-slate-400">Extra Expenses</span>
-                  <span className="text-sm font-bold text-brand-text">€ {extraExpenses.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between items-center">
+                
+                {/* Extra Expenses Breakdown with Proof Attachment Links */}
+                {mission.expenses && mission.expenses.length > 0 ? (
+                  <div className="pb-3 border-b border-slate-50 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-slate-400">Extra Expenses</span>
+                      <span className="text-sm font-bold text-brand-text">€ {extraExpenses.toFixed(2)}</span>
+                    </div>
+                    <div className="pl-3 space-y-2 mt-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      {mission.expenses.map((exp: any, idx: number) => {
+                        const proofUrl = exp.proofUrl
+                          ? (exp.proofUrl.startsWith('http')
+                            ? exp.proofUrl
+                            : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app'}/${exp.proofUrl.replace(/\\/g, '/')}`)
+                          : null;
+                        
+                        return (
+                          <div key={idx} className="flex items-center justify-between text-xs py-1.5 border-b border-slate-100 last:border-none">
+                            <div>
+                              <span className="font-bold text-slate-700">{exp.type || 'Expense'}</span>
+                              {exp.driverNote && <p className="text-[11px] text-slate-400 italic">{exp.driverNote}</p>}
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="font-bold text-slate-900">€{(exp.amount || 0).toFixed(2)}</span>
+                              {proofUrl && (
+                                <a
+                                  href={proofUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-brand-blue hover:underline font-bold text-[11px] flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-slate-200 shadow-2xs"
+                                >
+                                  View Proof
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-between items-center pb-3 border-b border-slate-50">
+                    <span className="text-sm font-medium text-slate-400">Extra Expenses</span>
+                    <span className="text-sm font-bold text-brand-text">€ 0.00</span>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center pt-2">
                   <span className="text-sm font-medium text-slate-400">Final Total</span>
                   <span className="text-lg font-black text-brand-blue">€ {totalAmount.toFixed(2)}</span>
                 </div>

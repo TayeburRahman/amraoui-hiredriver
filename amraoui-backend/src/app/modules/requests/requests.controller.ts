@@ -599,11 +599,16 @@ const uploadInvoice = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-  if (!files || !files['invoice'] || files['invoice'].length === 0) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Invoice PDF file is required');
+  let fileUrl: string | undefined = req.body.invoiceUrl || req.body.fileUrl;
+
+  if (!fileUrl && files && files['invoice'] && files['invoice'].length > 0) {
+    fileUrl = files['invoice'][0].path;
   }
 
-  const fileUrl = files['invoice'][0].path;
+  if (!fileUrl) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invoice PDF file or URL is required');
+  }
+
   const result = await RequestsService.uploadInvoice(id, fileUrl);
 
   sendResponse(res, {

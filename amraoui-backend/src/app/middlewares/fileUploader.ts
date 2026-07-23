@@ -27,17 +27,22 @@ export const uploadFile = () => {
         file.mimetype === 'application/pdf' ||
         file.originalname?.toLowerCase().endsWith('.pdf');
 
+      const isImage =
+        file.mimetype?.startsWith('image/') ||
+        /\.(png|jpg|jpeg|webp|gif)$/i.test(file.originalname || '');
+
       // Office docs (docx, xlsx, etc.) must use 'raw' — they can't be rendered inline.
       // PDFs should use 'image' so Cloudinary serves them with Content-Type: application/pdf,
       // enabling the browser's built-in PDF viewer. Using 'raw' for PDFs breaks browser rendering.
       const isOfficeDoc =
-        file.mimetype === 'application/msword' ||
-        file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-        file.mimetype === 'application/vnd.ms-excel' ||
-        file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-        file.mimetype === 'text/plain' ||
-        file.mimetype === 'text/csv' ||
-        file.mimetype === 'application/octet-stream';
+        !isImage &&
+        (file.mimetype === 'application/msword' ||
+          file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+          file.mimetype === 'application/vnd.ms-excel' ||
+          file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+          file.mimetype === 'text/plain' ||
+          file.mimetype === 'text/csv' ||
+          file.mimetype === 'application/octet-stream');
 
       // Determine Cloudinary resource_type:
       //   'image'  → PDF (viewable in browser)

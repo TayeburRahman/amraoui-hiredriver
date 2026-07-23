@@ -335,8 +335,12 @@ class MissionDetailsScreen extends StatelessWidget {
               _buildInfoRow(
                 'Delivery Type',
                 (detailsObj['deliveryType']?.toString().toLowerCase() == 'tow')
-                    ? 'Vehicle Carrier'
-                    : (detailsObj['deliveryType'] ?? ''),
+                    ? 'Vehicle Carrier (Tow Truck)'
+                    : (detailsObj['deliveryType']?.toString().toLowerCase() == 'license' || detailsObj['deliveryType']?.toString().toLowerCase().contains('dealer') == true
+                        ? 'Use of dealer plates (Z or V green plates)'
+                        : (detailsObj['deliveryType']?.toString().toLowerCase() == 'drive'
+                            ? 'Drive with car'
+                            : (detailsObj['deliveryType'] ?? ''))),
               ),
               if (detailsObj['specialInstructions']?.toString().isNotEmpty ==
                   true)
@@ -415,6 +419,35 @@ class MissionDetailsScreen extends StatelessWidget {
           ),
         ),
       );
+
+      if (detailsObj['destinationAddress']?.toString().isNotEmpty == true ||
+          detailsObj['destinationCity']?.toString().isNotEmpty == true) {
+        widgets.add(const Gap(height: 16));
+        widgets.add(
+          _buildSectionCard(
+            title: 'Dropoff Information',
+            icon: Icons.flag_outlined,
+            content: Column(
+              children: [
+                _buildInfoRow(
+                  'Address',
+                  '${detailsObj['destinationAddress'] ?? ''} ${detailsObj['destinationCity'] ?? ''} ${detailsObj['destinationZip'] ?? ''}'.trim(),
+                ),
+                _buildInfoRow(
+                  'Date & Time',
+                  '${_formatDate(detailsObj['destinationDate'])} ${detailsObj['destinationTime'] ?? ''}'.trim(),
+                ),
+                if (detailsObj['destinationContactName']?.toString().isNotEmpty == true)
+                  _buildInfoRow('Contact Name', detailsObj['destinationContactName']),
+                if (detailsObj['destinationContactPhone']?.toString().isNotEmpty == true)
+                  _buildInfoRow('Contact Phone', detailsObj['destinationContactPhone']),
+                if (detailsObj['destinationInstructions']?.toString().isNotEmpty == true)
+                  _buildInfoRow('Instructions', detailsObj['destinationInstructions']),
+              ],
+            ),
+          ),
+        );
+      }
 
       widgets.add(const Gap(height: 16));
       final customerPhone = detailsObj['customerPhone']?.toString() ?? '';
@@ -558,7 +591,7 @@ class MissionDetailsScreen extends StatelessWidget {
           icon: Icons.attach_file,
           content: Column(
             children: (detailsObj['documents'] as List)
-                .map((doc) => _buildDocumentRow(doc.toString()))
+                .map((doc) => _buildDocumentRow(doc, detailsObj))
                 .toList(),
           ),
         ),
@@ -568,58 +601,138 @@ class MissionDetailsScreen extends StatelessWidget {
     return widgets;
   }
 
-  Widget _buildDocumentRow(String docUrl) {
-    final fileName = docUrl.split('/').last;
-    final fullUrl = docUrl.startsWith('http')
+  Widget _buildDocumentRow(dynamic docItem, Map<String, dynamic> detailsObj) {
+    String docUrl = '';
+    String originalName = '';
+
+    if (docItem is Map) {
+      docUrl = docItem['url']?.toString() ?? docItem['path']?.toString() ?? '';
+      originalName = docItem['originalName']?.toString() ?? docItem['name']?.toString() ?? '';
+    } else {
+      docUrl = docItem?.toString() ?? '';
+    }
+
+    if (docUrl.isEmpty || docUrl == 'null') return const SizedBox.shrink();
+
+    String fullUrl = docUrl.startsWith('http')
         ? docUrl
         : '${AppApiUrl.domain}${docUrl.startsWith('/') ? '' : '/'}$docUrl';
+
+    // Upgrade http to https for secure mobile document opening
+    if (fullUrl.startsWith('http://')) {
+      fullUrl = fullUrl.replaceFirst('http://', 'https://');
+    }
+
+    // Resolve user-friendly display name
+    String fileName = originalName;
+    if (fileName.isEmpty || fileName == 'null') {
+      final regName = detailsObj['registrationDocumentName']?.toString();
+      final refName = detailsObj['referenceDocumentName']?.toString();
+      final photoName = detailsObj['vehiclePhotos']?.toString();
+
+      if (regName != null && regName.isNotEmpty && docUrl.contains(regName)) {
+        fileName = regName;
+      } else if (refName != null && refName.isNotEmpty && docUrl.contains(refName)) {
+        fileName = refName;
+      } else if (photoName != null && photoName.isNotEmpty && docUrl.contains(photoName)) {
+        fileName = photoName;
+      } else {
+        String raw = docUrl.split('/').last;
+        if (raw.contains('-')) {
+          final parts = raw.split('-');
+          if (parts.length > 1 && RegExp(r'^\d+$').hasMatch(parts[0])) {
+            fileName = parts.sublist(1).join('-');
+          } else {
+            fileName = raw;
+          }
+        } else {
+          fileName = raw;
+        }
+      }
+    }
+
+    Future<void> _openDocument() async {
+      final uri = Uri.parse(fullUrl);
+      try {
+        bool launched = false;
+        if (await canLaunchUrl(uri)) {
+          launched = await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+          );
+          if (!launched) {
+            launched = await launchUrl(
+              uri,
+              mode: LaunchMode.platformDefault,
+            );
+          }
+        }
+        if (!launched) {
+          Get.snackbar(
+            'Error',
+            'Could not open document link',
+            backgroundColor: Colors.red.withOpacity(0.9),
+            colorText: Colors.white,
+            snackPosition: SnackPosition.bottom,
+          );
+        }
+      } catch (e) {
+        Get.snackbar(
+          'Error',
+          'Could not open document: $e',
+          backgroundColor: Colors.red.withOpacity(0.9),
+          colorText: Colors.white,
+          snackPosition: SnackPosition.bottom,
+        );
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _openDocument,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 6.0),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(
-                  Icons.description,
-                  size: 20,
-                  color: Color(0xFF2563EB),
-                ),
-                const Gap(width: 8),
                 Expanded(
-                  child: AppText(
-                    data: fileName,
-                    fontSize: 13,
-                    color: const Color(0xFF334155),
-                    fontWeight: FontWeight.w500,
+                  child: Row(
+                    children: [
+                      Icon(
+                        fileName.toLowerCase().endsWith('.pdf')
+                            ? Icons.picture_as_pdf_outlined
+                            : Icons.description_outlined,
+                        size: 20,
+                        color: const Color(0xFF2563EB),
+                      ),
+                      const Gap(width: 8),
+                      Expanded(
+                        child: AppText(
+                          data: fileName,
+                          fontSize: 13,
+                          color: const Color(0xFF334155),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.download_rounded,
+                    size: 20,
+                    color: Color(0xFF2563EB),
+                  ),
+                  onPressed: _openDocument,
                 ),
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(
-              Icons.download,
-              size: 20,
-              color: Color(0xFF64748B),
-            ),
-            onPressed: () async {
-              final uri = Uri.parse(fullUrl);
-              try {
-                final launched = await launchUrl(
-                  uri,
-                  mode: LaunchMode.externalApplication,
-                );
-                if (!launched) {
-                  Get.snackbar('Error', 'Could not open document link');
-                }
-              } catch (e) {
-                Get.snackbar('Error', 'Could not open document link');
-              }
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

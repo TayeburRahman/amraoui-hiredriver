@@ -180,27 +180,42 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
 
   Future<void> _fetchDistance(Map<String, dynamic> d) async {
     final type = widget.mission['type'];
-    if (type != 'TRANSPORT') return;
+    String origin = '';
+    String destination = '';
 
-    final pCity = d['pickupCity']?.toString() ?? '';
-    final pZip = d['pickupZip']?.toString() ?? '';
-    final pAddress = d['pickupAddress']?.toString() ?? '';
-    final pCountry = d['pickupCountry']?.toString() ?? '';
+    if (type == 'TRANSPORT') {
+      final pCity = d['pickupCity']?.toString() ?? '';
+      final pZip = d['pickupZip']?.toString() ?? '';
+      final pAddress = d['pickupAddress']?.toString() ?? '';
+      final pCountry = d['pickupCountry']?.toString() ?? '';
 
-    final dCity = d['dropoffCity']?.toString() ?? '';
-    final dZip = d['dropoffZip']?.toString() ?? '';
-    final dAddress = d['dropoffAddress']?.toString() ?? '';
-    final dCountry = d['dropoffCountry']?.toString() ?? '';
+      final dCity = d['dropoffCity']?.toString() ?? '';
+      final dZip = d['dropoffZip']?.toString() ?? '';
+      final dAddress = d['dropoffAddress']?.toString() ?? '';
+      final dCountry = d['dropoffCountry']?.toString() ?? '';
 
-    final originList = [pAddress, pZip, pCity, pCountry]
-        .where((e) => e.trim().isNotEmpty && e.trim().toLowerCase() != 'null')
-        .toList();
-    final destList = [dAddress, dZip, dCity, dCountry]
-        .where((e) => e.trim().isNotEmpty && e.trim().toLowerCase() != 'null')
-        .toList();
+      origin = [pAddress, pZip, pCity, pCountry]
+          .where((e) => e.trim().isNotEmpty && e.trim().toLowerCase() != 'null')
+          .join(', ');
+      destination = [dAddress, dZip, dCity, dCountry]
+          .where((e) => e.trim().isNotEmpty && e.trim().toLowerCase() != 'null')
+          .join(', ');
+    } else if (type == 'INSPECTION') {
+      final iLoc = d['inspectionLocation']?.toString() ?? '';
+      final iCity = d['inspectionCity']?.toString() ?? '';
+      final iZip = d['inspectionZip']?.toString() ?? '';
 
-    final origin = originList.join(', ');
-    final destination = destList.join(', ');
+      final destAddr = d['destinationAddress']?.toString() ?? '';
+      final destCity = d['destinationCity']?.toString() ?? '';
+      final destZip = d['destinationZip']?.toString() ?? '';
+
+      origin = [iLoc, iZip, iCity]
+          .where((e) => e.trim().isNotEmpty && e.trim().toLowerCase() != 'null')
+          .join(', ');
+      destination = [destAddr, destZip, destCity]
+          .where((e) => e.trim().isNotEmpty && e.trim().toLowerCase() != 'null')
+          .join(', ');
+    }
 
     if (origin.isEmpty || destination.isEmpty) {
       if (mounted)
@@ -418,7 +433,14 @@ class _LocationTimelineWidgetState extends State<LocationTimelineWidget> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: AppText(
-                    data: customerName,
+                    data: (_calculatedDistance.isNotEmpty &&
+                            !_calculatedDistance.contains('N/A') &&
+                            !_calculatedDistance.contains('Calculating') &&
+                            !_calculatedDistance.contains('Err'))
+                        ? '$_calculatedDistance • $customerName'
+                        : (_calculatedDistance == 'Calculating...'
+                            ? 'Calculating... • $customerName'
+                            : customerName),
                     fontSize: 12,
                     color: const Color(0xFF64748B),
                     fontWeight: FontWeight.w600,

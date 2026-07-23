@@ -24,6 +24,7 @@ import {
   User,
   Phone,
   Mail,
+  Building,
 } from "lucide-react";
 
 const driverQuickOptions = [1, 2, 3, 4];
@@ -71,6 +72,7 @@ function HireDriverContent() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     customerName: '',
+    companyName: '',
     customerPhone: '',
     customerEmail: '',
     driverCount: 1,
@@ -146,6 +148,7 @@ function HireDriverContent() {
 
   const canContinue =
     formData.customerName &&
+    formData.companyName &&
     formData.customerPhone &&
     driverCount >= 1 &&
     formData.driverStartDate &&
@@ -160,6 +163,7 @@ function HireDriverContent() {
     const reqMsg = language === 'ar' ? 'هذا الحقل مطلوب' : 'This field is required';
 
     if (!formData.customerName) newErrors.customerName = reqMsg;
+    if (!formData.companyName) newErrors.companyName = reqMsg;
     if (!formData.customerPhone) newErrors.customerPhone = reqMsg;
     if (!formData.driverStartDate) newErrors.driverStartDate = reqMsg;
     if (!formData.driverStartTime) newErrors.driverStartTime = reqMsg;
@@ -291,6 +295,18 @@ function HireDriverContent() {
                   className={`h-14 w-full rounded-2xl border ${errors.customerPhone ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
                 />
                 {errors.customerPhone && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.customerPhone}</p>}
+              </div>
+
+              <div className="relative md:col-span-2">
+                <Building className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
+                <input
+                  type="text"
+                  value={formData.companyName || ""}
+                  onChange={(e) => updateForm("companyName", e.target.value)}
+                  placeholder={language === 'ar' ? 'اسم الشركة' : 'Company Name'}
+                  className={`h-14 w-full rounded-2xl border ${errors.companyName ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                />
+                {errors.companyName && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.companyName}</p>}
               </div>
 
               <div className="relative md:col-span-2">

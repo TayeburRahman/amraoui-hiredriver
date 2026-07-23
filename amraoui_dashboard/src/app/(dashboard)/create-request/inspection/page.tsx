@@ -82,6 +82,7 @@ export default function TechnicalInspectionPage() {
     const reqMsg = language === 'ar' ? 'هذا الحقل مطلوب' : 'This field is required';
     
     if (!formData.customerName) newErrors.customerName = reqMsg;
+    if (!formData.companyName) newErrors.companyName = reqMsg;
     if (!formData.customerPhone) newErrors.customerPhone = reqMsg;
     if (!formData.vehicleBrand) newErrors.vehicleBrand = reqMsg;
     if (!formData.licensePlate) newErrors.licensePlate = reqMsg;
@@ -203,9 +204,10 @@ export default function TechnicalInspectionPage() {
                     type="text"
                     value={formData.companyName || ""}
                     onChange={(e) => updateForm("companyName", e.target.value)}
-                    placeholder={language === 'ar' ? 'اسم الشركة (اختياري)' : 'Company Name (Optional)'}
-                    className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    placeholder={language === 'ar' ? 'اسم الشركة' : 'Company Name'}
+                    className={`h-14 w-full rounded-2xl border ${errors.companyName ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-100' : 'border-slate-200 bg-slate-50 focus:border-blue-400 focus:ring-blue-100'} px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:bg-white focus:ring-4 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
                   />
+                  {errors.companyName && <p className={`mt-1 text-sm text-red-500 ${isRTL ? 'text-right' : 'text-left'}`}>{errors.companyName}</p>}
                 </div>
 
                 <div className="relative md:col-span-2">

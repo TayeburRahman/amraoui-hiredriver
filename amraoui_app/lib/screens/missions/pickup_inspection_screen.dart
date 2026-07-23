@@ -9,6 +9,7 @@ import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:image_picker/image_picker.dart';
 import 'package:signature/signature.dart';
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:Vehiqqo/service/repository/mission_repository.dart';
 import 'package:Vehiqqo/screens/missions/exterior_photos_screen.dart';
@@ -596,12 +597,13 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
 
                 if (_signatureController.isNotEmpty) {
                   final Uint8List? signatureBytes = await _signatureController
-                      .toPngBytes();
+                      .toPngBytes(height: 300, width: 600);
                   if (signatureBytes != null) {
                     files.add(
                       MultipartFile.fromBytes(
                         signatureBytes,
                         filename: 'driver_sig.png',
+                        contentType: MediaType('image', 'png'),
                       ),
                     );
                     labels.add('driverSignaturePhoto');

@@ -562,11 +562,27 @@ class _MissionsScreenState extends State<MissionsScreen> {
             else
               subtitle = 'Driver Request';
           } else if (type == 'INSPECTION') {
-            final l = detailsObj['inspectionLocation']?.toString().trim() ?? '';
-            if (l.isNotEmpty && l != 'null')
-              subtitle = l;
-            else
+            final pCity = detailsObj['inspectionCity']?.toString().trim() ?? '';
+            final pAddr = detailsObj['inspectionLocation']?.toString().trim() ?? '';
+            final p = (pCity.isNotEmpty && pCity != 'null')
+                ? pCity
+                : ((pAddr.isNotEmpty && pAddr != 'null') ? pAddr : '');
+
+            final dCity = detailsObj['destinationCity']?.toString().trim() ?? '';
+            final dAddr = detailsObj['destinationAddress']?.toString().trim() ?? '';
+            final d = (dCity.isNotEmpty && dCity != 'null')
+                ? dCity
+                : ((dAddr.isNotEmpty && dAddr != 'null') ? dAddr : '');
+
+            if (p.isNotEmpty && d.isNotEmpty) {
+              subtitle = '$p → $d';
+            } else if (p.isNotEmpty) {
+              subtitle = p;
+            } else if (d.isNotEmpty) {
+              subtitle = 'Dropoff: $d';
+            } else {
               subtitle = 'Inspection Request';
+            }
           }
 
           String price = 'Pending';
@@ -1117,6 +1133,19 @@ class _MissionsScreenState extends State<MissionsScreen> {
       return dateStr;
     }
 
+    String _formatDeliveryType(String? delType) {
+      if (delType == null || delType.trim().isEmpty || delType.trim().toLowerCase() == 'null') return '';
+      final lower = delType.trim().toLowerCase();
+      if (lower == 'license' || lower.contains('dealer') || lower.contains('z or v')) {
+        return 'Use of dealer plates (Z or V green plates)';
+      } else if (lower == 'tow' || lower.contains('carrier')) {
+        return 'Vehicle Carrier (Tow Truck)';
+      } else if (lower == 'drive') {
+        return 'Drive with car';
+      }
+      return delType;
+    }
+
     final type = m['type'];
     final d = m['details'] ?? {};
     if (type == 'TRANSPORT') {
@@ -1126,13 +1155,46 @@ class _MissionsScreenState extends State<MissionsScreen> {
               d['year'].toString() != 'null')
           ? '(${d['year']})'
           : '';
+      final delTypeStr = _formatDeliveryType(d['deliveryType']?.toString());
+      final isDealerPlates = d['deliveryType']?.toString().toLowerCase() == 'license' ||
+          d['deliveryType']?.toString().toLowerCase().contains('dealer') == true ||
+          d['deliveryType']?.toString().toLowerCase().contains('z or v') == true;
+
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoRow('Type', 'Vehicle Transport'),
           _buildInfoRow(
             'Vehicle',
             '${d['make'] ?? ''} ${d['model'] ?? ''} ${_formatEnum(d['vehicleType']?.toString())} $yearStr',
           ),
+          if (delTypeStr.isNotEmpty)
+            _buildInfoRow('Delivery Type', delTypeStr),
+          if (isDealerPlates) ...[
+            Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFF59E0B)),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706), size: 16),
+                  Gap(width: 6),
+                  Expanded(
+                    child: AppText(
+                      data: 'Dealer plates required for this mission (Z or V green plates)',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF92400E),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           _buildInfoRow('Weight', d['vehicleWeight']?.toString()),
           _buildInfoRow('Condition', d['condition']?.toString()),
           _buildInfoRow(
@@ -1174,6 +1236,20 @@ class _MissionsScreenState extends State<MissionsScreen> {
             '${_formatDateString(d['inspectionDate']?.toString())} ${d['inspectionTime'] != null && d['inspectionTime'].toString() != 'null' && d['inspectionTime'].toString().isNotEmpty ? 'at ${d['inspectionTime']}' : ''}'
                 .trim(),
           ),
+          if (d['destinationAddress']?.toString().isNotEmpty == true ||
+              d['destinationCity']?.toString().isNotEmpty == true) ...[
+            _buildInfoRow(
+              'Dropoff Location',
+              '${d['destinationAddress'] ?? ''} ${d['destinationCity'] ?? ''}'.trim(),
+            ),
+            _buildInfoRow(
+              'Dropoff Date & Time',
+              '${_formatDateString(d['destinationDate']?.toString())} ${d['destinationTime'] != null && d['destinationTime'].toString() != 'null' && d['destinationTime'].toString().isNotEmpty ? 'at ${d['destinationTime']}' : ''}'
+                  .trim(),
+            ),
+            if (d['destinationContactName']?.toString().isNotEmpty == true)
+              _buildInfoRow('Dropoff Contact', d['destinationContactName']?.toString()),
+          ],
           _buildInfoRow('Notes', d['inspectionNotes']?.toString()),
         ],
       );

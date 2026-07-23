@@ -616,7 +616,7 @@ const uploadInvoice = catchAsync(async (req: Request, res: Response) => {
 
 const addDocument = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
-  const { documentType, fileUrl: bodyFileUrl } = req.body;
+  const { documentType, fileUrl: bodyFileUrl, originalName } = req.body;
 
   // Accept a Cloudinary URL sent directly from the frontend (preferred),
   // OR fall back to a multer-uploaded file for backward compatibility.
@@ -633,7 +633,7 @@ const addDocument = catchAsync(async (req: Request, res: Response) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Document file or URL is required');
   }
 
-  const result = await RequestsService.addDocument(id, fileUrl, documentType);
+  const result = await RequestsService.addDocument(id, fileUrl, documentType, originalName);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

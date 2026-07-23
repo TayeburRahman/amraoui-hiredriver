@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide MultipartFile, FormData, Response;
 import 'package:signature/signature.dart';
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:Vehiqqo/service/repository/mission_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:Vehiqqo/widgets/signature/full_screen_signature.dart';
@@ -376,12 +377,13 @@ class _CustomerSignatureScreenState extends State<CustomerSignatureScreen> {
 
                 if (_signatureController.isNotEmpty) {
                   final Uint8List? signatureBytes = await _signatureController
-                      .toPngBytes();
+                      .toPngBytes(height: 300, width: 600);
                   if (signatureBytes != null) {
                     files.add(
                       MultipartFile.fromBytes(
                         signatureBytes,
                         filename: 'signature.png',
+                        contentType: MediaType('image', 'png'),
                       ),
                     );
                     labels.add('signaturePhoto');

@@ -310,7 +310,7 @@ function TransportRequestContent() {
           return cloudData.secure_url as string;
         };
 
-        const saveDocUrl = async (fileUrl: string, documentType: string) => {
+        const saveDocUrl = async (fileUrl: string, documentType: string, originalName: string) => {
           await fetch(
             `${process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1'}/requests/${reqId}/documents`,
             {
@@ -319,7 +319,7 @@ function TransportRequestContent() {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ fileUrl, documentType }),
+              body: JSON.stringify({ fileUrl, documentType, originalName }),
             }
           );
         };
@@ -327,7 +327,7 @@ function TransportRequestContent() {
         if (reqId && vehiclePhotoFile) {
           try {
             const url = await uploadToCloudinary(vehiclePhotoFile);
-            await saveDocUrl(url, 'vehiclePhotos');
+            await saveDocUrl(url, 'vehiclePhotos', vehiclePhotoFile.name);
           } catch (e) {
             console.error('Failed to upload vehicle photo:', e);
           }
@@ -336,7 +336,7 @@ function TransportRequestContent() {
         if (reqId && registrationFile) {
           try {
             const url = await uploadToCloudinary(registrationFile);
-            await saveDocUrl(url, 'registrationDocumentName');
+            await saveDocUrl(url, 'registrationDocumentName', registrationFile.name);
           } catch (e) {
             console.error('Failed to upload registration document:', e);
           }
@@ -345,7 +345,7 @@ function TransportRequestContent() {
         if (reqId && referenceFile) {
           try {
             const url = await uploadToCloudinary(referenceFile);
-            await saveDocUrl(url, 'referenceDocumentName');
+            await saveDocUrl(url, 'referenceDocumentName', referenceFile.name);
           } catch (e) {
             console.error('Failed to upload reference document:', e);
           }

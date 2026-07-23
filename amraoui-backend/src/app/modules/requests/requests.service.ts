@@ -448,12 +448,21 @@ const notifyExpensesToCustomer = async (id: string) => {
   if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
 
   const customer: any = mission.customerId;
-  if (!customer) throw new ApiError(httpStatus.BAD_REQUEST, 'Customer not found for this request');
+  const customerEmail = customer?.email || (mission as any).details?.customerEmail || (mission as any).details?.email || (mission as any).email;
+  const customerName = customer?.name
+    ? `${customer.name} ${customer.family_name || ''}`.trim()
+    : ((mission as any).details?.firstName ? `${(mission as any).details.firstName} ${(mission as any).details.lastName || ''}`.trim() : null) ||
+      (mission as any).details?.customerName ||
+      'Customer';
+
+  if (!customer && !customerEmail) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Customer account or email not found for this request');
+  }
 
   const expenses = mission.expenses || [];
   const totalExtra = expenses.reduce((sum: number, e: any) => sum + (e.amount || 0), 0);
 
-  const custAuthId = customer.authId || customer._id;
+  const custAuthId = customer?.authId || customer?._id;
   if (custAuthId) {
     await NotificationService.createNotification({
       recipientId: custAuthId,
@@ -465,7 +474,7 @@ const notifyExpensesToCustomer = async (id: string) => {
     }).catch(console.error);
   }
 
-  if (customer.email) {
+  if (customerEmail) {
     const baseUrl = process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
     const expensesListHtml = expenses.length > 0
       ? expenses.map((exp: any) => {
@@ -487,7 +496,7 @@ const notifyExpensesToCustomer = async (id: string) => {
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; padding: 20px;">
         <h2 style="color: #2563eb; margin-bottom: 8px;">Extra Expenses & Final Invoice Notification</h2>
-        <p>Hello <strong>${customer.name || 'Customer'}</strong>,</p>
+        <p>Hello <strong>${customerName}</strong>,</p>
         <p>The extra expenses for your mission <strong>${mission.missionId || 'Request'}</strong> have been updated by admin.</p>
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 12px; margin: 20px 0;">
           <h3 style="margin-top: 0; font-size: 14px; color: #0f172a;">Itemized Extra Expenses</h3>
@@ -499,7 +508,7 @@ const notifyExpensesToCustomer = async (id: string) => {
     `;
 
     await sendEmail({
-      email: customer.email,
+      email: customerEmail,
       subject: `Extra Expenses Updated - Mission ${mission.missionId || 'Request'}`,
       html: emailHtml
     }).catch(console.error);

@@ -21,6 +21,12 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
   const [taxiCost, setTaxiCost] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   
+  // Date and Time State
+  const [pickupDate, setPickupDate] = useState<string>('');
+  const [pickupTime, setPickupTime] = useState<string>('');
+  const [dropoffDate, setDropoffDate] = useState<string>('');
+  const [dropoffTime, setDropoffTime] = useState<string>('');
+  
   const totalAmount = (Number(servicePrice) || 0) + (Number(fuelCost) || 0) + (Number(tollCharges) || 0) + (Number(travelCost) || 0) + (Number(taxiCost) || 0);
   const [isFetchingDrivers, setIsFetchingDrivers] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
@@ -64,6 +70,10 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
         travelCost: Number(travelCost) || 0,
         taxiCost: Number(taxiCost) || 0,
         message: message,
+        pickupDate,
+        pickupTime,
+        dropoffDate,
+        dropoffTime,
       };
       
       const res = await apiFetch(`/requests/${missionId}/assign-driver`, {
@@ -176,6 +186,24 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
             <div>
               <label className="block text-xs text-gray-600 mb-1">Total Amount (€)</label>
               <input type="number" value={totalAmount} disabled className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm font-bold text-gray-900 cursor-not-allowed" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Pickup Date</label>
+              <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Pickup Time</label>
+              <input type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Dropoff Date</label>
+              <input type="date" value={dropoffDate} onChange={(e) => setDropoffDate(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Dropoff Time</label>
+              <input type="time" value={dropoffTime} onChange={(e) => setDropoffTime(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
           <div>

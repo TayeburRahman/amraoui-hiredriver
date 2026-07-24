@@ -8,7 +8,7 @@ export const RevenueChart = ({ data = [] }: { data?: any[] }) => {
     <div className="bg-white rounded-xl border border-gray-200 p-6 h-[350px]">
       <h3 className="font-bold text-gray-900 mb-6">Revenue Trend (Last 30 Days)</h3>
       <div className="h-[250px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <LineChart
             data={data}
             margin={{ top: 5, right: 20, left: 0, bottom: 5 }}

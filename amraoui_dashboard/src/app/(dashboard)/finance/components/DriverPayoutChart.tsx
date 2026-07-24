@@ -8,7 +8,7 @@ export const DriverPayoutChart = ({ data = [] }: { data?: any[] }) => {
     <div className="bg-white rounded-xl border border-gray-200 p-6 mt-6">
       <h3 className="font-bold text-gray-900 mb-6">Driver Payout Status</h3>
       <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <BarChart
             data={data}
             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}

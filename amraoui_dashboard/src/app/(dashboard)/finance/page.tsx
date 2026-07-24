@@ -147,6 +147,7 @@ const FinancePage = () => {
       id: `INV-C-${r.missionId?.replace('#MS-', '') || r._id.substring(0, 6)}`,
       mission: r.missionId || 'N/A',
       customer: r.customerId?.name || "N/A",
+      driver: r.assignedDriverId?.name || "Unassigned",
       vehicle,
       route,
       amount: r.adminQuote?.amount || 0,

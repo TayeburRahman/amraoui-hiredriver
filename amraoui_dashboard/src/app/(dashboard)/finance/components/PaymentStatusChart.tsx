@@ -9,7 +9,7 @@ export const PaymentStatusChart = ({ data = [] }: { data?: any[] }) => {
     <div className="bg-white rounded-xl border border-gray-200 p-6 h-[350px]">
       <h3 className="font-bold text-gray-900 mb-2">Payment Status Distribution</h3>
       <div className="h-[280px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
           <PieChart>
             <Pie
               data={data}

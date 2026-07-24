@@ -234,6 +234,7 @@ const CompareDrivers = ({ params }: { params: Promise<{ id: string }> }) => {
                 onApprove={async () => {}}
                 onDecline={async () => {}}
                 loading={false}
+                readOnly={true}
             />
         </div>
     );

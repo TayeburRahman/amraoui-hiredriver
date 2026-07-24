@@ -25,6 +25,7 @@ interface DriverDetailsModalProps {
   onDecline: (id: string, reason?: string) => Promise<void>;
   loading?: boolean;
   refreshDrivers?: () => void;
+  readOnly?: boolean;
 }
 
 export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
@@ -35,6 +36,7 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
   onDecline,
   loading = false,
   refreshDrivers,
+  readOnly = false,
 }) => {
   const [driver, setDriver] = useState<BackendDriver | null>(initialDriver);
   const [adminNotes, setAdminNotes] = useState("");
@@ -380,7 +382,7 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                         </a>
 
                         {/* Verify button — shown for all doc types when not already verified */}
-                        {doc.hasStatus && doc.status !== 'verified' && (
+                        {!readOnly && doc.hasStatus && doc.status !== 'verified' && (
                           <button
                             onClick={() => handleStatusChange(doc.type, 'verified')}
                             disabled={actionLoading === doc.type}
@@ -390,7 +392,7 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                           </button>
                         )}
                         {/* Reject button — shown for all doc types when not already rejected */}
-                        {doc.hasStatus && doc.status !== 'rejected' && (
+                        {!readOnly && doc.hasStatus && doc.status !== 'rejected' && (
                           <button
                             onClick={() => handleStatusChange(doc.type, 'rejected')}
                             disabled={actionLoading === doc.type}
@@ -401,7 +403,7 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                         )}
                       </>
                     ) : (
-                      (
+                      !readOnly && (
                         <div className="flex items-center gap-2 ml-auto">
                           <label className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50">
                             {actionLoading === doc.type ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>Upload</span>}

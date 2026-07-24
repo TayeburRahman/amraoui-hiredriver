@@ -695,21 +695,25 @@ const submitDriverQuote = async (
 
 // ─── Start Mission (Driver) ─────────────────────────────────────────────────
 const startMission = async (missionId: string, driverId: string) => {
-  const mission = await Requests.findOne({
-    _id: missionId,
-    $or: [
-      { assignedDriverId: new Types.ObjectId(driverId) },
-      { assignedDriverIds: new Types.ObjectId(driverId) },
-    ],
-    status: RequestStatus.ASSIGNED,
-  });
+  const mission = await Requests.findOneAndUpdate(
+    {
+      _id: missionId,
+      $or: [
+        { assignedDriverId: new Types.ObjectId(driverId) },
+        { assignedDriverIds: new Types.ObjectId(driverId) },
+      ],
+      status: RequestStatus.ASSIGNED,
+    },
+    {
+      $set: {
+        status: RequestStatus.IN_PROGRESS,
+        'details.startedAt': new Date().toISOString()
+      }
+    },
+    { new: true }
+  );
 
   if (!mission) throw new Error('Mission not found or not assigned to you');
-
-  mission.status = RequestStatus.IN_PROGRESS;
-  mission.details = { ...mission.details, startedAt: new Date().toISOString() };
-  mission.markModified('details');
-  await mission.save();
   return mission;
 };
 

@@ -839,17 +839,16 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
 };
 
 const verifyPickup = async (missionId: string, driverId: string, lat: number, lng: number, date?: string, distanceFromTarget?: number) => {
-  const mission = await Requests.findById(missionId);
-  if (!mission) throw new Error('Mission not found');
+  const mission = await Requests.findOne({
+    _id: missionId,
+    assignedDriverId: new Types.ObjectId(driverId),
+  });
+  if (!mission) throw new Error('Mission not found or not authorized');
 
-  if (mission.assignedDriverId?.toString() !== driverId) {
-    throw new Error('Not authorized to update this mission');
-  }
-
-  const details = mission.details || {};
+  let updatePayload: Record<string, any>;
 
   if (date && mission.type === 'HIRE_DRIVER') {
-    const driverArrivals = details.driverArrivals || [];
+    const driverArrivals = (mission.details?.driverArrivals || []) as any[];
     const existingIdx = driverArrivals.findIndex((a: any) => a.date === date);
     if (existingIdx === -1) {
       driverArrivals.push({
@@ -857,156 +856,142 @@ const verifyPickup = async (missionId: string, driverId: string, lat: number, ln
         verifiedAt: new Date(),
         location: { lat, lng },
       });
-      details.driverArrivals = driverArrivals;
     }
+    updatePayload = { 'details.driverArrivals': driverArrivals };
   } else {
-    details.pickupVerification = {
-      verifiedAt: new Date(),
-      location: { lat, lng },
-      vehicleMatchConfirmed: true,
-      arrivalDeclared: true,
-      ...(distanceFromTarget !== undefined && { distanceFromTarget }),
+    updatePayload = {
+      'details.pickupVerification': {
+        verifiedAt: new Date(),
+        location: { lat, lng },
+        vehicleMatchConfirmed: true,
+        arrivalDeclared: true,
+        ...(distanceFromTarget !== undefined && { distanceFromTarget }),
+      },
     };
   }
 
-  mission.set('details', details);
-  mission.markModified('details');
-
-  await mission.save();
-  return mission;
+  const updated = await Requests.findByIdAndUpdate(
+    missionId,
+    { $set: updatePayload },
+    { new: true }
+  );
+  return updated;
 };
 
 const verifyDeliveryArrival = async (missionId: string, driverId: string, lat: number, lng: number, distanceFromTarget?: number) => {
-  const mission = await Requests.findById(missionId);
-  if (!mission) throw new Error('Mission not found');
+  const mission = await Requests.findOne({
+    _id: missionId,
+    assignedDriverId: new Types.ObjectId(driverId),
+  });
+  if (!mission) throw new Error('Mission not found or not authorized');
 
-  if (mission.assignedDriverId?.toString() !== driverId) {
-    throw new Error('Not authorized to update this mission');
+  const setPayload: Record<string, any> = {
+    'details.deliveryArrivalDeclared': true,
+    'details.deliveryArrivalTime': new Date().toISOString(),
+    'details.deliveryArrivalLocation': { type: 'Point', coordinates: [lng, lat] },
+  };
+  if (distanceFromTarget !== undefined) {
+    setPayload['details.deliveryArrivalDistance'] = distanceFromTarget;
   }
 
-  const updatedDetails = {
-    ...mission.details,
-    deliveryArrivalDeclared: true,
-    deliveryArrivalTime: new Date().toISOString(),
-    ...(distanceFromTarget !== undefined && { deliveryArrivalDistance: distanceFromTarget }),
-    deliveryArrivalLocation: {
-      type: 'Point',
-      coordinates: [lng, lat]
-    }
-  };
-
-  mission.set('details', updatedDetails);
-  mission.markModified('details');
-
-  await mission.save();
-  return mission;
+  const updated = await Requests.findByIdAndUpdate(
+    missionId,
+    { $set: setPayload },
+    { new: true }
+  );
+  return updated;
 };
 
 const updatePickupInspection = async (missionId: string, driverId: string, section: string, data: any) => {
-  const mission = await Requests.findById(missionId);
-  if (!mission) throw new Error('Mission not found');
+  const mission = await Requests.findOne({
+    _id: missionId,
+    assignedDriverId: new Types.ObjectId(driverId),
+  });
+  if (!mission) throw new Error('Mission not found or not authorized');
 
-  if (mission.assignedDriverId?.toString() !== driverId) {
-    throw new Error('Not authorized to update this mission');
-  }
-
-  const updatedDetails = { ...mission.details };
-  if (!updatedDetails.pickupInspection) {
-    updatedDetails.pickupInspection = {};
-  }
+  const currentInspection = (mission.details?.pickupInspection as any) || {};
+  let sectionValue: any;
 
   if (section === 'uploadDocuments') {
     const existing = data.existingDocuments || [];
     const newDocs = data.documents || [];
-
-    // Ensure both are arrays
     const existingArray = Array.isArray(existing) ? existing : [existing];
     const newDocsArray = Array.isArray(newDocs) ? newDocs : [newDocs];
-
-    updatedDetails.pickupInspection[section] = [...existingArray, ...newDocsArray];
+    sectionValue = [...existingArray, ...newDocsArray];
   } else {
-    updatedDetails.pickupInspection[section] = {
-      ...updatedDetails.pickupInspection[section],
-      ...data,
-      updatedAt: new Date()
-    };
+    sectionValue = { ...(currentInspection[section] || {}), ...data, updatedAt: new Date() };
   }
 
-  mission.set('details', updatedDetails);
-  mission.markModified('details');
-
-  await mission.save();
-  return mission;
+  const updated = await Requests.findByIdAndUpdate(
+    missionId,
+    { $set: { [`details.pickupInspection.${section}`]: sectionValue } },
+    { new: true }
+  );
+  return updated;
 };
 
 const updateDeliveryInspection = async (missionId: string, driverId: string, section: string, data: any) => {
-  const mission = await Requests.findById(missionId);
-  if (!mission) throw new Error('Mission not found');
+  const mission = await Requests.findOne({
+    _id: missionId,
+    assignedDriverId: new Types.ObjectId(driverId),
+  });
+  if (!mission) throw new Error('Mission not found or not authorized');
 
-  if (mission.assignedDriverId?.toString() !== driverId) {
-    throw new Error('Not authorized to update this mission');
-  }
-
-  const updatedDetails = { ...mission.details };
-  if (!updatedDetails.deliveryInspection) {
-    updatedDetails.deliveryInspection = {};
-  }
+  const currentInspection = (mission.details?.deliveryInspection as any) || {};
+  let sectionValue: any;
 
   if (section === 'uploadDocuments') {
     const existing = data.existingDocuments || [];
     const newDocs = data.documents || [];
-
-    // Ensure both are arrays
     const existingArray = Array.isArray(existing) ? existing : [existing];
     const newDocsArray = Array.isArray(newDocs) ? newDocs : [newDocs];
-
-    updatedDetails.deliveryInspection[section] = [...existingArray, ...newDocsArray];
+    sectionValue = [...existingArray, ...newDocsArray];
   } else {
-    updatedDetails.deliveryInspection[section] = {
-      ...updatedDetails.deliveryInspection[section],
-      ...data,
-      updatedAt: new Date()
-    };
+    sectionValue = { ...(currentInspection[section] || {}), ...data, updatedAt: new Date() };
   }
 
-  mission.set('details', updatedDetails);
-  mission.markModified('details');
+  const setPayload: Record<string, any> = {
+    [`details.deliveryInspection.${section}`]: sectionValue,
+  };
 
   if (section === 'driverConfirmation') {
-    mission.status = RequestStatus.COMPLETED;
-    mission.details = { ...mission.details, completedAt: new Date().toISOString() };
-    mission.markModified('details');
-    await mission.save();
+    setPayload['status'] = RequestStatus.COMPLETED;
+    setPayload['details.completedAt'] = new Date().toISOString();
+  }
 
+  const updated = await Requests.findByIdAndUpdate(
+    missionId,
+    { $set: setPayload },
+    { new: true }
+  ).populate([
+    { path: 'customerId', select: 'name family_name company email authId' },
+    { path: 'assignedDriverId', select: 'name email authId' }
+  ]);
+
+  if (section === 'driverConfirmation' && updated) {
     try {
-      await mission.populate([
-        { path: 'customerId', select: 'name family_name company email authId' },
-        { path: 'assignedDriverId', select: 'name email authId' }
-      ]);
-
-      const customer: any = mission.customerId;
-      const driver: any = mission.assignedDriverId;
+      const customer: any = updated.customerId;
+      const driver: any = updated.assignedDriverId;
 
       if (customer) {
         const custAuthId = customer.authId || customer._id;
-
         NotificationService.createNotification({
           recipientId: custAuthId,
           title: 'Mission Completed',
-          message: `Your request (${mission.missionId || 'Vehicle'}) has been completed by the driver.`,
+          message: `Your request (${updated.missionId || 'Vehicle'}) has been completed by the driver.`,
           type: 'MISSION_COMPLETED',
           link: '/dashboard/orders',
-          metadata: { requestId: mission._id.toString() }
+          metadata: { requestId: updated._id.toString() }
         }).catch(console.error);
 
         if (customer.email) {
           const emailHtml = customerMissionCompleteEmailBody({
             name: customer.name || 'Customer',
-            requestId: mission.missionId || mission._id.toString()
+            requestId: updated.missionId || updated._id.toString()
           });
           sendEmail({
             email: customer.email,
-            subject: `Mission Completed - ${mission.missionId || 'Request'}`,
+            subject: `Mission Completed - ${updated.missionId || 'Request'}`,
             html: emailHtml
           }).catch(console.error);
         }
@@ -1017,10 +1002,10 @@ const updateDeliveryInspection = async (missionId: string, driverId: string, sec
         NotificationService.createNotification({
           recipientId: driverAuthId,
           title: 'Mission Completed',
-          message: `You have successfully completed mission ${mission.missionId || 'Request'}.`,
+          message: `You have successfully completed mission ${updated.missionId || 'Request'}.`,
           type: 'MISSION_COMPLETED',
           link: '/driver/missions',
-          metadata: { requestId: mission._id.toString() }
+          metadata: { requestId: updated._id.toString() }
         }).catch(console.error);
       }
 
@@ -1031,22 +1016,19 @@ const updateDeliveryInspection = async (missionId: string, driverId: string, sec
           NotificationService.createNotification({
             recipientId: admin.authId,
             title: 'Mission Completed',
-            message: `Mission ${mission.missionId || 'Request'} has been completed by the driver.`,
+            message: `Mission ${updated.missionId || 'Request'} has been completed by the driver.`,
             type: 'MISSION_COMPLETED',
             link: '/mission-monitoring',
-            metadata: { requestId: mission._id.toString() }
+            metadata: { requestId: updated._id.toString() }
           }).catch(console.error);
         }
       });
     } catch (e) {
       console.error('Error sending mission complete notifications:', e);
     }
-
-    return mission;
   }
 
-  await mission.save();
-  return mission;
+  return updated;
 };
 
 // ─── Upload Invoice ───────────────────────────────────────────────────────────
@@ -1064,50 +1046,43 @@ const uploadInvoice = async (id: string, fileUrl: string) => {
 const addDocument = async (id: string, fileUrl: string, documentType?: string, originalName?: string) => {
   const mission = await Requests.findById(id);
   if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
-  
-  if (!mission.details.documents) {
-    mission.details.documents = [];
-  }
 
-  // If a specific document type was uploaded, replace the old one
+  const docs: any[] = Array.isArray(mission.details?.documents) ? [...mission.details.documents] : [];
+
+  const setPayload: Record<string, any> = {};
+
   if (documentType) {
-    const previousFilename = mission.details[documentType];
-    if (previousFilename && mission.details.documents.length > 0) {
-      const previousUrlIndex = mission.details.documents.findIndex((d: any) => {
-        const u = typeof d === 'string' ? d : d?.url || '';
-        return u.includes(previousFilename);
-      });
-      if (previousUrlIndex !== -1) {
-        mission.details.documents.splice(previousUrlIndex, 1);
-      }
+    const previousFilename = mission.details?.[documentType];
+    if (previousFilename) {
+      const idx = docs.findIndex((d: any) => (typeof d === 'string' ? d : d?.url || '').includes(previousFilename));
+      if (idx !== -1) docs.splice(idx, 1);
     }
     const newFilename = originalName || fileUrl.split('/').pop() || '';
-    mission.details[documentType] = newFilename;
+    setPayload[`details.${documentType}`] = newFilename;
   }
 
-  const docObj = {
+  docs.push({
     url: fileUrl,
-    originalName: originalName || (documentType && mission.details[documentType]) || fileUrl.split('/').pop() || 'Document',
+    originalName: originalName || (documentType && mission.details?.[documentType]) || fileUrl.split('/').pop() || 'Document',
     documentType: documentType || 'document'
-  };
+  });
+  setPayload['details.documents'] = docs;
 
-  mission.details.documents.push(docObj);
-  mission.markModified('details');
-  await mission.save();
-  return mission;
+  const updated = await Requests.findByIdAndUpdate(id, { $set: setPayload }, { new: true });
+  return updated;
 };
 
 const deleteDocument = async (id: string, fileUrl: string) => {
   const mission = await Requests.findById(id);
   if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
-  
-  if (mission.details.documents && Array.isArray(mission.details.documents)) {
-    mission.details.documents = mission.details.documents.filter((doc: any) => {
+
+  if (mission.details?.documents && Array.isArray(mission.details.documents)) {
+    const filteredDocs = mission.details.documents.filter((doc: any) => {
       const u = typeof doc === 'string' ? doc : doc?.url || '';
       return u !== fileUrl;
     });
-    mission.markModified('details');
-    await mission.save();
+    const updated = await Requests.findByIdAndUpdate(id, { $set: { 'details.documents': filteredDocs } }, { new: true });
+    return updated;
   }
   return mission;
 };
@@ -1128,15 +1103,14 @@ const updateCustomerRequest = async (id: string, customerId: string, role: strin
   }
 
   // Update only allowed fields (details mostly)
+  const setPayload: Record<string, any> = {};
   if (payload.details) {
-    mission.details = { ...mission.details, ...payload.details };
-    mission.markModified('details');
+    Object.entries(payload.details).forEach(([k, v]) => { setPayload[`details.${k}`] = v; });
   }
-  
-  if (payload.type) mission.type = payload.type;
+  if (payload.type) setPayload['type'] = payload.type;
 
-  await mission.save();
-  return mission;
+  const updated = await Requests.findByIdAndUpdate(mission._id, { $set: setPayload }, { new: true });
+  return updated;
 };
 
 // ─── Customer Cancel Request ──────────────────────────────────────────────────────
@@ -1149,9 +1123,8 @@ const cancelCustomerRequest = async (id: string, customerId: string, role: strin
   if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found or unauthorized');
 
   // Allow cancelling at any time (as per requirements)
-  mission.status = RequestStatus.CANCELLED;
-  await mission.save();
-  return mission;
+  const updated = await Requests.findByIdAndUpdate(mission._id, { $set: { status: RequestStatus.CANCELLED } }, { new: true });
+  return updated;
 };
 
 const updatePaymentStatus = async (id: string, paymentStatus: string) => {

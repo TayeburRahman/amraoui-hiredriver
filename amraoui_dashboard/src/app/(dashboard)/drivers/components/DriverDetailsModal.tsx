@@ -318,14 +318,14 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
             <div className="space-y-4">
               {/* Document Card Template */}
               {[
-                { type: 'profile_image', title: 'Profile Image', val: driver.profile_image, status: null, icon: FileText, date: driver.createdAt, isImage: true, hasStatus: false },
-                { type: 'license_document_front', title: 'Driver License (Front)', val: driver.license_document_front, status: driver.license_status, icon: FileText, num: driver.license_number, date: driver.createdAt, isImage: false, hasStatus: true },
-                { type: 'license_document_back', title: 'Driver License (Back)', val: driver.license_document_back, status: driver.license_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
-                { type: 'id_document_front', title: 'ID Document (Front)', val: driver.id_document_front, status: driver.id_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
-                { type: 'id_document_back', title: 'ID Document (Back)', val: driver.id_document_back, status: driver.id_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
-                { type: 'contract_document', title: 'Contract Document', val: driver.contract_document, status: driver.contract_status, icon: FileText, date: driver.createdAt, isImage: false, hasStatus: true },
-                { type: 'vehicle_carrier_image', title: 'Vehicle Carrier Image', val: driver.vehicle_carrier_image, status: driver.vehicle_carrier_status, icon: FileText, date: driver.createdAt, isImage: true, hasStatus: true },
-                { type: 'dealer_plate_image', title: 'Dealer Plate Image', val: driver.dealer_plate_image, status: driver.dealer_plate_status, icon: FileText, date: driver.createdAt, isImage: true, hasStatus: true },
+                { type: 'profile_image', title: 'Profile Image', val: driver.profile_image, status: null, icon: FileText, date: driver.createdAt, hasStatus: false },
+                { type: 'license_document_front', title: 'Driver License (Front)', val: driver.license_document_front, status: driver.license_status, icon: FileText, num: driver.license_number, date: driver.createdAt, hasStatus: true },
+                { type: 'license_document_back', title: 'Driver License (Back)', val: driver.license_document_back, status: driver.license_status, icon: FileText, date: driver.createdAt, hasStatus: true },
+                { type: 'id_document_front', title: 'ID Document (Front)', val: driver.id_document_front, status: driver.id_status, icon: FileText, date: driver.createdAt, hasStatus: true },
+                { type: 'id_document_back', title: 'ID Document (Back)', val: driver.id_document_back, status: driver.id_status, icon: FileText, date: driver.createdAt, hasStatus: true },
+                { type: 'contract_document', title: 'Contract Document', val: driver.contract_document, status: driver.contract_status, icon: FileText, date: driver.createdAt, hasStatus: true },
+                { type: 'vehicle_carrier_image', title: 'Vehicle Carrier Image', val: driver.vehicle_carrier_image, status: driver.vehicle_carrier_status, icon: FileText, date: driver.createdAt, hasStatus: true },
+                { type: 'dealer_plate_image', title: 'Dealer Plate Image', val: driver.dealer_plate_image, status: driver.dealer_plate_status, icon: FileText, date: driver.createdAt, hasStatus: true },
               ].map(doc => (
                 <div key={doc.type} className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col shadow-sm">
                   <div className="flex justify-between items-start mb-6">
@@ -358,15 +358,19 @@ export const DriverDetailsModal: React.FC<DriverDetailsModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Inline image preview for image-type docs */}
-                  {doc.isImage && doc.val && (
-                    <div className="mb-4 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 max-h-48 flex items-center justify-center">
-                      <img
-                        src={getDocumentUrl(doc.val) || ''}
-                        alt={doc.title}
-                        className="max-h-48 w-auto object-contain"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                      />
+                  {/* Inline document preview for all docs */}
+                  {doc.val && (
+                    <div className="mb-4 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center p-2">
+                      {getDocumentUrl(doc.val)?.toLowerCase().endsWith('.pdf') ? (
+                        <iframe src={getDocumentUrl(doc.val) || ''} className="w-full h-96 rounded-lg border-0" title={doc.title} />
+                      ) : (
+                        <img
+                          src={getDocumentUrl(doc.val) || ''}
+                          alt={doc.title}
+                          className="max-h-64 w-auto object-contain rounded-lg"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      )}
                     </div>
                   )}
 

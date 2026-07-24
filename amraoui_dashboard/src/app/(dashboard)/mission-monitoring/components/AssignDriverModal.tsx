@@ -195,7 +195,27 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Pickup Time</label>
-              <input type="time" lang="en-GB" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <div className="flex items-center gap-1">
+                <select
+                  value={pickupTime ? pickupTime.split(':')[0] : '12'}
+                  onChange={(e) => setPickupTime(`${e.target.value}:${pickupTime ? pickupTime.split(':')[1] : '00'}`)}
+                  className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                >
+                  {Array.from({ length: 24 }).map((_, i) => (
+                    <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+                <span className="text-gray-500 font-bold">:</span>
+                <select
+                  value={pickupTime ? pickupTime.split(':')[1] : '00'}
+                  onChange={(e) => setPickupTime(`${pickupTime ? pickupTime.split(':')[0] : '12'}:${e.target.value}`)}
+                  className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                >
+                  {Array.from({ length: 60 }).map((_, i) => (
+                    <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div>
               <label className="block text-xs text-gray-600 mb-1">Dropoff Date</label>
@@ -203,7 +223,27 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Dropoff Time</label>
-              <input type="time" lang="en-GB" value={dropoffTime} onChange={(e) => setDropoffTime(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <div className="flex items-center gap-1">
+                <select
+                  value={dropoffTime ? dropoffTime.split(':')[0] : '12'}
+                  onChange={(e) => setDropoffTime(`${e.target.value}:${dropoffTime ? dropoffTime.split(':')[1] : '00'}`)}
+                  className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                >
+                  {Array.from({ length: 24 }).map((_, i) => (
+                    <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+                <span className="text-gray-500 font-bold">:</span>
+                <select
+                  value={dropoffTime ? dropoffTime.split(':')[1] : '00'}
+                  onChange={(e) => setDropoffTime(`${dropoffTime ? dropoffTime.split(':')[0] : '12'}:${e.target.value}`)}
+                  className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                >
+                  {Array.from({ length: 60 }).map((_, i) => (
+                    <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
           <div>

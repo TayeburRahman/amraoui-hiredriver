@@ -314,6 +314,7 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
                         mission: localMission,
                         reqId: widget.reqId,
                         existingData: inspection['receiverIdVerification'],
+                        isPickup: true,
                       ),
                     );
                     if (result != null) _calculateProgress();

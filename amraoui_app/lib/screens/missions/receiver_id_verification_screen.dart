@@ -13,12 +13,14 @@ class ReceiverIdVerificationScreen extends StatefulWidget {
   final Map<String, dynamic> mission;
   final String reqId;
   final Map<String, dynamic>? existingData;
+  final bool isPickup;
 
   const ReceiverIdVerificationScreen({
     super.key,
     required this.mission,
     required this.reqId,
     this.existingData,
+    this.isPickup = false,
   });
 
   @override
@@ -503,25 +505,29 @@ class _ReceiverIdVerificationScreenState
                   uploadData['imageLabels'] = labels;
                 }
 
-                final res = await repo.updateDeliveryInspection(
-                  widget.mission['_id'] ?? widget.reqId,
-                  'receiverIdVerification',
-                  uploadData,
-                );
+                final res = widget.isPickup 
+                  ? await repo.updatePickupInspection(
+                      widget.mission['_id'] ?? widget.reqId,
+                      'receiverIdVerification',
+                      uploadData,
+                    )
+                  : await repo.updateDeliveryInspection(
+                      widget.mission['_id'] ?? widget.reqId,
+                      'receiverIdVerification',
+                      uploadData,
+                    );
 
                 if (mounted) {
                   Navigator.of(context).pop();
                 }
 
                 if (res.statusCode == 200) {
-                  final inspectionKey = 'deliveryInspection';
+                  final inspectionKey = widget.isPickup ? 'pickupInspection' : 'deliveryInspection';
                   if (widget.mission['details'][inspectionKey] == null) {
-                    widget.mission['details'][inspectionKey] =
-                        <String, dynamic>{};
+                    widget.mission['details'][inspectionKey] = <String, dynamic>{};
                   }
-                  widget
-                      .mission['details'][inspectionKey]['receiverIdVerification'] = res
-                      .data['data']['details'][inspectionKey]['receiverIdVerification'];
+                  widget.mission['details'][inspectionKey]['receiverIdVerification'] = 
+                      res.data['data']['details'][inspectionKey]['receiverIdVerification'];
 
                   if (mounted) {
                     Navigator.of(context).pop(

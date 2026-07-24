@@ -744,26 +744,44 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
   const mission = await Requests.findById(missionId);
   if (!mission) throw new Error('Mission not found');
 
+  const setPayload: any = { status: RequestStatus.ASSIGNED };
+
   if (quoteId) {
     const quote = mission.driverQuotes.find((q: any) => q._id?.toString() === quoteId);
     if (!quote) throw new Error('Quote not found');
 
-    // Mark this quote as ACCEPTED, others as REJECTED
-    mission.driverQuotes.forEach((q: any) => {
-      q.status = q._id?.toString() === quoteId ? 'ACCEPTED' : 'REJECTED';
+    const updatedQuotes = mission.driverQuotes.map((q: any) => {
+      const qObj = typeof q.toObject === 'function' ? q.toObject() : q;
+      return { ...qObj, status: q._id?.toString() === quoteId ? 'ACCEPTED' : 'REJECTED' };
     });
 
-    mission.assignedDriverId = quote.driverId;
+    setPayload.driverQuotes = updatedQuotes;
+    setPayload.assignedDriverId = quote.driverId;
   } else if (driverId) {
     const driverObjId = new Types.ObjectId(driverId);
-    mission.assignedDriverId = driverObjId as any;
-    mission.driverQuotes.forEach((q: any) => {
-      q.status = 'REJECTED';
+    setPayload.assignedDriverId = driverObjId;
+    
+    const updatedQuotes = mission.driverQuotes.map((q: any) => {
+      const qObj = typeof q.toObject === 'function' ? q.toObject() : q;
+      return { ...qObj, status: 'REJECTED' };
     });
+    setPayload.driverQuotes = updatedQuotes;
   }
 
-  mission.status = RequestStatus.ASSIGNED;
-  await mission.save();
+  const updatedMission = await Requests.findByIdAndUpdate(
+    missionId,
+    { $set: setPayload },
+    { new: true }
+  );
+
+  if (!updatedMission) throw new Error('Failed to update mission');
+  
+  // Re-fetch populated if needed, or just use updatedMission
+  const missionPopulated = await Requests.findById(missionId).populate('user').populate('assignedDriverId');
+  if (!missionPopulated) throw new Error('Failed to fetch populated mission');
+  
+  // Replace references of 'mission' below with 'missionPopulated'
+  const finalMission = missionPopulated as any;
   
   // Helper to format documents for email
   const getMissionAttachments = (details: any) => {
@@ -795,7 +813,7 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
     });
   };
   
-  const notifyDriverId = driverId || mission.assignedDriverId?.toString();
+  const notifyDriverId = driverId || finalMission.assignedDriverId?._id?.toString() || finalMission.assignedDriverId?.toString();
   if (notifyDriverId) {
     // Notify the assigned driver (either manually or via accepted quote)
     const driver = await (await import('../auth/auth.model')).default.findById(notifyDriverId).lean() || await (await import('../drivers/drivers.model')).default.findById(notifyDriverId).lean();
@@ -804,10 +822,10 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
       NotificationService.createNotification({
         recipientId: authId,
         title: 'Mission Assigned!',
-        message: `You have been assigned to mission ${mission.missionId || 'Request'}.`,
+        message: `You have been assigned to mission ${finalMission.missionId || 'Request'}.`,
         type: 'MISSION_ASSIGNED',
         link: '/driver/missions',
-        metadata: { requestId: mission._id.toString() }
+        metadata: { requestId: finalMission._id.toString() }
       }).catch(console.error);
 
       // Email Driver

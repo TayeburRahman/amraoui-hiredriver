@@ -58,9 +58,6 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
     localMission = Map.from(widget.mission);
     final type = localMission['type'];
     int baseCount = 6;
-    if (localMission['details']?['idCheckRequired'] == true) {
-      baseCount++;
-    }
     totalCount = baseCount;
 
     _calculateProgress();
@@ -94,10 +91,6 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
     if (inspection['mileageAndFuel'] != null) count++;
     if (inspection['customerSignature'] != null) count++;
 
-    if (details['idCheckRequired'] == true) {
-      if (inspection['receiverIdVerification'] != null) count++;
-    }
-
     setState(() {
       completedCount = count;
     });
@@ -116,7 +109,6 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
         inspection['uploadDocuments'] != null &&
         (inspection['uploadDocuments'] as List).isNotEmpty;
     final bool hasSignature = inspection['customerSignature'] != null;
-    final bool hasReceiverId = inspection['receiverIdVerification'] != null;
 
     final type = localMission['type'];
     String titleStr = 'Pickup Inspection';
@@ -287,8 +279,8 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
               ),
               _buildInspectionItem(
                 Icons.draw_outlined,
-                'Receiver Signature',
-                'Receiver confirms pickup condition',
+                'Customer Signature',
+                'Customer confirms pickup condition',
                 isCompleted: hasSignature,
                 onTap: () async {
                   final result = await Get.to(
@@ -302,25 +294,6 @@ class _PickupInspectionScreenState extends State<PickupInspectionScreen> {
                   if (result != null) _calculateProgress();
                 },
               ),
-              if (details['idCheckRequired'] == true)
-                _buildInspectionItem(
-                  Icons.badge_outlined,
-                  'Receiver ID Verification',
-                  'Verify Receiver ID',
-                  isCompleted: hasReceiverId,
-                  onTap: () async {
-                    final result = await Get.to(
-                      () => ReceiverIdVerificationScreen(
-                        mission: localMission,
-                        reqId: widget.reqId,
-                        existingData: inspection['receiverIdVerification'],
-                        isPickup: true,
-                      ),
-                    );
-                    if (result != null) _calculateProgress();
-                  },
-                ),
-
               const Gap(height: 16),
 
               // Driver Selfie (Required)

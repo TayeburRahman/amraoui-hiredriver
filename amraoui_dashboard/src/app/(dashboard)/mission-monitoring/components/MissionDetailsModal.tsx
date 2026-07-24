@@ -9,6 +9,8 @@ import Link from 'next/link';
 import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 
+import { AssignDriverModal } from './AssignDriverModal';
+
 interface MissionDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,6 +22,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isNotifyingCustomer, setIsNotifyingCustomer] = useState(false);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
+  const [isAssignDriverModalOpen, setIsAssignDriverModalOpen] = useState(false);
   const [selectedExpenseForNotify, setSelectedExpenseForNotify] = useState<any>(null);
 
   const [quoteMessage, setQuoteMessage] = useState('Here is your final quote.');
@@ -528,37 +531,17 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
           )}
 
           {(mission.raw?.status === 'OPEN_FOR_DRIVERS' || mission.raw?.status === 'ADMIN_REVIEWING_DRIVERS') && (
-            <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-bold text-purple-900 text-sm">Driver Quotes ({mission.raw?.driverQuotes?.length || 0})</h3>
-                <Link
-                  href={`/quote-desk/${mission.realId}/compare?reqId=${mission.realId}`}
-                  className="px-3 py-1.5 bg-white border border-purple-200 text-purple-700 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors"
-                >
-                  Compare Quotes
-                </Link>
+            <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-purple-900 text-sm">Assign a Driver</h3>
+                <p className="text-xs text-purple-700 mt-1">Directly assign a driver to this mission.</p>
               </div>
-              {mission.raw?.driverQuotes?.length > 0 ? (
-                <div className="space-y-2">
-                  {mission.raw.driverQuotes.map((q: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between bg-white p-3 rounded-lg border border-purple-200">
-                      <div>
-                        <p className="text-sm font-bold text-purple-900">{q.driverId?.name || "Unknown Driver"}</p>
-                        <p className="text-xs text-purple-700">Amount: €{q.amount} | Est: {q.estimatedTime || 'N/A'}</p>
-                      </div>
-                      <button
-                        onClick={() => handleAssignDriver(q._id)}
-                        disabled={isSubmitting}
-                        className="px-3 py-1.5 bg-purple-600 text-white rounded-md text-xs font-medium hover:bg-purple-700"
-                      >
-                        Assign
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-purple-700">Waiting for drivers to submit quotes...</p>
-              )}
+              <button
+                onClick={() => setIsAssignDriverModalOpen(true)}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-bold hover:bg-purple-700 transition-colors"
+              >
+                Assign Driver
+              </button>
             </div>
           )}
 
@@ -1072,6 +1055,11 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
         </div>
       )}
 
+      <AssignDriverModal
+        isOpen={isAssignDriverModalOpen}
+        onClose={() => setIsAssignDriverModalOpen(false)}
+        missionId={mission.realId}
+      />
     </div>
   );
 };

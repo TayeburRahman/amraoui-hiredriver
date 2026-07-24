@@ -740,7 +740,7 @@ const cancelMissionByDriver = async (
 };
 
 // ─── Assign Driver (Admin) ──────────────────────────────────────────────────
-const assignDriver = async (missionId: string, quoteId?: string, driverId?: string, amount?: number) => {
+const assignDriver = async (missionId: string, quoteId?: string, driverId?: string, amount?: number, extraQuoteDetails?: any) => {
   const mission = await Requests.findById(missionId);
   if (!mission) throw new Error('Mission not found');
 
@@ -770,6 +770,16 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
       updatedQuotes.push({
         driverId: driverObjId,
         amount: Number(amount),
+        servicePrice: extraQuoteDetails?.servicePrice ? Number(extraQuoteDetails.servicePrice) : 0,
+        fuelCost: extraQuoteDetails?.fuelCost ? Number(extraQuoteDetails.fuelCost) : 0,
+        tollCharges: extraQuoteDetails?.tollCharges ? Number(extraQuoteDetails.tollCharges) : 0,
+        travelCost: extraQuoteDetails?.travelCost ? Number(extraQuoteDetails.travelCost) : 0,
+        taxiCost: extraQuoteDetails?.taxiCost ? Number(extraQuoteDetails.taxiCost) : 0,
+        message: extraQuoteDetails?.message || '',
+        pickupDate: extraQuoteDetails?.pickupDate || '',
+        pickupTime: extraQuoteDetails?.pickupTime || '',
+        dropoffDate: extraQuoteDetails?.dropoffDate || '',
+        dropoffTime: extraQuoteDetails?.dropoffTime || '',
         status: 'ACCEPTED',
         createdAt: new Date()
       });
@@ -787,7 +797,7 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
   if (!updatedMission) throw new Error('Failed to update mission');
   
   // Re-fetch populated if needed, or just use updatedMission
-  const missionPopulated = await Requests.findById(missionId).populate('user').populate('assignedDriverId');
+  const missionPopulated = await Requests.findById(missionId).populate('customerId').populate('assignedDriverId');
   if (!missionPopulated) throw new Error('Failed to fetch populated mission');
   
   // Replace references of 'mission' below with 'missionPopulated'

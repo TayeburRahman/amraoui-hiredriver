@@ -12,7 +12,16 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
   const [drivers, setDrivers] = useState<any[]>([]);
   const [driverSearch, setDriverSearch] = useState('');
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
-  const [amount, setAmount] = useState<string>('');
+  
+  // Quote Breakdown State
+  const [servicePrice, setServicePrice] = useState<string>('');
+  const [fuelCost, setFuelCost] = useState<string>('');
+  const [tollCharges, setTollCharges] = useState<string>('');
+  const [travelCost, setTravelCost] = useState<string>('');
+  const [taxiCost, setTaxiCost] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
+  
+  const totalAmount = (Number(servicePrice) || 0) + (Number(fuelCost) || 0) + (Number(tollCharges) || 0) + (Number(travelCost) || 0) + (Number(taxiCost) || 0);
   const [isFetchingDrivers, setIsFetchingDrivers] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
 
@@ -39,12 +48,23 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
 
   const handleManualAssign = async () => {
     if (!selectedDriverId) return;
+    if (totalAmount <= 0) {
+      alert('Total amount must be greater than 0. Please fill in the quote breakdown.');
+      return;
+    }
+
     try {
       setIsAssigning(true);
-      const payload: any = { driverId: selectedDriverId };
-      if (amount && !isNaN(Number(amount))) {
-        payload.amount = Number(amount);
-      }
+      const payload: any = { 
+        driverId: selectedDriverId,
+        amount: totalAmount,
+        servicePrice: Number(servicePrice) || 0,
+        fuelCost: Number(fuelCost) || 0,
+        tollCharges: Number(tollCharges) || 0,
+        travelCost: Number(travelCost) || 0,
+        taxiCost: Number(taxiCost) || 0,
+        message: message,
+      };
       
       const res = await apiFetch(`/requests/${missionId}/assign-driver`, {
         method: 'PATCH',
@@ -129,17 +149,39 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
           )}
         </div>
         
-        {/* Amount Input Section */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50">
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Manual Quote Price (€) (Optional)</label>
-          <input
-            type="number"
-            placeholder="Enter price..."
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <p className="text-xs text-gray-500 mt-1">If provided, this will create an accepted quote for the driver.</p>
+        {/* Quote Breakdown Section */}
+        <div className="p-4 border-t border-gray-100 bg-gray-50 flex flex-col gap-3">
+          <label className="block text-sm font-semibold text-gray-900 mb-1">Quote Breakdown (Required)</label>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Service Price (€)</label>
+              <input type="number" placeholder="0" value={servicePrice} onChange={(e) => setServicePrice(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Fuel Cost (€)</label>
+              <input type="number" placeholder="0" value={fuelCost} onChange={(e) => setFuelCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Toll Charges (€)</label>
+              <input type="number" placeholder="0" value={tollCharges} onChange={(e) => setTollCharges(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Travel Cost (€)</label>
+              <input type="number" placeholder="0" value={travelCost} onChange={(e) => setTravelCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Taxi Cost (€)</label>
+              <input type="number" placeholder="0" value={taxiCost} onChange={(e) => setTaxiCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Total Amount (€)</label>
+              <input type="number" value={totalAmount} disabled className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm font-bold text-gray-900 cursor-not-allowed" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">Message (Optional)</label>
+            <textarea placeholder="Message to driver..." value={message} onChange={(e) => setMessage(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows={2}></textarea>
+          </div>
         </div>
 
         <div className="p-6 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50">

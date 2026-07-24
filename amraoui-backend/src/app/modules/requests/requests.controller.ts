@@ -378,7 +378,7 @@ const cancelMissionByDriver = catchAsync(async (req: Request, res: Response) => 
 // ─── PATCH /api/v1/requests/:id/assign-driver (Admin) ──────────────────────
 const assignDriver = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { quoteId, driverId, amount } = req.body;
+  const { quoteId, driverId, amount, servicePrice, fuelCost, tollCharges, travelCost, taxiCost, message, pickupDate, pickupTime, dropoffDate, dropoffTime } = req.body;
 
   if (!quoteId && !driverId) {
     return sendResponse(res, {
@@ -389,7 +389,13 @@ const assignDriver = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
-  const updated = await RequestsService.assignDriver(id, quoteId, driverId, amount);
+  const updated = await RequestsService.assignDriver(
+    id, 
+    quoteId, 
+    driverId, 
+    amount,
+    { servicePrice, fuelCost, tollCharges, travelCost, taxiCost, message, pickupDate, pickupTime, dropoffDate, dropoffTime }
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

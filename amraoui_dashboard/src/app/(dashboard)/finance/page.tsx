@@ -50,6 +50,7 @@ const FinancePage = () => {
   const [activeTab, setActiveTab] = useState("Customer Payments");
   const [requests, setRequests] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -66,7 +67,7 @@ const FinancePage = () => {
       }
     };
     fetchRequests();
-  }, []);
+  }, [refreshKey]);
 
   const totalRevenue = requests.reduce((sum, r) => sum + (r.adminQuote?.amount || 0), 0);
   const pendingPayments = requests.reduce((sum, r) => sum + (r.status !== 'COMPLETED' && r.status !== 'CANCELLED' ? (r.adminQuote?.amount || 0) : 0), 0);
@@ -151,6 +152,7 @@ const FinancePage = () => {
       vehicle,
       route,
       amount: r.adminQuote?.amount || 0,
+      driverPayout: getDriverPayout(r),
       status: r.paymentStatus === 'PAID' ? 'Paid' : (r.status === 'COMPLETED' ? 'Paid' : (r.status === 'CANCELLED' ? 'Cancelled' : (r.status === 'FAILED' ? 'Failed' : 'Pending'))),
       method: r.details?.paymentMethod || 'Invoice',
       date: formatDate(r.updatedAt),
@@ -218,6 +220,7 @@ const FinancePage = () => {
         invoices={dynamicInvoices}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        onRefresh={() => setRefreshKey(prev => prev + 1)}
       />
     </div>
   );

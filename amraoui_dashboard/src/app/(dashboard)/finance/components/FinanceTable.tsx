@@ -14,6 +14,7 @@ export interface Invoice {
   vehicle: string;
   route: string;
   amount: number;
+  driverPayout?: number;
   status: string;
   method: string;
   date: string;
@@ -25,11 +26,12 @@ interface FinanceTableProps {
   invoices: Invoice[];
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onRefresh: () => void;
 }
 
 const tabs = ["Overview", "Customer Payments", "Driver Commission", "Failed", "Cancellations"];
 
-export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab, onTabChange }) => {
+export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab, onTabChange, onRefresh }) => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,10 +84,13 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
     if (activeTab === "Failed" && inv.status !== 'Failed') return false;
     if (activeTab === "Cancellations" && inv.status !== 'Cancelled' && inv.rawRequest?.status !== 'CANCELLED') return false;
 
+    // Evaluate dynamic status for filtering
+    const dynamicStatus = activeTab === "Driver Commission" ? (inv.commissionStatus === "PAID" ? "Paid" : "Pending") : inv.status;
+
     if (statusFilter !== "All") {
-      if (statusFilter === "Paid" && inv.status !== 'Paid') return false;
-      if (statusFilter === "Pending" && inv.status !== 'Pending') return false;
-      if (statusFilter === "Failed" && inv.status !== 'Failed') return false;
+      if (statusFilter === "Paid" && dynamicStatus !== 'Paid') return false;
+      if (statusFilter === "Pending" && dynamicStatus !== 'Pending') return false;
+      if (statusFilter === "Failed" && dynamicStatus !== 'Failed') return false;
     }
 
     if (customerFilter !== "All" && inv.customer !== customerFilter) return false;
@@ -155,13 +160,32 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
         body: JSON.stringify({ paymentStatus: status })
       });
       if (res.ok) {
-        window.location.reload();
+        onRefresh();
       } else {
         alert('Failed to update payment status');
       }
     } catch (err) {
       console.error(err);
       alert('Error updating payment status');
+    }
+  };
+
+  const handleMarkCommission = async (invoice: Invoice, status: 'PAID' | 'PENDING') => {
+    if (!invoice.rawRequest?._id) return;
+    try {
+      const res = await apiFetch(`/requests/${invoice.rawRequest._id}/commission-status`, {
+        method: 'PATCH',
+        auth: true,
+        body: JSON.stringify({ commissionStatus: status })
+      });
+      if (res.ok) {
+        onRefresh();
+      } else {
+        alert('Failed to update commission status');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error updating commission status');
     }
   };
 
@@ -306,7 +330,7 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
                 <th className="px-5 py-4">Customer</th>
                 <th className="px-5 py-4">Driver</th>
                 <th className="px-5 py-4">Vehicle</th>
-                <th className="px-5 py-4">Amount</th>
+                <th className="px-5 py-4">{activeTab === "Driver Commission" ? "Payout" : "Amount"}</th>
                 <th className="px-5 py-4">Status</th>
                 <th className="px-5 py-4">Date</th>
                 <th className="px-5 py-4 text-center" data-html2canvas-ignore>Action</th>
@@ -314,17 +338,21 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
             </thead>
             <tbody style={{ borderTop: '1px solid #f3f4f6' }}>
               {paginatedInvoices.length > 0 ? (
-                paginatedInvoices.map((invoice) => (
+                paginatedInvoices.map((invoice) => {
+                  const displayStatus = activeTab === "Driver Commission" ? (invoice.commissionStatus === "PAID" ? "Paid" : "Pending") : invoice.status;
+                  const displayAmount = activeTab === "Driver Commission" && invoice.driverPayout !== undefined ? invoice.driverPayout : invoice.amount;
+
+                  return (
                   <tr key={invoice.id} style={{ backgroundColor: '#ffffff', borderBottom: '1px solid #f3f4f6' }}>
                     <td className="px-5 py-4 whitespace-nowrap font-semibold" style={{ color: '#2563eb' }}>{invoice.id}</td>
                     <td className="px-5 py-4 whitespace-nowrap font-semibold" style={{ color: '#2563eb' }}>{invoice.mission}</td>
                     <td className="px-5 py-4 whitespace-nowrap font-bold" style={{ color: '#111827' }}>{invoice.customer}</td>
                     <td className="px-5 py-4 whitespace-nowrap">{invoice.driver}</td>
                     <td className="px-5 py-4 whitespace-nowrap">{invoice.vehicle}</td>
-                    <td className="px-5 py-4 whitespace-nowrap font-bold" style={{ color: '#16a34a' }}>€{invoice.amount}</td>
+                    <td className="px-5 py-4 whitespace-nowrap font-bold" style={{ color: '#16a34a' }}>€{displayAmount}</td>
                     <td className="px-5 py-4 whitespace-nowrap">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-bold" style={getStatusStyle(invoice.status)}>
-                        {invoice.status}
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold" style={getStatusStyle(displayStatus)}>
+                        {displayStatus}
                       </span>
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap text-xs" style={{ color: '#6b7280' }}>{invoice.date}</td>
@@ -359,9 +387,33 @@ export const FinanceTable: React.FC<FinanceTableProps> = ({ invoices, activeTab,
                           )}
                         </>
                       )}
+                      
+                      {activeTab === "Driver Commission" && (
+                        <>
+                          <span style={{ color: '#d1d5db' }}>|</span>
+                          {invoice.commissionStatus === 'PAID' ? (
+                            <button
+                              onClick={() => handleMarkCommission(invoice, 'PENDING')}
+                              className="font-bold transition-colors"
+                              style={{ color: '#f97316' }}
+                            >
+                              Mark Pending
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleMarkCommission(invoice, 'PAID')}
+                              className="font-bold transition-colors"
+                              style={{ color: '#16a34a' }}
+                            >
+                              Mark Paid
+                            </button>
+                          )}
+                        </>
+                      )}
                     </td>
                   </tr>
-                ))) : (
+                );
+              })) : (
                 <tr>
                   <td colSpan={9} className="px-5 py-10 text-center" style={{ color: '#6b7280' }}>
                     No invoices found matching your criteria.

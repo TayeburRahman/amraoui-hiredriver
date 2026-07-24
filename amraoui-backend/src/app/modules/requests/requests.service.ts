@@ -605,10 +605,14 @@ const submitDriverQuote = async (
   // Helper to format documents for email
   const getMissionAttachments = (details: any) => {
     if (!details?.documents || !Array.isArray(details.documents)) return [];
-    return details.documents.map((docPath: string) => ({
-      filename: docPath.split('/').pop() || 'document',
-      path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
-    }));
+    return details.documents.map((doc: any) => {
+      const docUrl = typeof doc === 'string' ? doc : (doc.url || '');
+      if (!docUrl) return null;
+      return {
+        filename: typeof doc === 'string' ? docUrl.split('/').pop() || 'document' : (doc.originalName || docUrl.split('/').pop() || 'document'),
+        path: docUrl.startsWith('http') ? docUrl : `${process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app'}${docUrl.startsWith('/') ? '' : '/'}${docUrl}`
+      };
+    }).filter(Boolean);
   };
 
   if (isAutoAssigned) {

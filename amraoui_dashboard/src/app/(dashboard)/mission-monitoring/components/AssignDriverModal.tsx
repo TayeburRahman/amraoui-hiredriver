@@ -194,16 +194,16 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
               <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Pickup Time</label>
-              <input type="time" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Pickup Time</label>
+              <input type="time" lang="en-GB" value={pickupTime} onChange={(e) => setPickupTime(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
               <label className="block text-xs text-gray-600 mb-1">Dropoff Date</label>
               <input type="date" value={dropoffDate} onChange={(e) => setDropoffDate(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-xs text-gray-600 mb-1">Dropoff Time</label>
-              <input type="time" value={dropoffTime} onChange={(e) => setDropoffTime(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Dropoff Time</label>
+              <input type="time" lang="en-GB" value={dropoffTime} onChange={(e) => setDropoffTime(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
           <div>

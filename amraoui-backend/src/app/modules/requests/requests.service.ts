@@ -740,7 +740,7 @@ const cancelMissionByDriver = async (
 };
 
 // ─── Assign Driver (Admin) ──────────────────────────────────────────────────
-const assignDriver = async (missionId: string, quoteId?: string, driverId?: string) => {
+const assignDriver = async (missionId: string, quoteId?: string, driverId?: string, amount?: number) => {
   const mission = await Requests.findById(missionId);
   if (!mission) throw new Error('Mission not found');
 
@@ -761,10 +761,20 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
     const driverObjId = new Types.ObjectId(driverId);
     setPayload.assignedDriverId = driverObjId;
     
-    const updatedQuotes = mission.driverQuotes.map((q: any) => {
+    let updatedQuotes = mission.driverQuotes.map((q: any) => {
       const qObj = typeof q.toObject === 'function' ? q.toObject() : q;
       return { ...qObj, status: 'REJECTED' };
     });
+
+    if (amount !== undefined) {
+      updatedQuotes.push({
+        driverId: driverObjId,
+        amount: Number(amount),
+        status: 'ACCEPTED',
+        createdAt: new Date()
+      });
+    }
+
     setPayload.driverQuotes = updatedQuotes;
   }
 

@@ -12,6 +12,7 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
   const [drivers, setDrivers] = useState<any[]>([]);
   const [driverSearch, setDriverSearch] = useState('');
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
+  const [amount, setAmount] = useState<string>('');
   const [isFetchingDrivers, setIsFetchingDrivers] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false);
 
@@ -24,7 +25,7 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
   const fetchDrivers = async () => {
     try {
       setIsFetchingDrivers(true);
-      const res = await apiFetch('/drivers?status=ACTIVE', { auth: true });
+      const res = await apiFetch('/drivers', { auth: true });
       if (res.ok) {
         const responseData = res.data as any;
         setDrivers(responseData?.data?.drivers || responseData?.drivers || []);
@@ -40,9 +41,14 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
     if (!selectedDriverId) return;
     try {
       setIsAssigning(true);
+      const payload: any = { driverId: selectedDriverId };
+      if (amount && !isNaN(Number(amount))) {
+        payload.amount = Number(amount);
+      }
+      
       const res = await apiFetch(`/requests/${missionId}/assign-driver`, {
         method: 'PATCH',
-        body: JSON.stringify({ driverId: selectedDriverId }),
+        body: JSON.stringify(payload),
         auth: true,
       });
 
@@ -122,6 +128,20 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
             </div>
           )}
         </div>
+        
+        {/* Amount Input Section */}
+        <div className="p-4 border-t border-gray-100 bg-gray-50">
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Manual Quote Price (€) (Optional)</label>
+          <input
+            type="number"
+            placeholder="Enter price..."
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <p className="text-xs text-gray-500 mt-1">If provided, this will create an accepted quote for the driver.</p>
+        </div>
+
         <div className="p-6 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50">
           <button onClick={onClose} className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
             Cancel

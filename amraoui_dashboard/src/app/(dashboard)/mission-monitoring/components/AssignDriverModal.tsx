@@ -49,7 +49,8 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
       if (res.ok) {
         window.location.reload();
       } else {
-        alert(res.data?.message || 'Failed to assign driver');
+        const responseData = res.data as any;
+        alert(responseData?.message || 'Failed to assign driver');
       }
     } catch (error) {
       console.error('Failed to assign driver', error);

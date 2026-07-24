@@ -26,7 +26,8 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
       setIsFetchingDrivers(true);
       const res = await apiFetch('/drivers?status=ACTIVE', { auth: true });
       if (res.ok) {
-        setDrivers(res.data?.data?.drivers || res.data?.drivers || []);
+        const responseData = res.data as any;
+        setDrivers(responseData?.data?.drivers || responseData?.drivers || []);
       }
     } catch (error) {
       console.error('Failed to fetch drivers:', error);

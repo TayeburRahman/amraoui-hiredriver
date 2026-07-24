@@ -334,15 +334,34 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                             </div>
 
                                             <div className="space-y-3">
-                                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Quote Details</h4>
-                                                <div className="flex items-end gap-4">
-                                                    <div>
-                                                        <p className="text-xs text-gray-500 font-medium">Amount</p>
-                                                        <p className="text-2xl font-black text-blue-600">€{quote.amount}</p>
+                                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
+                                                    <span>Quote Details</span>
+                                                    <span className="text-xs font-bold text-gray-500">Est. Time: <span className="text-gray-900">{estimatedTime}</span></span>
+                                                </h4>
+                                                <div className="bg-gray-50 rounded-xl p-3 border border-gray-100 text-sm">
+                                                    <div className="flex justify-between py-1 border-b border-gray-200/50">
+                                                        <span className="text-gray-500 font-medium">Service Price</span>
+                                                        <span className="font-bold text-gray-900">€{quote.servicePrice || 0}</span>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-xs text-gray-500 font-medium">Est. Time</p>
-                                                        <p className="text-lg font-bold text-gray-900">{estimatedTime}</p>
+                                                    <div className="flex justify-between py-1 border-b border-gray-200/50">
+                                                        <span className="text-gray-500 font-medium">Fuel Cost</span>
+                                                        <span className="font-bold text-gray-900">€{quote.fuelCost || 0}</span>
+                                                    </div>
+                                                    <div className="flex justify-between py-1 border-b border-gray-200/50">
+                                                        <span className="text-gray-500 font-medium">Toll Charges</span>
+                                                        <span className="font-bold text-gray-900">€{quote.tollCharges || 0}</span>
+                                                    </div>
+                                                    <div className="flex justify-between py-1 border-b border-gray-200/50">
+                                                        <span className="text-gray-500 font-medium">Travel Cost</span>
+                                                        <span className="font-bold text-gray-900">€{quote.travelCost || 0}</span>
+                                                    </div>
+                                                    <div className="flex justify-between py-1 border-b border-gray-200/50">
+                                                        <span className="text-gray-500 font-medium">Taxi Cost</span>
+                                                        <span className="font-bold text-gray-900">€{quote.taxiCost || 0}</span>
+                                                    </div>
+                                                    <div className="flex justify-between pt-2 mt-1">
+                                                        <span className="text-gray-700 font-bold uppercase text-xs">Total Amount</span>
+                                                        <span className="font-black text-blue-600 text-lg leading-none">€{quote.amount}</span>
                                                     </div>
                                                 </div>
                                             </div>

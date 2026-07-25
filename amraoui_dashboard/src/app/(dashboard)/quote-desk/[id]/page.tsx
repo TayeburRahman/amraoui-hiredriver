@@ -166,8 +166,13 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                 body: JSON.stringify({ quoteId }) 
             });
             if (res.data?.success) {
-                // Update local state with the exact backend response to support multiple drivers
-                setRequest(res.data.data);
+                // Fetch fresh request data to ensure all populated fields and statuses are up to date
+                const fetchRes = await apiFetch<any>(`/requests/${reqId}`, { auth: true });
+                if (fetchRes.data?.success) {
+                    setRequest(fetchRes.data.data);
+                } else {
+                    setRequest(res.data.data);
+                }
             }
         } catch (error) {
             console.error("Error approving quote:", error);

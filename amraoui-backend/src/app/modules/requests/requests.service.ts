@@ -825,16 +825,19 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
       return `Attached Document ${index + 1}`;
     };
 
-    return details.documents.map((docPath: string, i: number) => {
+    return details.documents.map((doc: any, i: number) => {
+      const docPath = typeof doc === 'string' ? doc : (doc?.url || '');
+      if (!docPath) return null; // Skip if no URL is found
+      
       const ext = docPath.split('.').pop() || 'pdf';
       const label = getDocLabel(docPath, i);
       const safeLabel = label.replace(/\s+/g, '_');
       
       return {
-        filename: `${safeLabel}.${ext}`,
+        filename: typeof doc === 'object' && doc.originalName ? doc.originalName : `${safeLabel}.${ext}`,
         path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
       };
-    });
+    }).filter(Boolean); // Filter out any null entries
   };
   
   const notifyDriverId = driverId || finalMission.assignedDriverId?._id?.toString() || finalMission.assignedDriverId?.toString();

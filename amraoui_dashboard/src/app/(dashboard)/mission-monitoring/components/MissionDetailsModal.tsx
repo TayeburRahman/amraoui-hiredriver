@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
-import { X, User, Mail, Phone, MapPin, Car, FileText, CheckCircle2, Clock, Plus, Eye, Download, Send, Play, Bell } from 'lucide-react';
+import { X, User, Mail, Phone, MapPin, Car, FileText, CheckCircle2, Clock, Plus, Eye, Download, Send, Play, Bell, Edit3 } from 'lucide-react';
 import { ProofViewerModal } from './ProofViewerModal';
 import { AddExpenseModal } from './AddExpenseModal';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import { formatDate, formatDateTime } from '@/lib/dateUtils';
 
 
 import { AssignDriverModal } from './AssignDriverModal';
+import { EditMissionDetailsModal } from './EditMissionDetailsModal';
 
 interface MissionDetailsModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
   const [isNotifyingCustomer, setIsNotifyingCustomer] = useState(false);
   const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
   const [isAssignDriverModalOpen, setIsAssignDriverModalOpen] = useState(false);
+  const [isEditDetailsModalOpen, setIsEditDetailsModalOpen] = useState(false);
   const [selectedExpenseForNotify, setSelectedExpenseForNotify] = useState<any>(null);
 
   const [quoteMessage, setQuoteMessage] = useState('Here is your final quote.');
@@ -651,7 +653,16 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
           {/* Original Request Details */}
           {mission.raw?.details && (
             <div>
-              <h3 className="text-sm font-bold text-gray-900 mb-3">Original Request Details</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-gray-900">Original Request Details</h3>
+                <button
+                  onClick={() => setIsEditDetailsModalOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  Edit Details
+                </button>
+              </div>
               <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {Object.entries(mission.raw.details).map(([key, value]) => {
@@ -1059,8 +1070,18 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
         isOpen={isAssignDriverModalOpen}
         onClose={() => setIsAssignDriverModalOpen(false)}
         missionId={mission.realId}
+        onSuccess={() => window.location.reload()}
+      />
+
+      <EditMissionDetailsModal
+        isOpen={isEditDetailsModalOpen}
+        onClose={() => setIsEditDetailsModalOpen(false)}
+        mission={mission}
+        onSaveSuccess={() => {
+          setIsEditDetailsModalOpen(false);
+          window.location.reload();
+        }}
       />
     </div>
   );
 };
-

@@ -136,7 +136,7 @@ const getRequestById = async (id: string) => {
     .lean();
 };
 
-// ─── Update Request Status ──────────────────────────────────────────────────
+// ─── Update Request Status ─────────────────────────────────────────────
 const updateRequestStatus = async (id: string, status: RequestStatus) => {
   const request = await Requests.findById(id);
   if (!request) return null;
@@ -146,7 +146,7 @@ const updateRequestStatus = async (id: string, status: RequestStatus) => {
   if (status === RequestStatus.OPEN_FOR_DRIVERS) {
     request.assignedDriverId = null as any;
     request.assignedDriverIds = [];
-    
+
     if (request.driverQuotes && request.driverQuotes.length > 0) {
       let quotesUpdated = false;
       request.driverQuotes.forEach((q: any) => {
@@ -156,7 +156,7 @@ const updateRequestStatus = async (id: string, status: RequestStatus) => {
         }
       });
       if (quotesUpdated) {
-         request.markModified('driverQuotes');
+        request.markModified('driverQuotes');
       }
     }
   }
@@ -1161,10 +1161,12 @@ const updateCustomerRequest = async (id: string, customerId: string, role: strin
   const mission = await Requests.findOne(query);
   if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found or unauthorized');
 
-  // Check if status allows editing
+  // Check if status allows editing (Bypass for Admins)
   const allowedStatuses = [RequestStatus.PENDING_ADMIN_QUOTE, RequestStatus.CUSTOMER_REVIEWING_QUOTE];
-  if (!allowedStatuses.includes(mission.status as RequestStatus)) {
-    throw new ApiError(httpStatus.FORBIDDEN, 'Cannot edit request at this stage');
+  if (role !== 'ADMIN' && role !== 'SUPER_ADMIN') {
+    if (!allowedStatuses.includes(mission.status as RequestStatus)) {
+      throw new ApiError(httpStatus.FORBIDDEN, 'Cannot edit request at this stage');
+    }
   }
 
   // Update only allowed fields (details mostly)

@@ -138,11 +138,31 @@ const getRequestById = async (id: string) => {
 
 // ─── Update Request Status ──────────────────────────────────────────────────
 const updateRequestStatus = async (id: string, status: RequestStatus) => {
-  return Requests.findByIdAndUpdate(
-    id,
-    { status },
-    { new: true, runValidators: true }
-  ).lean();
+  const request = await Requests.findById(id);
+  if (!request) return null;
+
+  request.status = status;
+
+  if (status === RequestStatus.OPEN_FOR_DRIVERS) {
+    request.assignedDriverId = null as any;
+    request.assignedDriverIds = [];
+    
+    if (request.driverQuotes && request.driverQuotes.length > 0) {
+      let quotesUpdated = false;
+      request.driverQuotes.forEach((q: any) => {
+        if (q.status === 'ACCEPTED') {
+          q.status = 'REJECTED';
+          quotesUpdated = true;
+        }
+      });
+      if (quotesUpdated) {
+         request.markModified('driverQuotes');
+      }
+    }
+  }
+
+  await request.save();
+  return Requests.findById(id).lean();
 };
 
 const updateCommissionStatus = async (id: string, commissionStatus: string) => {
@@ -455,8 +475,8 @@ const notifyExpensesToCustomer = async (id: string) => {
   const customerName = customer?.name
     ? `${customer.name} ${customer.family_name || ''}`.trim()
     : ((mission as any).details?.firstName ? `${(mission as any).details.firstName} ${(mission as any).details.lastName || ''}`.trim() : null) ||
-      (mission as any).details?.customerName ||
-      'Customer';
+    (mission as any).details?.customerName ||
+    'Customer';
 
   if (!customer && !customerEmail) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Customer account or email not found for this request');
@@ -481,19 +501,19 @@ const notifyExpensesToCustomer = async (id: string) => {
     const baseUrl = process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
     const expensesListHtml = expenses.length > 0
       ? expenses.map((exp: any) => {
-          const proofLink = exp.proofUrl
-            ? (exp.proofUrl.startsWith('http')
-              ? exp.proofUrl
-              : `${baseUrl}/${exp.proofUrl.replace(/\\/g, '/')}`)
-            : null;
-          return `
+        const proofLink = exp.proofUrl
+          ? (exp.proofUrl.startsWith('http')
+            ? exp.proofUrl
+            : `${baseUrl}/${exp.proofUrl.replace(/\\/g, '/')}`)
+          : null;
+        return `
             <div style="border-bottom: 1px solid #e2e8f0; padding: 8px 0;">
               <p style="margin: 0; font-size: 14px;"><strong>${exp.type || 'Expense'}:</strong> €${exp.amount}</p>
               ${exp.driverNote ? `<p style="margin: 2px 0; font-style: italic; color: #64748b; font-size: 12px;">${exp.driverNote}</p>` : ''}
               ${proofLink ? `<p style="margin: 4px 0;"><a href="${proofLink}" target="_blank" style="color: #2563eb; font-weight: bold; font-size: 12px;">View Proof Attachment</a></p>` : ''}
             </div>
           `;
-        }).join('')
+      }).join('')
       : '<p style="color: #64748b;">No extra expenses listed.</p>';
 
     const emailHtml = `
@@ -669,8 +689,8 @@ const submitDriverQuote = async (
         // Email Driver
         if (driver.email) {
           const route = mission.type === 'TRANSPORT' ? `${mission.details?.pickupCity || mission.details?.pickupAddress || 'Unknown'} → ${mission.details?.dropoffCity || mission.details?.dropoffAddress || 'Unknown'}` :
-                        mission.type === 'INSPECTION' ? mission.details?.inspectionLocation || 'Unknown' :
-                        mission.details?.driverCity || 'Unknown';
+            mission.type === 'INSPECTION' ? mission.details?.inspectionLocation || 'Unknown' :
+              mission.details?.driverCity || 'Unknown';
           const attachments = getMissionAttachments(mission.details);
           const emailHtml = driverAssignedEmailBody({
             driverName: driver.name || (driver as any).firstName || 'Driver',
@@ -764,7 +784,7 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
   } else if (driverId) {
     const driverObjId = new Types.ObjectId(driverId);
     setPayload.assignedDriverId = driverObjId;
-    
+
     let updatedQuotes = mission.driverQuotes.map((q: any) => {
       const qObj = typeof q.toObject === 'function' ? q.toObject() : q;
       return { ...qObj, status: 'REJECTED' };
@@ -799,47 +819,47 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
   );
 
   if (!updatedMission) throw new Error('Failed to update mission');
-  
+
   // Re-fetch populated if needed, or just use updatedMission
   const missionPopulated = await Requests.findById(missionId).populate('customerId').populate('assignedDriverId');
   if (!missionPopulated) throw new Error('Failed to fetch populated mission');
-  
+
   // Replace references of 'mission' below with 'missionPopulated'
   const finalMission = missionPopulated as any;
-  
+
   // Helper to format documents for email
   const getMissionAttachments = (details: any) => {
     if (!details?.documents || !Array.isArray(details.documents)) return [];
-    
+
     const getDocLabel = (docUrl: string, index: number) => {
       // Find exact matches if URLs are stored in specific fields
       if (details.vehiclePhotos && docUrl.includes(details.vehiclePhotos)) return 'Vehicle photos';
       if (details.registrationDocumentName && docUrl.includes(details.registrationDocumentName)) return 'Registration document';
       if (details.referenceDocumentName && docUrl.includes(details.referenceDocumentName)) return 'Reference document';
-      
+
       // Fallback based on sequence (legacy support)
       if (index === 0 && details.vehiclePhotos) return 'Vehicle photos';
       if (index === 1 && details.registrationDocumentName) return 'Registration document';
       if (index === 2 && details.referenceDocumentName) return 'Reference document';
-      
+
       return `Attached Document ${index + 1}`;
     };
 
     return details.documents.map((doc: any, i: number) => {
       const docPath = typeof doc === 'string' ? doc : (doc?.url || '');
       if (!docPath) return null; // Skip if no URL is found
-      
+
       const ext = docPath.split('.').pop() || 'pdf';
       const label = getDocLabel(docPath, i);
       const safeLabel = label.replace(/\s+/g, '_');
-      
+
       return {
         filename: typeof doc === 'object' && doc.originalName ? doc.originalName : `${safeLabel}.${ext}`,
         path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
       };
     }).filter(Boolean); // Filter out any null entries
   };
-  
+
   const notifyDriverId = driverId || finalMission.assignedDriverId?._id?.toString() || finalMission.assignedDriverId?.toString();
   if (notifyDriverId) {
     // Notify the assigned driver (either manually or via accepted quote)
@@ -858,8 +878,8 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
       // Email Driver
       if (driver.email) {
         const route = mission.type === 'TRANSPORT' ? `${mission.details?.pickupCity || mission.details?.pickupAddress || 'Unknown'} → ${mission.details?.dropoffCity || mission.details?.dropoffAddress || 'Unknown'}` :
-                      mission.type === 'INSPECTION' ? mission.details?.inspectionLocation || 'Unknown' :
-                      mission.details?.driverCity || 'Unknown';
+          mission.type === 'INSPECTION' ? mission.details?.inspectionLocation || 'Unknown' :
+            mission.details?.driverCity || 'Unknown';
         const attachments = getMissionAttachments(mission.details);
         const emailHtml = driverAssignedEmailBody({
           driverName: driver.name || (driver as any).firstName || 'Driver',

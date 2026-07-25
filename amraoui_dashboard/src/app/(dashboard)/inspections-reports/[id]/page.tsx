@@ -462,36 +462,36 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
 
       {/* Hidden Full Report for PDF Generation */}
       <div className="absolute left-[-9999px] top-0">
-        <div id="full-inspection-report" className="p-8 bg-white w-[800px] text-gray-900 font-sans">
-          <div className="mb-6 pb-4 border-b border-gray-200">
+        <div id="full-inspection-report" className="p-8 w-[800px] font-sans" style={{ backgroundColor: '#ffffff', color: '#111827' }}>
+          <div className="mb-6 pb-4 border-b" style={{ borderColor: '#e5e7eb' }}>
             <h1 className="text-2xl font-bold mb-1">Inspection Report: Mission #{request.missionId}</h1>
-            <p className="text-sm text-gray-500">Vehicle: {vehicle}</p>
+            <p className="text-sm" style={{ color: '#6b7280' }}>Vehicle: {vehicle}</p>
           </div>
 
           {tabs.filter(t => t !== 'Others').map(tab => {
             const pPhoto = pickupExt[tab] || pickupInt[tab];
             const dPhoto = deliveryExt[tab] || deliveryInt[tab];
-
+            
             if (!pPhoto && !dPhoto) return null;
 
             return (
               <div key={tab} className="mb-8" style={{ pageBreakInside: 'avoid' }}>
-                <h2 className="text-lg font-bold mb-3 bg-gray-100 px-3 py-1.5 rounded">{tab}</h2>
+                <h2 className="text-lg font-bold mb-3 px-3 py-1.5 rounded" style={{ backgroundColor: '#f3f4f6' }}>{tab}</h2>
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-sm mb-2 text-blue-600">Pickup</h3>
+                    <h3 className="font-semibold text-sm mb-2" style={{ color: '#2563eb' }}>Pickup</h3>
                     {pPhoto ? (
-                      <img src={pPhoto} crossOrigin="anonymous" className="w-full h-auto max-h-[300px] object-contain rounded border border-gray-200" />
+                      <img src={pPhoto} crossOrigin="anonymous" className="w-full h-auto max-h-[300px] object-contain rounded border" style={{ borderColor: '#e5e7eb' }} />
                     ) : (
-                      <div className="h-[200px] bg-gray-50 border border-gray-200 rounded flex items-center justify-center text-gray-400 text-sm">No photo</div>
+                      <div className="h-[200px] border rounded flex items-center justify-center text-sm" style={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb', color: '#9ca3af' }}>No photo</div>
                     )}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-sm mb-2 text-green-600">Delivery</h3>
+                    <h3 className="font-semibold text-sm mb-2" style={{ color: '#16a34a' }}>Delivery</h3>
                     {dPhoto ? (
-                      <img src={dPhoto} crossOrigin="anonymous" className="w-full h-auto max-h-[300px] object-contain rounded border border-gray-200" />
+                      <img src={dPhoto} crossOrigin="anonymous" className="w-full h-auto max-h-[300px] object-contain rounded border" style={{ borderColor: '#e5e7eb' }} />
                     ) : (
-                      <div className="h-[200px] bg-gray-50 border border-gray-200 rounded flex items-center justify-center text-gray-400 text-sm">No photo</div>
+                      <div className="h-[200px] border rounded flex items-center justify-center text-sm" style={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb', color: '#9ca3af' }}>No photo</div>
                     )}
                   </div>
                 </div>
@@ -500,31 +500,31 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
           })}
           {/* jk */}
           <div className="mt-8" style={{ pageBreakInside: 'avoid' }}>
-            <h2 className="text-lg font-bold mb-3 bg-gray-100 px-3 py-1.5 rounded">Other Details</h2>
+            <h2 className="text-lg font-bold mb-3 px-3 py-1.5 rounded" style={{ backgroundColor: '#f3f4f6' }}>Other Details</h2>
             <div className="flex gap-4">
-              <div className="flex-1 p-4 border border-blue-100 rounded-lg bg-blue-50/30">
-                <h3 className="font-bold text-blue-700 mb-3 border-b border-blue-100 pb-2">Pickup Details</h3>
+              <div className="flex-1 p-4 border rounded-lg" style={{ backgroundColor: 'rgba(239, 246, 255, 0.3)', borderColor: '#dbeafe' }}>
+                <h3 className="font-bold mb-3 border-b pb-2" style={{ color: '#1d4ed8', borderColor: '#dbeafe' }}>Pickup Details</h3>
                 <div className="space-y-2 text-sm">
-                  <p><span className="font-medium text-gray-500">Date:</span> {pickupDate}</p>
-                  <p><span className="font-medium text-gray-500">Damage:</span> {pickupDamage}</p>
-                  <p><span className="font-medium text-gray-500">Mileage:</span> {pickupMileage} km</p>
-                  <p><span className="font-medium text-gray-500">Fuel Level:</span> {pickupFuel}</p>
+                  <p><span className="font-medium" style={{ color: '#6b7280' }}>Date:</span> {pickupDate}</p>
+                  <p><span className="font-medium" style={{ color: '#6b7280' }}>Damage:</span> {pickupDamage}</p>
+                  <p><span className="font-medium" style={{ color: '#6b7280' }}>Mileage:</span> {pickupMileage} km</p>
+                  <p><span className="font-medium" style={{ color: '#6b7280' }}>Fuel Level:</span> {pickupFuel}</p>
                   {request.details?.pickupInspection?.damageReport?.comment && (
-                    <p className="mt-2 text-xs text-gray-600 bg-white p-2 rounded border border-gray-200">
+                    <p className="mt-2 text-xs p-2 rounded border" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb', color: '#4b5563' }}>
                       Note: {request.details.pickupInspection.damageReport.comment}
                     </p>
                   )}
                 </div>
               </div>
-              <div className="flex-1 p-4 border border-green-100 rounded-lg bg-green-50/30">
-                <h3 className="font-bold text-green-700 mb-3 border-b border-green-100 pb-2">Delivery Details</h3>
+              <div className="flex-1 p-4 border rounded-lg" style={{ backgroundColor: 'rgba(240, 253, 244, 0.3)', borderColor: '#dcfce7' }}>
+                <h3 className="font-bold mb-3 border-b pb-2" style={{ color: '#15803d', borderColor: '#dcfce7' }}>Delivery Details</h3>
                 <div className="space-y-2 text-sm">
-                  <p><span className="font-medium text-gray-500">Date:</span> {deliveryDate}</p>
-                  <p><span className="font-medium text-gray-500">Damage:</span> {deliveryDamage}</p>
-                  <p><span className="font-medium text-gray-500">Mileage:</span> {deliveryMileage} km</p>
-                  <p><span className="font-medium text-gray-500">Fuel Level:</span> {deliveryFuel}</p>
+                  <p><span className="font-medium" style={{ color: '#6b7280' }}>Date:</span> {deliveryDate}</p>
+                  <p><span className="font-medium" style={{ color: '#6b7280' }}>Damage:</span> {deliveryDamage}</p>
+                  <p><span className="font-medium" style={{ color: '#6b7280' }}>Mileage:</span> {deliveryMileage} km</p>
+                  <p><span className="font-medium" style={{ color: '#6b7280' }}>Fuel Level:</span> {deliveryFuel}</p>
                   {request.details?.deliveryInspection?.damageReport?.comment && (
-                    <p className="mt-2 text-xs text-gray-600 bg-white p-2 rounded border border-gray-200">
+                    <p className="mt-2 text-xs p-2 rounded border" style={{ backgroundColor: '#ffffff', borderColor: '#e5e7eb', color: '#4b5563' }}>
                       Note: {request.details.deliveryInspection.damageReport.comment}
                     </p>
                   )}
@@ -532,9 +532,9 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
               </div>
             </div>
 
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex justify-between text-sm">
-              <span className="font-medium text-gray-700">Total Mileage Difference:</span>
-              <span className="font-bold text-gray-900">{mileageDiff > 0 ? mileageDiff : 0} km</span>
+            <div className="mt-4 p-3 rounded-lg border flex justify-between text-sm" style={{ backgroundColor: '#f9fafb', borderColor: '#e5e7eb' }}>
+              <span className="font-medium" style={{ color: '#374151' }}>Total Mileage Difference:</span>
+              <span className="font-bold" style={{ color: '#111827' }}>{mileageDiff > 0 ? mileageDiff : 0} km</span>
             </div>
           </div>
 

@@ -138,7 +138,8 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
   const deliveryFuel = request.details?.deliveryInspection?.mileageAndFuel?.fuelLevel || 'N/A';
 
   return (
-    <div className="min-h-screen bg-gray-50/50 p-6 flex items-center justify-center">
+    <>
+      <div className="min-h-screen bg-gray-50/50 p-6 flex items-center justify-center">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-5xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-6 border-b border-gray-100 relative">
@@ -539,6 +540,6 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
 
         </div>
       </div>
-    </div>
+    </>
   );
 }

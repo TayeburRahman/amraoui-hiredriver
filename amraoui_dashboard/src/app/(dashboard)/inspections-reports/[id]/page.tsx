@@ -23,7 +23,7 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
       const html2pdf = (await import('html2pdf.js')).default;
       const element = document.getElementById('full-inspection-report');
       
-      const opt = {
+      const opt: any = {
         margin:       10,
         filename:     `Mission_${request?.missionId || id}_Inspection_Report.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },

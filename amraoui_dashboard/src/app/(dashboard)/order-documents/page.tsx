@@ -132,6 +132,48 @@ const OrderDocumentsPage = () => {
          documentChecklist[0].status = 'Complete'; 
       }
 
+      const extractInspectionPhotos = (inspection: any, prefix: string, checklistIndex: number) => {
+         if (!inspection) return;
+         let hasPhotos = false;
+
+         const extPhotos = inspection.exteriorPhotos || {};
+         Object.values(extPhotos).forEach(url => {
+            if (typeof url === 'string' && url.length > 0) {
+              documents.push({ url, type: `${prefix}_Exterior_Photo` });
+              hasPhotos = true;
+            }
+         });
+
+         const intPhotos = inspection.interiorPhotos || {};
+         Object.values(intPhotos).forEach(url => {
+            if (typeof url === 'string' && url.length > 0) {
+              documents.push({ url, type: `${prefix}_Interior_Photo` });
+              hasPhotos = true;
+            }
+         });
+         
+         if (inspection.damageReport?.photo) {
+             documents.push({ url: inspection.damageReport.photo, type: `${prefix}_Damage_Photo` });
+             hasPhotos = true;
+         }
+
+         if (inspection.damageReport?.damagesList?.length > 0) {
+             inspection.damageReport.damagesList.forEach((dmg: any) => {
+                 if (dmg.photo) {
+                   documents.push({ url: dmg.photo, type: `${prefix}_Damage_Component` });
+                   hasPhotos = true;
+                 }
+             });
+         }
+
+         if (hasPhotos) {
+            documentChecklist[checklistIndex].status = 'Complete';
+         }
+      };
+
+      extractInspectionPhotos(r.details?.pickupInspection, 'Pickup', 2);
+      extractInspectionPhotos(r.details?.deliveryInspection, 'Delivery', 3);
+
       return {
         id: r._id,
         brandModel,

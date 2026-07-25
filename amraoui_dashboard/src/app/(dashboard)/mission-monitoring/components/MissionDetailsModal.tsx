@@ -1070,7 +1070,6 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
         isOpen={isAssignDriverModalOpen}
         onClose={() => setIsAssignDriverModalOpen(false)}
         missionId={mission.realId}
-        onSuccess={() => window.location.reload()}
       />
 
       <EditMissionDetailsModal

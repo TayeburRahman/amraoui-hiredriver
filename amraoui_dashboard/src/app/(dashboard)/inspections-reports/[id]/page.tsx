@@ -14,6 +14,31 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("");
   const [tabs, setTabs] = useState<string[]>([]);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+  const generatePDF = async () => {
+    setIsGeneratingPDF(true);
+    try {
+      // @ts-ignore
+      const html2pdf = (await import('html2pdf.js')).default;
+      const element = document.getElementById('full-inspection-report');
+      
+      const opt = {
+        margin:       10,
+        filename:     `Mission_${request?.missionId || id}_Inspection_Report.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      await html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      console.error("PDF generation failed", error);
+      alert("Failed to generate PDF");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -413,19 +438,104 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
               Next <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-          <button
-            onClick={() => {
-              const originalTitle = document.title;
-              document.title = `Vehiqqo_${request.type || 'Mission'}_${request.missionId || id}`;
-              window.print();
-              setTimeout(() => {
-                document.title = originalTitle;
-              }, 1000);
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-1 print:hidden"
-          >
-            <Download className="w-4 h-4" /> Download Report
-          </button>
+            <button
+              onClick={generatePDF}
+              disabled={isGeneratingPDF}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2 print:hidden disabled:opacity-50"
+            >
+              {isGeneratingPDF ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Generating PDF...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" /> Download PDF Report
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Hidden Full Report for PDF Generation */}
+      <div className="absolute left-[-9999px] top-0">
+        <div id="full-inspection-report" className="p-8 bg-white w-[800px] text-gray-900 font-sans">
+          <div className="mb-6 pb-4 border-b border-gray-200">
+            <h1 className="text-2xl font-bold mb-1">Inspection Report: Mission #{request.missionId}</h1>
+            <p className="text-sm text-gray-500">Vehicle: {vehicle}</p>
+          </div>
+
+          {tabs.filter(t => t !== 'Others').map(tab => {
+            const pPhoto = pickupExt[tab] || pickupInt[tab];
+            const dPhoto = deliveryExt[tab] || deliveryInt[tab];
+            
+            if (!pPhoto && !dPhoto) return null;
+
+            return (
+              <div key={tab} className="mb-8" style={{ pageBreakInside: 'avoid' }}>
+                <h2 className="text-lg font-bold mb-3 bg-gray-100 px-3 py-1.5 rounded">{tab}</h2>
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-sm mb-2 text-blue-600">Pickup</h3>
+                    {pPhoto ? (
+                      <img src={pPhoto} crossOrigin="anonymous" className="w-full h-auto max-h-[300px] object-contain rounded border border-gray-200" />
+                    ) : (
+                      <div className="h-[200px] bg-gray-50 border border-gray-200 rounded flex items-center justify-center text-gray-400 text-sm">No photo</div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-sm mb-2 text-green-600">Delivery</h3>
+                    {dPhoto ? (
+                      <img src={dPhoto} crossOrigin="anonymous" className="w-full h-auto max-h-[300px] object-contain rounded border border-gray-200" />
+                    ) : (
+                      <div className="h-[200px] bg-gray-50 border border-gray-200 rounded flex items-center justify-center text-gray-400 text-sm">No photo</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="mt-8" style={{ pageBreakInside: 'avoid' }}>
+            <h2 className="text-lg font-bold mb-3 bg-gray-100 px-3 py-1.5 rounded">Other Details</h2>
+            <div className="flex gap-4">
+              <div className="flex-1 p-4 border border-blue-100 rounded-lg bg-blue-50/30">
+                <h3 className="font-bold text-blue-700 mb-3 border-b border-blue-100 pb-2">Pickup Details</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium text-gray-500">Date:</span> {pickupDate}</p>
+                  <p><span className="font-medium text-gray-500">Damage:</span> {pickupDamage}</p>
+                  <p><span className="font-medium text-gray-500">Mileage:</span> {pickupMileage} km</p>
+                  <p><span className="font-medium text-gray-500">Fuel Level:</span> {pickupFuel}</p>
+                  {request.details?.pickupInspection?.damageReport?.comment && (
+                    <p className="mt-2 text-xs text-gray-600 bg-white p-2 rounded border border-gray-200">
+                      Note: {request.details.pickupInspection.damageReport.comment}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex-1 p-4 border border-green-100 rounded-lg bg-green-50/30">
+                <h3 className="font-bold text-green-700 mb-3 border-b border-green-100 pb-2">Delivery Details</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium text-gray-500">Date:</span> {deliveryDate}</p>
+                  <p><span className="font-medium text-gray-500">Damage:</span> {deliveryDamage}</p>
+                  <p><span className="font-medium text-gray-500">Mileage:</span> {deliveryMileage} km</p>
+                  <p><span className="font-medium text-gray-500">Fuel Level:</span> {deliveryFuel}</p>
+                  {request.details?.deliveryInspection?.damageReport?.comment && (
+                    <p className="mt-2 text-xs text-gray-600 bg-white p-2 rounded border border-gray-200">
+                      Note: {request.details.deliveryInspection.damageReport.comment}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200 flex justify-between text-sm">
+              <span className="font-medium text-gray-700">Total Mileage Difference:</span>
+              <span className="font-bold text-gray-900">{mileageDiff > 0 ? mileageDiff : 0} km</span>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

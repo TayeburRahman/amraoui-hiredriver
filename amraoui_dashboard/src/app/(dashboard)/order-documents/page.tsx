@@ -11,6 +11,7 @@ interface VehicleDocument {
   id: string;
   brandModel: string;
   type: string;
+  missionType: string;
   licensePlate: string;
   vin: string;
   engine: string;
@@ -19,7 +20,7 @@ interface VehicleDocument {
   status: string;
   updated: string;
   rawDocsCount?: number;
-  documents?: string[];
+  documents?: { url: string; type: string }[];
   documentChecklist?: { name: string; status: string }[];
 }
 
@@ -79,7 +80,7 @@ const OrderDocumentsPage = () => {
       if (totalDocs === 0) status = 'Missing proof';
       else if (r.status === 'COMPLETED') status = 'Verified';
 
-      const documents: string[] = [];
+      const documents: { url: string; type: string }[] = [];
       const documentChecklist = [
         { name: 'Vehicle Photos', status: 'Pending' },
         { name: 'Registration Document', status: 'Pending' },
@@ -89,38 +90,53 @@ const OrderDocumentsPage = () => {
         { name: 'Signature Report', status: 'Pending' },
       ];
 
-      // Example logic for populating Checklist and URLs:
       if (r.details?.registrationDocument) {
-         documents.push(r.details.registrationDocument);
+         documents.push({ url: r.details.registrationDocument, type: 'Registration_Document' });
          documentChecklist[1].status = 'Complete';
       }
       if (r.details?.pickupInspection?.uploadDocuments?.length > 0) {
-         documents.push(...r.details.pickupInspection.uploadDocuments);
+         r.details.pickupInspection.uploadDocuments.forEach((url: string) => {
+           documents.push({ url, type: 'Pickup_Inspection' });
+         });
          documentChecklist[2].status = 'Complete';
       }
       if (r.details?.deliveryInspection?.uploadDocuments?.length > 0) {
-         documents.push(...r.details.deliveryInspection.uploadDocuments);
+         r.details.deliveryInspection.uploadDocuments.forEach((url: string) => {
+           documents.push({ url, type: 'Delivery_Inspection' });
+         });
          documentChecklist[3].status = 'Complete';
       }
-      if (r.details?.pickupInspection?.odometerPhoto || r.details?.pickupInspection?.fuelGaugePhoto) {
-         if (r.details.pickupInspection?.odometerPhoto) documents.push(r.details.pickupInspection.odometerPhoto);
-         if (r.details.pickupInspection?.fuelGaugePhoto) documents.push(r.details.pickupInspection.fuelGaugePhoto);
+      if (r.details?.pickupInspection?.odometerPhoto) {
+         documents.push({ url: r.details.pickupInspection.odometerPhoto, type: 'Pickup_Odometer' });
          documentChecklist[4].status = 'Complete';
       }
-      if (r.details?.pickupInspection?.driverSignature || r.details?.deliveryInspection?.driverSignature) {
-         if (r.details.pickupInspection?.driverSignature) documents.push(r.details.pickupInspection.driverSignature);
-         if (r.details.deliveryInspection?.driverSignature) documents.push(r.details.deliveryInspection.driverSignature);
+      if (r.details?.pickupInspection?.fuelGaugePhoto) {
+         documents.push({ url: r.details.pickupInspection.fuelGaugePhoto, type: 'Pickup_Fuel' });
+         documentChecklist[4].status = 'Complete';
+      }
+      if (r.details?.pickupInspection?.driverSignature) {
+         documents.push({ url: r.details.pickupInspection.driverSignature, type: 'Pickup_Signature' });
+         documentChecklist[5].status = 'Complete';
+      }
+      if (r.details?.deliveryInspection?.driverSignature) {
+         documents.push({ url: r.details.deliveryInspection.driverSignature, type: 'Delivery_Signature' });
          documentChecklist[5].status = 'Complete';
       }
 
-      if (documents.length > 0) {
-        documentChecklist[0].status = 'Complete'; // If we have docs, consider Vehicle Photos complete for now
+      // Add actual Vehicle Photos if any
+      if (r.details?.vehiclePhotos) {
+         const vPhotos = Array.isArray(r.details.vehiclePhotos) ? r.details.vehiclePhotos : [r.details.vehiclePhotos];
+         vPhotos.forEach((url: string) => documents.push({ url, type: 'Vehicle_Photo' }));
+         documentChecklist[0].status = 'Complete';
+      } else if (documents.length > 0) {
+         documentChecklist[0].status = 'Complete'; 
       }
 
       return {
         id: r._id,
         brandModel,
         type,
+        missionType: r.type,
         licensePlate,
         vin,
         engine,

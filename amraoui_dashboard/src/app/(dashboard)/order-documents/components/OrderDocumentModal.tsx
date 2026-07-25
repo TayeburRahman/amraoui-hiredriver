@@ -28,13 +28,48 @@ export const OrderDocumentModal: React.FC<OrderDocumentModalProps> = ({ vehicle,
       return;
     }
 
-    vehicle.documents.forEach((docItem: any) => {
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow z-[9999]';
+    toast.innerText = 'Preparing downloads, please wait...';
+    document.body.appendChild(toast);
+
+    for (let i = 0; i < vehicle.documents.length; i++) {
+      const docItem = vehicle.documents[i];
       const url = typeof docItem === 'string' ? docItem : docItem?.url || '';
+      const docType = typeof docItem === 'object' && docItem.type ? docItem.type : 'Document';
       const fullUrl = getProfileImageUrl(url);
-      if (fullUrl) {
+      
+      if (!fullUrl) continue;
+
+      try {
+        const response = await fetch(fullUrl);
+        if (!response.ok) throw new Error("Network response was not ok");
+        const blob = await response.blob();
+        
+        let ext = fullUrl.split('.').pop()?.split(/[#?]/)[0] || 'pdf';
+        if (ext.length > 5) ext = 'pdf'; 
+        
+        const mType = vehicle.missionType || 'MISSION';
+        const mId = vehicle.mission || 'ID';
+        const fileName = `${mType}_${mId}_${docType}_${i+1}.${ext}`.replace(/\s+/g, '_');
+        
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        
+        await new Promise(res => setTimeout(res, 400));
+      } catch (error) {
+        console.error("Failed to download via fetch, opening tab instead", error);
         window.open(fullUrl, '_blank');
       }
-    });
+    }
+    
+    document.body.removeChild(toast);
   };
 
   return (

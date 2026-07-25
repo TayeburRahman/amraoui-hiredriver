@@ -22,6 +22,7 @@ export default function InspectionDetails({ params }: { params: Promise<{ id: st
       // @ts-ignore
       const html2pdf = (await import('html2pdf.js')).default;
       const element = document.getElementById('full-inspection-report');
+      if (!element) throw new Error("Element not found");
       
       const opt: any = {
         margin:       10,

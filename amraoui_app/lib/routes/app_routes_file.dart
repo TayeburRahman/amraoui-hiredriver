@@ -3,7 +3,6 @@ import 'package:Vehiqqo/routes/Internet_check_middle_ware.dart';
 import 'package:Vehiqqo/routes/app_routes.dart';
 import 'package:Vehiqqo/screens/error_screen/error_screen.dart';
 import 'package:Vehiqqo/screens/splash_screen/splash_screen.dart';
-import 'package:Vehiqqo/screens/onboard_screen/onboard_screen.dart';
 import 'package:Vehiqqo/screens/auth/sign_in_screen.dart';
 import 'package:Vehiqqo/screens/auth/sign_up_screen.dart';
 import 'package:Vehiqqo/screens/auth/forgot_password_screen.dart';
@@ -30,7 +29,6 @@ List<GetPage> appRoutesFile = <GetPage>[
     middlewares: [InternetCheckMiddleWare()],
   ),
   GetPage(name: AppRoutes.errorScreen, page: () => const ErrorScreen()),
-  GetPage(name: AppRoutes.onBoardScreen, page: () => const OnboardScreen()),
   GetPage(name: AppRoutes.signIn, page: () => const SignInScreen()),
   GetPage(name: AppRoutes.signUp, page: () => const SignUpScreen()),
   GetPage(

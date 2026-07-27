@@ -39,12 +39,7 @@ class SplashScreenController extends GetxController {
 
   Future<void> nextScreen() async {
     try {
-      var onboard = AppStorage().getValue(StorageKey.onBoardValue);
       var token = AppStorage().getToken();
-      if (onboard == null) {
-        Get.toNamed(AppRoutes.onBoardScreen);
-        return;
-      }
       if (token.isEmpty) {
         Get.offAllNamed(AppRoutes.signIn);
         return;

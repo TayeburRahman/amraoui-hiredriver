@@ -9,7 +9,6 @@ class AppRoutes {
   static const initial = "/";
   static const errorScreen = "/error";
   static const signIn = "/signIn";
-  static const onBoardScreen = "/onBoardScreen";
   static const signUp = "/signUp";
   static const forgotPassword = "/forgotPassword";
   static const verifyCode = "/verifyCode";

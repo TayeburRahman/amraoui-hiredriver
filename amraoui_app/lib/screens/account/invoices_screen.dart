@@ -50,12 +50,12 @@ class InvoicesScreen extends StatelessWidget {
             else
               ...controller.completedMissions.map((mission) {
                 // Extract mission details
-                final idStr = mission['_id']
-                    .toString()
-                    .substring(0, 6)
-                    .toUpperCase();
+                final realId = mission['_id'].toString();
+                final idStr = realId.substring(0, 6).toUpperCase();
+                final missionNumber = mission['missionId'] ??
+                    '#REQ-${realId.substring(realId.length - 5).toUpperCase()}';
 
-                String route = 'Mission';
+                String route = 'Mission $missionNumber';
                 if (mission['type'] == 'TRANSPORT' &&
                     mission['detailsObj'] != null) {
                   final pickupCity =
@@ -64,10 +64,11 @@ class InvoicesScreen extends StatelessWidget {
                   final deliveryCity =
                       mission['detailsObj']['deliveryLocation']?['city'] ??
                       'Unknown';
-                  route = '$pickupCity → $deliveryCity';
-                } else if (mission['type'] == 'INSPECTION' ||
-                    mission['type'] == 'HIRE_DRIVER') {
-                  route = mission['type'];
+                  route = 'Mission $missionNumber ($pickupCity → $deliveryCity)';
+                } else if (mission['type'] == 'INSPECTION') {
+                  route = 'Inspection $missionNumber';
+                } else if (mission['type'] == 'HIRE_DRIVER') {
+                  route = 'Hire Driver $missionNumber';
                 }
 
                 double amount = 0.0;

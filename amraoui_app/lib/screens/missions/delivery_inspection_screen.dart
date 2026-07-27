@@ -392,7 +392,7 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                               ),
                               Gap(height: 4),
                               AppText(
-                                data: 'Optional proof of delivery',
+                                data: 'Required proof of delivery',
                                 fontSize: 12,
                                 color: Color(0xFF64748B),
                               ),
@@ -533,6 +533,29 @@ class _DeliveryInspectionScreenState extends State<DeliveryInspectionScreen> {
                 Get.snackbar(
                   'Incomplete',
                   'Please complete all $totalCount required sections before finishing.',
+                  backgroundColor: const Color(0xFFF59E0B),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.bottom,
+                );
+                return;
+              }
+
+              if (driverSelfiePath == null && existingDriverSelfieUrl == null) {
+                Get.snackbar(
+                  'Required',
+                  'Please take a driver selfie.',
+                  backgroundColor: const Color(0xFFF59E0B),
+                  colorText: Colors.white,
+                  snackPosition: SnackPosition.bottom,
+                );
+                return;
+              }
+
+              if (_signatureController.isEmpty &&
+                  existingDriverSignatureUrl == null) {
+                Get.snackbar(
+                  'Required',
+                  'Please provide your driver signature.',
                   backgroundColor: const Color(0xFFF59E0B),
                   colorText: Colors.white,
                   snackPosition: SnackPosition.bottom,

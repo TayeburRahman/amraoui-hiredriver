@@ -16,7 +16,7 @@ class HelpSupportScreen extends StatelessWidget {
           _supportTile(
             Icons.email_outlined,
             'Email Support',
-            'driver@Vehiqqo .com',
+            'driver@vehiqqo.com',
           ),
           const Gap(height: 12),
           _supportTile(

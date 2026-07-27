@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { use, useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import api from '@/lib/axios';
 import { Card } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import {
   Fuel,
   FileText,
   CheckCircle2,
+  Loader2,
 } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { formatDate, formatDateTime } from '@/lib/dateUtils';
@@ -53,7 +54,7 @@ const PhotosModalContent = ({ type, data }: { type: 'pickup' | 'delivery', data:
           {allPhotos.map((photo, i) => (
             <div key={i} className="aspect-square rounded-[2rem] bg-blue-50/50 border border-slate-100 border-dashed overflow-hidden flex flex-col relative group">
               <a href={photo.url} target="_blank" rel="noreferrer" className="absolute inset-0 cursor-pointer block hover:opacity-90 transition-opacity">
-                <img src={photo.url} alt={photo.label} className="w-full h-full object-cover" />
+                <img src={photo.url} alt={photo.label} className="w-full h-full object-cover" crossOrigin="anonymous" />
               </a>
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 pb-3 pointer-events-none">
                 <p className="font-bold text-white text-xs z-10">{photo.label}</p>
@@ -109,7 +110,7 @@ const DamageModalContent = ({ data }: { data: any }) => {
             {report.photo && (
               <div className="aspect-video rounded-2xl border border-slate-200 overflow-hidden mt-4 group">
                 <a href={report.photo} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                  <img src={report.photo} alt="Damage proof" className="w-full h-full object-cover" />
+                  <img src={report.photo} alt="Damage proof" className="w-full h-full object-cover" crossOrigin="anonymous" />
                 </a>
               </div>
             )}
@@ -151,7 +152,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
         {sig.signaturePhoto && (
           <div className="h-40 rounded-2xl border-2 border-dashed border-blue-200 bg-white flex items-center justify-center p-4 group">
             <a href={sig.signaturePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-              <img src={sig.signaturePhoto} alt="Signature" className="h-full w-full object-contain" />
+              <img src={sig.signaturePhoto} alt="Signature" className="h-full w-full object-contain" crossOrigin="anonymous" />
             </a>
           </div>
         )}
@@ -173,7 +174,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
               <p className="text-xs font-bold text-slate-400 mb-2">ID Front</p>
               <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group">
                 <a href={receiver.idFront} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                  <img src={receiver.idFront} alt="ID Front" className="h-full w-full object-contain" />
+                  <img src={receiver.idFront} alt="ID Front" className="h-full w-full object-contain" crossOrigin="anonymous" />
                 </a>
               </div>
             </div>
@@ -183,7 +184,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
               <p className="text-xs font-bold text-slate-400 mb-2">ID Back</p>
               <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group">
                 <a href={receiver.idBack} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                  <img src={receiver.idBack} alt="ID Back" className="h-full w-full object-contain" />
+                  <img src={receiver.idBack} alt="ID Back" className="h-full w-full object-contain" crossOrigin="anonymous" />
                 </a>
               </div>
             </div>
@@ -204,7 +205,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
               <p className="text-xs font-bold text-slate-400 mb-2">Driver Selfie</p>
               <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group">
                 <a href={conf.driverSelfiePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                  <img src={conf.driverSelfiePhoto} alt="Driver Selfie" className="h-full w-full object-contain" />
+                  <img src={conf.driverSelfiePhoto} alt="Driver Selfie" className="h-full w-full object-contain" crossOrigin="anonymous" />
                 </a>
               </div>
             </div>
@@ -214,7 +215,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
               <p className="text-xs font-bold text-slate-400 mb-2">Driver Signature</p>
               <div className="h-40 rounded-2xl border-2 border-dashed border-slate-200 bg-white flex items-center justify-center p-4 group">
                 <a href={conf.driverSignaturePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                  <img src={conf.driverSignaturePhoto} alt="Driver Signature" className="h-full w-full object-contain" />
+                  <img src={conf.driverSignaturePhoto} alt="Driver Signature" className="h-full w-full object-contain" crossOrigin="anonymous" />
                 </a>
               </div>
             </div>
@@ -299,7 +300,7 @@ const MileageModalContent = ({ data }: { data: any }) => {
               {pickup.fuelGaugePhoto && (
                 <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
                   <a href={pickup.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                    <img src={pickup.fuelGaugePhoto} alt="Pickup fuel gauge" className="w-full h-full object-cover" />
+                    <img src={pickup.fuelGaugePhoto} alt="Pickup fuel gauge" className="w-full h-full object-cover" crossOrigin="anonymous" />
                   </a>
                 </div>
               )}
@@ -312,7 +313,7 @@ const MileageModalContent = ({ data }: { data: any }) => {
               {delivery.fuelGaugePhoto && (
                 <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
                   <a href={delivery.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                    <img src={delivery.fuelGaugePhoto} alt="Delivery fuel gauge" className="w-full h-full object-cover" />
+                    <img src={delivery.fuelGaugePhoto} alt="Delivery fuel gauge" className="w-full h-full object-cover" crossOrigin="anonymous" />
                   </a>
                 </div>
               )}
@@ -330,7 +331,7 @@ const MileageModalContent = ({ data }: { data: any }) => {
                   <p className="text-xs font-bold text-slate-400 mb-2">Pickup Odometer</p>
                   <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden group">
                     <a href={pickup.odometerPhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                      <img src={pickup.odometerPhoto} alt="Pickup Odometer" className="w-full h-full object-cover" />
+                      <img src={pickup.odometerPhoto} alt="Pickup Odometer" className="w-full h-full object-cover" crossOrigin="anonymous" />
                     </a>
                   </div>
                 </div>
@@ -340,7 +341,7 @@ const MileageModalContent = ({ data }: { data: any }) => {
                   <p className="text-xs font-bold text-slate-400 mb-2">Delivery Odometer</p>
                   <div className="aspect-video rounded-2xl border border-slate-200 bg-white flex items-center justify-center overflow-hidden group">
                     <a href={delivery.odometerPhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
-                      <img src={delivery.odometerPhoto} alt="Delivery Odometer" className="w-full h-full object-cover" />
+                      <img src={delivery.odometerPhoto} alt="Delivery Odometer" className="w-full h-full object-cover" crossOrigin="anonymous" />
                     </a>
                   </div>
                 </div>
@@ -441,6 +442,29 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const generatePDF = async () => {
+    if (!reportRef.current) return;
+    setIsGeneratingPDF(true);
+    try {
+      const html2pdf = (await import('html2pdf.js')).default;
+      const opt: any = {
+        margin:       10,
+        filename:     `order_report_${id.replace('#', '')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 1200 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      await html2pdf().from(reportRef.current).set(opt).save();
+    } catch (err) {
+      console.error('Error generating PDF', err);
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   useEffect(() => {
     const fetchMission = async () => {
@@ -520,10 +544,14 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
             </div>
             <p className="text-sm font-medium text-slate-400 mt-2">Order {orderId}</p>
           </div>
-          {/* <Button className="bg-brand-blue hover:bg-brand-blue-hover text-white font-bold rounded-2xl h-11 px-6 shadow-md shadow-blue-100 w-full sm:w-auto" onClick={() => window.print()}>
-            <Download className="mr-2 h-4 w-4" />
-            {t.orders.deliveryReport?.downloadReport || 'Print / Save Report'}
-          </Button> */}
+          <Button 
+            className="bg-brand-blue hover:bg-brand-blue-hover text-white font-bold rounded-2xl h-11 px-6 shadow-md shadow-blue-100 w-full sm:w-auto" 
+            onClick={generatePDF}
+            disabled={isGeneratingPDF}
+          >
+            {isGeneratingPDF ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            {isGeneratingPDF ? 'Generating PDF...' : (t.orders.deliveryReport?.downloadReport || 'Download Report')}
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -762,6 +790,53 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
           {activeModal === 'documents' && <DocumentsModalContent data={d} />}
         </DialogContent>
       </Dialog>
+
+      {/* Hidden PDF Layout */}
+      <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', opacity: 0, pointerEvents: 'none', zIndex: -1 }}>
+        <div ref={reportRef} className="p-10 bg-white text-slate-800" style={{ width: '1200px' }}>
+          <h1 className="text-4xl font-black text-brand-text mb-4">Order Report: {orderId}</h1>
+          <div className="grid grid-cols-2 gap-4 mb-8 text-lg border-b pb-8">
+            <div><strong>Status:</strong> {mission.status}</div>
+            <div><strong>Vehicle:</strong> {isHireDriver ? (d.driverTasks || []).join(', ') : `${d.make || d.vehicleBrand || 'N/A'} ${d.model || d.vehicleModel || ''}`}</div>
+            <div><strong>Location/Route:</strong> {routeText}</div>
+            <div><strong>Pickup Time:</strong> {d.pickupVerification?.verifiedAt ? formatDate(d.pickupVerification.verifiedAt) : 'Pending'}</div>
+            <div><strong>Delivery Time:</strong> {deliveryDate ? formatDate(deliveryDate) : 'Pending'}</div>
+          </div>
+          
+          <div className="space-y-12">
+            {!isHireDriver && (
+              <>
+                <div>
+                  <h2 className="text-2xl font-bold mb-4 border-b pb-2">Pickup Photos</h2>
+                  <PhotosModalContent type="pickup" data={d} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold mb-4 border-b pb-2">Delivery Photos</h2>
+                  <PhotosModalContent type="delivery" data={d} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold mb-4 border-b pb-2">Damage Report</h2>
+                  <DamageModalContent data={d} />
+                </div>
+              </>
+            )}
+            <div>
+              <h2 className="text-2xl font-bold mb-4 border-b pb-2">Signatures & Proof</h2>
+              <SignatureModalContent data={d} />
+            </div>
+            {!isHireDriver && (
+              <div>
+                <h2 className="text-2xl font-bold mb-4 border-b pb-2">Mileage & Fuel</h2>
+                <MileageModalContent data={d} />
+              </div>
+            )}
+            <div>
+              <h2 className="text-2xl font-bold mb-4 border-b pb-2">Documents</h2>
+              <DocumentsModalContent data={d} />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

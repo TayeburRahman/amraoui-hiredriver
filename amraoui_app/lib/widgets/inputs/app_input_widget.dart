@@ -24,7 +24,7 @@ class AppInputWidget extends StatefulWidget {
     this.borderRadius,
     this.contentPadding,
     this.style,
-    this.maxLines,
+    this.maxLines = 1,
     this.onFieldSubmitted,
     this.onTap,
     this.filled = true,

@@ -44,7 +44,9 @@ export async function apiFetch<T = unknown>(
     requestHeaders.set("Content-Type", "application/json");
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const finalUrl = `${API_BASE.trim()}${path.trim()}`;
+  console.log(`[apiFetch] Requesting: ${finalUrl}`);
+  const res = await fetch(finalUrl, {
     ...rest,
     headers: requestHeaders,
   });

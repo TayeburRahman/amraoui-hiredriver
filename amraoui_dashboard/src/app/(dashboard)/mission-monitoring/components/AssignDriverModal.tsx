@@ -100,8 +100,8 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white z-10">
           <div>
             <h3 className="text-xl font-bold text-gray-900">Assign Driver</h3>
             <p className="text-gray-500 text-sm mt-1">Select a driver for this mission.</p>
@@ -110,145 +110,153 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({ isOpen, on
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-        <div className="p-4 border-b border-gray-100">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by name, email, or ID..."
-              value={driverSearch}
-              onChange={(e) => setDriverSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-        <div className="p-6 overflow-y-auto flex-1">
-          {isFetchingDrivers ? (
-            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-600" /></div>
-          ) : (
-            <div className="space-y-3">
-              {drivers.filter(d =>
-                (d.name || d.firstName + ' ' + d.lastName)?.toLowerCase().includes(driverSearch.toLowerCase()) ||
-                (d.email || d.authId?.email)?.toLowerCase().includes(driverSearch.toLowerCase()) ||
-                d._id.toLowerCase().includes(driverSearch.toLowerCase()) ||
-                (d.phone_number || d.phone)?.toLowerCase().includes(driverSearch.toLowerCase())
-              ).map(driver => (
-                <label key={driver._id} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${selectedDriverId === driver._id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>
-                  <input type="radio" name="driver" value={driver._id} checked={selectedDriverId === driver._id} onChange={() => setSelectedDriverId(driver._id)} className="w-4 h-4 text-blue-600 shrink-0" />
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
-                    {driver.profile_image ? (
-                      <img src={getProfileImageUrl(driver.profile_image) || ''} alt={driver.name || 'Driver'} className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-5 h-5 text-gray-400" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm truncate">{driver.name || driver.firstName + ' ' + driver.lastName}</p>
-                    <p className="text-xs text-gray-500 truncate">{driver.phone_number || driver.phone || driver.email || driver.authId?.email}</p>
-                  </div>
-                </label>
-              ))}
-              {drivers.length > 0 && drivers.filter(d =>
-                (d.name || d.firstName + ' ' + d.lastName)?.toLowerCase().includes(driverSearch.toLowerCase()) ||
-                (d.email || d.authId?.email)?.toLowerCase().includes(driverSearch.toLowerCase()) ||
-                d._id.toLowerCase().includes(driverSearch.toLowerCase()) ||
-                (d.phone_number || d.phone)?.toLowerCase().includes(driverSearch.toLowerCase())
-              ).length === 0 && <p className="text-center text-gray-500 py-4">No drivers match your search.</p>}
-              {drivers.length === 0 && <p className="text-center text-gray-500 py-4">No drivers found.</p>}
-            </div>
-          )}
-        </div>
         
-        {/* Quote Breakdown Section */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50 flex flex-col gap-3">
-          <label className="block text-sm font-semibold text-gray-900 mb-1">Quote Breakdown (Required)</label>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Service Price (€)</label>
-              <input type="number" placeholder="0" value={servicePrice} onChange={(e) => setServicePrice(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Fuel Cost (€)</label>
-              <input type="number" placeholder="0" value={fuelCost} onChange={(e) => setFuelCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Toll Charges (€)</label>
-              <input type="number" placeholder="0" value={tollCharges} onChange={(e) => setTollCharges(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Travel Cost (€)</label>
-              <input type="number" placeholder="0" value={travelCost} onChange={(e) => setTravelCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Taxi Cost (€)</label>
-              <input type="number" placeholder="0" value={taxiCost} onChange={(e) => setTaxiCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Total Amount (€)</label>
-              <input type="number" value={totalAmount} disabled className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-sm font-bold text-gray-900 cursor-not-allowed" />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Pickup Date</label>
-              <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Pickup Time</label>
-              <div className="flex items-center gap-1">
-                <select
-                  value={pickupTime ? pickupTime.split(':')[0] : '12'}
-                  onChange={(e) => setPickupTime(`${e.target.value}:${pickupTime ? pickupTime.split(':')[1] : '00'}`)}
-                  className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
-                >
-                  {Array.from({ length: 24 }).map((_, i) => (
-                    <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
-                  ))}
-                </select>
-                <span className="text-gray-500 font-bold">:</span>
-                <select
-                  value={pickupTime ? pickupTime.split(':')[1] : '00'}
-                  onChange={(e) => setPickupTime(`${pickupTime ? pickupTime.split(':')[0] : '12'}:${e.target.value}`)}
-                  className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
-                >
-                  {Array.from({ length: 60 }).map((_, i) => (
-                    <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
-                  ))}
-                </select>
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          {/* Left Column: Driver Selection */}
+          <div className="flex-1 flex flex-col border-r border-gray-100 bg-white">
+            <div className="p-4 border-b border-gray-100">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name, email, or ID..."
+                  value={driverSearch}
+                  onChange={(e) => setDriverSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
             </div>
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Dropoff Date</label>
-              <input type="date" value={dropoffDate} onChange={(e) => setDropoffDate(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-700 mb-1">Dropoff Time</label>
-              <div className="flex items-center gap-1">
-                <select
-                  value={dropoffTime ? dropoffTime.split(':')[0] : '12'}
-                  onChange={(e) => setDropoffTime(`${e.target.value}:${dropoffTime ? dropoffTime.split(':')[1] : '00'}`)}
-                  className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
-                >
-                  {Array.from({ length: 24 }).map((_, i) => (
-                    <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
+            <div className="p-4 overflow-y-auto flex-1">
+              {isFetchingDrivers ? (
+                <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-blue-600" /></div>
+              ) : (
+                <div className="space-y-3">
+                  {drivers.filter(d =>
+                    (d.name || d.firstName + ' ' + d.lastName)?.toLowerCase().includes(driverSearch.toLowerCase()) ||
+                    (d.email || d.authId?.email)?.toLowerCase().includes(driverSearch.toLowerCase()) ||
+                    d._id.toLowerCase().includes(driverSearch.toLowerCase()) ||
+                    (d.phone_number || d.phone)?.toLowerCase().includes(driverSearch.toLowerCase())
+                  ).map(driver => (
+                    <label key={driver._id} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${selectedDriverId === driver._id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}>
+                      <input type="radio" name="driver" value={driver._id} checked={selectedDriverId === driver._id} onChange={() => setSelectedDriverId(driver._id)} className="w-4 h-4 text-blue-600 shrink-0" />
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0 border border-gray-200">
+                        {driver.profile_image ? (
+                          <img src={getProfileImageUrl(driver.profile_image) || ''} alt={driver.name || 'Driver'} className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-5 h-5 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 text-sm truncate">{driver.name || driver.firstName + ' ' + driver.lastName}</p>
+                        <p className="text-xs text-gray-500 truncate">{driver.phone_number || driver.phone || driver.email || driver.authId?.email}</p>
+                      </div>
+                    </label>
                   ))}
-                </select>
-                <span className="text-gray-500 font-bold">:</span>
-                <select
-                  value={dropoffTime ? dropoffTime.split(':')[1] : '00'}
-                  onChange={(e) => setDropoffTime(`${dropoffTime ? dropoffTime.split(':')[0] : '12'}:${e.target.value}`)}
-                  className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
-                >
-                  {Array.from({ length: 60 }).map((_, i) => (
-                    <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
-                  ))}
-                </select>
-              </div>
+                  {drivers.length > 0 && drivers.filter(d =>
+                    (d.name || d.firstName + ' ' + d.lastName)?.toLowerCase().includes(driverSearch.toLowerCase()) ||
+                    (d.email || d.authId?.email)?.toLowerCase().includes(driverSearch.toLowerCase()) ||
+                    d._id.toLowerCase().includes(driverSearch.toLowerCase()) ||
+                    (d.phone_number || d.phone)?.toLowerCase().includes(driverSearch.toLowerCase())
+                  ).length === 0 && <p className="text-center text-gray-500 py-4">No drivers match your search.</p>}
+                  {drivers.length === 0 && <p className="text-center text-gray-500 py-4">No drivers found.</p>}
+                </div>
+              )}
             </div>
           </div>
-          <div>
-            <label className="block text-xs text-gray-600 mb-1">Message (Optional)</label>
-            <textarea placeholder="Message to driver..." value={message} onChange={(e) => setMessage(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows={2}></textarea>
+          
+          {/* Right Column: Quote Breakdown */}
+          <div className="w-full md:w-96 flex flex-col overflow-y-auto bg-gray-50">
+            <div className="p-6 flex flex-col gap-4">
+              <h4 className="text-sm font-bold text-gray-900 border-b border-gray-200 pb-2">Quote Breakdown (Required)</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Service Price (€)</label>
+                  <input type="number" placeholder="0" value={servicePrice} onChange={(e) => setServicePrice(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Fuel Cost (€)</label>
+                  <input type="number" placeholder="0" value={fuelCost} onChange={(e) => setFuelCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Toll Charges (€)</label>
+                  <input type="number" placeholder="0" value={tollCharges} onChange={(e) => setTollCharges(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Travel Cost (€)</label>
+                  <input type="number" placeholder="0" value={travelCost} onChange={(e) => setTravelCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Taxi Cost (€)</label>
+                  <input type="number" placeholder="0" value={taxiCost} onChange={(e) => setTaxiCost(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-900 mb-1">Total Amount (€)</label>
+                  <input type="number" value={totalAmount} disabled className="w-full px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm font-bold text-blue-900 cursor-not-allowed" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Pickup Date</label>
+                  <input type="date" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Pickup Time</label>
+                  <div className="flex items-center gap-1">
+                    <select
+                      value={pickupTime ? pickupTime.split(':')[0] : '12'}
+                      onChange={(e) => setPickupTime(`${e.target.value}:${pickupTime ? pickupTime.split(':')[1] : '00'}`)}
+                      className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                    >
+                      {Array.from({ length: 24 }).map((_, i) => (
+                        <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
+                      ))}
+                    </select>
+                    <span className="text-gray-500 font-bold">:</span>
+                    <select
+                      value={pickupTime ? pickupTime.split(':')[1] : '00'}
+                      onChange={(e) => setPickupTime(`${pickupTime ? pickupTime.split(':')[0] : '12'}:${e.target.value}`)}
+                      className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                    >
+                      {Array.from({ length: 60 }).map((_, i) => (
+                        <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Dropoff Date</label>
+                  <input type="date" value={dropoffDate} onChange={(e) => setDropoffDate(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Dropoff Time</label>
+                  <div className="flex items-center gap-1">
+                    <select
+                      value={dropoffTime ? dropoffTime.split(':')[0] : '12'}
+                      onChange={(e) => setDropoffTime(`${e.target.value}:${dropoffTime ? dropoffTime.split(':')[1] : '00'}`)}
+                      className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                    >
+                      {Array.from({ length: 24 }).map((_, i) => (
+                        <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
+                      ))}
+                    </select>
+                    <span className="text-gray-500 font-bold">:</span>
+                    <select
+                      value={dropoffTime ? dropoffTime.split(':')[1] : '00'}
+                      onChange={(e) => setDropoffTime(`${dropoffTime ? dropoffTime.split(':')[0] : '12'}:${e.target.value}`)}
+                      className="w-full px-2 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                    >
+                      {Array.from({ length: 60 }).map((_, i) => (
+                        <option key={i} value={i.toString().padStart(2, '0')}>{i.toString().padStart(2, '0')}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-2">
+                <label className="block text-xs font-semibold text-gray-600 mb-1">Message (Optional)</label>
+                <textarea placeholder="Message to driver..." value={message} onChange={(e) => setMessage(e.target.value)} className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" rows={2}></textarea>
+              </div>
+            </div>
           </div>
         </div>
 

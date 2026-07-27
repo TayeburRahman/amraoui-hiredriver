@@ -30,7 +30,7 @@ type ModalType = 'pickupPhotos' | 'deliveryPhotos' | 'damage' | 'signature' | 'm
 
 // --- Modals Components ---
 
-const PhotosModalContent = ({ type, data }: { type: 'pickup' | 'delivery', data: any }) => {
+const PhotosModalContent = ({ type, data, hideHeader }: { type: 'pickup' | 'delivery', data: any, hideHeader?: boolean }) => {
   const inspection = type === 'pickup' ? data?.pickupInspection : data?.deliveryInspection;
   const exterior = inspection?.exteriorPhotos || {};
   const interior = inspection?.interiorPhotos || {};
@@ -42,15 +42,17 @@ const PhotosModalContent = ({ type, data }: { type: 'pickup' | 'delivery', data:
 
   return (
     <>
-      <DialogHeader className="mb-6 text-left">
-        <DialogTitle className="text-2xl font-black text-brand-text">
-          {type === 'pickup' ? 'Pickup' : 'Delivery'} Inspection Photos
-        </DialogTitle>
-      </DialogHeader>
+      {!hideHeader && (
+        <DialogHeader className="mb-6 text-left">
+          <DialogTitle className="text-2xl font-black text-brand-text">
+            {type === 'pickup' ? 'Pickup' : 'Delivery'} Inspection Photos
+          </DialogTitle>
+        </DialogHeader>
+      )}
       {allPhotos.length === 0 ? (
         <div className="text-center p-8 text-slate-500 font-medium">No photos uploaded</div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className={hideHeader ? "grid grid-cols-1 sm:grid-cols-2 gap-8" : "grid grid-cols-2 md:grid-cols-3 gap-4"}>
           {allPhotos.map((photo, i) => (
             <div key={i} className="aspect-square rounded-[2rem] bg-blue-50/50 border border-slate-100 border-dashed overflow-hidden flex flex-col relative group">
               <a href={photo.url} target="_blank" rel="noreferrer" className="absolute inset-0 cursor-pointer block hover:opacity-90 transition-opacity">
@@ -67,7 +69,7 @@ const PhotosModalContent = ({ type, data }: { type: 'pickup' | 'delivery', data:
   );
 };
 
-const DamageModalContent = ({ data }: { data: any }) => {
+const DamageModalContent = ({ data, hideHeader }: { data: any, hideHeader?: boolean }) => {
   const pickupDamage = data?.pickupInspection?.damageReport;
   const deliveryDamage = data?.deliveryInspection?.damageReport;
 
@@ -122,11 +124,13 @@ const DamageModalContent = ({ data }: { data: any }) => {
 
   return (
     <>
-      <DialogHeader className="mb-8 text-center sm:text-center">
-        <DialogTitle className="text-3xl font-black text-brand-text">Damage Report</DialogTitle>
-        <p className="text-slate-500 font-medium">Vehicle condition inspection</p>
-      </DialogHeader>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      {!hideHeader && (
+        <DialogHeader className="mb-8 text-center sm:text-center">
+          <DialogTitle className="text-3xl font-black text-brand-text">Damage Report</DialogTitle>
+          <p className="text-slate-500 font-medium">Vehicle condition inspection</p>
+        </DialogHeader>
+      )}
+      <div className={hideHeader ? "space-y-8" : "grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"}>
         {renderDamage(pickupDamage, "Pickup Inspection")}
         {renderDamage(deliveryDamage, "Delivery Inspection")}
       </div>
@@ -134,7 +138,7 @@ const DamageModalContent = ({ data }: { data: any }) => {
   );
 };
 
-const SignatureModalContent = ({ data }: { data: any }) => {
+const SignatureModalContent = ({ data, hideHeader }: { data: any, hideHeader?: boolean }) => {
   const pickupSig = data?.pickupInspection?.customerSignature;
   const deliverySig = data?.deliveryInspection?.customerSignature;
 
@@ -150,7 +154,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
         <h4 className="font-bold text-brand-text">{title}</h4>
         <p className="text-slate-500 font-medium text-sm">Customer Name: <span className="font-bold text-brand-text">{sig.customerName}</span></p>
         {sig.signaturePhoto && (
-          <div className="h-40 rounded-2xl border-2 border-dashed border-blue-200 bg-white flex items-center justify-center p-4 group">
+          <div className={hideHeader ? "h-64 rounded-2xl border-2 border-dashed border-blue-200 bg-white flex items-center justify-center p-4 group" : "h-40 rounded-2xl border-2 border-dashed border-blue-200 bg-white flex items-center justify-center p-4 group"}>
             <a href={sig.signaturePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
               <img src={sig.signaturePhoto} alt="Signature" className="h-full w-full object-contain" crossOrigin="anonymous" />
             </a>
@@ -172,7 +176,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
           {receiver.idFront && (
             <div>
               <p className="text-xs font-bold text-slate-400 mb-2">ID Front</p>
-              <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group">
+              <div className={hideHeader ? "h-64 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group" : "h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group"}>
                 <a href={receiver.idFront} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
                   <img src={receiver.idFront} alt="ID Front" className="h-full w-full object-contain" crossOrigin="anonymous" />
                 </a>
@@ -182,7 +186,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
           {receiver.idBack && (
             <div>
               <p className="text-xs font-bold text-slate-400 mb-2">ID Back</p>
-              <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group">
+              <div className={hideHeader ? "h-64 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group" : "h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group"}>
                 <a href={receiver.idBack} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
                   <img src={receiver.idBack} alt="ID Back" className="h-full w-full object-contain" crossOrigin="anonymous" />
                 </a>
@@ -203,7 +207,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
           {conf.driverSelfiePhoto && (
             <div>
               <p className="text-xs font-bold text-slate-400 mb-2">Driver Selfie</p>
-              <div className="h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group">
+              <div className={hideHeader ? "h-80 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group" : "h-40 rounded-2xl border border-slate-200 bg-white flex items-center justify-center p-2 group"}>
                 <a href={conf.driverSelfiePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
                   <img src={conf.driverSelfiePhoto} alt="Driver Selfie" className="h-full w-full object-contain" crossOrigin="anonymous" />
                 </a>
@@ -213,7 +217,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
           {conf.driverSignaturePhoto && (
             <div>
               <p className="text-xs font-bold text-slate-400 mb-2">Driver Signature</p>
-              <div className="h-40 rounded-2xl border-2 border-dashed border-slate-200 bg-white flex items-center justify-center p-4 group">
+              <div className={hideHeader ? "h-64 rounded-2xl border-2 border-dashed border-slate-200 bg-white flex items-center justify-center p-4 group" : "h-40 rounded-2xl border-2 border-dashed border-slate-200 bg-white flex items-center justify-center p-4 group"}>
                 <a href={conf.driverSignaturePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
                   <img src={conf.driverSignaturePhoto} alt="Driver Signature" className="h-full w-full object-contain" crossOrigin="anonymous" />
                 </a>
@@ -230,9 +234,11 @@ const SignatureModalContent = ({ data }: { data: any }) => {
 
   return (
     <>
-      <DialogHeader className="mb-6 text-left">
-        <DialogTitle className="text-2xl font-black text-brand-text">Customer Signatures</DialogTitle>
-      </DialogHeader>
+      {!hideHeader && (
+        <DialogHeader className="mb-6 text-left">
+          <DialogTitle className="text-2xl font-black text-brand-text">Customer Signatures</DialogTitle>
+        </DialogHeader>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {renderSig(pickupSig, "Pickup Signature")}
         {renderSig(deliverySig, "Delivery Signature")}
@@ -243,7 +249,7 @@ const SignatureModalContent = ({ data }: { data: any }) => {
   );
 };
 
-const MileageModalContent = ({ data }: { data: any }) => {
+const MileageModalContent = ({ data, hideHeader }: { data: any, hideHeader?: boolean }) => {
   const pickup = data?.pickupInspection?.mileageAndFuel || {};
   const delivery = data?.deliveryInspection?.mileageAndFuel || {};
 
@@ -253,9 +259,11 @@ const MileageModalContent = ({ data }: { data: any }) => {
 
   return (
     <>
-      <DialogHeader className="mb-8 text-center sm:text-center">
-        <DialogTitle className="text-3xl font-black text-brand-text">Mileage & Fuel Tracking</DialogTitle>
-      </DialogHeader>
+      {!hideHeader && (
+        <DialogHeader className="mb-8 text-center sm:text-center">
+          <DialogTitle className="text-3xl font-black text-brand-text">Mileage & Fuel Tracking</DialogTitle>
+        </DialogHeader>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         <div className="rounded-[2rem] p-6 sm:p-8 bg-white border border-slate-100 shadow-sm space-y-6">
           <div className="flex items-center gap-3">
@@ -298,7 +306,7 @@ const MileageModalContent = ({ data }: { data: any }) => {
                 <span className="text-2xl font-black text-brand-blue">{pickup.fuelLevel || 'N/A'}</span>
               </div>
               {pickup.fuelGaugePhoto && (
-                <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
+                <div className={hideHeader ? "mt-2 h-40 w-full rounded-xl border border-slate-200 overflow-hidden group" : "mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group"}>
                   <a href={pickup.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
                     <img src={pickup.fuelGaugePhoto} alt="Pickup fuel gauge" className="w-full h-full object-cover" crossOrigin="anonymous" />
                   </a>
@@ -311,7 +319,7 @@ const MileageModalContent = ({ data }: { data: any }) => {
                 <span className="text-2xl font-black text-brand-text">{delivery.fuelLevel || 'N/A'}</span>
               </div>
               {delivery.fuelGaugePhoto && (
-                <div className="mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group">
+                <div className={hideHeader ? "mt-2 h-40 w-full rounded-xl border border-slate-200 overflow-hidden group" : "mt-2 h-16 w-full rounded border border-slate-200 overflow-hidden group"}>
                   <a href={delivery.fuelGaugePhoto} target="_blank" rel="noreferrer" className="block w-full h-full cursor-pointer hover:opacity-90 transition-opacity">
                     <img src={delivery.fuelGaugePhoto} alt="Delivery fuel gauge" className="w-full h-full object-cover" crossOrigin="anonymous" />
                   </a>
@@ -325,7 +333,7 @@ const MileageModalContent = ({ data }: { data: any }) => {
         {(pickup.odometerPhoto || delivery.odometerPhoto) && (
           <div className="rounded-[2rem] p-6 sm:p-8 bg-white border border-slate-100 shadow-sm md:col-span-2">
             <h3 className="text-lg font-bold text-brand-text mb-4">Odometer Proof Photos</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className={hideHeader ? "grid grid-cols-1 gap-8" : "grid grid-cols-1 sm:grid-cols-2 gap-4"}>
               {pickup.odometerPhoto && (
                 <div>
                   <p className="text-xs font-bold text-slate-400 mb-2">Pickup Odometer</p>
@@ -354,16 +362,18 @@ const MileageModalContent = ({ data }: { data: any }) => {
   );
 };
 
-const DocumentsModalContent = ({ data }: { data: any }) => {
+const DocumentsModalContent = ({ data, hideHeader }: { data: any, hideHeader?: boolean }) => {
   const pDocs = data?.pickupInspection?.uploadDocuments || [];
   const dDocs = data?.deliveryInspection?.uploadDocuments || [];
   const hasNoDocs = pDocs.length === 0 && dDocs.length === 0;
 
   return (
     <>
-      <DialogHeader className="mb-8 text-center sm:text-center">
-        <DialogTitle className="text-3xl font-black text-brand-text">Documents & Proof</DialogTitle>
-      </DialogHeader>
+      {!hideHeader && (
+        <DialogHeader className="mb-8 text-center sm:text-center">
+          <DialogTitle className="text-3xl font-black text-brand-text">Documents & Proof</DialogTitle>
+        </DialogHeader>
+      )}
 
       {hasNoDocs ? (
         <div className="text-center p-8 text-slate-500 font-medium">No documents uploaded</div>
@@ -449,16 +459,37 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
     if (!reportRef.current) return;
     setIsGeneratingPDF(true);
     try {
-      const html2pdf = (await import('html2pdf.js')).default;
-      const opt: any = {
-        margin:       10,
-        filename:     `order_report_${id.replace('#', '')}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 1200 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+      const htmlToImage = await import('html-to-image');
+      const { jsPDF } = await import('jspdf');
       
-      await html2pdf().from(reportRef.current).set(opt).save();
+      const dataUrl = await htmlToImage.toJpeg(reportRef.current, { 
+        quality: 0.95, 
+        backgroundColor: '#ffffff', 
+        pixelRatio: 2 
+      });
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const imgWidth = pdfWidth;
+      const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      pdf.addImage(dataUrl, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+      
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(dataUrl, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+      
+      pdf.save(`order_report_${id.replace('#', '')}.pdf`);
     } catch (err) {
       console.error('Error generating PDF', err);
     } finally {
@@ -794,7 +825,13 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
       {/* Hidden PDF Layout */}
       <div style={{ position: 'absolute', top: '-9999px', left: '-9999px', opacity: 0, pointerEvents: 'none', zIndex: -1 }}>
         <div ref={reportRef} className="p-10 bg-white text-slate-800" style={{ width: '1200px' }}>
-          <h1 className="text-4xl font-black text-brand-text mb-4">Order Report: {orderId}</h1>
+          <div className="flex items-center justify-between mb-8 pb-4 border-b">
+            <img src="/assets/logo.png" alt="Vehiqqo" className="h-16 w-auto" crossOrigin="anonymous" />
+            <div className="text-right">
+              <h1 className="text-4xl font-black text-brand-text mb-2">Order Report: {orderId}</h1>
+              <p className="text-slate-500 font-medium text-lg">Generated on {formatDate(new Date())}</p>
+            </div>
+          </div>
           <div className="grid grid-cols-2 gap-4 mb-8 text-lg border-b pb-8">
             <div><strong>Status:</strong> {mission.status}</div>
             <div><strong>Vehicle:</strong> {isHireDriver ? (d.driverTasks || []).join(', ') : `${d.make || d.vehicleBrand || 'N/A'} ${d.model || d.vehicleModel || ''}`}</div>
@@ -808,31 +845,31 @@ export default function DeliveryReportPage({ params }: { params: Promise<{ id: s
               <>
                 <div>
                   <h2 className="text-2xl font-bold mb-4 border-b pb-2">Pickup Photos</h2>
-                  <PhotosModalContent type="pickup" data={d} />
+                  <PhotosModalContent type="pickup" data={d} hideHeader={true} />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold mb-4 border-b pb-2">Delivery Photos</h2>
-                  <PhotosModalContent type="delivery" data={d} />
+                  <PhotosModalContent type="delivery" data={d} hideHeader={true} />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold mb-4 border-b pb-2">Damage Report</h2>
-                  <DamageModalContent data={d} />
+                  <DamageModalContent data={d} hideHeader={true} />
                 </div>
               </>
             )}
             <div>
               <h2 className="text-2xl font-bold mb-4 border-b pb-2">Signatures & Proof</h2>
-              <SignatureModalContent data={d} />
+              <SignatureModalContent data={d} hideHeader={true} />
             </div>
             {!isHireDriver && (
               <div>
                 <h2 className="text-2xl font-bold mb-4 border-b pb-2">Mileage & Fuel</h2>
-                <MileageModalContent data={d} />
+                <MileageModalContent data={d} hideHeader={true} />
               </div>
             )}
             <div>
               <h2 className="text-2xl font-bold mb-4 border-b pb-2">Documents</h2>
-              <DocumentsModalContent data={d} />
+              <DocumentsModalContent data={d} hideHeader={true} />
             </div>
           </div>
         </div>

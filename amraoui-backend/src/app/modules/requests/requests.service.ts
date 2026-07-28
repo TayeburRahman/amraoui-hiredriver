@@ -273,53 +273,54 @@ const sendAdminQuote = async (id: string, quoteData: any) => {
       status: 'CUSTOMER_REVIEWING_QUOTE'
     },
     { new: true }
-  ).populate({ path: 'customerId', select: 'name family_name company email authId' });
+  );
+  const populatedResult = await Requests.findById(id).populate({ path: 'customerId', select: 'name family_name company email authId' }).lean() as any;
+  if (!populatedResult) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
 
-  if (!result) throw new ApiError(httpStatus.NOT_FOUND, 'Request not found');
 
   // Retrieve customer info
   let customerName = 'Customer';
   let customerEmail = '';
   let authId = null;
 
-  if (result.customerId) {
-    const customer = result.customerId as any;
+  if (populatedResult.customerId) {
+    const customer = populatedResult.customerId as any;
     customerName = customer.name || 'Customer';
     customerEmail = customer.email;
     authId = customer.authId || customer._id;
-  } else if (result.details) {
-    customerName = result.details.firstName ? `${result.details.firstName} ${result.details.lastName || ''}`.trim() : 'Customer';
-    customerEmail = result.details.email || result.details.customerEmail;
+  } else if (populatedResult.details) {
+    customerName = populatedResult.details.firstName ? `${populatedResult.details.firstName} ${populatedResult.details.lastName || ''}`.trim() : 'Customer';
+    customerEmail = populatedResult.details.email || populatedResult.details.customerEmail;
   }
 
-  const vehicle = result.details?.vehicleType || result.details?.vehicleBrand || result.details?.make
-    ? `${result.details.vehicleType || result.details.vehicleBrand || result.details.make || ''} ${result.details.vehicleModel || result.details.model || ''}`.trim()
-    : (result.type || 'Vehicle');
-  const licensePlate = result.details?.licensePlate || result.details?.vehiclePlate || result.details?.license_plate || result.details?.plate || '';
+  const vehicle = populatedResult.details?.vehicleType || populatedResult.details?.vehicleBrand || populatedResult.details?.make
+    ? `${populatedResult.details.vehicleType || populatedResult.details.vehicleBrand || populatedResult.details.make || ''} ${populatedResult.details.vehicleModel || populatedResult.details.model || ''}`.trim()
+    : (populatedResult.type || 'Vehicle');
+  const licensePlate = populatedResult.details?.licensePlate || populatedResult.details?.vehiclePlate || populatedResult.details?.license_plate || populatedResult.details?.plate || '';
 
   // Calculate final total amount including expenses
-  const baseAmount = Number(quoteData.amount) || Number(result.adminQuote?.amount) || 0;
-  const expensesTotal = result.expenses?.reduce((sum: number, exp: any) => sum + (Number(exp.amount) || 0), 0) || 0;
+  const baseAmount = Number(quoteData.amount) || Number(populatedResult.adminQuote?.amount) || 0;
+  const expensesTotal = populatedResult.expenses?.reduce((sum: number, exp: any) => sum + (Number(exp.amount) || 0), 0) || 0;
   const finalTotalAmount = baseAmount + expensesTotal;
 
   // 1. Send Email
   if (customerEmail) {
     const emailHtml = customerQuoteEmailBody({
       name: customerName,
-      requestId: result.missionId || result._id.toString(),
+      requestId: populatedResult.missionId || populatedResult._id.toString(),
       vehicle,
       licensePlate: licensePlate || undefined,
       baseAmount,
       totalAmount: finalTotalAmount,
       message: quoteData.message,
-      expenses: result.expenses || [],
+      expenses: populatedResult.expenses || [],
     });
 
 
     // Fire and forget
     sendEmail({
       email: customerEmail,
-      subject: `Your Quote is Ready - ${result.missionId || 'Request'}`,
+      subject: `Your Quote is Ready - ${populatedResult.missionId || 'Request'}`,
       html: emailHtml
     }).catch((err: any) => {
       console.error('Error sending quote email:', err);
@@ -331,10 +332,10 @@ const sendAdminQuote = async (id: string, quoteData: any) => {
     NotificationService.createNotification({
       recipientId: authId,
       title: 'New Quote Received',
-      message: `A quote of €${finalTotalAmount} has been provided for your request (${result.missionId || 'Vehicle'}).`,
+      message: `A quote of €${finalTotalAmount} has been provided for your request (${populatedResult.missionId || 'Vehicle'}).`,
       type: 'QUOTE_RECEIVED',
       link: '/dashboard/orders',
-      metadata: { requestId: result._id.toString() }
+      metadata: { requestId: populatedResult._id.toString() }
     }).catch((err: any) => {
       console.error('Error creating quote notification:', err);
     });
@@ -501,10 +502,11 @@ const notifyExpensesToCustomer = async (id: string) => {
     const baseUrl = process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
     const expensesListHtml = expenses.length > 0
       ? expenses.map((exp: any) => {
-        const proofLink = exp.proofUrl
-          ? (exp.proofUrl.startsWith('http')
-            ? exp.proofUrl
-            : `${baseUrl}/${exp.proofUrl.replace(/\\/g, '/')}`)
+        const proofUrlStr = typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || '');
+        const proofLink = proofUrlStr
+          ? (proofUrlStr.startsWith('http')
+            ? proofUrlStr
+            : `${baseUrl}/${proofUrlStr.replace(/\\/g, '/')}`)
           : null;
         return `
             <div style="border-bottom: 1px solid #e2e8f0; padding: 8px 0;">
@@ -760,6 +762,60 @@ const cancelMissionByDriver = async (
 
   mission.status = RequestStatus.CANCELLED;
   await mission.save();
+  return mission;
+};
+
+// ─── Reject Driver Quote (Admin) ──────────────────────────────────────────────
+const rejectDriverQuoteAction = async (missionId: string, quoteId: string, isNewOfferRequest: boolean = false) => {
+  const mission = await Requests.findById(missionId);
+  if (!mission) throw new ApiError(httpStatus.NOT_FOUND, 'Mission not found');
+
+  const quoteIndex = mission.driverQuotes.findIndex((q: any) => q._id?.toString() === quoteId);
+  if (quoteIndex === -1) throw new ApiError(httpStatus.NOT_FOUND, 'Quote not found');
+
+  const quote = mission.driverQuotes[quoteIndex];
+  
+  if (quote.status === 'REJECTED' && !isNewOfferRequest) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Quote is already rejected');
+  }
+
+  // Update quote status
+  mission.driverQuotes[quoteIndex].status = 'REJECTED';
+  mission.markModified('driverQuotes');
+  
+  // If no other quotes are pending/accepted, and mission is not already assigned/started, keep it OPEN_FOR_DRIVERS
+  if (mission.status === RequestStatus.ADMIN_REVIEWING_DRIVERS) {
+    const hasPendingQuotes = mission.driverQuotes.some((q: any) => q.status === 'PENDING' || q.status === 'ACCEPTED');
+    if (!hasPendingQuotes) {
+      mission.status = RequestStatus.OPEN_FOR_DRIVERS;
+    }
+  }
+
+  await mission.save();
+
+  // Notify driver
+  if (quote.driverId) {
+    const driverIdStr = quote.driverId.toString();
+    const driver = await (await import('../auth/auth.model')).default.findById(driverIdStr).lean() || await (await import('../drivers/drivers.model')).default.findById(driverIdStr).lean();
+    
+    if (driver) {
+      const authId = driver.authId || driver._id;
+      const title = isNewOfferRequest ? 'New Quote Offer Requested' : 'Quote Rejected';
+      const message = isNewOfferRequest 
+        ? `The admin has requested a new quote offer for mission ${mission.missionId || 'Request'}. Please submit a new quote.`
+        : `Your quote for mission ${mission.missionId || 'Request'} has been rejected.`;
+        
+      NotificationService.createNotification({
+        recipientId: authId,
+        title,
+        message,
+        type: 'STATUS_UPDATE',
+        link: '/driver/missions',
+        metadata: { requestId: mission._id.toString() }
+      }).catch(console.error);
+    }
+  }
+
   return mission;
 };
 
@@ -1221,6 +1277,7 @@ export const RequestsService = {
   startMission,
   cancelMissionByDriver,
   assignDriver,
+  rejectDriverQuoteAction,
   verifyPickup,
   verifyDeliveryArrival,
   updatePickupInspection,

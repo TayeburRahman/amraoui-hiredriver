@@ -405,6 +405,54 @@ const assignDriver = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// ─── PATCH /api/v1/requests/:id/reject-driver-quote ─────────────────────────
+const rejectDriverQuote = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { quoteId } = req.body;
+
+  if (!quoteId) {
+    return sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: 'quoteId is required',
+      data: null,
+    });
+  }
+
+  const updated = await RequestsService.rejectDriverQuoteAction(id, quoteId, false);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Quote rejected successfully',
+    data: updated,
+  });
+});
+
+// ─── PATCH /api/v1/requests/:id/request-new-offer ───────────────────────────
+const requestNewOffer = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { quoteId } = req.body;
+
+  if (!quoteId) {
+    return sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: 'quoteId is required',
+      data: null,
+    });
+  }
+
+  const updated = await RequestsService.rejectDriverQuoteAction(id, quoteId, true);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'New offer requested successfully',
+    data: updated,
+  });
+});
+
 // ─── PATCH /api/v1/requests/missions/:id/pickup-verification (Driver) ─────────
 const verifyPickup = catchAsync(async (req: Request, res: Response) => {
   const driverId = (req as any).user?.userId;
@@ -753,6 +801,8 @@ export const RequestsController = {
   startMission,
   cancelMissionByDriver,
   assignDriver,
+  rejectDriverQuote,
+  requestNewOffer,
   verifyPickup,
   verifyDeliveryArrival,
   updatePickupInspection,

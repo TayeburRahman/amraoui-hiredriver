@@ -174,6 +174,20 @@ router.patch(
   RequestsController.assignDriver
 );
 
+// PATCH /api/v1/requests/:id/reject-driver-quote (Admin reject quote)
+router.patch(
+  '/:id/reject-driver-quote',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  RequestsController.rejectDriverQuote
+);
+
+// PATCH /api/v1/requests/:id/request-new-offer (Admin request new offer)
+router.patch(
+  '/:id/request-new-offer',
+  auth(ENUM_USER_ROLE.ADMIN, ENUM_USER_ROLE.SUPER_ADMIN),
+  RequestsController.requestNewOffer
+);
+
 // PATCH /api/v1/requests/missions/:id/pickup-verification
 router.patch(
   '/missions/:id/pickup-verification',

@@ -49,6 +49,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
     // Document Upload State
     const [isUploadingDoc, setIsUploadingDoc] = useState(false);
     const [isDeletingDoc, setIsDeletingDoc] = useState<string | null>(null);
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRequest = async () => {
@@ -153,12 +154,13 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
         }
     };
 
-    const handleApprove = async () => {
+    const handleApprove = async (overrideQuoteId?: string) => {
         setShowConfirmModal(false); // Close the modal
-        if (!quotesToDisplay || quotesToDisplay.length === 0) return;
-        const quoteId = quotesToDisplay[0]._id;
+        const quoteId = overrideQuoteId || (quotesToDisplay && quotesToDisplay.length > 0 ? quotesToDisplay[0]._id : null);
+        if (!quoteId) return;
         
         try {
+            setActionLoading(quoteId + '-accept');
             setIsAssigning(true);
             const res = await apiFetch<any>(`/requests/${reqId}/assign-driver`, { 
                 method: 'PATCH', 
@@ -179,6 +181,34 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
             alert("Failed to assign driver. Please try again.");
         } finally {
             setIsAssigning(false);
+            setActionLoading(null);
+        }
+    };
+
+    const handleQuoteAction = async (quoteId: string, actionType: 'reject-driver-quote' | 'request-new-offer') => {
+        try {
+            setActionLoading(quoteId + '-' + actionType);
+            const res = await apiFetch<any>(`/requests/${reqId}/${actionType}`, { 
+                method: 'PATCH', 
+                auth: true, 
+                body: JSON.stringify({ quoteId }) 
+            });
+            if (res.data?.success) {
+                // Fetch fresh request data
+                const fetchRes = await apiFetch<any>(`/requests/${reqId}`, { auth: true });
+                if (fetchRes.data?.success) {
+                    setRequest(fetchRes.data.data);
+                } else {
+                    setRequest(res.data.data);
+                }
+            } else {
+                throw new Error(res.data?.message || 'Action failed');
+            }
+        } catch (error: any) {
+            console.error(`Error performing ${actionType}:`, error);
+            alert(`Failed: ${error?.message || 'Unknown error'}`);
+        } finally {
+            setActionLoading(null);
         }
     };
 
@@ -351,12 +381,46 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                         </div>
                                     </div>
                                     
-                                    {/* Driver Message */}
-                                    <div className="mt-6 pt-6 border-t border-gray-100">
-                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Driver Message</p>
-                                        <p className="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-100 italic">
-                                            "{quote.message || 'No additional message provided.'}"
-                                        </p>
+                                    {/* Driver Message & Actions */}
+                                    <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col md:flex-row gap-6">
+                                        <div className="flex-1">
+                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Driver Message</p>
+                                            <p className="text-sm text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-100 italic min-h-[4rem]">
+                                                "{quote.message || 'No additional message provided.'}"
+                                            </p>
+                                        </div>
+                                        
+                                        {/* Action Buttons */}
+                                        {/* Action Buttons */}
+                                        {quote.status !== 'ACCEPTED' && (
+                                            <div className="flex flex-col gap-2 justify-end w-full md:w-auto md:min-w-[250px]">
+                                                <div className="flex gap-2 w-full">
+                                                    <button 
+                                                        onClick={() => handleApprove(String(quote._id))}
+                                                        disabled={actionLoading !== null}
+                                                        className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors disabled:opacity-50 text-center"
+                                                    >
+                                                        {actionLoading === quote._id + '-accept' ? 'Loading...' : 'Accept'}
+                                                    </button>
+                                                    {quote.status !== 'REJECTED' && (
+                                                        <button 
+                                                            onClick={() => handleQuoteAction(String(quote._id), 'reject-driver-quote')}
+                                                            disabled={actionLoading !== null}
+                                                            className="flex-1 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-sm font-bold rounded-lg transition-colors disabled:opacity-50 text-center"
+                                                        >
+                                                            {actionLoading === quote._id + '-reject-driver-quote' ? '...' : 'Reject'}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                <button 
+                                                    onClick={() => handleQuoteAction(String(quote._id), 'request-new-offer')}
+                                                    disabled={actionLoading !== null}
+                                                    className="w-full px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-sm font-bold rounded-lg transition-colors disabled:opacity-50"
+                                                >
+                                                    {actionLoading === quote._id + '-request-new-offer' ? 'Loading...' : 'Submit New Offer'}
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -786,7 +850,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                     Cancel
                                 </button>
                                 <button
-                                    onClick={handleApprove}
+                                    onClick={() => handleApprove()}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
                                 >
                                     Confirm Assignment

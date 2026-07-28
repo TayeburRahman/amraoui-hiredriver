@@ -70,8 +70,8 @@ const FinancePage = () => {
   }, [refreshKey]);
 
   const totalRevenue = requests.reduce((sum, r) => sum + (r.adminQuote?.amount || 0), 0);
-  const pendingPayments = requests.reduce((sum, r) => sum + (r.status !== 'COMPLETED' && r.status !== 'CANCELLED' ? (r.adminQuote?.amount || 0) : 0), 0);
-  const paidPayments = requests.reduce((sum, r) => sum + (r.status === 'COMPLETED' ? (r.adminQuote?.amount || 0) : 0), 0);
+  const pendingPayments = requests.reduce((sum, r) => sum + (r.paymentStatus !== 'PAID' && r.status !== 'CANCELLED' ? (r.adminQuote?.amount || 0) : 0), 0);
+  const paidPayments = requests.reduce((sum, r) => sum + (r.paymentStatus === 'PAID' ? (r.adminQuote?.amount || 0) : 0), 0);
   const failedPayments = requests.reduce((sum, r) => sum + (r.status === 'CANCELLED' ? (r.adminQuote?.amount || 0) : 0), 0);
 
   const getDriverPayout = (r: any) => {
@@ -90,8 +90,8 @@ const FinancePage = () => {
     return baseService + extraCosts;
   };
 
-  const payoutsPending = requests.reduce((sum, r) => sum + (r.status !== 'COMPLETED' ? getDriverPayout(r) : 0), 0);
-  const payoutsPaid = requests.reduce((sum, r) => sum + (r.status === 'COMPLETED' ? getDriverPayout(r) : 0), 0);
+  const payoutsPending = requests.reduce((sum, r) => sum + (r.commissionStatus !== 'PAID' && r.status !== 'CANCELLED' ? getDriverPayout(r) : 0), 0);
+  const payoutsPaid = requests.reduce((sum, r) => sum + (r.commissionStatus === 'PAID' ? getDriverPayout(r) : 0), 0);
 
   const cancellationFees = requests.reduce((sum, r) => sum + (r.status === 'CANCELLED' ? 50 : 0), 0); // Mock 50 per cancellation
 
@@ -153,7 +153,7 @@ const FinancePage = () => {
       route,
       amount: r.adminQuote?.amount || 0,
       driverPayout: getDriverPayout(r),
-      status: r.paymentStatus === 'PAID' ? 'Paid' : (r.status === 'COMPLETED' ? 'Paid' : (r.status === 'CANCELLED' ? 'Cancelled' : (r.status === 'FAILED' ? 'Failed' : 'Pending'))),
+      status: r.paymentStatus === 'PAID' ? 'Paid' : (r.status === 'CANCELLED' ? 'Cancelled' : (r.status === 'FAILED' ? 'Failed' : 'Pending')),
       method: r.details?.paymentMethod || 'Invoice',
       date: formatDate(r.updatedAt),
       rawRequest: r,

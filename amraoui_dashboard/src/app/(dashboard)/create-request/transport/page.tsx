@@ -132,6 +132,36 @@ export default function TransportRequestPage() {
     setIsLoaded(true);
   }, []);
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get('/auth/profile');
+        if (res.data?.success) {
+          const profile = res.data.data;
+          setFormData(prev => {
+            if (!prev.firstName && !prev.email) {
+              return {
+                ...prev,
+                firstName: profile.name || prev.firstName,
+                lastName: profile.family_name || prev.lastName,
+                email: profile.email || prev.email,
+                phone: profile.phone_number || prev.phone,
+                company: profile.company || profile.company_name || prev.company,
+              };
+            }
+            return prev;
+          });
+        }
+      } catch (e) {
+        console.error('Failed to fetch profile', e);
+      }
+    };
+
+    if (isLoaded) {
+      fetchProfile();
+    }
+  }, [isLoaded]);
+
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Save state when it changes

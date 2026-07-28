@@ -61,3 +61,25 @@ export const registrationSuccess = (userData: any) => `
     </body>
   </html>
 `;
+
+export const customerApprovalEmailBody = () => `
+  <html>
+    <body style="font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px;">
+      <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <!-- Logo -->
+        <div style="text-align: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+          <img src="https://amraoui-hiredriver.vercel.app/logo.png" alt="Vehiqqo  Logo" style="height: 40px; width: auto; display: block; margin: 0 auto 8px auto;" />
+         
+        </div>
+
+        <h3 style="color: #2563EB; font-size: 20px; margin-top: 0; margin-bottom: 16px;">Welcome to Vehiqqo !</h3>
+        <p>Your account has been approved by the admin. You can now log in to the portal.</p>
+
+        <!-- Footer -->
+        <p style="margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px; font-size: 13px; color: #64748B;">
+          Please contact support at <a href="mailto:partner@vehiqqo.com" style="color: #2563EB; text-decoration: none; font-weight: 600;">partner@vehiqqo.com</a> if you have questions.
+        </p>
+      </div>
+    </body>
+  </html>
+`;

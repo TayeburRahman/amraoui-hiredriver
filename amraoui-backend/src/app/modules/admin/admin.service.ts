@@ -11,6 +11,7 @@ import Customers from '../customers/customers.model';
 import Drivers from '../drivers/drivers.model';
 import { AuthService } from '../auth/auth.service';
 import sendEmail from '../../../utils/sendEmail';
+import { customerApprovalEmailBody } from './admin.email';
 
 // ─── Block / Unblock any user ────────────────────────
 const blockUnblockAuthUser = async (payload: BlockUnblockPayload) => {
@@ -173,7 +174,7 @@ const approveCustomer = async (customerId: string) => {
     sendEmail({
       email: customer.email,
       subject: "Account Approved",
-      html: `<h2>Welcome to Vehiqqo !</h2><p>Your account has been approved by the admin. You can now log in to the portal.</p>`,
+      html: customerApprovalEmailBody(),
     }).catch(console.error);
   }
 
@@ -292,7 +293,7 @@ const updateCustomer = async (customerId: string, payload: any) => {
   if (payload.name !== undefined) authUpdateData.name = payload.name;
   if (payload.email !== undefined) authUpdateData.email = payload.email;
   if (updateData.password) authUpdateData.password = updateData.password;
-  
+
   if (Object.keys(authUpdateData).length > 0) {
     await Auth.findByIdAndUpdate(customer.authId, authUpdateData);
   }

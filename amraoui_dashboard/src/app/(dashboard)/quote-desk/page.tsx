@@ -91,7 +91,8 @@ const QuoteDeskPage = () => {
                   id: quote._id,
                   reqId: req._id,
                   missionId: finalMissionId,
-                  title: req.customerId?.name || req.details?.customerName || req.details?.firstName || req.details?.name || 'Anonymous Customer',
+                  title: req.customerId?.company || req.details?.companyName || req.customerId?.name || req.details?.customerName || req.details?.firstName || req.details?.name || 'Anonymous Customer',
+                  contactPerson: req.customerId ? `${req.customerId.name || ''} ${req.customerId.family_name || ''}`.trim() : (req.details?.customerName || req.details?.firstName || req.details?.name || 'Unknown'),
                   type: req.type,
                   driver: quote.driverId,
                   route: route,
@@ -112,7 +113,8 @@ const QuoteDeskPage = () => {
                 id: req._id,
                 reqId: req._id,
                 missionId: finalMissionId,
-                title: req.customerId?.name || req.details?.customerName || req.details?.firstName || req.details?.name || 'Anonymous Customer',
+                title: req.customerId?.company || req.details?.companyName || req.customerId?.name || req.details?.customerName || req.details?.firstName || req.details?.name || 'Anonymous Customer',
+                contactPerson: req.customerId ? `${req.customerId.name || ''} ${req.customerId.family_name || ''}`.trim() : (req.details?.customerName || req.details?.firstName || req.details?.name || 'Unknown'),
                 type: req.type,
                 driver: null,
                 route: route,
@@ -361,7 +363,8 @@ const QuoteDeskPage = () => {
                     {req.status}
                   </div>
                 </div>
-                <div className="font-bold text-gray-900 mb-4">Customer: {req.title}</div>
+                <div className="font-bold text-gray-900 mb-1">Customer: {req.title}</div>
+                <div className="text-xs text-gray-500 mb-4">Contact: {req.contactPerson}</div>
 
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center gap-2 text-sm text-gray-500">

@@ -18,13 +18,14 @@ import {
 } from "@/components/ui/select";
 import { TimeInput } from "@/components/ui/time-input";
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAppSelector } from '@/hooks/redux';
 import {
   CarFront, Zap, Fuel, Car, Truck, Bike, Activity,
   Check, MapPin, Calendar, FileCheck, Map, Settings, Search, Info, User, Phone, Mail,
   FileText, Upload, ShieldCheck, Shield, Image as ImageIcon, CreditCard, Clock,
   ArrowRight, ClipboardCheck, UserCog, ChevronRight, ShieldCheck as ShieldCheckIcon,
   Shield as ShieldIcon, Upload as UploadIcon,
-  ArrowLeft
+  ArrowLeft, Building
 } from 'lucide-react';
 
 const timeOptions = Array.from({ length: 48 }).map((_, i) => {
@@ -63,6 +64,7 @@ const initialFormData = {
   pickupCity: '',
   pickupZip: '',
   pickupDate: '',
+  pickupCompanyName: '',
   pickupContactName: '',
   pickupContactPhone: '',
   pickupContactEmail: '',
@@ -72,6 +74,7 @@ const initialFormData = {
   dropoffCity: '',
   dropoffZip: '',
   dropoffDate: '',
+  dropoffCompanyName: '',
   dropoffContactName: '',
   dropoffContactPhone: '',
   dropoffContactEmail: '',
@@ -101,6 +104,7 @@ function TransportRequestContent() {
   const editId = searchParams.get('editId');
   const { t, language } = useTranslation();
   const isRTL = language === 'ar';
+  const { user } = useAppSelector((state) => state.auth);
 
   const [vehiclePhotoFile, setVehiclePhotoFile] = useState<File | null>(null);
   const [registrationFile, setRegistrationFile] = useState<File | null>(null);
@@ -149,15 +153,51 @@ function TransportRequestContent() {
     if (savedStep) {
       setCurrentStep(parseInt(savedStep, 10));
     }
+
+    let initialData = { ...initialFormData };
+
+    if (user) {
+      const names = user.name ? user.name.split(' ') : [];
+      initialData = {
+        ...initialData,
+        firstName: names[0] || '',
+        lastName: names.slice(1).join(' ') || '',
+        email: user.email || '',
+        phone: user.phone_number || '',
+        company: user.companyName || user.company_name || user.company || user.name || '',
+      };
+    }
+
     if (savedForm) {
       try {
-        setFormData(JSON.parse(savedForm));
+        const parsed = JSON.parse(savedForm);
+        initialData = { ...initialData, ...parsed };
       } catch (e) {
         console.error('Failed to parse saved form data', e);
       }
     }
+
+    setFormData(initialData);
     setIsLoaded(true);
-  }, []);
+  }, []); // Run only on mount
+
+  // To prevent overwriting user edits if 'user' loads late:
+  useEffect(() => {
+    if (isLoaded && user && !editId) {
+      const savedForm = localStorage.getItem('transport_formData');
+      if (!savedForm) {
+        const names = user.name ? user.name.split(' ') : [];
+        setFormData(prev => ({
+          ...prev,
+          firstName: prev.firstName || names[0] || '',
+          lastName: prev.lastName || names.slice(1).join(' ') || '',
+          email: prev.email || user.email || '',
+          phone: prev.phone || user.phone_number || '',
+          company: prev.company || user.companyName || user.company_name || user.company || user.name || '',
+        }));
+      }
+    }
+  }, [user, isLoaded, editId]);
 
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -545,6 +585,13 @@ function TransportRequestContent() {
                       <div className="space-y-4">
                         <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wide">Pickup Contact</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="space-y-2 md:col-span-2">
+                            <Label className="text-brand-text font-bold ml-1">Company Name</Label>
+                            <div className="relative">
+                              <Building className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                              <Input value={formData.pickupCompanyName} onChange={(e) => updateForm('pickupCompanyName', e.target.value)} placeholder="Pickup company name" className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
+                            </div>
+                          </div>
                           <div className="space-y-2">
                             <Label className="text-brand-text font-bold ml-1">Contact Name</Label>
                             <Input value={formData.pickupContactName} onChange={(e) => updateForm('pickupContactName', e.target.value)} placeholder="Name of person at pickup" className="h-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200" />
@@ -624,6 +671,21 @@ function TransportRequestContent() {
 
                       {/* Contact Row */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div className="space-y-2 md:col-span-2">
+                          <Label className="text-brand-text font-bold ml-1">Company Name</Label>
+                          <div className="relative">
+                            <Building className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                            <Input
+                              value={formData.dropoffCompanyName}
+                              onChange={(e) =>
+                                updateForm("dropoffCompanyName", e.target.value)
+                              }
+                              placeholder="Delivery company name"
+                              className="h-12 pl-12 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white transition-all duration-200"
+                            />
+                          </div>
+                        </div>
 
                         <div className="space-y-2">
                           <Label className="text-brand-text font-bold ml-1">Contact Name</Label>

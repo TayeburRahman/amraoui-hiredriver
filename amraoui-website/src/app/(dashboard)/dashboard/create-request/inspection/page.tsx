@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAppSelector } from '@/hooks/redux';
 import api from '@/lib/axios';
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
 import {
@@ -22,6 +23,7 @@ function TechnicalInspectionContent() {
   const editId = searchParams.get('editId');
   const { t, language } = useTranslation();
   const isRTL = language === 'ar';
+  const { user } = useAppSelector((state) => state.auth);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -46,6 +48,7 @@ function TechnicalInspectionContent() {
     destinationZip: '',
     destinationDate: '',
     destinationTime: '',
+    destinationCompanyName: '',
     destinationContactName: '',
     destinationContactPhone: '',
     destinationInstructions: '',
@@ -59,6 +62,18 @@ function TechnicalInspectionContent() {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
+
+  useEffect(() => {
+    if (user && !editId) {
+      setFormData(prev => ({
+        ...prev,
+        customerName: prev.customerName || user.name || '',
+        customerEmail: prev.customerEmail || user.email || '',
+        customerPhone: prev.customerPhone || user.phone_number || '',
+        companyName: prev.companyName || user.companyName || user.company_name || user.company || user.name || '',
+      }));
+    }
+  }, [user, editId]);
 
   useEffect(() => {
     const fetchEditData = async () => {
@@ -475,6 +490,17 @@ function TechnicalInspectionContent() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="relative md:col-span-2">
+                    <Building className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
+                    <input
+                      type="text"
+                      value={formData.destinationCompanyName || ""}
+                      onChange={(e) => updateForm("destinationCompanyName", e.target.value)}
+                      placeholder={language === 'ar' ? 'اسم الشركة' : 'Company Name'}
+                      className={`h-14 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-base font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100 ${isRTL ? 'pr-12 text-right' : 'pl-12 text-left'}`}
+                    />
+                  </div>
+                  
                   <div className="relative">
                     <User className={`pointer-events-none absolute top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 ${isRTL ? 'right-4' : 'left-4'}`} />
                     <input

@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAppSelector } from '@/hooks/redux';
 import api from '@/lib/axios';
 import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
 import {
@@ -66,6 +67,7 @@ function HireDriverContent() {
   const editId = searchParams.get('editId');
   const { t, language } = useTranslation();
   const isRTL = language === 'ar';
+  const { user } = useAppSelector((state) => state.auth);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,6 +101,18 @@ function HireDriverContent() {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
+
+  useEffect(() => {
+    if (user && !editId) {
+      setFormData(prev => ({
+        ...prev,
+        customerName: prev.customerName || user.name || '',
+        customerEmail: prev.customerEmail || user.email || '',
+        customerPhone: prev.customerPhone || user.phone_number || '',
+        companyName: prev.companyName || user.companyName || user.company_name || user.company || user.name || '',
+      }));
+    }
+  }, [user, editId]);
 
   useEffect(() => {
     const fetchEditData = async () => {

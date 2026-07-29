@@ -1,66 +1,97 @@
-# Vehiqqo - Hire Driver Platform
+# Vehiqqo - Premium Hire Driver & Logistics Platform
 
 ![Vehiqqo Landing Page](amraoui-website/public/assets/landing/hero-bg.png)
 
-Vehiqqo is a comprehensive SaaS platform designed for hiring and managing drivers. It connects customers needing reliable transportation services with qualified drivers, while providing administrators with the necessary tools to monitor and control the entire ecosystem.
+**Vehiqqo** is a comprehensive, end-to-end SaaS platform designed to revolutionize the driver hiring and logistics management industry. It bridges the gap between customers needing reliable vehicle transport, inspections, or daily driver services, and professional drivers equipped to handle these missions. 
 
-## 🏗️ Project Structure
-
-This monorepo is divided into four main directories, each serving a specific role in the platform:
-
-| Directory | Description | Tech Stack |
-| --- | --- | --- |
-| 📱 `Vehiqqo/` | The mobile application for drivers and customers to access the platform on the go. | Flutter, Dart |
-| ⚙️ `amraoui-backend/` | The core RESTful API and backend services powering all frontend clients. | Node.js, Express |
-| 📊 `amraoui_dashboard/` | The admin dashboard used by administrators to oversee and manage all missions, drivers, and operations. | Next.js, React, Tailwind CSS |
-| 🌐 `amraoui-website/` | The public landing page for driver recruitment and the dedicated customer portal for web access. | Next.js, React, Tailwind CSS |
+This repository houses the entire monorepo ecosystem, providing full administrative oversight, seamless customer experiences, and mobile-first driver workflows.
 
 ---
 
-## 🚀 Getting Started
+## 🌟 Project Overview
 
-Follow the instructions below to get each part of the platform running locally.
+Whether you're looking at the platform from a business perspective (HR, Operations) or a technical perspective, Vehiqqo is built to be scalable, secure, and user-friendly.
 
-### 1. Backend (`amraoui-backend`)
-The backend provides the API for all other applications.
+### Key Features by Role
+
+#### 👥 For Customers (Website & Customer Portal)
+- **Service Requests:** Customers can create detailed requests for Vehicle Transport, Technical Inspections, or Daily Driver Hire.
+- **Quote Management:** Receive, review, and accept administrative quotes directly from the portal.
+- **Mission Monitoring:** Real-time tracking of mission statuses, including driver check-ins, location verifications, and progress timelines.
+- **Invoicing & Payments:** Secure handling of invoices and payments for completed missions and extra expenses.
+
+#### 🚗 For Drivers (Mobile App)
+- **Mission Assignments:** Drivers receive notifications for new missions and can accept or decline them.
+- **Proof of Delivery:** Built-in tools for uploading damage reports, vehicle photos (pickup/delivery), and capturing digital signatures.
+- **Location & Check-ins:** GPS-based location verification and daily check-ins for long-term driver hire services.
+- **Profile Management:** Secure document upload (licenses, IDs) for admin verification.
+
+#### 👑 For Administrators (Admin Dashboard)
+- **Full Operational Control:** Oversee every mission, driver, and customer from a centralized dashboard.
+- **Quote Desk:** Generate dynamic pricing quotes for customer requests based on distance and requirements.
+- **Driver Dispatch:** Manually assign or broadcast missions to available verified drivers.
+- **Financials:** Manage invoices, track paid/unpaid statuses, and review driver expense reports (e.g., fuel, tolls).
+
+---
+
+## 🏗️ Technical Architecture & Ecosystem
+
+This monorepo is divided into four main projects, utilizing a modern, decoupled architecture:
+
+| Directory | Description | Tech Stack |
+| --- | --- | --- |
+| 🌐 **`amraoui-website/`** | The public landing page and authenticated **Customer Portal**. | Next.js, React, Tailwind CSS |
+| 📊 **`amraoui_dashboard/`** | The secure **Admin Dashboard** for operational management. | Next.js, React, Tailwind CSS |
+| ⚙️ **`amraoui-backend/`** | The core **RESTful API** powering the entire platform. Handles authentication, business logic, and real-time events. | Node.js, Express, MongoDB, Socket.io |
+| 📱 **`amraoui_app/`** | The cross-platform **Mobile Application** built exclusively for Drivers. | Flutter, Dart |
+
+---
+
+## 🚀 Getting Started Locally
+
+Follow the instructions below to get each part of the platform running locally on your machine.
+
+### 1. Backend API (`amraoui-backend`)
+The backend must be running for the frontend applications to function correctly.
 ```bash
 cd amraoui-backend
 npm install
 npm run dev
 ```
-*Note: Make sure to set up your `.env` file with the required database and service credentials before running the server.*
+*Note: Make sure to set up your `.env` file with the required database and service credentials before running the server (see Environment Variables section below).*
 
 ### 2. Admin Dashboard (`amraoui_dashboard`)
-The web-based management portal.
+The command center for administrators.
 ```bash
 cd amraoui_dashboard
 npm install
 npm run dev
 ```
-*Runs on `http://localhost:3000` by default.*
+*Runs on `http://localhost:3000` (or `3001` if port is in use).*
 
-### 3. Website (`amraoui-website`)
-The marketing website.
+### 3. Customer Website (`amraoui-website`)
+The public-facing marketing site and customer dashboard.
 ```bash
 cd amraoui-website
 npm install
 npm run dev
 ```
+*Runs on `http://localhost:3000` (or `3002` if port is in use).*
 
-### 4. Mobile App (`Vehiqqo`)
+### 4. Driver Mobile App (`amraoui_app`)
 The Flutter mobile application. Make sure you have the [Flutter SDK](https://docs.flutter.dev/get-started/install) installed.
 ```bash
-cd Vehiqqo
+cd amraoui_app
 flutter pub get
 flutter run
 ```
-*Tip: If testing on a physical Android device, ensure your backend is accessible via your local network IP (e.g., `10.10.x.x`) rather than `localhost`.*
+*Tip: If testing on a physical Android device, ensure your backend API URL points to your computer's local network IP (e.g., `192.168.x.x`) rather than `localhost`.*
 
 ---
 
 ## 🔐 Environment Variables (.env)
 
-Create a `.env` file in the `amraoui-backend` directory and add the following configuration. Replace the empty values with your actual credentials.
+Create a `.env` file in the `amraoui-backend` directory and add the following configuration. Replace the placeholder values with your actual credentials.
 
 ```env
 # Server Configuration
@@ -97,7 +128,10 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 ```
 
 ---
-## 🛠️ Development & Contribution
 
-- **Version Control**: When creating new features, ensure that you only commit the files necessary for that feature.
-- **Git Hooks**: Avoid pushing unwanted files like `.env`, `node_modules/`, or build directories. A comprehensive `.gitignore` is included at the root level to help keep the repository clean.
+## 🛠️ Development & Contribution Guidelines
+
+- **Clean Architecture:** Ensure logic is properly separated. Use services for database operations in the backend, and keep React components clean on the frontend.
+- **Version Control:** When creating new features, commit only the files necessary for that feature with descriptive commit messages.
+- **Security:** Never push sensitive tokens or passwords. A comprehensive `.gitignore` is included at the root level to prevent accidental commits of `.env` files or `node_modules/`.
+- **Formatting:** Adhere to the established styling (Tailwind classes) and linting rules across all repositories to maintain code consistency.

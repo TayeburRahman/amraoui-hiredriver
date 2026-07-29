@@ -127,8 +127,8 @@ const getRequestById = async (id: string) => {
 
   return Requests.findOne(query)
     .populate({ path: 'customerId', select: 'name family_name company email phone profileImage' })
-    .populate({ path: 'assignedDriverId', select: 'name email phone' })
-    .populate({ path: 'assignedDriverIds', select: 'name email phone' })
+    .populate({ path: 'assignedDriverId', select: 'name email phone phone_number profile_image' })
+    .populate({ path: 'assignedDriverIds', select: 'name email phone phone_number profile_image' })
     .populate({
       path: 'driverQuotes.driverId',
       select: 'name email phone_number profile_image license_number vehicle_type vehicle_plate status rating jobsCompleted distance isVerified documents_submitted license_document id_document contract_document',
@@ -955,7 +955,7 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
 
   return Requests.findById(missionId).populate([
     { path: 'customerId', select: 'name family_name company email phone profileImage' },
-    { path: 'assignedDriverId', select: 'name email phone' },
+    { path: 'assignedDriverId', select: 'name email phone phone_number profile_image' },
   ]).lean();
 };
 
@@ -1086,7 +1086,7 @@ const updateDeliveryInspection = async (missionId: string, driverId: string, sec
     { new: true }
   ).populate([
     { path: 'customerId', select: 'name family_name company email authId' },
-    { path: 'assignedDriverId', select: 'name email authId' }
+    { path: 'assignedDriverId', select: 'name email phone phone_number profile_image authId' }
   ]);
 
   if (section === 'driverConfirmation' && updated) {

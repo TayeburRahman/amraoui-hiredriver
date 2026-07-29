@@ -420,10 +420,10 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
                   <div>
                     <p className="text-xs font-bold text-slate-400 mb-0.5">{t.orders.details?.driver || 'Driver'}</p>
                     <p className="font-bold text-brand-text text-sm">{driver.name}</p>
-                    <p className="text-xs font-medium text-slate-500 mt-0.5">{driver.phone_number || 'N/A'}</p>
+                    <p className="text-xs font-medium text-slate-500 mt-0.5">{driver.phone_number || driver.phone || 'N/A'}</p>
                   </div>
                 </div>
-                <a href={`tel:${driver.phone_number}`} className="h-10 w-10 rounded-full border border-slate-200 text-brand-blue hover:bg-brand-blue-light/50 flex-shrink-0 flex items-center justify-center transition-colors">
+                <a href={`tel:${driver.phone_number || driver.phone || ''}`} className="h-10 w-10 rounded-full border border-slate-200 text-brand-blue hover:bg-brand-blue-light/50 flex-shrink-0 flex items-center justify-center transition-colors">
                   <Phone className="h-4 w-4" />
                 </a>
               </div>

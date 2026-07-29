@@ -181,21 +181,17 @@ function TransportRequestContent() {
     setIsLoaded(true);
   }, []); // Run only on mount
 
-  // To prevent overwriting user edits if 'user' loads late:
   useEffect(() => {
     if (isLoaded && user && !editId) {
-      const savedForm = localStorage.getItem('transport_formData');
-      if (!savedForm) {
-        const names = user.name ? user.name.split(' ') : [];
-        setFormData(prev => ({
-          ...prev,
-          firstName: prev.firstName || names[0] || '',
-          lastName: prev.lastName || names.slice(1).join(' ') || '',
-          email: prev.email || user.email || '',
-          phone: prev.phone || user.phone_number || '',
-          company: prev.company || user.companyName || user.company_name || user.company || user.name || '',
-        }));
-      }
+      const names = user.name ? user.name.split(' ') : [];
+      setFormData(prev => ({
+        ...prev,
+        firstName: prev.firstName || names[0] || '',
+        lastName: prev.lastName || names.slice(1).join(' ') || '',
+        email: prev.email || user.email || '',
+        phone: prev.phone || user.phone_number || user.phone || '',
+        company: prev.company || user.companyName || user.company_name || user.company || user.name || '',
+      }));
     }
   }, [user, isLoaded, editId]);
 

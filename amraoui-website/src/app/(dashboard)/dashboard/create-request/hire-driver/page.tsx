@@ -108,7 +108,7 @@ function HireDriverContent() {
         ...prev,
         customerName: prev.customerName || user.name || '',
         customerEmail: prev.customerEmail || user.email || '',
-        customerPhone: prev.customerPhone || user.phone_number || '',
+        customerPhone: prev.customerPhone || user.phone_number || user.phone || '',
         companyName: prev.companyName || user.companyName || user.company_name || user.company || user.name || '',
       }));
     }

@@ -8,9 +8,8 @@ This repository houses the entire monorepo ecosystem, providing full administrat
 
 ---
 
-## 🌟 Project Overview
+## Project Overview
 
-Whether you're looking at the platform from a business perspective (HR, Operations) or a technical perspective, Vehiqqo is built to be scalable, secure, and user-friendly.
 
 ### Key Features by Role
 
@@ -26,7 +25,7 @@ Whether you're looking at the platform from a business perspective (HR, Operatio
 - **Location & Check-ins:** GPS-based location verification and daily check-ins for long-term driver hire services.
 - **Profile Management:** Secure document upload (licenses, IDs) for admin verification.
 
-#### 👑 For Administrators (Admin Dashboard)
+#### For Administrators (Admin Dashboard)
 - **Full Operational Control:** Oversee every mission, driver, and customer from a centralized dashboard.
 - **Quote Desk:** Generate dynamic pricing quotes for customer requests based on distance and requirements.
 - **Driver Dispatch:** Manually assign or broadcast missions to available verified drivers.

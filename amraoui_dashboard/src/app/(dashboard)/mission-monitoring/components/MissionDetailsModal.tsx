@@ -522,13 +522,13 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
           {mission.raw?.status === 'CUSTOMER_REVIEWING_QUOTE' && (
             <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 flex items-center justify-between">
               <span className="text-amber-800 text-sm font-medium">Waiting for customer to accept/reject the quote (€{mission.raw?.adminQuote?.amount}).</span>
-              <button
+              {/* <button
                 onClick={handlePublish}
                 disabled={isSubmitting}
                 className="px-4 py-2 bg-white border border-amber-200 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-100 flex items-center gap-2"
               >
                 <Play className="w-4 h-4" /> Force Publish
-              </button>
+              </button> */}
             </div>
           )}
 
@@ -580,34 +580,34 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                   <User className="w-3.5 h-3.5 text-gray-400" />
                   <span className="text-gray-600">
                     {(mission.raw?.customerId?.name ? `${mission.raw.customerId.name} ${mission.raw.customerId.family_name || ''}`.trim() : null) ||
-                     (mission.raw?.details?.firstName ? `${mission.raw.details.firstName} ${mission.raw.details.lastName || ''}`.trim() : null) ||
-                     mission.raw?.details?.customerName ||
-                     mission.customer ||
-                     "Unknown Customer"}
+                      (mission.raw?.details?.firstName ? `${mission.raw.details.firstName} ${mission.raw.details.lastName || ''}`.trim() : null) ||
+                      mission.raw?.details?.customerName ||
+                      mission.customer ||
+                      "Unknown Customer"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-gray-400" />
                   <span className="text-gray-600">
                     {mission.raw?.customerId?.email ||
-                     mission.raw?.details?.customerEmail ||
-                     mission.raw?.details?.email ||
-                     mission.raw?.email ||
-                     "N/A"}
+                      mission.raw?.details?.customerEmail ||
+                      mission.raw?.details?.email ||
+                      mission.raw?.email ||
+                      "N/A"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-gray-400" />
                   <span className="text-gray-600">
                     {mission.raw?.customerId?.phone_number ||
-                     mission.raw?.customerId?.phone ||
-                     mission.raw?.customerId?.phoneNumber ||
-                     mission.raw?.details?.customerPhone ||
-                     mission.raw?.details?.phone ||
-                     mission.raw?.details?.pickupContactPhone ||
-                     mission.raw?.phone ||
-                     mission.raw?.phone_number ||
-                     "N/A"}
+                      mission.raw?.customerId?.phone ||
+                      mission.raw?.customerId?.phoneNumber ||
+                      mission.raw?.details?.customerPhone ||
+                      mission.raw?.details?.phone ||
+                      mission.raw?.details?.pickupContactPhone ||
+                      mission.raw?.phone ||
+                      mission.raw?.phone_number ||
+                      "N/A"}
                   </span>
                 </div>
               </div>
@@ -620,30 +620,30 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                   <User className="w-3.5 h-3.5 text-gray-400" />
                   <span className="text-gray-600">
                     {mission.raw?.assignedDriverId?.name ||
-                     (mission.raw?.assignedDriverId?.firstName ? `${mission.raw.assignedDriverId.firstName} ${mission.raw.assignedDriverId.lastName || ''}`.trim() : null) ||
-                     mission.raw?.assignedDriverIds?.[0]?.name ||
-                     "Unassigned"}
+                      (mission.raw?.assignedDriverId?.firstName ? `${mission.raw.assignedDriverId.firstName} ${mission.raw.assignedDriverId.lastName || ''}`.trim() : null) ||
+                      mission.raw?.assignedDriverIds?.[0]?.name ||
+                      "Unassigned"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-3.5 h-3.5 text-gray-400" />
                   <span className="text-gray-600">
                     {mission.raw?.assignedDriverId?.email ||
-                     mission.raw?.assignedDriverIds?.[0]?.email ||
-                     "N/A"}
+                      mission.raw?.assignedDriverIds?.[0]?.email ||
+                      "N/A"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-gray-400" />
                   <span className="text-gray-600">
                     {mission.raw?.assignedDriverId?.phone_number ||
-                     mission.raw?.assignedDriverId?.phone ||
-                     mission.raw?.assignedDriverId?.phoneNumber ||
-                     mission.raw?.assignedDriverIds?.[0]?.phone_number ||
-                     mission.raw?.assignedDriverIds?.[0]?.phone ||
-                     mission.raw?.assignedDriverIds?.[0]?.phoneNumber ||
-                     mission.raw?.details?.driverPhone ||
-                     "N/A"}
+                      mission.raw?.assignedDriverId?.phone ||
+                      mission.raw?.assignedDriverId?.phoneNumber ||
+                      mission.raw?.assignedDriverIds?.[0]?.phone_number ||
+                      mission.raw?.assignedDriverIds?.[0]?.phone ||
+                      mission.raw?.assignedDriverIds?.[0]?.phoneNumber ||
+                      mission.raw?.details?.driverPhone ||
+                      "N/A"}
                   </span>
                 </div>
               </div>
@@ -682,7 +682,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                       const filename = decodeURIComponent(strVal.split('/').pop() || strVal);
                       // The field stores only the raw filename; look up the full URL in details.documents[]
                       const docsArray: any[] = Array.isArray(mission.raw.details.documents) ? mission.raw.details.documents : [];
-                      
+
                       // Match by documentType, originalName, URL substring, or position
                       let matchedDoc = docsArray.find((d: any) => {
                         const docUrl = typeof d === 'string' ? d : d?.url || '';
@@ -694,7 +694,7 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                         if (docUrl && (docUrl.includes(strVal) || docUrl.toLowerCase().endsWith(strVal.toLowerCase()))) return true;
                         try {
                           if (docUrl && decodeURIComponent(docUrl).includes(strVal)) return true;
-                        } catch (e) {}
+                        } catch (e) { }
                         return false;
                       });
 
@@ -802,8 +802,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                         <span className="font-medium text-gray-900">Pickup started</span>
                         {mission.raw?.details?.pickupVerification?.distanceFromTarget !== undefined && (
                           <span className={`mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full w-fit ${mission.raw.details.pickupVerification.distanceFromTarget <= 100 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {mission.raw.details.pickupVerification.distanceFromTarget <= 100 
-                              ? 'Location Verified' 
+                            {mission.raw.details.pickupVerification.distanceFromTarget <= 100
+                              ? 'Location Verified'
                               : `Warning: ${(mission.raw.details.pickupVerification.distanceFromTarget / 1000).toFixed(1)} km away`}
                           </span>
                         )}
@@ -818,8 +818,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                           <span className="font-medium text-gray-900">Delivery Arrival</span>
                           {mission.raw?.details?.deliveryArrivalDistance !== undefined && (
                             <span className={`mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full w-fit ${mission.raw.details.deliveryArrivalDistance <= 100 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                              {mission.raw.details.deliveryArrivalDistance <= 100 
-                                ? 'Location Verified' 
+                              {mission.raw.details.deliveryArrivalDistance <= 100
+                                ? 'Location Verified'
                                 : `Warning: ${(mission.raw.details.deliveryArrivalDistance / 1000).toFixed(1)} km away`}
                             </span>
                           )}
@@ -868,35 +868,35 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
 
           {/* Proof & Report Status */}
           {mission.raw?.type !== 'HIRE_DRIVER' && (
-          <div>
-            <h3 className="text-sm font-bold text-gray-900 mb-3">Proof & Report Status</h3>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
-                <span className="text-gray-600">Pickup Photos</span>
-                <span className={['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
-                  {['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "Completed" : "Pending"}
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
-                <span className="text-gray-600">Pickup Signature</span>
-                <span className={['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
-                  {['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "Completed" : "Pending"}
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
-                <span className="text-gray-600">Delivery Photos</span>
-                <span className={['COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
-                  {['COMPLETED'].includes(mission.raw?.status) ? "Completed" : "Pending"}
-                </span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
-                <span className="text-gray-600">Damage Report</span>
-                <span className={['COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
-                  {['COMPLETED'].includes(mission.raw?.status) ? "No Damage" : "Pending"}
-                </span>
+            <div>
+              <h3 className="text-sm font-bold text-gray-900 mb-3">Proof & Report Status</h3>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
+                  <span className="text-gray-600">Pickup Photos</span>
+                  <span className={['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
+                    {['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "Completed" : "Pending"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
+                  <span className="text-gray-600">Pickup Signature</span>
+                  <span className={['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
+                    {['IN_PROGRESS', 'COMPLETED'].includes(mission.raw?.status) ? "Completed" : "Pending"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
+                  <span className="text-gray-600">Delivery Photos</span>
+                  <span className={['COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
+                    {['COMPLETED'].includes(mission.raw?.status) ? "Completed" : "Pending"}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg border border-gray-100">
+                  <span className="text-gray-600">Damage Report</span>
+                  <span className={['COMPLETED'].includes(mission.raw?.status) ? "text-green-600 font-medium" : "text-gray-400"}>
+                    {['COMPLETED'].includes(mission.raw?.status) ? "No Damage" : "Pending"}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
           )}
 
 
@@ -963,34 +963,34 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                   <span className="text-gray-500">Name:</span>
                   <span className="font-medium text-gray-900">
                     {(mission.raw?.customerId?.name ? `${mission.raw.customerId.name} ${mission.raw.customerId.family_name || ''}`.trim() : null) ||
-                     (mission.raw?.details?.firstName ? `${mission.raw.details.firstName} ${mission.raw.details.lastName || ''}`.trim() : null) ||
-                     mission.raw?.details?.customerName ||
-                     mission.customer ||
-                     "Unknown Customer"}
+                      (mission.raw?.details?.firstName ? `${mission.raw.details.firstName} ${mission.raw.details.lastName || ''}`.trim() : null) ||
+                      mission.raw?.details?.customerName ||
+                      mission.customer ||
+                      "Unknown Customer"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Email:</span>
                   <span className="font-medium text-gray-900">
                     {mission.raw?.customerId?.email ||
-                     mission.raw?.details?.customerEmail ||
-                     mission.raw?.details?.email ||
-                     mission.raw?.email ||
-                     "N/A"}
+                      mission.raw?.details?.customerEmail ||
+                      mission.raw?.details?.email ||
+                      mission.raw?.email ||
+                      "N/A"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Phone:</span>
                   <span className="font-medium text-gray-900">
                     {mission.raw?.customerId?.phone_number ||
-                     mission.raw?.customerId?.phone ||
-                     mission.raw?.customerId?.phoneNumber ||
-                     mission.raw?.details?.customerPhone ||
-                     mission.raw?.details?.phone ||
-                     mission.raw?.details?.pickupContactPhone ||
-                     mission.raw?.phone ||
-                     mission.raw?.phone_number ||
-                     "N/A"}
+                      mission.raw?.customerId?.phone ||
+                      mission.raw?.customerId?.phoneNumber ||
+                      mission.raw?.details?.customerPhone ||
+                      mission.raw?.details?.phone ||
+                      mission.raw?.details?.pickupContactPhone ||
+                      mission.raw?.phone ||
+                      mission.raw?.phone_number ||
+                      "N/A"}
                   </span>
                 </div>
               </div>
@@ -1025,9 +1025,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Payment Status:</span>
-                  <span className={`font-semibold uppercase text-[10px] px-2 py-0.5 rounded ${
-                    mission.raw?.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
-                  }`}>
+                  <span className={`font-semibold uppercase text-[10px] px-2 py-0.5 rounded ${mission.raw?.paymentStatus === 'PAID' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                    }`}>
                     {mission.raw?.paymentStatus || 'UNPAID'}
                   </span>
                 </div>

@@ -5,7 +5,8 @@ import 'package:Vehiqqo/widgets/texts/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
+import 'package:Vehiqqo/screens/missions/mission_details_screen.dart';
+import 'package:Vehiqqo/service/repository/mission_repository.dart';
 class NotificationsController extends GetxController {
   final NotificationRepository _repo = NotificationRepository();
 
@@ -142,11 +143,38 @@ class NotificationsScreen extends StatelessWidget {
                 }
 
                 return GestureDetector(
-                  onTap: () {
+                  onTap: () async {
                     if (!isRead) {
                       controller.markAsRead(notif['_id']);
                     }
-                    // Optionally handle link navigation here
+                    final metadata = notif['metadata'];
+                    if (metadata != null && metadata['requestId'] != null) {
+                      final reqId = metadata['requestId'];
+                      Get.dialog(const Center(child: CircularProgressIndicator()), barrierDismissible: false);
+                      try {
+                        final missionRepo = MissionRepository();
+                        final res = await missionRepo.getMissions();
+                        Get.back();
+                        if (res.data != null && res.data['success'] == true) {
+                          final missions = res.data['data'] as List;
+                          final mission = missions.firstWhere(
+                            (m) => m['_id'] == reqId || m['missionId'] == reqId,
+                            orElse: () => null,
+                          );
+                          if (mission != null) {
+                            Get.to(() => MissionDetailsScreen(
+                                  mission: Map<String, dynamic>.from(mission),
+                                  reqId: mission['missionId'] ?? '',
+                                ));
+                          } else {
+                            Get.snackbar('Notice', 'Mission details not found.');
+                          }
+                        }
+                      } catch (e) {
+                        Get.back();
+                        Get.snackbar('Error', 'Failed to load mission.');
+                      }
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.all(16),

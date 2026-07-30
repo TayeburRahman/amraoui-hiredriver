@@ -285,11 +285,11 @@ const sendAdminQuote = async (id: string, quoteData: any) => {
 
   if (populatedResult.customerId) {
     const customer = populatedResult.customerId as any;
-    customerName = customer.name || 'Customer';
+    customerName = customer.company || customer.name || 'Customer';
     customerEmail = customer.email;
     authId = customer.authId || customer._id;
   } else if (populatedResult.details) {
-    customerName = populatedResult.details.firstName ? `${populatedResult.details.firstName} ${populatedResult.details.lastName || ''}`.trim() : 'Customer';
+    customerName = populatedResult.details.companyName || (populatedResult.details.firstName ? `${populatedResult.details.firstName} ${populatedResult.details.lastName || ''}`.trim() : 'Customer');
     customerEmail = populatedResult.details.email || populatedResult.details.customerEmail;
   }
 
@@ -473,9 +473,10 @@ const notifyExpensesToCustomer = async (id: string) => {
 
   const customer: any = mission.customerId;
   const customerEmail = customer?.email || (mission as any).details?.customerEmail || (mission as any).details?.email || (mission as any).email;
-  const customerName = customer?.name
-    ? `${customer.name} ${customer.family_name || ''}`.trim()
-    : ((mission as any).details?.firstName ? `${(mission as any).details.firstName} ${(mission as any).details.lastName || ''}`.trim() : null) ||
+  const customerName = customer?.company || 
+    (customer?.name ? `${customer.name} ${customer.family_name || ''}`.trim() : null) ||
+    ((mission as any).details?.companyName) ||
+    ((mission as any).details?.firstName ? `${(mission as any).details.firstName} ${(mission as any).details.lastName || ''}`.trim() : null) ||
     (mission as any).details?.customerName ||
     'Customer';
 

@@ -91,7 +91,7 @@ const MissionMonitoringPage = () => {
                     req.type === 'TRANSPORT' ? 'Transport' : 
                     req.type === 'INSPECTION' ? 'Inspection' : (req.type || 'Unknown'),
               realId: req._id,
-              customer: req.customerId?.name || req.details?.customerName || req.details?.firstName || 'Guest',
+              customer: req.customerId?.company || req.customerId?.name || req.details?.customerName || req.details?.firstName || 'Guest',
               driver: req.assignedDriverId?.name || 'Unassigned',
               vehicle: vehicleStr,
               route: routeStr,

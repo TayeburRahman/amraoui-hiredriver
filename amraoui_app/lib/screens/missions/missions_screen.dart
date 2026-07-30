@@ -1207,11 +1207,11 @@ class _MissionsScreenState extends State<MissionsScreen> {
           ),
           _buildInfoRow(
             'Pickup Date',
-            _formatDateString(d['pickupDate']?.toString()),
+            '${_formatDateString(d['pickupDate']?.toString())} ${d['pickupTime'] != null && d['pickupTime'].toString().trim().isNotEmpty && d['pickupTime'].toString() != 'null' ? d['pickupTime'] : ''}'.trim(),
           ),
           _buildInfoRow(
             'Dropoff Date',
-            _formatDateString(d['dropoffDate']?.toString()),
+            '${_formatDateString(d['dropoffDate']?.toString())} ${d['dropoffTime'] != null && d['dropoffTime'].toString().trim().isNotEmpty && d['dropoffTime'].toString() != 'null' ? d['dropoffTime'] : ''}'.trim(),
           ),
           _buildInfoRow('Special Info', d['specialInstructions']?.toString()),
         ],

@@ -579,7 +579,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                 <div className="flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-gray-400" />
                   <span className="text-gray-600">
-                    {(mission.raw?.customerId?.name ? `${mission.raw.customerId.name} ${mission.raw.customerId.family_name || ''}`.trim() : null) ||
+                    {mission.raw?.customerId?.company ||
+                     (mission.raw?.customerId?.name ? `${mission.raw.customerId.name} ${mission.raw.customerId.family_name || ''}`.trim() : null) ||
                       (mission.raw?.details?.firstName ? `${mission.raw.details.firstName} ${mission.raw.details.lastName || ''}`.trim() : null) ||
                       mission.raw?.details?.customerName ||
                       mission.customer ||
@@ -962,7 +963,8 @@ export const MissionDetailsModal: React.FC<MissionDetailsModalProps> = ({ isOpen
                 <div className="flex justify-between">
                   <span className="text-gray-500">Name:</span>
                   <span className="font-medium text-gray-900">
-                    {(mission.raw?.customerId?.name ? `${mission.raw.customerId.name} ${mission.raw.customerId.family_name || ''}`.trim() : null) ||
+                    {mission.raw?.customerId?.company ||
+                     (mission.raw?.customerId?.name ? `${mission.raw.customerId.name} ${mission.raw.customerId.family_name || ''}`.trim() : null) ||
                       (mission.raw?.details?.firstName ? `${mission.raw.details.firstName} ${mission.raw.details.lastName || ''}`.trim() : null) ||
                       mission.raw?.details?.customerName ||
                       mission.customer ||

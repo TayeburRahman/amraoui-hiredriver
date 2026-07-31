@@ -20,6 +20,7 @@ import {
   Info,
   Download
 } from 'lucide-react';
+import { useAppSelector } from '@/hooks/redux';
 
 interface OfferReceivedModalProps {
   children: React.ReactNode;
@@ -29,6 +30,8 @@ interface OfferReceivedModalProps {
 export function OfferReceivedModal({ children, order }: OfferReceivedModalProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user } = useAppSelector((state: any) => state.auth);
+  const currencySymbol = user?.currency === 'eur' ? '€' : user?.currency === 'gbp' ? '£' : '$';
 
   const baseAmount = order?.adminQuote?.amount || 0;
   const extraExpensesSum = order?.expenses?.reduce((sum: number, exp: any) => sum + (exp.amount || 0), 0) || 0;
@@ -180,7 +183,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
 
                 <div>
                   <p className="text-xs font-semibold text-slate-400 mb-1">Base Amount</p>
-                  <p className="text-3xl font-black text-blue-600">$ {baseAmount}</p>
+                  <p className="text-3xl font-black text-blue-600">{currencySymbol} {baseAmount}</p>
                 </div>
 
                 <div className="bg-slate-50 rounded-xl p-4">
@@ -194,7 +197,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
                     {order.expenses.map((exp: any, index: number) => (
                       <div key={index} className="flex justify-between items-center bg-slate-50 rounded-lg p-3">
                         <span className="text-sm font-medium text-slate-700">{exp.type}</span>
-                        <span className="text-sm font-bold text-slate-900">$ {exp.amount}</span>
+                        <span className="text-sm font-bold text-slate-900">{currencySymbol} {exp.amount}</span>
                       </div>
                     ))}
                   </div>
@@ -202,7 +205,7 @@ export function OfferReceivedModal({ children, order }: OfferReceivedModalProps)
 
                 <div className="bg-blue-50 rounded-xl p-4 flex items-center justify-between mt-2">
                   <p className="text-sm font-bold text-slate-700">Final Total</p>
-                  <p className="text-xl font-black text-blue-600">$ {finalTotal}</p>
+                  <p className="text-xl font-black text-blue-600">{currencySymbol} {finalTotal}</p>
                 </div>
               </Card>
 

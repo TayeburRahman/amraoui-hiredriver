@@ -25,7 +25,11 @@ app.use(
         /^https?:\/\/10\.\d+\.\d+\.\d+(:\d+)?$/.test(origin) ||
         /^https?:\/\/192\.168\.\d+\.\d+(:\d+)?$/.test(origin) ||
         origin === "https://amraoui-hiredriver-admin.vercel.app" ||
-        origin === "https://amraoui-hiredriver.vercel.app";
+        origin === "https://amraoui-hiredriver.vercel.app" ||
+        origin === "https://www.vehiqqo.com" ||
+        origin === "https://vehiqqo.com" ||
+        origin === "https://www.dashboard.vehiqqo.com" ||
+        origin === "https://dashboard.vehiqqo.com";
 
       if (isAllowed) {
         return callback(null, true);

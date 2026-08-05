@@ -119,7 +119,7 @@ function InvoicesPageContent() {
       alert('No invoice document available for download yet. Please contact support if you need it.');
       return;
     }
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://backend.vehiqqo.com';
     const fileUrl = invoice.invoiceUrl.startsWith('http')
       ? invoice.invoiceUrl
       : `${baseUrl}/${invoice.invoiceUrl.replace(/\\/g, '/')}`;

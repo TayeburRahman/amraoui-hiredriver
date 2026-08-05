@@ -344,7 +344,7 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ id: st
                         const proofUrl = exp.proofUrl
                           ? (exp.proofUrl.startsWith('http')
                             ? exp.proofUrl
-                            : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app'}/${exp.proofUrl.replace(/\\/g, '/')}`)
+                            : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://backend.vehiqqo.com'}/${exp.proofUrl.replace(/\\/g, '/')}`)
                           : null;
                         
                         return (

@@ -88,7 +88,7 @@ export const FinanceModal: React.FC<FinanceModalProps> = ({ invoice, isOpen, onC
   const downloadInvoice = async () => {
     if (req.invoiceUrl) {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app';
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://backend.vehiqqo.com';
         const fileUrl = req.invoiceUrl.startsWith('http') ? req.invoiceUrl : `${baseUrl}/${req.invoiceUrl.replace(/\\/g, '/')}`;
         const response = await fetch(fileUrl);
         const blob = await response.blob();

@@ -721,7 +721,7 @@ const QuoteDetails = ({ params }: { params: Promise<{ id: string }> }) => {
                                 request.details.documents.map((doc: any, idx: number) => {
                                     const docUrl = typeof doc === 'string' ? doc : doc?.url || '';
                                     const docOrig = typeof doc === 'object' ? doc?.originalName : '';
-                                    const rawUrl = docUrl.startsWith('http') ? docUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://amraoui-hiredriver-backends.vercel.app'}${docUrl.startsWith('/') ? '' : '/'}${docUrl}`;
+                                    const rawUrl = docUrl.startsWith('http') ? docUrl : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'https://backend.vehiqqo.com'}${docUrl.startsWith('/') ? '' : '/'}${docUrl}`;
                                     const filename = docOrig || decodeURIComponent(docUrl.split('/').pop() || `Document ${idx + 1}`);
                                     const docLabel = getDocumentLabel(docUrl, request.details, idx);
                                     const isDeleting = isDeletingDoc === docUrl || isDeletingDoc === doc;

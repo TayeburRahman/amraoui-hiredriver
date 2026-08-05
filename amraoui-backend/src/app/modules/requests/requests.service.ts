@@ -417,7 +417,7 @@ const addExpense = async (id: string, expenseData: any) => {
     }
 
     if (customer?.email) {
-      const baseUrl = process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
+      const baseUrl = process.env.BACKEND_URL || 'https://backend.vehiqqo.com';
       const proofLink = expenseData.proofUrl
         ? (expenseData.proofUrl.startsWith('http')
           ? expenseData.proofUrl
@@ -500,7 +500,7 @@ const notifyExpensesToCustomer = async (id: string) => {
   }
 
   if (customerEmail) {
-    const baseUrl = process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
+    const baseUrl = process.env.BACKEND_URL || 'https://backend.vehiqqo.com';
     const expensesListHtml = expenses.length > 0
       ? expenses.map((exp: any) => {
         const proofUrlStr = typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || '');
@@ -633,7 +633,7 @@ const submitDriverQuote = async (
       if (!docUrl) return null;
       return {
         filename: typeof doc === 'string' ? docUrl.split('/').pop() || 'document' : (doc.originalName || docUrl.split('/').pop() || 'document'),
-        path: docUrl.startsWith('http') ? docUrl : `${process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app'}${docUrl.startsWith('/') ? '' : '/'}${docUrl}`
+        path: docUrl.startsWith('http') ? docUrl : `${process.env.BACKEND_URL || 'https://backend.vehiqqo.com'}${docUrl.startsWith('/') ? '' : '/'}${docUrl}`
       };
     }).filter(Boolean);
   };
@@ -912,7 +912,7 @@ const assignDriver = async (missionId: string, quoteId?: string, driverId?: stri
 
       return {
         filename: typeof doc === 'object' && doc.originalName ? doc.originalName : `${safeLabel}.${ext}`,
-        path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
+        path: docPath.startsWith('http') ? docPath : `${process.env.BACKEND_URL || 'https://backend.vehiqqo.com'}${docPath.startsWith('/') ? '' : '/'}${docPath}`
       };
     }).filter(Boolean); // Filter out any null entries
   };

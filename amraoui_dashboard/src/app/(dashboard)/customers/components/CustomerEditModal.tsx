@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { UserPlus, X, Users, Loader2, Edit } from 'lucide-react';
 import { ICustomerRecord } from '../page';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend.vehiqqo.com';
 
 export const CustomerEditModal = ({
   isOpen,

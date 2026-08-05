@@ -45,7 +45,7 @@ export const customerQuoteEmailBody = (data: {
                       ${exp.proofUrl ? `
                       <tr>
                         <td colspan="2" style="padding: 8px 0; border-bottom: 1px solid #e2e8f0;">
-                          <img src="${(typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || '')).startsWith('http') ? (typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || '')) : `${config.base_url || 'https://amraoui-hiredriver-backends.vercel.app'}${(typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || '')).startsWith('/') ? '' : '/'}${(typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || ''))}`}" alt="Proof" style="max-height: 100px; max-width: 150px; object-fit: contain; border-radius: 4px; border: 1px solid #cbd5e1;" />
+                          <img src="${(typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || '')).startsWith('http') ? (typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || '')) : `${config.base_url || 'https://backend.vehiqqo.com'}${(typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || '')).startsWith('/') ? '' : '/'}${(typeof exp.proofUrl === 'string' ? exp.proofUrl : (exp.proofUrl?.url || ''))}`}" alt="Proof" style="max-height: 100px; max-width: 150px; object-fit: contain; border-radius: 4px; border: 1px solid #cbd5e1;" />
                         </td>
                       </tr>
                       ` : ''}

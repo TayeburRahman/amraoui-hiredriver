@@ -4,7 +4,7 @@ let socket: Socket | null = null;
 
 export const getSocket = () => {
   if (!socket) {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend.vehiqqo.com';
 
     if (backendUrl.includes('vercel.app')) {
       socket = {

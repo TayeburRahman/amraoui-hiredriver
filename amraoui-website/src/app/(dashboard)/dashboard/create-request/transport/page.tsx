@@ -348,7 +348,7 @@ function TransportRequestContent() {
 
         const saveDocUrl = async (fileUrl: string, documentType: string, originalName: string) => {
           await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'https://amraoui-hiredriver-backends.vercel.app/api/v1'}/requests/${reqId}/documents`,
+            `${process.env.NEXT_PUBLIC_API_URL || 'https://backend.vehiqqo.com/api/v1'}/requests/${reqId}/documents`,
             {
               method: 'PATCH',
               headers: {

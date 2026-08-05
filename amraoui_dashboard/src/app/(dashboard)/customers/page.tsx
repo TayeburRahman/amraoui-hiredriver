@@ -49,7 +49,7 @@ interface Meta {
   limit: number;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://amraoui-hiredriver-backends.vercel.app';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend.vehiqqo.com';
 const LIMIT = 10;
 
 const tabs = ['All Customers', 'Pending', 'Active', 'Deactivated'];

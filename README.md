@@ -13,7 +13,7 @@ This repository houses the entire monorepo ecosystem, providing full administrat
 
 ### Key Features by Role
 
-#### 👥 For Customers (Website & Customer Portal)
+#### For Customers (Website & Customer Portal)
 - **Service Requests:** Customers can create detailed requests for Vehicle Transport, Technical Inspections, or Daily Driver Hire.
 - **Quote Management:** Receive, review, and accept administrative quotes directly from the portal.
 - **Mission Monitoring:** Real-time tracking of mission statuses, including driver check-ins, location verifications, and progress timelines.
